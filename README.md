@@ -1,14 +1,15 @@
 # Angler to Angler
 
-An offline-first Android field journal for anglers. The Czech launcher name is **Rybáři sobě**. Release 0.4.4 is a privately stored journal and a small, sourced pilot catalog. A verified angler profile and acceptance of the current terms are required. Open **My journal** to log a trip on any named water.
+An offline-first Android field journal for anglers. The Czech launcher name is **Rybáři sobě**. Release 0.5.0 is a privately stored journal and a small, sourced pilot catalog. A verified angler profile and acceptance of the current terms are required. Open **My journal** to log a trip on any named water.
 
 ## Try the pilot
 
-1. Install the debug APK from the pull request's **Android pilot** workflow artifact. Android 8.0 or later and an up-to-date Android System WebView are required.
+1. Open [GitHub Releases](https://github.com/milank78git/angler-to-angler/releases), select the desired pilot and download the **.apk** under **Assets**. Install it over the previous pilot to retain your private journal. Android 8.0 or later and an up-to-date Android System WebView are required.
 2. Enter your email and tap the link on the same phone, or select an enabled social provider. Complete your profile on first sign-in. Operator setup is described in [Accounts](docs/accounts.md). Search for **401 009** or **Sazava**. Open the water, inspect its boundaries and riverside access, and switch species, section and date. Directions open the device's map application.
 3. In airplane mode, log a trip. Add multiple catches or keep it as a blank day. A catch can have a locally stored photo, a manual length, bait, technique and an optional private point. Enter the point by hand or explicitly request a current location.
 4. Open a saved catch in a trip and choose **Share catch**. The preview starts with just the species. Select the length, date, water, bait, technique or photograph individually and review the result before choosing a recipient. The share sheet sends plain text or the caption and a re-encoded JPEG. Receiving apps control how they use the caption. Coordinates, journal notes, original filenames and image metadata are excluded. A photograph or a deliberately selected water name can still identify a place.
-5. Close and reopen the app. Return to **My journal** to see the trip. Deleting a trip also deletes its catches and photos. Uninstalling the application deletes local records.
+5. From any saved trip, even one with no catches, choose **Share a trip tip**. Write a fresh message, optionally select the water and date, review the exact text and choose a contact or group in Android. You can also add a tip to a catch card.
+6. Close and reopen the app. Return to **My journal** to see the trip. Deleting a trip also deletes its catches and photos. Uninstalling the application deletes local records.
 
 ## Structure and data
 

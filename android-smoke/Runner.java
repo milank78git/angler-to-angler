@@ -240,6 +240,7 @@ public final class Runner extends Instrumentation {
       waitFor(
           "!!document.querySelector('#add') && document.querySelectorAll('#catch-list"
               + " article').length===0");
+      ShareChecks.tripTip(this);
       for (int n = 1; n <= 2; n++) {
         js("document.querySelector('#add').click()");
         waitFor("!!document.querySelector('#fish-name')");

@@ -1,15 +1,22 @@
 name: Android pilot
 on:
   pull_request:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Promote this published pilot tag to a stable release (e.g. v0.4.4-build.10042)'
+        required: true
+        type: string
   push:
     branches: [main]
 permissions:
   contents: read
 jobs:
   profiles:
+    if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Verify profile isolation, document receipts and erasure
         run: |
           sudo systemctl start postgresql
@@ -20,14 +27,15 @@ jobs:
           install -Dm644 "$migration" "$fixture/$migration"
           sudo -u postgres psql -X -v ON_ERROR_STOP=1 -f "$fixture/tests/profile-db.sql"
   build:
+    if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
         with:
           distribution: temurin
           java-version: '17'
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '22'
       - run: npm ci --ignore-scripts
@@ -35,19 +43,23 @@ jobs:
       - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4
         with:
           packages: "platforms;android-35 build-tools;35.0.0 platform-tools"
+      - name: Assign the installable Android build number
+        run: echo "ANGLER_VERSION_CODE=$((10000 + GITHUB_RUN_NUMBER))" >> "$GITHUB_ENV"
       - run: bash scripts/build-debug.sh
         env:
           ANGLER_ACCOUNT_CONFIG: ${{ vars.ANGLER_ACCOUNT_CONFIG }}
       - run: bash scripts/build-debug.sh --preview
         env:
           ANGLER_ACCOUNT_CONFIG: ${{ vars.ANGLER_ACCOUNT_CONFIG }}
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
+          overwrite: true
           name: angler-journal-debug
           path: build/standalone/angler-journal-debug.apk
 
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
+          overwrite: true
           name: angler-ui-preview
           path: build/preview/angler-journal-debug.apk
 
@@ -65,8 +77,49 @@ jobs:
           script: bash scripts/android-smoke.sh
       - name: Upload emulator screenshots
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
+          overwrite: true
           name: android-ui-screens
           path: build/smoke/screens
           if-no-files-found: warn
+
+  release:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [build, profiles]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: angler-journal-debug
+          path: build/input
+      - name: Sign the tested application for existing pilot installations
+        id: package
+        env:
+          ANDROID_PILOT_KEYSTORE: ${{ secrets.ANDROID_PILOT_KEYSTORE }}
+        run: bash scripts/sign-pilot.sh build/input/angler-journal-debug.apk
+      - name: Publish the APK and its checksum
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.package.outputs.tag }}
+        run: bash scripts/pilot-release.sh publish "$TAG"
+
+  promote:
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Mark the selected published APK as stable
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        run: bash scripts/pilot-release.sh promote "$TAG"
