@@ -118,11 +118,13 @@ export async function tripScreen({ view, nav, pack }) {
   screen.innerHTML = `${back(t('Můj deník', 'My journal'))}
     <p class="meta">${displayDay(trip.day)}</p><h1>${esc(trip.waterName)}</h1>
     ${trip.notes ? `<p class="trip-note">${esc(trip.notes)}</p>` : ''}
-    <div class="actions">${button('add', t('Přidat úlovek', 'Add catch'), 'primary', 'plus')}</div>
+    <div class="actions">${button('add', t('Přidat úlovek', 'Add catch'), 'primary', 'plus')}
+      ${button('share-tip', t('Sdílet zkušenost', 'Share a trip tip'), 'secondary')}</div>
     <h2>${t('Úlovky', 'Catches')} · ${catches.length}</h2><div id="catch-list"></div>
     <div class="actions">${button('delete', t('Smazat výpravu', 'Delete trip'), 'danger')}</div>`;
   bindBack(nav);
   bind('add', () => nav.open('newCatch', { id }));
+  bind('share-tip', () => nav.open('shareCard', { tripId: id }));
   bind('delete', async () => {
     if (
       !confirm(
