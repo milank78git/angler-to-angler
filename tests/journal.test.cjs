@@ -42,3 +42,18 @@ test('offline trips, catches and photos are atomic, retryable and readable after
   assert.equal((await j.catches('river')).length, 0);
   assert.equal((await j.listTrips()).length, 1);
 });
+
+test('a transient database opening error can be retried without restarting the app', async () => {
+  const factory = new IDBFactory();
+  let attempts = 0;
+  const journal = createJournal({
+    open(...args) {
+      if (++attempts === 1) throw new Error('storage unavailable');
+      return factory.open(...args);
+    },
+  });
+  await assert.rejects(journal.listTrips(), /storage unavailable/);
+  await Promise.all([journal.saveTrip({ id: 'trip' }), journal.listTrips()]);
+  assert.equal(attempts, 2);
+  assert.deepEqual(await journal.listTrips(), [{ id: 'trip', catchCount: 0 }]);
+});

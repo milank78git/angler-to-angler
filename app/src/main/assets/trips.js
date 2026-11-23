@@ -17,7 +17,7 @@ import {
   displayDay,
   field,
   textInput,
-  options,
+  selectField,
   trackEdits,
   writeEntry,
 } from './ui.js';
@@ -57,10 +57,11 @@ export async function listTrips({ view, nav }) {
 export function tripForm({ view, nav, pack }) {
   const { route } = view;
   const selected = route.water || '';
+  const waters = [['', t('Vlastní voda', 'Other water')], ...pack.waters.map((w) => [w.id, w.name])];
   screen.innerHTML =
     back(t('Zpět', 'Back')) +
     `<div class="page-intro"><div class="title-mark">${icon('notebook-pen')}</div><h1>${t('Nová výprava', 'New trip')}</h1></div>
-  <form id="form" class="entry-form"><section class="surface">${field('water', t('Revír nebo voda', 'Fishing water'), '<select id="water">' + options([['', t('Vlastní voda', 'Other water')], ...pack.waters.map((w) => [w.id, w.name])], selected) + '</select>')}
+  <form id="form" class="entry-form"><section class="surface">${selectField('water', t('Revír nebo voda', 'Fishing water'), waters, selected)}
   <div id="custom">${textInput('water-name', t('Název vody', 'Water name'), '', 'maxlength="100"')}</div>
   ${textInput('day', t('Datum výpravy', 'Trip date'), Domain.today(selected ? pack.zone : undefined), 'type="date" required')}
   ${field('notes', t('Poznámky', 'Notes'), '<textarea id="notes" maxlength="4000" rows="3"></textarea>')}</section>

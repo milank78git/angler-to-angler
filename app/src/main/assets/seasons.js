@@ -6,7 +6,7 @@ import {
   t,
   loc,
   esc,
-  options,
+  selectField,
   button,
   icon,
   back,
@@ -75,19 +75,17 @@ export function rulesScreen(context) {
   const w = pack.waters.find((x) => x.id === route.id) || pack.waters[0],
     contextual = route.page === 'waterRules';
   route.id = w.id;
-  const selectRow = (id, label, items, selected) =>
-    `<label for="${id}">${esc(label)}</label><select id="${id}">${options(items, selected)}</select>`;
   const species = Object.entries(pack.species).map(([key, v]) => [key, loc(v)]);
   screen.innerHTML =
     (contextual ? back(w.name) : '') +
     `<div class="page-intro"><div class="title-mark">${icon('calendar-days')}</div><h1>${t('Hájení a míry', 'Seasons & sizes')}</h1></div><div class="columns"><section class="surface">
-    ${selectRow(
+    ${selectField(
       'rule-water',
       t('Revír', 'Water'),
       pack.waters.map((v) => [v.id, v.name]),
       w.id,
     )}
-    ${selectRow(
+    ${selectField(
       'section',
       t('Úsek', 'Section'),
       [
@@ -97,7 +95,7 @@ export function rulesScreen(context) {
       ],
       route.section || 'main',
     )}
-    <div class="pair"><div>${selectRow('species', t('Druh ryby', 'Fish species'), species, route.species || species[0][0])}</div><div><label for="rule-date">${t('Datum lovu', 'Fishing date')}</label><input id="rule-date" type="date" value="${esc(route.day ?? Domain.today(pack.zone))}"></div></div></section>
+    <div class="pair"><div>${selectField('species', t('Druh ryby', 'Fish species'), species, route.species || species[0][0])}</div><div><label for="rule-date">${t('Datum lovu', 'Fishing date')}</label><input id="rule-date" type="date" value="${esc(route.day ?? Domain.today(pack.zone))}"></div></div></section>
     <div><div id="status" aria-live="polite"></div><div id="watch"></div></div></div>
     <details class="fold"><summary>${icon('info')}${t('Platnost a zdroje', 'Coverage and sources')}</summary><div class="fold-body"><p>${t('Zobrazené pravidlo pokrývá vybraný druh a úsek. Ověř si i další místní omezení.', 'The selected rule covers this species and section. Check other local restrictions.')}</p><p class="sub">${t('Ověřeno', 'Checked')} ${esc(displayDay(pack.revision))} · ${t('Platí do', 'Valid through')} ${esc(displayDay(pack.until))}</p><div class="rulesrc">${link(w.source, t('Karta revíru ČRS', 'Fishery authority'))}${link(pack.law, t('Vyhláška · § 13', 'National closed seasons'))}</div></div></details>`;
   if (contextual) {

@@ -9,19 +9,13 @@ const esc = (s) =>
     (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c],
   );
 const by = (id) => document.getElementById(id);
-const options = (pairs, sel) =>
-  pairs
-    .map(
-      ([val, label]) =>
-        '<option value="' +
-        esc(val) +
-        '"' +
-        (val === sel ? ' selected' : '') +
-        '>' +
-        esc(label) +
-        '</option>',
-    )
-    .join('');
+function selectField(id, label, items, selected) {
+  const options = items.map(
+    ([value, text]) =>
+      `<option value="${esc(value)}"${value === selected ? ' selected' : ''}>${esc(text)}</option>`,
+  );
+  return field(id, label, `<select id="${id}">${options.join('')}</select>`);
+}
 function bind(id, fn) {
   by(id).onclick = fn;
 }
@@ -97,7 +91,7 @@ export {
   loc,
   esc,
   by,
-  options,
+  selectField,
   bind,
   toast,
   icon,
