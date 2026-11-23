@@ -27,6 +27,7 @@ final class AccountChecks {
   private volatile String expectedChallenge;
   private volatile boolean socialEnabled;
   private volatile int sentEmails;
+  private volatile boolean limitNextResend;
   private volatile boolean wrongEmail, expireGroupSession, retryGroup;
   private volatile int passwordSignIns, refreshes;
   private static final String PASSWORD = "fixture-password";
@@ -157,18 +158,18 @@ final class AccountChecks {
                             // Signup and recovery both bind their email link to the requesting
                             // phone.
                             case "/auth/v1/recover":
-                              sentEmails++;
-                              String redirect =
-                                  Uri.parse(u.toString()).getQueryParameter("redirect_to");
                               expectedChallenge = body.getString("code_challenge");
-                              return (app.getTargetContext().getPackageName()
-                                              + "://account/callback")
-                                          .equals(redirect)
-                                      && expectedChallenge.matches("[A-Za-z0-9_-]{43}")
-                                      && "s256".equals(body.getString("code_challenge_method"))
-                                      && body.getString("email").equals("test@example.invalid")
-                                  ? 200
-                                  : 400;
+                              return acceptEmail(u, body);
+                            case "/auth/v1/resend":
+                              if (limitNextResend) {
+                                limitNextResend = false;
+                                return 429;
+                              }
+                              if (!"signup".equals(body.getString("type"))
+                                  || body.has("password")
+                                  || !body.getString("code_challenge").equals(expectedChallenge))
+                                return 400;
+                              return acceptEmail(u, body);
                             case "/rest/v1/rpc/angler_card":
                               JSONObject card =
                                   savedCard == null
@@ -289,12 +290,11 @@ final class AccountChecks {
                   }
                 }
                 : null);
-    gate =
-        app.startActivitySync(
-            new Intent(Intent.ACTION_MAIN)
-                .setClassName(
-                    app.getTargetContext().getPackageName(), "app.anglers.journal.AccountActivity")
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+    Intent launch =
+        app.getTargetContext()
+            .getPackageManager()
+            .getLaunchIntentForPackage(app.getTargetContext().getPackageName());
+    gate = app.startActivitySync(launch);
     if (!find(app.expectedVersionLabel()).isShown())
       throw new AssertionError("Version hidden at sign-in");
     app.waitForIdleSync();
@@ -309,7 +309,7 @@ final class AccountChecks {
     app.captureAccount(gate, "login");
     requestRegistration();
     socialEnabled = true;
-    click(tr("Změnit e-mail", "Change email"));
+    click(tr("Zpět k přihlášení", "Back to sign-in"));
     find(tr("Pokračovat přes Google", "Continue with Google"));
     app.waitForIdleSync();
     app.captureAccount(gate, "login-social");
@@ -319,6 +319,7 @@ final class AccountChecks {
     type(tr("E-mail", "Email"), "test@example.invalid");
     click(tr("Poslat odkaz pro nastavení hesla", "Send password setup link"));
     find(tr("Otevřít poštu", "Open inbox"));
+    requestAnotherLink();
     deliverCallback(Uri.parse(gate.getPackageName() + "://account/callback?code=fixture-code"));
     type(tr("Nové heslo", "New password"), PASSWORD);
     click(tr("Uložit heslo", "Save password"));
@@ -332,14 +333,13 @@ final class AccountChecks {
         tr(
             "Odkaz už byl použitý nebo vypršel. Nech si poslat nový.",
             "This link was already used or has expired. Request a new one."));
-    int beforeResend = sentEmails;
+    limitNextResend = true;
     click(tr("Vyžádat nový odkaz", "Request another link"));
-    type(tr("Nové heslo", "New password"), PASSWORD);
-    click(tr("Zaregistrovat se", "Register"));
-    find(tr("Otevřít poštu", "Open inbox"));
-    for (int i = 0; i < 80 && sentEmails == beforeResend; i++) Thread.sleep(100);
-    if (sentEmails != beforeResend + 1)
-      throw new AssertionError("Resend did not request a new message");
+    find(
+        tr(
+            "Příliš mnoho pokusů. Zkus to za chvíli znovu.",
+            "Too many attempts. Please try again later."));
+    requestAnotherLink();
     wrongEmail = true;
     Uri success = redirect.buildUpon().appendQueryParameter("code", "fixture-code").build();
     deliverCallback(success);
@@ -348,7 +348,7 @@ final class AccountChecks {
             "Akci se nepodařilo dokončit. Zkontroluj připojení nebo údaje a opakuj pokus.",
             "Could not complete this step. Check your connection or details, then retry."));
     wrongEmail = false;
-    deliverCallback(success);
+    checkMailboxReturn();
     type(tr("Přezdívka (2–60 znaků)", "Display name (2–60 characters)"), "River");
     String save = tr("Uložit profil", "Save profile");
     assertDisabled(save);
@@ -369,6 +369,99 @@ final class AccountChecks {
     } finally {
       app.removeMonitor(monitor);
     }
+  }
+
+  private int acceptEmail(URL url, JSONObject body) throws Exception {
+    String redirect = Uri.parse(url.toString()).getQueryParameter("redirect_to");
+    if (!(app.getTargetContext().getPackageName() + "://account/callback").equals(redirect)
+        || !body.getString("code_challenge").matches("[A-Za-z0-9_-]{43}")
+        || !"s256".equals(body.getString("code_challenge_method"))
+        || !"test@example.invalid".equals(body.getString("email"))) return 400;
+    sentEmails++;
+    return 200;
+  }
+
+  private void requestAnotherLink() throws Exception {
+    int before = sentEmails;
+    click(tr("Vyžádat nový odkaz", "Request another link"));
+    find(
+        tr(
+            "O nový odkaz bylo požádáno. Zkontroluj poštu.",
+            "New link requested. Check your inbox."));
+    if (sentEmails != before + 1) throw new AssertionError("Expected exactly one new email");
+  }
+
+  /** Use a real second task for mail. Return via the launcher, then via a link from that task. */
+  private void checkMailboxReturn() throws Exception {
+    String open = tr("Otevřít poštu", "Open inbox");
+    Instrumentation.ActivityMonitor mailbox =
+        new Instrumentation.ActivityMonitor() {
+          @Override
+          public Instrumentation.ActivityResult onStartActivity(Intent intent) {
+            Intent selector = intent.getSelector();
+            if (selector == null || !selector.hasCategory(Intent.CATEGORY_APP_EMAIL)) return null;
+            if ((intent.getFlags() & Intent.FLAG_ACTIVITY_NEW_TASK) == 0)
+              throw new AssertionError("Inbox would open in the journal task");
+            intent.setSelector(null);
+            intent.setClassName(
+                app.getContext().getPackageName(), TestInboxActivity.class.getName());
+            intent.putExtra("targetPackage", gate.getPackageName());
+            return null;
+          }
+        };
+    app.addMonitor(mailbox);
+    try {
+      click(open);
+      inboxLink();
+      // Android applies background-launch restrictions to the journal while mail has focus.
+      Intent launcher = gate.getPackageManager().getLaunchIntentForPackage(gate.getPackageName());
+      String command =
+          "am start -W -a android.intent.action.MAIN -c android.intent.category.LAUNCHER"
+              + " -f 0x10200000 -n "
+              + launcher.getComponent().flattenToShortString();
+      try (InputStream output =
+          new android.os.ParcelFileDescriptor.AutoCloseInputStream(
+              app.getUiAutomation().executeShellCommand(command))) {
+        byte[] buffer = new byte[512];
+        while (output.read(buffer) != -1) {
+          /* Wait for the launcher operation to finish. */
+        }
+      }
+      awaitGateFocus();
+      click(open);
+      if (!inboxLink().performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK))
+        throw new AssertionError("Could not open the link from the mailbox task");
+      awaitGateFocus();
+    } finally {
+      app.removeMonitor(mailbox);
+    }
+  }
+
+  private android.view.accessibility.AccessibilityNodeInfo inboxLink() throws Exception {
+    for (int i = 0; i < 80; i++) {
+      android.view.accessibility.AccessibilityNodeInfo root =
+          app.getUiAutomation().getRootInActiveWindow();
+      if (root != null
+          && app.getContext()
+              .getPackageName()
+              .contentEquals(String.valueOf(root.getPackageName()))) {
+        for (android.view.accessibility.AccessibilityNodeInfo button :
+            root.findAccessibilityNodeInfosByText("Test email link"))
+          if (button.isClickable()) return button;
+      }
+      Thread.sleep(100);
+    }
+    throw new AssertionError("Mailbox did not appear in the foreground");
+  }
+
+  private void awaitGateFocus() throws Exception {
+    for (int i = 0; i < 80; i++) {
+      boolean[] focused = {false};
+      app.runOnMainSync(() -> focused[0] = gate.hasWindowFocus());
+      if (focused[0]) return;
+      Thread.sleep(100);
+    }
+    throw new AssertionError("Did not return to the original account screen");
   }
 
   /** Open groups from the journal, create a group, issue a code and renew its online session. */

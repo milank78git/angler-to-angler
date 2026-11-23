@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 import org.json.JSONObject;
 
 /**
- * The launcher and OAuth callback. The journal opens only after the server confirms the profile and
+ * The launcher and account UI. The journal opens only after the server confirms the profile and
  * both revisions.
  */
 public final class AccountActivity extends Activity {
@@ -42,16 +42,12 @@ public final class AccountActivity extends Activity {
       /* Show the unavailable state. */
     }
     SharedPreferences pending = AccountStore.prefs(this);
-    groupLogin =
-        getIntent().getBooleanExtra("groupsSignIn", false)
-            || (getIntent().getData() != null
-                && pendingIsFresh(pending)
-                && pending.getBoolean("pkceForGroups", false));
-    profileLogin =
-        getIntent().getBooleanExtra("profileSignIn", false)
-            || (getIntent().getData() != null
-                && pendingIsFresh(pending)
-                && pending.getBoolean("pkceForProfile", false));
+    groupLogin = getIntent().getBooleanExtra("groupsSignIn", false);
+    profileLogin = getIntent().getBooleanExtra("profileSignIn", false);
+    if (!groupLogin && !profileLogin && pendingIsFresh(pending)) {
+      groupLogin = pending.getBoolean("pkceForGroups", false);
+      profileLogin = pending.getBoolean("pkceForProfile", false);
+    }
     ui = new AccountLayout(this);
     email = pending.getString("pkceEmail", pending.getString("email", ""));
     if (getIntent().getData() != null) {
@@ -79,6 +75,8 @@ public final class AccountActivity extends Activity {
   @Override
   protected void onNewIntent(Intent intent) {
     super.onNewIntent(intent);
+    // A launcher tap only brings the current screen forward, including a pending mail callback.
+    if (Intent.ACTION_MAIN.equals(intent.getAction()) && intent.getData() == null) return;
     setIntent(intent);
     if ((intent.getBooleanExtra("groupsSignIn", false)
             || intent.getBooleanExtra("profileSignIn", false))
@@ -418,15 +416,17 @@ public final class AccountActivity extends Activity {
         text("Otevři nejnovější zprávu na adrese ", "Open the latest message sent to ")
             + email
             + text(
-                " a klepni na odkaz na tomto telefonu. Vrátíš se do deníku.",
-                " and tap the link on this phone to return to your journal."));
+                " a klepni na odkaz na tomto telefonu. Do aplikace se můžeš také vrátit přes její"
+                    + " ikonu.",
+                " and tap the link on this phone. You can also return by tapping the app icon."));
     action(
         text("Otevřít poštu", "Open inbox"),
         AccountLayout.Action.PRIMARY,
         () -> {
           try {
             startActivity(
-                Intent.makeMainSelectorActivity(Intent.ACTION_MAIN, Intent.CATEGORY_APP_EMAIL));
+                Intent.makeMainSelectorActivity(Intent.ACTION_MAIN, Intent.CATEGORY_APP_EMAIL)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
           } catch (ActivityNotFoundException missing) {
             ui.message(
                 text(
@@ -439,13 +439,38 @@ public final class AccountActivity extends Activity {
       action(
           text("Vyžádat nový odkaz", "Request another link"),
           AccountLayout.Action.SECONDARY,
-          () -> emailForm("recovery".equals(purpose)));
+          () -> resendEmail(purpose));
     action(
-        text("Změnit e-mail", "Change email"),
+        text("Zpět k přihlášení", "Back to sign-in"),
         AccountLayout.Action.LINK,
         () -> {
           clearPending();
           login();
+        });
+  }
+
+  /** Reissue the pending link with the same address, callback and device verifier. */
+  private void resendEmail(String purpose) {
+    SharedPreferences pending = AccountStore.prefs(this);
+    String verifier = pending.getString("pkce", "");
+    String address = pending.getString("pkceEmail", "");
+    if (verifier.isEmpty() || address.isEmpty()) {
+      login();
+      return;
+    }
+    run(
+        () -> {
+          if ("signup".equals(purpose)) service.resendSignup(address, verifier);
+          else service.recover(address, verifier);
+          return null;
+        },
+        ignored -> {
+          pending.edit().putLong("pkceAt", System.currentTimeMillis()).apply();
+          ui.message(
+              text(
+                  "O nový odkaz bylo požádáno. Zkontroluj poštu.",
+                  "New link requested. Check your inbox."));
+          callback(getIntent());
         });
   }
 
@@ -515,8 +540,7 @@ public final class AccountActivity extends Activity {
   private void callback(Intent intent) {
     Uri uri = intent.getData();
     if (uri == null || service == null || busy) return;
-    if (!Intent.ACTION_VIEW.equals(intent.getAction())
-        || !uri.toString().split("[?#]", 2)[0].equals(service.redirect)) return;
+    if (!AccountCallbackActivity.matches(this, intent)) return;
     intent.setData(null);
     SharedPreferences p = AccountStore.prefs(this);
     String verifier = p.getString("pkce", "");
@@ -713,6 +737,8 @@ public final class AccountActivity extends Activity {
                   if (isFinishing() || isDestroyed()) return;
                   busy = false;
                   ui.message(errorMessage(error));
+                  // A link can arrive while a mail request is still waiting for its response.
+                  callback(getIntent());
                 });
           }
         });
