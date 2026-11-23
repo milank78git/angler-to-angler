@@ -1,4 +1,4 @@
-Account and optional online features · pilot 0.6.1
+Account and optional online features · pilot 0.6.2
 
 When registering by email, you choose a password. The language of the app at registration determines your account email language. Email verification and password recovery use a single-use link. A secured phone can store an encrypted credential for subsequent unlocks. Android verifies your screen lock or biometrics. Signing out removes the credential from this phone.
 

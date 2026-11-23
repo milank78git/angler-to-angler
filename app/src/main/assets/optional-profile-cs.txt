@@ -1,4 +1,4 @@
-Účet a volitelné online funkce · pilot 0.6.1
+Účet a volitelné online funkce · pilot 0.6.2
 
 Při registraci e-mailem si volíš heslo a jazyk zpráv vychází z jazyka aplikace. Ověření e-mailu a obnova hesla používají jednorázový odkaz. Pro další odemknutí může zabezpečený telefon uchovat zašifrované oprávnění k účtu. PIN a biometrické údaje ověřuje Android. Odhlášením se toto oprávnění v telefonu smaže.
 

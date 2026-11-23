@@ -194,6 +194,13 @@ final class IdentityService {
     return response.has("access_token") ? Session.from(response, email) : null;
   }
 
+  void resendSignup(String email, String verifier) throws Exception {
+    request(
+        "/auth/v1/resend?redirect_to=" + Uri.encode(redirect),
+        null,
+        challengeBody(email, verifier).put("type", "signup"));
+  }
+
   Session signIn(String email, String password) throws Exception {
     return Session.from(
         request(
