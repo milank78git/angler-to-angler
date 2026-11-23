@@ -1,0 +1,76 @@
+package app.anglers.journal;
+
+import android.content.res.AssetManager;
+import android.net.Uri;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.function.Consumer;
+
+/**
+ * Serves only bundled files on the private journal origin. User-activated HTTPS links open
+ * externally.
+ */
+final class LocalAssetClient extends WebViewClient {
+  private static final String HOST = "journal.invalid";
+  static final String ENTRY = "https://" + HOST + "/index.html";
+  private final AssetManager assets;
+  private final Consumer<Uri> openExternal;
+
+  LocalAssetClient(AssetManager assets, Consumer<Uri> openExternal) {
+    this.assets = assets;
+    this.openExternal = openExternal;
+  }
+
+  @Override
+  public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+    Uri uri = request.getUrl();
+    String path = uri.getPath();
+    if ("https".equals(uri.getScheme())
+        && HOST.equals(uri.getHost())
+        && path != null
+        && path.matches("/[a-z][a-z0-9.-]*")) {
+      try {
+        String mime = contentType(path);
+        return new WebResourceResponse(
+            mime, "image/webp".equals(mime) ? null : "utf-8", assets.open(path.substring(1)));
+      } catch (IOException ignored) {
+        /* Missing assets receive the same response as unknown paths. */
+      }
+    }
+    return new WebResourceResponse(
+        "text/plain", "utf-8", 404, "Missing", null, new ByteArrayInputStream(new byte[0]));
+  }
+
+  private static String contentType(String path) {
+    switch (path.substring(path.lastIndexOf('.') + 1)) {
+      case "html":
+        return "text/html";
+      case "js":
+        return "text/javascript";
+      case "css":
+        return "text/css";
+      case "webp":
+        return "image/webp";
+      case "svg":
+        return "image/svg+xml";
+      case "json":
+        return "application/json";
+      default:
+        return "text/plain";
+    }
+  }
+
+  @Override
+  public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+    Uri uri = request.getUrl();
+    if (request.isForMainFrame()
+        && request.hasGesture()
+        && "https".equals(uri.getScheme())
+        && !HOST.equals(uri.getHost())) openExternal.accept(uri);
+    return true;
+  }
+}

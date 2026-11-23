@@ -1,0 +1,11 @@
+{
+  "name": "angler-to-angler-tests",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/*.test.cjs"
+  },
+  "devDependencies": {
+    "fake-indexeddb": "6.2.8"
+  },
+  "type": "module"
+}

@@ -1,0 +1,11 @@
+<resources>
+  <string name="app_name">Angler to Angler</string>
+  <string name="season">Fishing seasons</string>
+  <string name="location_error">Current location unavailable. You can enter coordinates manually.</string>
+  <string name="open_error">No compatible application is available.</string>
+  <string name="notify_error">Notifications are disabled.</string>
+  <string name="app_name_preview">Angler to Angler · Preview</string>
+  <string name="pack_expired">The local rules pack has expired. Check the current conditions.</string>
+  <string name="season_begins">The closed season begins today.</string>
+  <string name="season_ends">The listed closed season has ended. Check other local restrictions.</string>
+</resources>

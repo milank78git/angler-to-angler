@@ -1,0 +1,11 @@
+<resources>
+  <string name="app_name">Rybáři sobě</string>
+  <string name="season">Doby hájení</string>
+  <string name="location_error">Aktuální poloha není dostupná. Souřadnice lze zadat ručně.</string>
+  <string name="open_error">Není dostupná aplikace pro otevření odkazu.</string>
+  <string name="notify_error">Upozornění jsou vypnutá.</string>
+  <string name="app_name_preview">Rybáři sobě · Náhled</string>
+  <string name="pack_expired">Skončila platnost podkladů. Ověřte aktuální podmínky.</string>
+  <string name="season_begins">Dnes začíná hájení.</string>
+  <string name="season_ends">Uvedené období hájení skončilo. Ověřte další místní podmínky.</string>
+</resources>

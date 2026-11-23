@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-src 'none'"
+    />
+    <title>Angler to Angler</title>
+    <link rel="stylesheet" href="style.css" />
+    <script type="module" src="app.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topinner">
+        <span class="brand-mark" id="mark" aria-hidden="true"></span
+        ><strong id="brand">Angler to Angler</strong><span class="offline" id="offline"></span
+        ><button type="button" id="theme" class="icon-btn"></button>
+      </div>
+    </header>
+    <main id="screen" tabindex="-1"></main>
+    <nav id="tabs" hidden></nav>
+    <p id="notice" role="status" hidden></p>
+  </body>
+</html>
