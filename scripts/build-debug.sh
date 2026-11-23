@@ -15,6 +15,14 @@ elif [[ $# != 0 ]]; then
   echo "Usage: bash scripts/build-debug.sh [--preview]" >&2
   exit 2
 fi
+# Distributed builds expose the workflow build number through Android's package metadata.
+if [[ -n "${ANGLER_VERSION_CODE:-}" ]]; then
+  [[ "$ANGLER_VERSION_CODE" =~ ^[1-9][0-9]{0,9}$ ]] && (( ANGLER_VERSION_CODE <= 2100000000 )) || {
+    echo "Invalid Android version code" >&2
+    exit 2
+  }
+  link_args+=(--replace-version --version-code "$ANGLER_VERSION_CODE")
+fi
 if [[ -n "${ANGLER_TEST_OUTPUT:-}" && "${1:-}" == "--preview" ]]; then out=build/smoke-app; fi
 rm -rf "$out"
 mkdir -p "$out"/{gen,classes,dex}

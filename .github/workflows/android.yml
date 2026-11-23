@@ -1,12 +1,19 @@
 name: Android pilot
 on:
   pull_request:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Promote this published pilot tag to a stable release (e.g. v0.4.4-build.10042)'
+        required: true
+        type: string
   push:
     branches: [main]
 permissions:
   contents: read
 jobs:
   profiles:
+    if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
@@ -20,6 +27,7 @@ jobs:
           install -Dm644 "$migration" "$fixture/$migration"
           sudo -u postgres psql -X -v ON_ERROR_STOP=1 -f "$fixture/tests/profile-db.sql"
   build:
+    if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
@@ -35,6 +43,8 @@ jobs:
       - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4
         with:
           packages: "platforms;android-35 build-tools;35.0.0 platform-tools"
+      - name: Assign the installable Android build number
+        run: echo "ANGLER_VERSION_CODE=$((10000 + GITHUB_RUN_NUMBER))" >> "$GITHUB_ENV"
       - run: bash scripts/build-debug.sh
         env:
           ANGLER_ACCOUNT_CONFIG: ${{ vars.ANGLER_ACCOUNT_CONFIG }}
@@ -70,3 +80,43 @@ jobs:
           name: android-ui-screens
           path: build/smoke/screens
           if-no-files-found: warn
+
+  release:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [build, profiles]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: angler-journal-debug
+          path: build/input
+      - name: Sign the tested application for existing pilot installations
+        id: package
+        env:
+          ANDROID_PILOT_KEYSTORE: ${{ secrets.ANDROID_PILOT_KEYSTORE }}
+        run: bash scripts/sign-pilot.sh build/input/angler-journal-debug.apk
+      - name: Publish the APK and its checksum
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.package.outputs.tag }}
+        run: bash scripts/pilot-release.sh publish "$TAG"
+
+  promote:
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Mark the selected published APK as stable
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        run: bash scripts/pilot-release.sh promote "$TAG"
