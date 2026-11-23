@@ -196,7 +196,7 @@ public final class Runner extends Instrumentation {
    * Exercise a captured journal photo through the real WebView, native RPC bridge and withdrawal
    * UI.
    */
-  private void checkEvidenceSubmission() throws Exception {
+  private void checkEvidenceSubmission(AccountChecks accounts) throws Exception {
     js("document.querySelector('#tabtrips').click()");
     waitFor("!!document.querySelector('[data-trip]')");
     js("document.querySelector('[data-trip]').click()");
@@ -211,6 +211,39 @@ public final class Runner extends Instrumentation {
     waitFor("!!document.querySelector('[data-verify-catch]')");
     js("document.querySelector('[data-verify-catch]').click()");
     waitFor("!!document.querySelector('[data-remove]') && !document.querySelector('#review')");
+    boolean cs = !"wide".equals(scenario);
+    String card = "document.querySelector('.profile-directory article')";
+    waitFor(
+        card
+            + "?.querySelector('strong')?.textContent === "
+            + org.json.JSONObject.quote(cs ? "Čeká na kontrolu" : "Awaiting review"));
+    accounts.setPhotoReview("measured", 635);
+    js("document.querySelector('#refresh-evidence').click()");
+    waitFor(
+        card
+            + "?.textContent.includes("
+            + org.json.JSONObject.quote(
+                cs ? "Délka odečtená z míry · 63,5 cm" : "Length read from ruler · 63.5 cm")
+            + ")");
+    accounts.setPhotoReview("estimated", 650);
+    js("document.querySelector('#refresh-evidence').click()");
+    waitFor(
+        card
+            + "?.textContent.includes("
+            + org.json.JSONObject.quote(
+                cs
+                    ? "Délka odhadnutá podle měřítka · 65 cm"
+                    : "Length estimated from a reference · 65 cm")
+            + ")");
+    accounts.setPhotoReview("unverified", null);
+    js("document.querySelector('#refresh-evidence').click()");
+    waitFor(
+        card
+            + "?.querySelector('strong')?.textContent === "
+            + org.json.JSONObject.quote(cs ? "Nedostatečný podklad" : "Insufficient evidence")
+            + " && !"
+            + card
+            + ".textContent.includes(' cm')");
     js("document.querySelector('[data-remove]').click()");
     waitFor(
         "!!document.querySelector('#refresh-evidence') &&"
@@ -313,7 +346,7 @@ public final class Runner extends Instrumentation {
           "!!document.querySelector('#catch-list img') && document.querySelector('#catch-list"
               + " img').naturalWidth===32");
       ShareChecks.run(this);
-      checkEvidenceSubmission();
+      checkEvidenceSubmission(accounts);
       outcome.putString("stream", "ANGLER_SMOKE_PASS\n");
       finish(Activity.RESULT_OK, outcome);
     } catch (Throwable error) {

@@ -4,15 +4,15 @@ import { Journal } from './journal.js';
 import { showError } from './profiles.js';
 import { rpc, failure, photoPayload } from './profile-api.js';
 
-const states = {
+const outcomes = {
   pending: t('Čeká na kontrolu', 'Awaiting review'),
-  measured: t('Ověřeno podle míry', 'Verified from ruler'),
-  estimated: t('Ověřeno odhadem', 'Verified by estimate'),
-  unverified: t('Neověřeno', 'Unverified'),
+  measured: t('Délka odečtená z míry', 'Length read from ruler'),
+  estimated: t('Délka odhadnutá podle měřítka', 'Length estimated from a reference'),
+  unverified: t('Nedostatečný podklad', 'Insufficient evidence'),
 };
 const labels = {
-  submit: t('Ověření tohoto úlovku', 'Verify this catch'),
-  withdraw: t('Odstranit ověření', 'Remove verification'),
+  submit: t('Doložení úlovku fotkou', 'Catch photo review'),
+  withdraw: t('Odstranit záznam kontroly', 'Remove review record'),
 };
 
 export function addVerificationAction(article, record, trip, view, nav) {
@@ -25,7 +25,7 @@ export function addVerificationAction(article, record, trip, view, nav) {
   ) {
     const label = document.createElement('p');
     label.className = 'meta';
-    label.textContent = states.unverified;
+    label.textContent = t('Bez kontroly snímku', 'Photo not reviewed');
     article.append(label);
     return;
   }
@@ -65,7 +65,7 @@ export function addVerificationAction(article, record, trip, view, nav) {
         accuracy: capture.accuracy,
         photo,
       });
-      if (view.active()) nav.open('evidence');
+      if (view.active()) nav.open('evidence', { onlyId: record.id });
     } catch (error) {
       if (view.active()) {
         toast(failure(error));
@@ -76,6 +76,24 @@ export function addVerificationAction(article, record, trip, view, nav) {
     }
   };
   article.append(action);
+}
+
+function reviewResult({ outcome, mm }) {
+  if (outcome !== 'measured' && outcome !== 'estimated') {
+    return '<strong>' + esc(outcomes[outcome]) + '</strong>';
+  }
+  const cm = new Intl.NumberFormat(document.documentElement.lang, { maximumFractionDigits: 1 }).format(
+    mm / 10,
+  );
+  return (
+    '<strong>' +
+    t('Doloženo fotkou', 'Photo documented') +
+    '</strong><p>' +
+    outcomes[outcome] +
+    ' · ' +
+    esc(cm) +
+    ' cm</p>'
+  );
 }
 
 function localTime(value) {
@@ -97,12 +115,14 @@ export async function evidenceScreen({ view, nav }) {
   screen.innerHTML =
     back(t('Zpět', 'Back')) +
     '<h1>' +
-    t('Ověření úlovků', 'Catch verification') +
+    (view.route.onlyId
+      ? t('Kontrola fotky úlovku', 'Catch photo review')
+      : t('Moje odeslané fotky', 'My submitted catch photos')) +
     '</h1>' +
     '<p>' +
     t(
-      'Do profilu se počítají snímky, na kterých kontrolor rozezná rybu a přečte míru nebo odhadne délku podle známého měřítka.',
-      'Your profile counts photos where a reviewer sees the fish and can read a ruler or estimate length against a known-size reference.',
+      'V profilu přibude jeden úlovek, když kontrolor rozezná rybu a z fotky odečte nebo odhadne její délku. Poloha udává, kde byl telefon při focení.',
+      'A catch counts once a reviewer can see the fish and read or estimate its length from the photo. The location shows where the phone was at capture.',
     ) +
     '</p>' +
     (page.reviewer ? button('review', t('Zkontrolovat snímky', 'Review submitted photos'), 'primary') : '') +
@@ -114,10 +134,9 @@ export async function evidenceScreen({ view, nav }) {
           esc(item.species) +
           '</h2><p>' +
           esc(localTime(item.captured)) +
-          '</p><strong>' +
-          esc(states[item.outcome]) +
-          (item.mm ? ' · ' + esc(item.mm / 10) + ' cm' : '') +
-          '</strong><div><button class="secondary" data-remove="' +
+          '</p>' +
+          reviewResult(item) +
+          '<div><button class="secondary" data-remove="' +
           esc(item.id) +
           '">' +
           labels.withdraw +
@@ -125,10 +144,12 @@ export async function evidenceScreen({ view, nav }) {
       )
       .join('') ||
       '<p>' +
-        t(
-          'Žádné odeslané úlovky. Pro první ověření vyfoť úlovek při zápisu do deníku.',
-          'No submissions. To verify a catch, take its photo when adding it to the journal.',
-        ) +
+        (view.route.onlyId
+          ? t('K tomuto úlovku tu žádný snímek není.', 'There is no submission for this catch.')
+          : t(
+              'Žádné odeslané fotky. Fotku pořízenou u vody můžeš odeslat z výpravy v deníku.',
+              'No submitted photos. You can send a photo taken at the water from the trip in your journal.',
+            )) +
         '</p>') +
     '</div>' +
     (page.more ? button('more', t('Starší záznamy', 'Older records'), 'secondary') : '') +
@@ -147,8 +168,8 @@ export async function evidenceScreen({ view, nav }) {
         if (
           !confirm(
             t(
-              'Odstranit kontrolní záznam a jeho příspěvek do počtu ověření? Místní deník si úlovek ponechá.',
-              'Remove this review record and its contribution to the verified count? The catch stays in the local journal.',
+              'Odstranit záznam kontroly? Úlovek zůstane v deníku. Pokud byl započítaný do profilu, počet se sníží o jeden.',
+              'Remove this review record? The catch stays in your journal. If it counted towards your profile total, the total will decrease by one.',
             ),
           )
         )
@@ -197,16 +218,16 @@ export async function reviewScreen({ view, nav }) {
         '<form id="decision" class="entry-form"><section class="surface"><label for="outcome">' +
         t('Výsledek kontroly', 'Review outcome') +
         '</label><select id="outcome" required><option value="">—</option><option value="measured">' +
-        states.measured +
+        outcomes.measured +
         '</option><option value="estimated">' +
-        states.estimated +
+        outcomes.estimated +
         '</option><option value="unverified">' +
-        states.unverified +
+        outcomes.unverified +
         '</option></select>' +
         '<small>' +
         t(
-          'Zkontroluj, že poloha odpovídá uvedené vodě. Míra musí být čitelná. Odhad vyžaduje celou rybu a rozpoznatelný předmět známé velikosti ve stejné rovině. Jinak zvol Neověřeno.',
-          'Check that the location matches the water. The ruler must be legible. An estimate requires the whole fish and a recognisable, known-size reference in the same plane. Otherwise select Unverified.',
+          'Porovnej místo focení s uvedenou vodou. Délku odečti z čitelné míry, nebo ji odhadni podle předmětu známé velikosti ve stejné rovině jako celá ryba. Pokud poloha nesedí, měřítko chybí nebo jde o přefocený snímek, zvol Nedostatečný podklad.',
+          'Compare the capture location with the reported water. Read the length from a legible ruler, or estimate it using a known-size object in the same plane as the whole fish. If the location is inconsistent, the scale is unclear or the image shows another photograph, select Insufficient evidence.',
         ) +
         '</small>' +
         '<label for="review-length">' +

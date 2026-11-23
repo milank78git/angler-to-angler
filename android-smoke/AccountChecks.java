@@ -34,6 +34,12 @@ final class AccountChecks {
   private volatile JSONObject submittedCatch;
   private static final String INVITE = "d18590e4-a811-4937-a16f-8eb2dacc019d";
 
+  /** Return the chosen database outcome on the next refresh of the submitted catch. */
+  void setPhotoReview(String outcome, Integer lengthMm) throws Exception {
+    submittedCatch =
+        new JSONObject(submittedCatch.toString()).put("outcome", outcome).put("mm", lengthMm);
+  }
+
   private JSONObject profile() throws Exception {
     return new JSONObject().put("id", ID).put("name", "River").put("current", true);
   }
@@ -330,6 +336,9 @@ final class AccountChecks {
     app.waitFor(
         "document.querySelector('.angler-card')?.innerText.includes('Praha') &&"
             + " !!document.querySelector('.portrait-x9.portrait-y4')");
+    app.waitFor(
+        "document.querySelector('.profile-count h2')?.textContent === "
+            + JSONObject.quote(tr("Úlovky doložené fotkou", "Photo-documented catches")));
     app.capture("profile-card");
     app.js("document.querySelector('#edit-card').click()");
     app.waitFor("!!document.querySelector('#profile-photo')");

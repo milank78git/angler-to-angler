@@ -27,12 +27,12 @@ function bindPhotoPreview() {
     by(camera ? 'photo' : 'camera-photo').value = '';
     by('capture-state').textContent = capture
       ? t(
-          'Snímek má polohu pro ověření. Po uložení ho můžeš odeslat z detailu výpravy.',
+          'Poloha je u snímku uložená. Po uložení úlovku můžeš fotku odeslat ke kontrole z detailu výpravy.',
           'This photo has a location fix. After saving, you can submit it from the trip.',
         )
       : t(
-          'Fotografie zůstane v deníku jako neověřená.',
-          'This photo will stay in the journal as unverified.',
+          'Tato fotka se uloží do deníku bez kontroly.',
+          'This photo will be saved in your journal without review.',
         );
     if (preview) URL.revokeObjectURL(preview);
     preview = file ? URL.createObjectURL(file) : null;
@@ -170,7 +170,7 @@ function catchFields(pack) {
   <form id="form" class="entry-form"><section class="surface">${selectField('fish', t('Druh ryby', 'Fish species'), fish, '')}
     <div id="custom-fish">${textInput('fish-name', t('Název druhu', 'Species name'), '', 'maxlength="100"')}</div>
     ${textInput('length', t('Změřená délka (cm)', 'Measured length (cm)'), '', 'inputmode="decimal" placeholder="64,5"')}
-    <div class="photo-field"><input type="file" id="camera-photo" accept="image/*" capture="environment"><label for="camera-photo">${icon('camera')}${t('Vyfotit úlovek pro ověření', 'Photograph catch for verification')}</label>
+    <div class="photo-field"><input type="file" id="camera-photo" accept="image/*" capture="environment"><label for="camera-photo">${icon('camera')}${t('Vyfotit úlovek u vody', 'Photograph catch at the water')}</label>
     <small>${t('Vyfoť celou rybu s mírou nebo předmětem známé velikosti. Po focení vyčkej na polohu telefonu. Odeslání ke kontrole je dobrovolné.', 'Photograph the whole fish with a ruler or a known-size reference. Wait for a location fix after taking the picture. Sending it for review is optional.')}</small>
     <input type="file" id="photo" accept="image/*"><label for="photo">${icon('camera')}<span id="photo-label">${t('Přidat fotografii', 'Add photo')}</span></label><small id="capture-state" role="status"></small><img id="photo-preview" class="preview" hidden alt=""></div></section>
   <details class="fold"><summary>${icon('fish-symbol')}${t('Nástraha a technika', 'Bait and technique')}</summary><div class="fold-body">${textInput('bait', t('Na co zabral', 'Bait or lure'), '', 'maxlength="300"')}${textInput('technique', t('Technika lovu', 'Fishing technique'), '', 'maxlength="500"')}</div></details>

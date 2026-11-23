@@ -67,15 +67,11 @@ export async function profileScreen({ view, nav }) {
     '</div></div>' +
     (card.tagline ? '<h2>' + esc(card.tagline) + '</h2>' : '') +
     (card.biography ? '<p class="biography">' + esc(card.biography) + '</p>' : '') +
-    '<p class="profile-count"><strong>' +
+    '<section class="profile-count"><h2>' +
+    t('Úlovky doložené fotkou', 'Photo-documented catches') +
+    '</h2><strong>' +
     esc(card.verifiedCount) +
-    '</strong> ' +
-    (card.verifiedCount === 1
-      ? t('ověřený úlovek', 'verified catch')
-      : card.verifiedCount >= 2 && card.verifiedCount <= 4
-        ? t('ověřené úlovky', 'verified catches')
-        : t('ověřených úlovků', 'verified catches')) +
-    '</p>' +
+    '</strong></section>' +
     '<section><h2>' +
     (own ? t('Moje party', 'My groups') : t('Společné party', 'Groups in common')) +
     '</h2>' +
@@ -99,7 +95,7 @@ export async function profileScreen({ view, nav }) {
       ? '<div class="actions">' +
         button('edit-card', t('Upravit profil', 'Edit profile'), 'primary') +
         button('directory', t('Profily rybářů', 'Angler directory'), 'secondary') +
-        button('evidence', t('Ověření úlovků', 'Catch verification'), 'secondary') +
+        button('evidence', t('Moje odeslané fotky', 'My submitted catch photos'), 'secondary') +
         button('account-settings', t('Účet a správa part', 'Account and group settings'), 'secondary') +
         '</div>'
       : '');
