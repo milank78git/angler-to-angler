@@ -57,7 +57,7 @@ final class ShareChecks {
   }
 
   /** Verify a catch-free trip can send newly authored text through the actual Android chooser. */
-  static void tripTip(Runner app) throws Exception {
+  static String tripTip(Runner app) throws Exception {
     app.js("document.querySelector('#share-tip').click()");
     app.waitFor("document.querySelector('#share-tip-text')?.value==='' && document.querySelector('#card-send').disabled");
     app.js("document.querySelector('#share-water').click()");
@@ -74,12 +74,19 @@ final class ShareChecks {
     check(preview.startsWith(tip + "\n") && preview.contains("Sázava 1") && !preview.contains("Offline smoke test"),
         "Incorrect optional trip fields");
     check(preview.equals(outgoing(app).getStringExtra(Intent.EXTRA_TEXT)), "Tip did not match its preview");
-    app.js("document.querySelector('#back').click()");
+    app.js("document.querySelector('#tip-groups').click()");
+    app.waitFor("document.querySelector('#tip-group').options.length===2 && document.querySelector('#tip-post').disabled");
+    app.js("const select=document.querySelector('#tip-group'); select.selectedIndex=1; select.dispatchEvent(new Event('change')); document.querySelector('#tip-post').click()");
+    app.waitFor("!document.querySelector('#tip-post').disabled && document.querySelector('#tip-feedback').textContent.includes("
+        + org.json.JSONObject.quote("cs".equals(app.js("document.documentElement.lang").replace("\"", "")) ? "nezdařilo" : "Could not confirm") + ")");
+    app.waitFor("document.querySelector('#card-text').textContent===" + org.json.JSONObject.quote(preview));
+    app.js("document.querySelector('#tip-post').click()");
     app.waitFor("!!document.querySelector('#share-tip')");
     app.js("document.querySelector('#share-tip').click()");
-    app.waitFor("document.querySelector('#share-tip-text')?.value==='' && document.querySelector('#card-send').disabled");
+    app.waitFor("document.querySelector('#share-tip-text')?.value==='' && document.querySelector('#card-send').disabled && document.querySelector('#tip-groups').disabled");
     app.js("document.querySelector('#back').click()");
     app.waitFor("!!document.querySelector('#add')");
+    return preview;
   }
 
   static void run(Runner app) throws Exception {

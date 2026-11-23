@@ -428,7 +428,7 @@ public final class Runner extends Instrumentation {
       waitFor(
           "!!document.querySelector('#add') && document.querySelectorAll('#catch-list"
               + " article').length===0");
-      ShareChecks.tripTip(this);
+      String postedTip = ShareChecks.tripTip(this);
       for (int n = 1; n <= 2; n++) {
         js("document.querySelector('#add').click()");
         waitFor("!!document.querySelector('#fish-name')");
@@ -475,6 +475,7 @@ public final class Runner extends Instrumentation {
               + " img').naturalWidth===32");
       ShareChecks.run(this);
       checkEvidenceSubmission(accounts);
+      accounts.readGroupTip(postedTip);
       outcome.putString("stream", "ANGLER_SMOKE_PASS\n");
       finish(Activity.RESULT_OK, outcome);
     } catch (Throwable error) {

@@ -41,6 +41,8 @@ Apply the `private_fishing_groups` migration after `profiles`. Group management 
 
 The service stores a group name, owner and membership identifiers. The listing returns only the caller’s group names, IDs, member counts and owner/member role. Only an owner may issue a 24-hour, single-use code. Issuing another code revokes its predecessor. The database retains only hashes. Leaving removes the membership. Dissolving a group removes all memberships and the invitation. Account erasure removes that account’s memberships and groups it owns. Include these records when handling a profile access or erasure request. The phone keeps group responses in memory. Journal contents are never uploaded by these functions.
 
+Apply the `private_group_tips` migration for direct trip tips. The service stores the author, group, posting time and exact previewed text. The author chooses the group for each post. Current members can read the group’s tips, newest first. Leaving removes the member’s posts, dissolving a group removes its feed, and account erasure removes the author’s posts. Include authored group tips in an account export.
+
 ## Optional profile and catch review
 
 Apply the `angler_profile_cards` migration after private groups. Existing accounts start with a blank, private card. Verified anglers can publish or withdraw their own card. The directory uses cursor pagination and never lists private cards. A visitor sees only groups shared with the card owner. A photo replaces its predecessor and the editor rejects stale changes from a second device.

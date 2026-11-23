@@ -187,6 +187,18 @@ final class AccountLayout {
     return v;
   }
 
+  void tip(String byline, String message) {
+    LinearLayout card = new LinearLayout(activity);
+    card.setOrientation(LinearLayout.VERTICAL);
+    card.setBackground(shape(surface, border, 14));
+    card.setPadding(dp(16), dp(12), dp(16), dp(14));
+    add(form, card, 12);
+    card.addView(text(byline, 14, muted, Typeface.create("sans-serif-medium", 0)));
+    TextView body = text(message, 17, ink, Typeface.DEFAULT);
+    body.setTextIsSelectable(true);
+    add(card, body, 8);
+  }
+
   Button button(LinearLayout parent, String label, Action kind, Runnable click) {
     Button b = new Button(activity);
     b.setAllCaps(false);

@@ -18,7 +18,7 @@ public final class GroupsActivity extends Activity {
   private AccountLayout ui;
   private IdentityService service;
   private String subject;
-  private boolean cs, busy;
+  private boolean cs, busy, readingTips;
   private AccountLayout.Prompt dialog;
   private EditText dialogInput;
 
@@ -66,6 +66,7 @@ public final class GroupsActivity extends Activity {
   }
 
   private void signIn() {
+    readingTips = false;
     closeDialog();
     ui.page(title(), false);
     ui.label(
@@ -85,6 +86,7 @@ public final class GroupsActivity extends Activity {
   }
 
   private void refresh() {
+    readingTips = false;
     if (subject.isEmpty() || !subject.equals(AccountStore.active(this))) {
       signIn();
       return;
@@ -98,10 +100,10 @@ public final class GroupsActivity extends Activity {
     ui.page(title(), false);
     ui.label(
         t(
-            "Na server se ukládá název party a členství tvého profilu. Deník zůstává v telefonu."
-                + " Odchodem se tvoje členství smaže.",
-            "The service stores the group name and your profile’s membership. Your journal stays on"
-                + " this phone. Leaving removes your membership."));
+            "Na server se ukládá název party, členství a tipy, které do ní odešleš."
+                + " Odchodem se tvoje tipy smažou.",
+            "The service stores the group name, membership and the tips you post to it."
+                + " Leaving deletes your tips."));
     if (groups.length() == 0)
       ui.label(t("Zatím nejsi v žádné partě.", "You haven’t joined any groups yet."));
     for (int i = 0; i < groups.length(); i++) {
@@ -168,6 +170,8 @@ public final class GroupsActivity extends Activity {
     String leave =
         owner ? t("Rozpustit partu", "Dissolve group") : t("Opustit partu", "Leave group");
     dialog = ui.prompt(name);
+    dialog.choice(
+        t("Tipy party", "Group tips"), AccountLayout.Action.SECONDARY, () -> tips(id, name, null));
     if (owner)
       dialog.choice(
           t("Vystavit pozvánku", "Issue invitation"),
@@ -182,16 +186,68 @@ public final class GroupsActivity extends Activity {
     dialog.show();
   }
 
+  /** Read a bounded page online. Refresh and Back always work from an empty or failed page. */
+  private void tips(String id, String name, String cursor) {
+    readingTips = true;
+    ui.page(t("Tipy party · ", "Group tips · ") + name, false);
+    button(t("Zpět na party", "Back to groups"), AccountLayout.Action.LINK, this::refresh);
+    button(
+        t("Obnovit tipy", "Refresh tips"),
+        AccountLayout.Action.SECONDARY,
+        () -> tips(id, name, null));
+    JSONObject query = args("group_id", id);
+    if (cursor != null) {
+      query = args("group_id", id, "before_position", cursor);
+      button(
+          t("Načíst tuto stránku znovu", "Reload this page"),
+          AccountLayout.Action.LINK,
+          () -> tips(id, name, cursor));
+    }
+    request(
+        "group_tips",
+        query,
+        result -> {
+          JSONArray items = result.getJSONArray("tips");
+          if (items.length() == 0) ui.label(t("Zatím tu nejsou žádné tipy.", "No tips here yet."));
+          java.text.DateFormat dates =
+              java.text.DateFormat.getDateTimeInstance(
+                  java.text.DateFormat.MEDIUM,
+                  java.text.DateFormat.SHORT,
+                  getResources().getConfiguration().getLocales().get(0));
+          for (int i = 0; i < items.length(); i++) {
+            JSONObject tip = items.getJSONObject(i);
+            ui.tip(
+                tip.getString("author")
+                    + " · "
+                    + dates.format(new java.util.Date(tip.getLong("postedAt"))),
+                tip.getString("text"));
+          }
+          if (!result.isNull("next")) {
+            String next = result.getString("next");
+            button(
+                t("Starší tipy", "Older tips"),
+                AccountLayout.Action.SECONDARY,
+                () -> tips(id, name, next));
+          }
+        });
+  }
+
+  @Override
+  public void onBackPressed() {
+    if (readingTips && !busy) refresh();
+    else super.onBackPressed();
+  }
+
   private void confirmLeave(String id, String name, boolean owner, String leave) {
     dialog = ui.prompt(leave + "?");
     dialog.description(
         owner
             ? t(
-                "Parta „" + name + "“ se smaže všem členům a její pozvánka přestane platit.",
-                "All members will lose “" + name + "” and its invitation will stop working.")
+                "Parta „" + name + "“ se smaže včetně všech tipů a pozvánky.",
+                "Dissolving “" + name + "” deletes all group tips and its invitation.")
             : t(
-                "Tvoje členství v partě „" + name + "“ skončí.",
-                "Your membership in “" + name + "” will end."));
+                "Tvoje členství v partě „" + name + "“ skončí a tvé tipy se smažou.",
+                "Your membership in “" + name + "” will end and your tips will be deleted."));
     dialog.action(
         leave,
         AccountLayout.Action.DANGER,

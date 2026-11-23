@@ -29,4 +29,5 @@ delete from auth.users;
 do $$begin if exists(select from angler_private.acceptances) or exists(select from angler_private.profiles) then raise exception 'deletion incomplete';end if;end$$;
 \ir groups-db.sql
 \ir profile-card-db.sql
+\ir group-tips-db.sql
 rollback;
