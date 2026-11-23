@@ -94,6 +94,7 @@ export async function profileScreen({ view, nav }) {
     (own
       ? '<div class="actions">' +
         button('edit-card', t('Upravit profil', 'Edit profile'), 'primary') +
+        button('my-activity', t('Moje výpravy ve statistice', 'My activity contributions'), 'secondary') +
         button('weekly-groups', t('Úlovek týdne v partě', 'Group catch of the week'), 'secondary') +
         button('private-inbox', t('Soukromé zprávy', 'Private messages'), 'secondary') +
         button('directory', t('Profily rybářů', 'Angler directory'), 'secondary') +
@@ -104,6 +105,7 @@ export async function profileScreen({ view, nav }) {
   bindBack(nav);
   if (own) {
     bind('edit-card', () => nav.open('editProfile'));
+    bind('my-activity', () => nav.open('myActivity'));
     bind('weekly-groups', () => nav.open('weeklyGroups'));
     bind('private-inbox', () => nav.open('messageInbox'));
     bind('directory', () => nav.open('directory'));

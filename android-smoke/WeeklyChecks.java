@@ -91,57 +91,43 @@ final class WeeklyChecks {
     return new JSONObject();
   }
 
-  private static void click(Runner app, String selector) throws Exception {
-    String el = "document.querySelector(" + JSONObject.quote(selector) + ")";
-    app.waitFor(
-        "!!"
-            + el
-            + " && !"
-            + el
-            + ".disabled && "
-            + el
-            + ".getClientRects().length>0 &&"
-            + " document.querySelector('#screen').getAttribute('aria-busy')!=='true'");
-    app.js(el + ".click()");
-  }
-
   static void run(Runner app) throws Exception {
-    click(app, "#back");
-    click(app, "[data-weekly-catch]");
-    click(app, ".weekly-groups button");
+    app.clickReady("#back");
+    app.clickReady("[data-weekly-catch]");
+    app.clickReady(".weekly-groups button");
     app.waitFor("document.querySelector('#entry-preview img')?.naturalWidth===32");
-    click(app, "#weekly-enter");
+    app.clickReady("#weekly-enter");
     app.waitFor(
         "document.querySelector('#confirmation').open &&"
             + " document.querySelector('#confirmation-photo').src===document.querySelector('#entry-preview"
             + " img').src");
-    click(app, "#confirmation-cancel");
-    click(app, "#weekly-enter");
-    click(app, "#confirmation-accept");
+    app.clickReady("#confirmation-cancel");
+    app.clickReady("#weekly-enter");
+    app.clickReady("#confirmation-accept");
     app.waitFor(
         "!!document.querySelector('#weekly-enter') &&"
             + " !document.querySelector('#weekly-enter').disabled &&"
             + " !document.querySelector('#notice').hidden");
-    click(app, "#weekly-enter");
-    click(app, "#confirmation-accept");
+    app.clickReady("#weekly-enter");
+    app.clickReady("#confirmation-accept");
     app.waitFor(
         "document.querySelectorAll('.weekly-entry').length===2 &&"
             + " !document.querySelector('#weekly-enter')");
-    click(app, "[data-weekly-action=vote]");
+    app.clickReady("[data-weekly-action=vote]");
     app.waitFor(
         "document.querySelector('[data-weekly-action=vote]')?.getAttribute('aria-pressed')==='true'");
     app.capture("group-catch-of-the-week");
-    click(app, "[data-weekly-action=vote]");
+    app.clickReady("[data-weekly-action=vote]");
     app.waitFor(
         "document.querySelector('[data-weekly-action=vote]')?.getAttribute('aria-pressed')==='false'");
-    click(app, "[data-weekly-action=withdraw]");
-    click(app, "#confirmation-accept");
+    app.clickReady("[data-weekly-action=withdraw]");
+    app.clickReady("#confirmation-accept");
     app.waitFor(
         "document.querySelectorAll('.weekly-entry').length===1 &&"
             + " !document.querySelector('[data-weekly-action=withdraw]')");
-    click(app, "#profile");
-    click(app, "#weekly-groups");
-    click(app, ".weekly-groups button");
+    app.clickReady("#profile");
+    app.clickReady("#weekly-groups");
+    app.clickReady(".weekly-groups button");
     app.waitFor("document.querySelector('.weekly-entry img')?.naturalWidth===4");
   }
 }
