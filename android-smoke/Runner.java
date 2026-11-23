@@ -22,6 +22,15 @@ public final class Runner extends Instrumentation {
     start();
   }
 
+  /** Read the actual target APK so the UI assertions stay valid across releases. */
+  String expectedVersionLabel() throws Exception {
+    android.content.Context target = getTargetContext();
+    android.content.pm.PackageInfo info =
+        target.getPackageManager().getPackageInfo(target.getPackageName(), 0);
+    String prefix = "wide".equals(scenario) ? "Preview" : "Pilot";
+    return prefix + " " + info.versionName + " (" + info.getLongVersionCode() + ")";
+  }
+
   private void launch() throws Exception {
     Intent i =
         new Intent(Intent.ACTION_MAIN)
@@ -38,6 +47,10 @@ public final class Runner extends Instrumentation {
             web =
                 (WebView) ((ViewGroup) activity.findViewById(android.R.id.content)).getChildAt(0));
     waitFor("!!document.querySelector('[data-water]')");
+    waitFor(
+        "document.querySelector('#app-version').getBoundingClientRect().height > 0 && "
+            + "document.querySelector('#app-version').textContent === "
+            + org.json.JSONObject.quote(expectedVersionLabel()));
   }
 
   String js(String code) throws Exception {

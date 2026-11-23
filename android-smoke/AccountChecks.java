@@ -94,7 +94,8 @@ final class AccountChecks {
                                 if (body.has("email") || body.has("token") || body.length() != 2)
                                   return 400;
                                 String emailHash = body.getString("token_hash");
-                                if ("other-owner".equals(emailHash)) address = "other@example.invalid";
+                                if ("other-owner".equals(emailHash))
+                                  address = "other@example.invalid";
                                 else if (!"fixture-hash".equals(emailHash)) return 403;
                               } else if (!address.equals(body.optString("email"))
                                   || !"123456".equals(body.optString("token"))) return 403;
@@ -145,6 +146,8 @@ final class AccountChecks {
                 .setClassName(
                     app.getTargetContext().getPackageName(), "app.anglers.journal.AccountActivity")
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+    if (!find(app.expectedVersionLabel()).isShown())
+      throw new AssertionError("Version hidden at sign-in");
     checkSocialLogin("Google");
     checkSocialLogin("Facebook");
     type(tr("E-mail", "Email"), "test@example.invalid");

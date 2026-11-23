@@ -78,6 +78,7 @@ public final class AccountActivity extends Activity {
     TextView heading = label(title);
     heading.setTextSize(28);
     if (android.os.Build.VERSION.SDK_INT >= 28) heading.setAccessibilityHeading(true);
+    label(AppVersion.label(this)).setTextSize(14);
     status = label("");
     status.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
   }

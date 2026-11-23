@@ -100,6 +100,11 @@ public final class FishingActivity extends Activity {
   /** Methods are accessible only to packaged scripts. Android UI calls run on the main thread. */
   public final class Device {
     @JavascriptInterface
+    public String versionLabel() {
+      return AppVersion.label(FishingActivity.this);
+    }
+
+    @JavascriptInterface
     public String journalName() {
       return AccountStore.journal(FishingActivity.this);
     }
