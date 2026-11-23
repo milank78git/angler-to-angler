@@ -89,7 +89,7 @@ function textInput(id, label, value = '', attrs = '') {
 }
 
 /** Keep the submitted snapshot fixed. A failed write releases controls and retains all inputs. */
-async function writeEntry(view, nav, tripId, write, onError) {
+async function submitChange(view, write, onSuccess, onError) {
   if (!view.active() || view.saving) return;
   view.saving = true;
   const controls = Array.from(screen.querySelectorAll('button,input,select,textarea')).filter(
@@ -113,7 +113,11 @@ async function writeEntry(view, nav, tripId, write, onError) {
       screen.removeAttribute('aria-busy');
     }
   }
-  if (view.active()) nav.journalAfterWrite(tripId);
+  if (view.active()) onSuccess();
+}
+
+function writeEntry(view, nav, tripId, write, onError) {
+  return submitChange(view, write, () => nav.journalAfterWrite(tripId), onError);
 }
 
 function trackEdits(form, view) {
@@ -146,6 +150,7 @@ export {
   displayDay,
   field,
   textInput,
+  submitChange,
   writeEntry,
   trackEdits,
 };

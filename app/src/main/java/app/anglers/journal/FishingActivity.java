@@ -180,6 +180,11 @@ public final class FishingActivity extends Activity {
       switch (operation) {
         case "card":
         case "directory":
+        case "water_discussion":
+        case "discussion_post":
+        case "discussion_withdraw":
+        case "discussion_helpful":
+        case "discussion_report":
         case "groups":
         case "group_tip_post":
         case "save_card":

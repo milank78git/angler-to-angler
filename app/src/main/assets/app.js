@@ -4,6 +4,7 @@ import { listWaters, waterScreen } from './waters.js';
 import { rulesScreen } from './seasons.js';
 import { listTrips, tripForm, tripScreen } from './trips.js';
 import { catchForm } from './catch-form.js';
+import { waterDiscussion, discussionComposer } from './discussion.js';
 import { shareCard } from './share-card.js';
 import { profileScreen, editProfile, directoryScreen } from './profiles.js';
 import { evidenceScreen, reviewScreen } from './verification.js';
@@ -19,6 +20,8 @@ const views = {
   newTrip: tripForm,
   newCatch: catchForm,
   shareCard,
+  waterDiscussion,
+  discussionComposer,
   anglerProfile: profileScreen,
   editProfile,
   directory: directoryScreen,
@@ -46,7 +49,7 @@ window.positionResult = (id, fix) =>
 async function render(view, area) {
   dismissConfirmation();
   const { page } = view.route;
-  const editing = page === 'newTrip' || page === 'newCatch' || page === 'editProfile';
+  const editing = page === 'newTrip' || page === 'newCatch' || page === 'editProfile' || page === 'discussionComposer';
   tabs.hidden = editing;
   document.body.classList.toggle('editing', editing);
   for (const key of ['waters', 'rules', 'trips'])

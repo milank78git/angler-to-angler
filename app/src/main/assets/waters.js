@@ -148,11 +148,12 @@ export function waterScreen({ view, pack, rivers, nav }) {
   screen.innerHTML =
     back(t('Atlas revírů', 'Water atlas')) +
     `<section class="hero detail-hero">${photo(w, 'hero-img')}<div class="hero-copy"><div class="hero-meta">${icon('map-pin')}${esc(w.number)} · ${esc(loc(pack.label))}</div><h1>${esc(w.name)}</h1></div>${favoriteButton(pack, w)}</section><p class="area-line">${icon('route')}${esc(w.area)}</p>
-    <div class="quick-actions">${button('new-trip', t('Zapsat výpravu', 'Log a trip'), 'primary', 'plus')}${button('open-rules', t('Hájení a míry', 'Seasons & sizes'), 'secondary', 'calendar-days')}</div>
+    <div class="quick-actions">${button('new-trip', t('Zapsat výpravu', 'Log a trip'), 'primary', 'plus')}${button('open-rules', t('Hájení a míry', 'Seasons & sizes'), 'secondary', 'calendar-days')}${button('open-discussion', t('Dotazy u revíru', 'Water questions'), 'secondary')}</div>
     <div class="columns"><section class="surface">${sectionTitle('map', t('Mapa revíru', 'Water map'))}${waterMap(w, rivers)}<ul class="legend">${landmark('1', loc(w.ends[0]))}${landmark('2', loc(w.ends[1]))}${landmark('!', loc(w.restriction))}${w.access ? landmark('A', loc(w.access)) : ''}</ul></section>
     <section class="surface">${sectionTitle('navigation', t('Přístup k vodě', 'Getting to the water'))}${w.access ? `<p>${esc(loc(w.access))}</p><div class="actions">${button('navigate', t('Otevřít navigaci', 'Open directions'), 'secondary', 'navigation')}</div><div class="rulesrc">${link(w.access.source, t('Zdroj přístupového bodu', 'Access point source'))}</div>` : `<p class="muted">${t('Pro tento revír chybí ověřený přístupový bod.', 'This pack has no verified access point for this water.')}</p>`}</section></div>${credits(w)}`;
   bindBack(nav);
   bind('new-trip', () => nav.open('newTrip', { water: w.id }));
+  bind('open-discussion', () => nav.open('waterDiscussion', { id: w.id }));
   bind('open-rules', () => nav.open('waterRules', { id: w.id }));
   const fav = screen.querySelector('[data-favorite]');
   fav.onclick = () => {
