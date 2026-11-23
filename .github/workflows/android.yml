@@ -13,10 +13,12 @@ jobs:
       - name: Verify profile isolation, document receipts and erasure
         run: |
           sudo systemctl start postgresql
-          sudo install -m 644 tests/profile-db.sql /tmp/angler-profile-db.sql
-          sudo install -m 644 supabase/migrations/202611230001_profiles.sql /tmp/angler-profile-schema.sql
-          sed -i 's@../supabase/migrations/202611230001_profiles.sql@/tmp/angler-profile-schema.sql@' /tmp/angler-profile-db.sql
-          sudo -u postgres psql -X -v ON_ERROR_STOP=1 -f /tmp/angler-profile-db.sql
+          fixture=$(mktemp -d)
+          chmod 755 "$fixture"
+          install -Dm644 tests/profile-db.sql "$fixture/tests/profile-db.sql"
+          migration=supabase/migrations/202611230001_profiles.sql
+          install -Dm644 "$migration" "$fixture/$migration"
+          sudo -u postgres psql -X -v ON_ERROR_STOP=1 -f "$fixture/tests/profile-db.sql"
   build:
     runs-on: ubuntu-24.04
     steps:

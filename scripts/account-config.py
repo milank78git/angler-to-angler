@@ -2,6 +2,7 @@
 import json
 import os
 import re
+import shutil
 import sys
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -21,3 +22,7 @@ if config != {}:
 out = Path(sys.argv[1])
 out.parent.mkdir(parents=True, exist_ok=True)
 out.write_text(json.dumps(config, ensure_ascii=False), encoding="utf-8")
+
+root = Path(__file__).resolve().parents[1]
+for document in ("LICENSE", "NOTICE"):
+    shutil.copyfile(root / document, out.with_name(document.lower() + ".txt"))

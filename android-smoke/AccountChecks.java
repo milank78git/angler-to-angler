@@ -3,11 +3,16 @@ package app.anglers.journal.smoke;
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Intent;
+import android.net.Uri;
+import android.util.Base64;
 import android.view.*;
 import android.widget.*;
 import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import org.json.JSONObject;
 
 /**
@@ -19,6 +24,7 @@ final class AccountChecks {
   private final boolean cs;
   private Activity gate;
   private volatile boolean accepted;
+  private volatile String expectedChallenge;
 
   AccountChecks(Runner app, boolean cs) {
     this.app = app;
@@ -63,6 +69,20 @@ final class AccountChecks {
                         try {
                           JSONObject body = new JSONObject(request.toString("UTF-8"));
                           switch (u.getPath()) {
+                            case "/auth/v1/token":
+                              byte[] hash =
+                                  MessageDigest.getInstance("SHA-256")
+                                      .digest(
+                                          body.getString("code_verifier")
+                                              .getBytes(StandardCharsets.US_ASCII));
+                              String challenge =
+                                  Base64.encodeToString(
+                                      hash, Base64.URL_SAFE | Base64.NO_WRAP | Base64.NO_PADDING);
+                              if (!"grant_type=pkce".equals(u.getQuery())
+                                  || !"fixture-code".equals(body.getString("auth_code"))
+                                  || !challenge.equals(expectedChallenge)) return 403;
+                              response = "{\"access_token\":\"fixture-session\"}";
+                              return 200;
                             case "/auth/v1/otp":
                               return body.getString("email").equals("test@example.invalid")
                                   ? 200
@@ -111,6 +131,8 @@ final class AccountChecks {
                 .setClassName(
                     app.getTargetContext().getPackageName(), "app.anglers.journal.AccountActivity")
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+    checkSocialLogin("Google");
+    checkSocialLogin("Facebook");
     type(tr("E-mail", "Email"), "test@example.invalid");
     click(tr("Poslat přihlašovací kód", "Send sign-in code"));
     type(tr("Kód z e-mailu", "Email code"), "123456");
@@ -135,6 +157,52 @@ final class AccountChecks {
     } finally {
       app.removeMonitor(monitor);
     }
+  }
+
+  /**
+   * Exercise both external browser requests and their native callbacks without a provider account.
+   */
+  private void checkSocialLogin(String provider) throws Exception {
+    ArrayBlockingQueue<Uri> outgoing = new ArrayBlockingQueue<>(1);
+    Instrumentation.ActivityMonitor browser =
+        new Instrumentation.ActivityMonitor() {
+          @Override
+          public Instrumentation.ActivityResult onStartActivity(Intent intent) {
+            Uri target = intent.getData();
+            if (!Intent.ACTION_VIEW.equals(intent.getAction())
+                || target == null
+                || !"https".equals(target.getScheme())) return null;
+            outgoing.offer(target);
+            return new Instrumentation.ActivityResult(Activity.RESULT_CANCELED, null);
+          }
+        };
+    app.addMonitor(browser);
+    Uri target;
+    try {
+      click(tr("Pokračovat přes ", "Continue with ") + provider);
+      target = outgoing.poll(5, TimeUnit.SECONDS);
+    } finally {
+      app.removeMonitor(browser);
+    }
+    String pkg = gate.getPackageName();
+    String redirect = pkg + "://account/callback";
+    if (target == null
+        || !"identity.angler.invalid".equals(target.getHost())
+        || !"/auth/v1/authorize".equals(target.getPath())
+        || !provider.equalsIgnoreCase(target.getQueryParameter("provider"))
+        || !"s256".equalsIgnoreCase(target.getQueryParameter("code_challenge_method"))
+        || !redirect.equals(target.getQueryParameter("redirect_to")))
+      throw new AssertionError("Unexpected authorization request for " + provider);
+    expectedChallenge = target.getQueryParameter("code_challenge");
+    if (expectedChallenge == null || !expectedChallenge.matches("[A-Za-z0-9_-]{43}"))
+      throw new AssertionError("Missing S256 challenge");
+    Intent callback =
+        new Intent(Intent.ACTION_VIEW, Uri.parse(redirect + "?code=fixture-code"))
+            .addCategory(Intent.CATEGORY_BROWSABLE)
+            .setPackage(pkg);
+    app.runOnMainSync(() -> gate.startActivity(callback));
+    click(tr("Zpět k přihlášení", "Back to sign-in"));
+    expectedChallenge = null;
   }
 
   private void assertDisabled(String text) throws Exception {

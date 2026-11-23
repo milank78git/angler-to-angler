@@ -19,9 +19,14 @@ final class AccountStore {
 
   static String active(Context c) {
     SharedPreferences p = prefs(c);
+    return remainingMillis(c) > 0 ? p.getString("subject", "") : "";
+  }
+
+  static long remainingMillis(Context c) {
+    SharedPreferences p = prefs(c);
     long age = System.currentTimeMillis() - p.getLong("verified", 0);
-    if (age < 0 || age >= WINDOW || !REVISION.equals(p.getString("revision", ""))) return "";
-    return p.getString("subject", "");
+    if (age < 0 || age >= WINDOW || !REVISION.equals(p.getString("revision", ""))) return 0;
+    return WINDOW - age;
   }
 
   static void activate(Context c, String id, String name, boolean claimLegacy) {

@@ -9,6 +9,8 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -23,6 +25,8 @@ public final class FishingActivity extends Activity {
   private ValueCallback<Uri[]> picker;
   private PositionRequest position;
   private CatchShare shares;
+  private final Handler sessionTimer = new Handler(Looper.getMainLooper());
+  private final Runnable sessionCheck = this::checkSession;
   private String subject;
   private String pendingReminder;
 
@@ -298,7 +302,22 @@ public final class FishingActivity extends Activity {
   @Override
   protected void onResume() {
     super.onResume();
-    if (!isFinishing() && !subject.equals(AccountStore.active(this))) lockAccount();
+    checkSession();
+  }
+
+  private void checkSession() {
+    if (isFinishing()) return;
+    if (!subject.equals(AccountStore.active(this))) {
+      lockAccount();
+      return;
+    }
+    sessionTimer.postDelayed(sessionCheck, AccountStore.remainingMillis(this));
+  }
+
+  @Override
+  protected void onPause() {
+    sessionTimer.removeCallbacks(sessionCheck);
+    super.onPause();
   }
 
   @Override

@@ -1,13 +1,14 @@
 # Repository controls
 
-CODEOWNERS requests review from the current owner. The CI workflow uses read-only permissions and commit-pinned actions. Dependabot checks npm, Gradle and GitHub Actions weekly. The contribution guide, issue forms, security contact, third-party notices and PR template live in the repository.
+The active [Protect main ruleset](https://github.com/milank78git/angler-to-angler/settings/rules/27878561) applies to the default branch. Changes require a pull request with resolved review conversations. Its branch must be up to date and both GitHub Actions jobs (`build` and `profiles`) must pass. Force pushes and deletion are blocked. The minimum approval count is zero while the repository has a single maintainer.
 
-To apply the live default branch rules, import `.github/main-ruleset.json` in Settings → Rules → Rulesets, or use the authenticated owner CLI below. Inspect existing rules first and update the named ruleset if already present. Keep both workflow job names in sync with CI. The policy requires a PR, resolved conversations, passing Android and profile database checks, and blocks force pushes and deletion. The approval count is zero for a solo maintainer; increase it when a second reviewer can approve.
+Inspect the effective policy and its settings with an authenticated account:
 
 ```sh
-gh api repos/milank78git/angler-to-angler/rulesets
-gh api --method POST repos/milank78git/angler-to-angler/rulesets --input .github/main-ruleset.json
 gh api repos/milank78git/angler-to-angler/rules/branches/main
+gh api repos/milank78git/angler-to-angler/rulesets/27878561
 ```
 
-Enable Dependabot alerts and private vulnerability reporting in repository settings. GitHub enables version updates after the configuration reaches the default branch. Check permitted Actions, read-only default workflow permissions and secret scanning/push protection in the repository security settings. Keep administrator credentials outside Actions workflows.
+The portable policy template lives in `.github/main-ruleset.json`. Keep the check names aligned with the workflow, select GitHub Actions as their expected source when restoring the ruleset, and increase the approval count once a second maintainer can review.
+
+Private vulnerability reporting, the dependency graph, Dependabot alerts and security updates are enabled. Secret protection and push protection are active. The workflow requests read-only repository contents and pins external actions to commit SHAs. Once merged, Dependabot's weekly configuration covers npm, Gradle and GitHub Actions. CODEOWNERS, issue forms, the pull request template and contribution and security policies live in the repository.

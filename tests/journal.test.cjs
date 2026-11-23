@@ -57,3 +57,16 @@ test('a transient database opening error can be retried without restarting the a
   assert.equal(attempts, 2);
   assert.deepEqual(await journal.listTrips(), [{ id: 'trip', catchCount: 0 }]);
 });
+
+test('journals on one device keep trips, catches and photos scoped to their owner', async () => {
+  const factory = new IDBFactory();
+  const owner = createJournal(factory, 'angler-field-journal-owner');
+  const visitor = createJournal(factory, 'angler-field-journal-visitor');
+  await owner.saveTrip({ id: 'river' });
+  await owner.saveCatch({ id: 'perch', tripId: 'river' }, new Blob(['private photo']));
+  assert.deepEqual(await visitor.listTrips(), []);
+  assert.deepEqual(await visitor.catches('river'), []);
+  assert.equal(await visitor.photo('perch'), undefined);
+  await visitor.removeTrip('river');
+  assert.equal(await (await owner.photo('perch')).text(), 'private photo');
+});

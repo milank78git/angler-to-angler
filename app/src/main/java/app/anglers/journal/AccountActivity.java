@@ -121,11 +121,22 @@ public final class AccountActivity extends Activity {
   private void documents() {
     action(text("Podmínky používání", "Terms of use"), () -> document("terms"));
     action(text("Ochrana osobních údajů", "Privacy notice"), () -> document("privacy"));
+    action(text("Licence a autoři", "Licenses and credits"), () -> document("license"));
   }
 
   private void document(String kind) {
     try {
-      String contents = IdentityService.asset(this, kind + "-" + (cs ? "cs" : "en") + ".txt");
+      String contents;
+      if (kind.equals("license")) {
+        contents =
+            IdentityService.asset(this, "notice.txt")
+                + "\n\n"
+                + IdentityService.asset(this, "license.txt")
+                + "\n\n"
+                + IdentityService.asset(this, "icon-license.txt");
+      } else {
+        contents = IdentityService.asset(this, kind + "-" + (cs ? "cs" : "en") + ".txt");
+      }
       if (kind.equals("privacy") && service != null && !service.notice.isEmpty())
         contents += "\n\n" + service.notice;
       new AlertDialog.Builder(this)
