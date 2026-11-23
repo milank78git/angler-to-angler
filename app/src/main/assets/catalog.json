@@ -1,0 +1,135 @@
+{
+  "schema": 1,
+  "country": "CZ",
+  "zone": "Europe/Prague",
+  "revision": "2026-11-23",
+  "from": "2026-01-01",
+  "until": "2026-12-31",
+  "law": "https://mze.gov.cz/public/portal/mze/legislativa/vap57781-6415",
+  "species": {
+    "pike": {
+      "cs": "Štika obecná",
+      "en": "Northern pike",
+      "latin": "Esox lucius",
+      "window": [
+        "01-01",
+        "06-15"
+      ]
+    },
+    "zander": {
+      "cs": "Candát obecný",
+      "en": "Zander",
+      "latin": "Sander lucioperca",
+      "window": [
+        "01-01",
+        "06-15"
+      ]
+    },
+    "barbel": {
+      "cs": "Parma obecná",
+      "en": "Common barbel",
+      "latin": "Barbus barbus",
+      "window": [
+        "01-01",
+        "12-31"
+      ]
+    },
+    "roach": {
+      "cs": "Plotice obecná",
+      "en": "Common roach",
+      "latin": "Rutilus rutilus",
+      "window": [
+        "03-16",
+        "06-15"
+      ]
+    }
+  },
+  "waters": [
+    {
+      "id": "401001",
+      "name": "Berounka 1",
+      "area": "Radotín · Černošice · Mokropsy",
+      "source": "https://www.rybsvaz.cz/karta-reviru/-/401001-berounka-1-h",
+      "size": {
+        "pike": 60,
+        "zander": 45
+      },
+      "bounds": [
+        [
+          14.400484,
+          49.994874
+        ],
+        [
+          14.323948,
+          49.939761
+        ]
+      ],
+      "ends": [
+        {
+          "cs": "Soutok s Vltavou",
+          "en": "Vltava confluence"
+        },
+        {
+          "cs": "Jez Mokropsy",
+          "en": "Mokropsy weir"
+        }
+      ],
+      "restriction": {
+        "cs": "Rybí přechod u jezu Černošice",
+        "en": "Fish pass at Černošice weir"
+      },
+      "danger": [
+        14.325173,
+        49.959622
+      ],
+      "access": null
+    },
+    {
+      "id": "401009",
+      "name": "Sázava 1",
+      "area": "Pikovice · Žampach · Krhanice",
+      "source": "https://www.rybsvaz.cz/karta-reviru/-/401009-sazava-1-h",
+      "size": {
+        "pike": 50,
+        "zander": 45
+      },
+      "bounds": [
+        [
+          14.419301,
+          49.875769
+        ],
+        [
+          14.548901,
+          49.853501
+        ]
+      ],
+      "ends": [
+        {
+          "cs": "Dolní cíp ostrova v Pikovicích",
+          "en": "Downstream end of Pikovice island"
+        },
+        {
+          "cs": "Jez elektrárny v Krhanicích",
+          "en": "Krhanice power station weir"
+        }
+      ],
+      "restriction": {
+        "cs": "Náhon k MVE Žampach",
+        "en": "Žampach power station millrace"
+      },
+      "danger": [
+        14.501402,
+        49.864125
+      ],
+      "access": {
+        "cs": "Pikovice u lávky · přístup k vodě",
+        "en": "Pikovice footbridge · riverside access",
+        "pt": [
+          14.42819636,
+          49.87831264
+        ],
+        "source": "https://tourist.posazavi.com/cz/Service/Service.aspx?Id=1235"
+      }
+    }
+  ]
+}
