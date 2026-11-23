@@ -175,17 +175,17 @@ final class AccountChecks {
                     gate.findViewById(android.R.id.content),
                     tr("Pokračovat přes Google", "Continue with Google")));
     if (disabledGoogle[0] != null) throw new AssertionError("Disabled provider offered");
-    app.saveScreenshot("login", app.getUiAutomation().takeScreenshot());
+    app.captureAccount(gate, "login");
     requestEmail();
     socialEnabled = true;
     click(tr("Změnit e-mail", "Change email"));
     find(tr("Pokračovat přes Google", "Continue with Google"));
     app.waitForIdleSync();
-    app.saveScreenshot("login-social", app.getUiAutomation().takeScreenshot());
+    app.captureAccount(gate, "login-social");
     checkSocialLogin("Facebook");
     checkSocialLogin("Google");
     requestEmail();
-    app.saveScreenshot("inbox", app.getUiAutomation().takeScreenshot());
+    app.captureAccount(gate, "inbox");
     Uri redirect = Uri.parse(gate.getPackageName() + "://account/callback");
     deliverCallback(redirect.buildUpon().appendQueryParameter("error_code", "otp_expired").build());
     find(

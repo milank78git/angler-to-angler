@@ -130,15 +130,40 @@ public final class Runner extends Instrumentation {
         "(()=>{const el=document.createElement('div');el.id='capture-sync';const s=el.style;"
             + "s.position='fixed';s.left='4px';s.top='4px';s.width='16px';s.height='16px';s.zIndex='2147483647';s.backgroundColor='rgb(213,"
             + " 5, 235)';document.body.append(el)})()");
-    frameAt(x, y, true).recycle();
+    frameAt(web, x, y, true).recycle();
     js("document.getElementById('capture-sync').remove()");
-    saveScreenshot(name, frameAt(x, y, false));
+    saveScreenshot(name, frameAt(web, x, y, false));
   }
 
-  private android.graphics.Bitmap frameAt(int x, int y, boolean swatchVisible) throws Exception {
+  /** Wait for the compositor to present this native page before saving its screenshot. */
+  void captureAccount(Activity gate, String name) throws Exception {
+    android.view.View root = gate.findViewById(android.R.id.content);
+    android.graphics.drawable.ColorDrawable mark =
+        new android.graphics.drawable.ColorDrawable(android.graphics.Color.rgb(213, 5, 235));
+    int[] point = new int[2];
+    runOnMainSync(
+        () -> {
+          root.getLocationOnScreen(point);
+          int offsetX = root.getWidth() / 2;
+          int offsetY = root.getHeight() / 4;
+          mark.setBounds(offsetX, offsetY, offsetX + 16, offsetY + 16);
+          point[0] += offsetX + 8;
+          point[1] += offsetY + 8;
+          root.getOverlay().add(mark);
+        });
+    try {
+      frameAt(root, point[0], point[1], true).recycle();
+    } finally {
+      runOnMainSync(() -> root.getOverlay().remove(mark));
+    }
+    saveScreenshot(name, frameAt(root, point[0], point[1], false));
+  }
+
+  private android.graphics.Bitmap frameAt(
+      android.view.View target, int x, int y, boolean swatchVisible) throws Exception {
     long deadline = android.os.SystemClock.elapsedRealtime() + 15000;
     do {
-      runOnMainSync(() -> web.postInvalidateOnAnimation());
+      runOnMainSync(target::postInvalidateOnAnimation);
       android.graphics.Bitmap frame = getUiAutomation().takeScreenshot();
       if (frame != null) {
         int pixel = frame.getPixel(x, y);
@@ -154,7 +179,7 @@ public final class Runner extends Instrumentation {
     throw new AssertionError("Display did not reach the current UI frame");
   }
 
-  void saveScreenshot(String name, android.graphics.Bitmap pixels) throws Exception {
+  private void saveScreenshot(String name, android.graphics.Bitmap pixels) throws Exception {
     java.io.File dir = new java.io.File(getTargetContext().getExternalFilesDir(null), "ui");
     if (!dir.isDirectory() && !dir.mkdirs())
       throw new java.io.IOException("Screenshot directory unavailable");
