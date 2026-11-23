@@ -20,6 +20,7 @@ import org.json.JSONObject;
  */
 final class AccountChecks {
   private static final String ID = "11111111-1111-4111-8111-111111111111";
+  private final MarketChecks market = new MarketChecks();
   private final PublicCardChecks publicCards = new PublicCardChecks();
   private final ActivityChecks activityChecks = new ActivityChecks();
   private final WeeklyChecks weekly = new WeeklyChecks();
@@ -261,6 +262,12 @@ final class AccountChecks {
                                           u.getPath().substring("/rest/v1/rpc/angler_".length()),
                                           body)
                                       .toString();
+                              break;
+                            case "/rest/v1/rpc/angler_market_list":
+                            case "/rest/v1/rpc/angler_market_detail":
+                            case "/rest/v1/rpc/angler_market_activate":
+                            case "/rest/v1/rpc/angler_market_buy":
+                              response = market.response(u.getPath().substring("/rest/v1/rpc/angler_".length()), body).toString();
                               break;
                             case "/rest/v1/rpc/angler_public_card_options":
                             case "/rest/v1/rpc/angler_public_card_publish":
