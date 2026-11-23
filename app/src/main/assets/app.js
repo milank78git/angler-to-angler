@@ -5,6 +5,8 @@ import { rulesScreen } from './seasons.js';
 import { listTrips, tripForm, tripScreen } from './trips.js';
 import { catchForm } from './catch-form.js';
 import { shareCard } from './share-card.js';
+import { profileScreen, editProfile, directoryScreen } from './profiles.js';
+import { evidenceScreen, reviewScreen } from './verification.js';
 const tabs = by('tabs'),
   catalog = {};
 const views = {
@@ -17,6 +19,11 @@ const views = {
   newTrip: tripForm,
   newCatch: catchForm,
   shareCard,
+  anglerProfile: profileScreen,
+  editProfile,
+  directory: directoryScreen,
+  evidence: evidenceScreen,
+  review: reviewScreen,
 };
 const nav = new Navigation(
   render,
@@ -24,7 +31,7 @@ const nav = new Navigation(
   () => window.scrollY,
 );
 
-/** The native bridge only needs these three callbacks; feature code stays module scoped. */
+/** Forward native navigation and device events to the current screen. */
 window.handleBack = () => nav.back();
 window.reminderChanged = () => window.dispatchEvent(new Event('reminderchange'));
 window.positionResult = (id, fix) =>
@@ -32,7 +39,7 @@ window.positionResult = (id, fix) =>
 
 async function render(view, area) {
   const { page } = view.route;
-  const editing = page === 'newTrip' || page === 'newCatch';
+  const editing = page === 'newTrip' || page === 'newCatch' || page === 'editProfile';
   tabs.hidden = editing;
   document.body.classList.toggle('editing', editing);
   for (const key of ['waters', 'rules', 'trips'])
@@ -76,8 +83,10 @@ function setTheme(mode) {
 }
 async function start() {
   document.documentElement.lang = cs ? 'cs' : 'en';
-  by('profile').textContent=t('Profil','Profile');
-  bind('profile',()=>window.Device.profile());
+  by('profile').textContent = t('Profil', 'Profile');
+  bind('profile', () => {
+    if (nav.current?.route.page !== 'anglerProfile' || nav.current.route.id) nav.open('anglerProfile');
+  });
   by('brand').textContent = t('Rybáři sobě', 'Angler to Angler');
   const versionLabel = window.Device?.versionLabel?.();
   if (versionLabel) {
@@ -119,7 +128,8 @@ async function start() {
       .map(([k, label, glyph]) => button('tab' + k, label, 'destination', glyph))
       .join('');
     destinations.forEach(([k]) => bind('tab' + k, () => nav.open(k)));
-    nav.show();
+    if (window.Device?.openProfile?.()) nav.open('anglerProfile');
+    else nav.show();
   } catch (error) {
     screen.textContent = t(
       'Místní data se nepodařilo otevřít. Zkus aplikaci znovu spustit.',

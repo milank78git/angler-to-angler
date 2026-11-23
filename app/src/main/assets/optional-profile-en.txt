@@ -1,0 +1,5 @@
+Optional online features · pilot 0.6.0
+
+Saving a profile stores your chosen picture, hometown, tagline and biography with your pilot account. The card is initially private. If you publish it, signed-in pilot anglers can see the card and verified catch total. They see only groups they share with you. You can remove the picture, clear the fields and withdraw publication under Edit profile.
+
+You choose each catch to send for verification. The reviewer receives a resized photo without original metadata, species, capture time, water name and approximate location rounded to 0.01 degrees. The hosted image, water and location are removed after a decision. A photo may itself reveal the fishing spot. The pilot retains the result, length, capture and decision times, identifiers and image fingerprint until you remove the review record or close the account. Pending photos stay in the review queue until a reviewer decides, you withdraw them or the account is deleted. You can withdraw a record under Profile → Catch verification. Deleting a local trip removes its local copy. Backup retention and contact details are in the deployment notice.

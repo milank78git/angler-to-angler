@@ -17,14 +17,14 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Verify profile isolation, document receipts and erasure
+      - name: Verify profiles, invites and private group membership
         run: |
           sudo systemctl start postgresql
           fixture=$(mktemp -d)
           chmod 755 "$fixture"
-          install -Dm644 tests/profile-db.sql "$fixture/tests/profile-db.sql"
-          migration=supabase/migrations/20261123070056_profiles.sql
-          install -Dm644 "$migration" "$fixture/$migration"
+          install -d "$fixture/tests" "$fixture/supabase/migrations"
+          install -m644 tests/*-db.sql "$fixture/tests/"
+          install -m644 supabase/migrations/*.sql "$fixture/supabase/migrations/"
           sudo -u postgres psql -X -v ON_ERROR_STOP=1 -f "$fixture/tests/profile-db.sql"
   build:
     if: github.event_name != 'workflow_dispatch'

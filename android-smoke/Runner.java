@@ -192,11 +192,38 @@ public final class Runner extends Instrumentation {
     }
   }
 
+  /**
+   * Exercise a captured journal photo through the real WebView, native RPC bridge and withdrawal
+   * UI.
+   */
+  private void checkEvidenceSubmission() throws Exception {
+    js("document.querySelector('#tabtrips').click()");
+    waitFor("!!document.querySelector('[data-trip]')");
+    js("document.querySelector('[data-trip]').click()");
+    waitFor("!!document.querySelector('[data-share-catch]')");
+    script("capture-evidence.js");
+    waitFor("window.evidenceSeeded===true || !!window.evidenceSeedError");
+    if (!"true".equals(js("window.evidenceSeeded===true")))
+      throw new AssertionError("Capture fixture failed: " + js("window.evidenceSeedError"));
+    js("document.querySelector('#tabtrips').click()");
+    waitFor("!!document.querySelector('[data-trip]')");
+    js("document.querySelector('[data-trip]').click()");
+    waitFor("!!document.querySelector('[data-verify-catch]')");
+    js("document.querySelector('[data-verify-catch]').click()");
+    waitFor("!!document.querySelector('[data-remove]') && !document.querySelector('#review')");
+    js("document.querySelector('[data-remove]').click()");
+    waitFor(
+        "!!document.querySelector('#refresh-evidence') &&"
+            + " !document.querySelector('[data-remove]')");
+  }
+
   @Override
   public void onStart() {
     Bundle outcome = new Bundle();
     try {
-      bindJournal(new AccountChecks(this, !"wide".equals(scenario)).register());
+      AccountChecks accounts = new AccountChecks(this, !"wide".equals(scenario));
+      bindJournal(accounts.register());
+      bindJournal(accounts.groups());
       waitFor("document.documentElement.lang==='" + ("wide".equals(scenario) ? "en" : "cs") + "'");
       waitFor(
           "getComputedStyle(document.querySelector('#tabs')).flexDirection==='"
@@ -286,6 +313,7 @@ public final class Runner extends Instrumentation {
           "!!document.querySelector('#catch-list img') && document.querySelector('#catch-list"
               + " img').naturalWidth===32");
       ShareChecks.run(this);
+      checkEvidenceSubmission();
       outcome.putString("stream", "ANGLER_SMOKE_PASS\n");
       finish(Activity.RESULT_OK, outcome);
     } catch (Throwable error) {

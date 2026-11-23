@@ -18,10 +18,23 @@ import {
   writeEntry,
 } from './ui.js';
 function bindPhotoPreview() {
-  let preview;
-  by('photo').onchange = () => {
+  let preview, file, capture;
+  function choose(input, camera) {
+    if (!input.files[0]) return;
+    file = input.files[0];
+    if (!camera) window.Device?.releaseCameraPhoto?.();
+    capture = camera ? JSON.parse(window.Device?.cameraFix?.() || 'null') : null;
+    by(camera ? 'photo' : 'camera-photo').value = '';
+    by('capture-state').textContent = capture
+      ? t(
+          'Snímek má polohu pro ověření. Po uložení ho můžeš odeslat z detailu výpravy.',
+          'This photo has a location fix. After saving, you can submit it from the trip.',
+        )
+      : t(
+          'Fotografie zůstane v deníku jako neověřená.',
+          'This photo will stay in the journal as unverified.',
+        );
     if (preview) URL.revokeObjectURL(preview);
-    const file = by('photo').files[0];
     preview = file ? URL.createObjectURL(file) : null;
     const img = by('photo-preview');
     img.hidden = !file;
@@ -30,9 +43,16 @@ function bindPhotoPreview() {
     by('photo-label').textContent = file
       ? t('Změnit fotografii', 'Change photo')
       : t('Přidat fotografii', 'Add photo');
-  };
-  return () => {
-    if (preview) URL.revokeObjectURL(preview);
+  }
+  by('photo').onchange = (e) => choose(e.target, false);
+  by('camera-photo').onchange = (e) => choose(e.target, true);
+  return {
+    file: () => file || by('photo').files[0],
+    capture: () => capture,
+    dispose() {
+      window.Device?.releaseCameraPhoto?.();
+      if (preview) URL.revokeObjectURL(preview);
+    },
   };
 }
 
@@ -43,10 +63,16 @@ export function catchForm({ view, nav, pack }) {
     created = Date.now();
   screen.innerHTML = catchFields(pack);
   const positionInput = bindCatchPosition(view);
-  const releasePhoto = bindPhotoPreview();
+  const photoInput = bindPhotoPreview();
+  by('camera-photo').onclick = (event) => {
+    if (positionInput.waiting()) {
+      event.preventDefault();
+      toast(t('Vyčkej na polohu nebo zruš její hledání.', 'Wait for the location or cancel the request.'));
+    }
+  };
   view.dispose = () => {
     positionInput.dispose();
-    releasePhoto();
+    photoInput.dispose();
   };
   bindBack(nav);
   trackEdits(by('form'), view);
@@ -93,7 +119,7 @@ export function catchForm({ view, nav, pack }) {
       invalid.focus();
       return;
     }
-    const file = by('photo').files[0];
+    const file = photoInput.file();
     const record = {
       id: catchId,
       tripId: id,
@@ -102,6 +128,7 @@ export function catchForm({ view, nav, pack }) {
       speciesName: speciesId ? loc(pack.species[speciesId]) : speciesName,
       lengthMm,
       position,
+      capture: photoInput.capture() || null,
       bait: by('bait').value.trim(),
       technique: by('technique').value.trim(),
     };
@@ -143,7 +170,9 @@ function catchFields(pack) {
   <form id="form" class="entry-form"><section class="surface">${selectField('fish', t('Druh ryby', 'Fish species'), fish, '')}
     <div id="custom-fish">${textInput('fish-name', t('Název druhu', 'Species name'), '', 'maxlength="100"')}</div>
     ${textInput('length', t('Změřená délka (cm)', 'Measured length (cm)'), '', 'inputmode="decimal" placeholder="64,5"')}
-    <div class="photo-field"><input type="file" id="photo" accept="image/*"><label for="photo">${icon('camera')}<span id="photo-label">${t('Přidat fotografii', 'Add photo')}</span></label><img id="photo-preview" class="preview" hidden alt=""></div></section>
+    <div class="photo-field"><input type="file" id="camera-photo" accept="image/*" capture="environment"><label for="camera-photo">${icon('camera')}${t('Vyfotit úlovek pro ověření', 'Photograph catch for verification')}</label>
+    <small>${t('Vyfoť celou rybu s mírou nebo předmětem známé velikosti. Po focení vyčkej na polohu telefonu. Odeslání ke kontrole je dobrovolné.', 'Photograph the whole fish with a ruler or a known-size reference. Wait for a location fix after taking the picture. Sending it for review is optional.')}</small>
+    <input type="file" id="photo" accept="image/*"><label for="photo">${icon('camera')}<span id="photo-label">${t('Přidat fotografii', 'Add photo')}</span></label><small id="capture-state" role="status"></small><img id="photo-preview" class="preview" hidden alt=""></div></section>
   <details class="fold"><summary>${icon('fish-symbol')}${t('Nástraha a technika', 'Bait and technique')}</summary><div class="fold-body">${textInput('bait', t('Na co zabral', 'Bait or lure'), '', 'maxlength="300"')}${textInput('technique', t('Technika lovu', 'Fishing technique'), '', 'maxlength="500"')}</div></details>
   <details id="position-fields" class="fold"><summary>${icon('lock-keyhole')}${t('Soukromá poloha', 'Private location')}</summary><div class="fold-body">${selectField('kind', t('Co bod označuje', 'Point represents'), kinds, 'stand')}
   <div class="pair"><div>${textInput('lat', t('Šířka', 'Latitude'), '', 'placeholder="49.8783"')}</div><div>${textInput('lon', t('Délka', 'Longitude'), '', 'placeholder="14.4282"')}</div></div>
