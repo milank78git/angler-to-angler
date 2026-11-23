@@ -159,6 +159,16 @@ public final class FishingActivity extends Activity {
     }
 
     @JavascriptInterface
+    public String weeklyDestination() {
+      return getIntent().getStringExtra("weeklyDestination");
+    }
+
+    @JavascriptInterface
+    public void closeGroupBoard() {
+      if (getIntent().hasExtra("weeklyDestination")) runOnUiThread(FishingActivity.this::finish);
+    }
+
+    @JavascriptInterface
     public boolean openProfile() {
       return getIntent().getBooleanExtra("openProfile", false);
     }
@@ -178,6 +188,7 @@ public final class FishingActivity extends Activity {
     @JavascriptInterface
     public void profileRequest(int id, String operation, String body) {
       switch (operation) {
+        case "profile":
         case "card":
         case "directory":
         case "water_discussion":
@@ -186,6 +197,11 @@ public final class FishingActivity extends Activity {
         case "discussion_withdraw":
         case "discussion_helpful":
         case "discussion_report":
+        case "weekly_enter":
+        case "weekly_board":
+        case "weekly_vote":
+        case "weekly_report":
+        case "weekly_withdraw":
         case "message_inbox":
         case "message_history":
         case "message_send":

@@ -475,6 +475,7 @@ public final class Runner extends Instrumentation {
           "!!document.querySelector('#catch-list img') && document.querySelector('#catch-list"
               + " img').naturalWidth===32");
       ShareChecks.run(this);
+      WeeklyChecks.run(this);
       checkEvidenceSubmission(accounts);
       accounts.readGroupTip(postedTip);
       outcome.putString("stream", "ANGLER_SMOKE_PASS\n");

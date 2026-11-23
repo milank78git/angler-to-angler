@@ -36,6 +36,10 @@ export class Navigation {
   back() {
     return this.leave(() => {
       const stack = this.stacks.get(this.area);
+      if (this.current?.route.onExit) {
+        this.current.route.onExit();
+        return true;
+      }
       if (stack.length > 1) stack.pop();
       else if (this.area !== 'waters') this.area = 'waters';
       else return false;

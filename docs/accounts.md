@@ -79,3 +79,21 @@ from angler_messages.entries
 where reported_at is not null
 order by reported_at;
 ```
+
+## Group catch of the week
+
+Apply the `group_catch_week` migration. Round boundaries are Monday at 00:00 in Europe/Prague. The journal trip date determines eligibility, including for a manually recorded catch. Only catches from the current week through today can enter. Each photo nomination requires a group and a confirmation. The board is a popularity vote and does not use catch evidence or measured length. Each member can vote for any number of different catches, once per other angler's entry. Totals and competition ranks update when a vote, entry or membership is removed. A closed round accepts withdrawals of existing votes and entries.
+
+All board requests check current group membership. The server stores an opaque entry ID, source catch ID, owner, group, date, species and a reduced WebP copy. Only the display name, species, date, reduced pixels, totals, rank and caller-specific flags appear on the board. Withdrawal erases the copy, species, reports and votes. The service retains a receipt containing the entry and catch IDs, group, owner and catch date until membership ends or the group or account is erased. Include owned entries and votes in an export.
+
+To review a reported photo, use the operator database connection. Bind the reviewed entry UUID as `$1`. Only this connection can pause or reinstate an entry. While held, the author can see its review status and withdraw it. Other members cannot see it or vote for it. Reinstatement recalculates rank using the retained votes.
+
+```sql
+select e.group_id, e.id, e.species, e.photo, count(*) as reports
+from angler_weekly.reports r join angler_weekly.entries e on e.id = r.entry_id
+group by e.id;
+
+update angler_weekly.entries set held = true where id = $1 and photo is not null;
+-- After review, use held = false to reinstate the entry, or remove its shared copy.
+select angler_weekly.remove_entry(group_id, id, null) from angler_weekly.entries where id = $1;
+```

@@ -60,17 +60,17 @@ export function failure(error) {
 }
 
 /** Only re-encoded pixels leave the journal. Reduce dimensions again on noisy images. */
-export async function photoPayload(file, edge, limit) {
-  let jpeg = await pixelJpeg(file, edge);
-  while (jpeg.size > limit && edge > 128) {
+export async function photoPayload(file, edge, limit, encode = pixelJpeg) {
+  let pixels = await encode(file, edge);
+  while (pixels.size > limit && edge > 128) {
     edge = Math.floor(edge * 0.8);
-    jpeg = await pixelJpeg(file, edge);
+    pixels = await encode(file, edge);
   }
-  if (jpeg.size > limit) throw Error('photo');
+  if (pixels.size > limit) throw Error('photo');
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onerror = () => reject(Error('photo'));
     reader.onload = () => resolve(reader.result.split(',')[1]);
-    reader.readAsDataURL(jpeg);
+    reader.readAsDataURL(pixels);
   });
 }

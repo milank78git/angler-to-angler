@@ -20,6 +20,7 @@ import org.json.JSONObject;
  */
 final class AccountChecks {
   private static final String ID = "11111111-1111-4111-8111-111111111111";
+  private final WeeklyChecks weekly = new WeeklyChecks();
   private final MessageChecks messages = new MessageChecks();
   private final DiscussionChecks discussions = new DiscussionChecks();
   private final Runner app;
@@ -257,6 +258,19 @@ final class AccountChecks {
                                       .response(
                                           u.getPath().substring("/rest/v1/rpc/angler_".length()),
                                           body)
+                                      .toString();
+                              break;
+                            case "/rest/v1/rpc/angler_weekly_board":
+                            case "/rest/v1/rpc/angler_weekly_enter":
+                            case "/rest/v1/rpc/angler_weekly_report":
+                            case "/rest/v1/rpc/angler_weekly_vote":
+                            case "/rest/v1/rpc/angler_weekly_withdraw":
+                              response =
+                                  weekly
+                                      .response(
+                                          u.getPath().substring("/rest/v1/rpc/angler_".length()),
+                                          body,
+                                          ownGroup)
                                       .toString();
                               break;
                             case "/rest/v1/rpc/angler_groups":
