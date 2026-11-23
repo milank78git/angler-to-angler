@@ -25,7 +25,12 @@ jobs:
           install -d "$fixture/tests" "$fixture/supabase/migrations"
           install -m644 tests/*-db.sql "$fixture/tests/"
           install -m644 supabase/migrations/*.sql "$fixture/supabase/migrations/"
-          sudo -u postgres psql -X -v ON_ERROR_STOP=1 -f "$fixture/tests/profile-db.sql"
+          # Commit the fixture only inside this disposable database for multi-session purchase tests.
+          sudo -u postgres createdb angler_fixture
+          sed 's/^rollback;$/commit;/' "$fixture/tests/profile-db.sql" > "$fixture/tests/committed.sql"
+          install -m644 tests/market-race.py "$fixture/tests/"
+          sudo -u postgres env PGTZ=UTC psql -X -v ON_ERROR_STOP=1 -d angler_fixture -f "$fixture/tests/committed.sql"
+          sudo -u postgres env PGDATABASE=angler_fixture python3 "$fixture/tests/market-race.py"
   build:
     if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-24.04

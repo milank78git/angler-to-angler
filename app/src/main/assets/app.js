@@ -1,4 +1,5 @@
 import { by, screen, t, cs, bind, button, icon, confirmAction, dismissConfirmation } from './ui.js';
+import { marketShelf, marketDetail, marketEditor } from './market.js';
 import { Navigation } from './navigation.js';
 import { listWaters, waterScreen } from './waters.js';
 import { rulesScreen } from './seasons.js';
@@ -15,6 +16,7 @@ import { evidenceScreen, reviewScreen } from './verification.js';
 const tabs = by('tabs'),
   catalog = {};
 const views = {
+  marketShelf, marketDetail, marketEditor,
   waters: listWaters,
   water: waterScreen,
   rules: rulesScreen,
@@ -63,7 +65,7 @@ window.positionResult = (id, fix) =>
 async function render(view, area) {
   dismissConfirmation();
   const { page } = view.route;
-  const editing = ['newTrip', 'newCatch', 'editProfile', 'discussionComposer', 'messageComposer'].includes(page);
+  const editing = ['newTrip', 'newCatch', 'editProfile', 'discussionComposer', 'messageComposer', 'marketEditor'].includes(page);
   tabs.hidden = editing;
   document.body.classList.toggle('editing', editing);
   for (const key of ['waters', 'rules', 'trips'])

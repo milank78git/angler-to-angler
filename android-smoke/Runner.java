@@ -493,6 +493,7 @@ public final class Runner extends Instrumentation {
       ShareChecks.run(this);
       WeeklyChecks.run(this);
       PublicCardChecks.run(this);
+      MarketChecks.run(this);
       checkEvidenceSubmission(accounts);
       accounts.readGroupTip(postedTip);
       outcome.putString("stream", "ANGLER_SMOKE_PASS\n");

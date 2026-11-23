@@ -36,4 +36,5 @@ do $$begin if exists(select from angler_private.acceptances) or exists(select fr
 \ir weekly-db.sql
 \ir activity-db.sql
 \ir public-cards-db.sql
+\ir market-db.sql
 rollback;
