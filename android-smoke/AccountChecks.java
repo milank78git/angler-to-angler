@@ -25,6 +25,7 @@ final class AccountChecks {
   private Activity gate;
   private volatile boolean accepted;
   private volatile String expectedChallenge;
+  private volatile boolean googleEnabled;
 
   AccountChecks(Runner app, boolean cs) {
     this.app = app;
@@ -67,6 +68,18 @@ final class AccountChecks {
                       @Override
                       public int getResponseCode() throws IOException {
                         try {
+                          if ("/auth/v1/settings".equals(u.getPath())
+                              && "GET".equals(getRequestMethod())) {
+                            response =
+                                new JSONObject()
+                                    .put(
+                                        "external",
+                                        new JSONObject()
+                                            .put("google", googleEnabled)
+                                            .put("facebook", true))
+                                    .toString();
+                            return 200;
+                          }
                           JSONObject body = new JSONObject(request.toString("UTF-8"));
                           switch (u.getPath()) {
                             case "/auth/v1/token":
@@ -81,10 +94,19 @@ final class AccountChecks {
                               if (!"grant_type=pkce".equals(u.getQuery())
                                   || !"fixture-code".equals(body.getString("auth_code"))
                                   || !challenge.equals(expectedChallenge)) return 403;
-                              response = "{\"access_token\":\"fixture-session\"}";
+                              response =
+                                  "{\"access_token\":\"fixture-session\",\"user\":{\"email\":\"test@example.invalid\"}}";
                               return 200;
                             case "/auth/v1/otp":
-                              return body.getString("email").equals("test@example.invalid")
+                              String redirect =
+                                  Uri.parse(u.toString()).getQueryParameter("redirect_to");
+                              expectedChallenge = body.getString("code_challenge");
+                              return (app.getTargetContext().getPackageName()
+                                              + "://account/callback")
+                                          .equals(redirect)
+                                      && expectedChallenge.matches("[A-Za-z0-9_-]{43}")
+                                      && "s256".equals(body.getString("code_challenge_method"))
+                                      && body.getString("email").equals("test@example.invalid")
                                   ? 200
                                   : 400;
                             case "/auth/v1/verify":
@@ -148,10 +170,24 @@ final class AccountChecks {
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
     if (!find(app.expectedVersionLabel()).isShown())
       throw new AssertionError("Version hidden at sign-in");
+    click(tr("Pokračovat přes Google", "Continue with Google"));
+    find(
+        tr(
+            "Přihlášení přes Google není zapnuté. Použij e-mail.",
+            "Google sign-in is disabled. Use email instead."));
+    googleEnabled = true;
     checkSocialLogin("Google");
     checkSocialLogin("Facebook");
-    type(tr("E-mail", "Email"), "test@example.invalid");
-    click(tr("Poslat přihlašovací e-mail", "Send sign-in email"));
+    requestEmail();
+    Uri redirect = Uri.parse(gate.getPackageName() + "://account/callback");
+    deliverCallback(redirect.buildUpon().appendQueryParameter("error_code", "otp_expired").build());
+    find(
+        tr(
+            "Tento odkaz nebo kód už byl použitý nebo vypršel. Vyžádej si nový e-mail.",
+            "This link or code was already used or has expired. Request a new email."));
+    deliverCallback(redirect.buildUpon().appendQueryParameter("code", "fixture-code").build());
+    click(tr("Zpět k přihlášení", "Back to sign-in"));
+    requestEmail();
     String field = tr("Odkaz nebo kód z e-mailu", "Email link or code");
     String verify = tr("Ověřit e-mail", "Verify email address");
     String base = "https://identity.angler.invalid/auth/v1/verify?type=";
@@ -187,6 +223,12 @@ final class AccountChecks {
     } finally {
       app.removeMonitor(monitor);
     }
+  }
+
+  private void requestEmail() throws Exception {
+    type(tr("E-mail", "Email"), "test@example.invalid");
+    click(tr("Poslat přihlašovací e-mail", "Send sign-in email"));
+    find(tr("Odkaz nebo kód z e-mailu", "Email link or code"));
   }
 
   /**
@@ -226,13 +268,17 @@ final class AccountChecks {
     expectedChallenge = target.getQueryParameter("code_challenge");
     if (expectedChallenge == null || !expectedChallenge.matches("[A-Za-z0-9_-]{43}"))
       throw new AssertionError("Missing S256 challenge");
-    Intent callback =
-        new Intent(Intent.ACTION_VIEW, Uri.parse(redirect + "?code=fixture-code"))
-            .addCategory(Intent.CATEGORY_BROWSABLE)
-            .setPackage(pkg);
-    app.runOnMainSync(() -> gate.startActivity(callback));
+    deliverCallback(Uri.parse(redirect + "?code=fixture-code"));
     click(tr("Zpět k přihlášení", "Back to sign-in"));
     expectedChallenge = null;
+  }
+
+  private void deliverCallback(Uri uri) {
+    Intent callback =
+        new Intent(Intent.ACTION_VIEW, uri)
+            .addCategory(Intent.CATEGORY_BROWSABLE)
+            .setPackage(gate.getPackageName());
+    app.runOnMainSync(() -> gate.startActivity(callback));
   }
 
   private void assertDisabled(String text) throws Exception {

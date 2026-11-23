@@ -1,6 +1,6 @@
 # Angler to Angler
 
-An offline-first Android field journal for anglers. The Czech launcher name is **Rybáři sobě**. Release 0.4.2 is a privately stored journal and a small, sourced pilot catalog. A verified angler profile and acceptance of the current terms are required. Open **My journal** to log a trip on any named water.
+An offline-first Android field journal for anglers. The Czech launcher name is **Rybáři sobě**. Release 0.4.3 is a privately stored journal and a small, sourced pilot catalog. A verified angler profile and acceptance of the current terms are required. Open **My journal** to log a trip on any named water.
 
 ## Try the pilot
 

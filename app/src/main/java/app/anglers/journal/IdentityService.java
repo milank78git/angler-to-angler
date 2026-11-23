@@ -56,40 +56,59 @@ final class IdentityService {
     return Base64.encodeToString(bytes, Base64.URL_SAFE | Base64.NO_WRAP | Base64.NO_PADDING);
   }
 
+  private static String challenge(String verifier) throws Exception {
+    return Base64.encodeToString(
+        MessageDigest.getInstance("SHA-256").digest(verifier.getBytes(StandardCharsets.US_ASCII)),
+        Base64.URL_SAFE | Base64.NO_WRAP | Base64.NO_PADDING);
+  }
+
+  boolean providerEnabled(String provider) throws Exception {
+    return request("/auth/v1/settings", null, null).getJSONObject("external").getBoolean(provider);
+  }
+
   Uri authorize(String provider, String verifier) throws Exception {
     if (!configured() || !("google".equals(provider) || "facebook".equals(provider)))
       throw new IllegalStateException();
-    String challenge =
-        Base64.encodeToString(
-            MessageDigest.getInstance("SHA-256")
-                .digest(verifier.getBytes(StandardCharsets.US_ASCII)),
-            Base64.URL_SAFE | Base64.NO_WRAP | Base64.NO_PADDING);
     return Uri.parse(origin + "/auth/v1/authorize")
         .buildUpon()
         .appendQueryParameter("provider", provider)
         .appendQueryParameter("redirect_to", redirect)
-        .appendQueryParameter("code_challenge", challenge)
+        .appendQueryParameter("code_challenge", challenge(verifier))
         .appendQueryParameter("code_challenge_method", "s256")
         .build();
   }
 
-  private JSONObject post(String path, String token, JSONObject data) throws Exception {
+  static final class ExpiredEmail extends IOException {}
+
+  private JSONObject request(String path, String token, JSONObject data) throws Exception {
     if (!configured()) throw new IOException("Account service unavailable");
     HttpURLConnection conn = (HttpURLConnection) new URL(origin + path).openConnection();
     try {
       conn.setInstanceFollowRedirects(false);
       conn.setConnectTimeout(12000);
       conn.setReadTimeout(12000);
-      conn.setRequestMethod("POST");
       conn.setRequestProperty("apikey", key);
       if (token != null) conn.setRequestProperty("Authorization", "Bearer " + token);
-      conn.setRequestProperty("Content-Type", "application/json");
-      conn.setDoOutput(true);
-      try (OutputStream out = conn.getOutputStream()) {
-        out.write(data.toString().getBytes(StandardCharsets.UTF_8));
+      if (data != null) {
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setDoOutput(true);
+        try (OutputStream out = conn.getOutputStream()) {
+          out.write(data.toString().getBytes(StandardCharsets.UTF_8));
+        }
       }
       int status = conn.getResponseCode();
-      if (status < 200 || status >= 300) throw new IOException("Account service HTTP " + status);
+      if (status < 200 || status >= 300) {
+        if (path.equals("/auth/v1/verify") && status == 403) {
+          InputStream error = conn.getErrorStream();
+          if (error != null) {
+            JSONObject problem = new JSONObject(read(error));
+            if ("otp_expired".equals(problem.optString("error_code"))
+                || "otp_expired".equals(problem.optString("code"))) throw new ExpiredEmail();
+          }
+        }
+        throw new IOException("Account service HTTP " + status);
+      }
       String result = read(conn.getInputStream());
       return result.isEmpty() || result.equals("null") ? new JSONObject() : new JSONObject(result);
     } finally {
@@ -97,8 +116,15 @@ final class IdentityService {
     }
   }
 
-  void sendSignInEmail(String email) throws Exception {
-    post("/auth/v1/otp", null, new JSONObject().put("email", email).put("create_user", true));
+  void sendSignInEmail(String email, String verifier) throws Exception {
+    request(
+        "/auth/v1/otp?redirect_to=" + Uri.encode(redirect),
+        null,
+        new JSONObject()
+            .put("email", email)
+            .put("create_user", true)
+            .put("code_challenge", challenge(verifier))
+            .put("code_challenge_method", "s256"));
   }
 
   /** Redeem only email authentication proofs for this issuer and the address the angler entered. */
@@ -121,26 +147,31 @@ final class IdentityService {
         throw new IllegalArgumentException("Invalid verification token");
       request.put("token_hash", hash);
     }
-    JSONObject session = post("/auth/v1/verify", null, request);
-    if (!email.equalsIgnoreCase(session.getJSONObject("user").getString("email")))
+    return sessionToken(request("/auth/v1/verify", null, request), email);
+  }
+
+  private String sessionToken(JSONObject session, String expectedEmail) throws Exception {
+    if (!expectedEmail.isEmpty()
+        && !expectedEmail.equalsIgnoreCase(session.getJSONObject("user").getString("email")))
       throw new IOException("Unexpected email identity");
     return session.getString("access_token");
   }
 
-  String exchange(String code, String verifier) throws Exception {
-    return post(
+  String exchange(String code, String verifier, String expectedEmail) throws Exception {
+    return sessionToken(
+        request(
             "/auth/v1/token?grant_type=pkce",
             null,
-            new JSONObject().put("auth_code", code).put("code_verifier", verifier))
-        .getString("access_token");
+            new JSONObject().put("auth_code", code).put("code_verifier", verifier)),
+        expectedEmail);
   }
 
   JSONObject profile(String token) throws Exception {
-    return post("/rest/v1/rpc/angler_profile", token, new JSONObject());
+    return request("/rest/v1/rpc/angler_profile", token, new JSONObject());
   }
 
   JSONObject accept(String token, String name) throws Exception {
-    return post(
+    return request(
         "/rest/v1/rpc/angler_accept",
         token,
         new JSONObject()

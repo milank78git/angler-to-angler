@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import org.json.JSONObject;
 
 /**
@@ -48,7 +49,13 @@ public final class AccountActivity extends Activity {
       manage();
       return;
     }
-    login();
+    SharedPreferences pending = AccountStore.prefs(this);
+    email = pending.getString("pkceEmail", "");
+    if (!email.isEmpty() && pendingIsFresh(pending) && service != null && service.configured()) {
+      code();
+    } else {
+      login();
+    }
     callback(getIntent());
   }
 
@@ -162,7 +169,19 @@ public final class AccountActivity extends Activity {
               "The operator has not configured sign-in for this build."));
     for (String provider : new String[] {"google", "facebook"}) {
       String name = provider.equals("google") ? "Google" : "Facebook";
-      action(text("Pokračovat přes ", "Continue with ") + name, () -> oauth(provider))
+      action(
+              text("Pokračovat přes ", "Continue with ") + name,
+              () ->
+                  run(
+                      () -> service.providerEnabled(provider),
+                      enabled -> {
+                        if (enabled) oauth(provider);
+                        else
+                          status.setText(
+                              text(
+                                  "Přihlášení přes " + name + " není zapnuté. Použij e-mail.",
+                                  name + " sign-in is disabled. Use email instead."));
+                      }))
           .setEnabled(ready);
     }
     EditText address =
@@ -178,14 +197,17 @@ public final class AccountActivity extends Activity {
                 address.setError(text("Zkontroluj adresu.", "Check the address."));
                 return;
               }
+              String verifier = IdentityService.verifier();
+              if (!savePending(verifier, value)) return;
               run(
                   () -> {
-                    service.sendSignInEmail(value);
+                    service.sendSignInEmail(value, verifier);
                     return value;
                   },
                   sent -> {
                     email = sent;
                     code();
+                    callback(getIntent());
                   });
             })
         .setEnabled(ready);
@@ -196,10 +218,10 @@ public final class AccountActivity extends Activity {
     label(email);
     label(
         text(
-            "V doručeném e-mailu podrž přihlašovací odkaz, zkopíruj ho a vlož sem. Pokud zpráva"
-                + " obsahuje číselný kód, stačí ho opsat.",
-            "In the email, press and hold the sign-in link, copy it and paste it here. If the"
-                + " message contains a numeric code, enter that instead."));
+            "Odkaz můžeš dlouze podržet, zkopírovat a vložit sem, případně opsat kód. Je-li pro"
+                + " aplikaci povolen návrat z e-mailu, stačí na odkaz klepnout na tomto telefonu.",
+            "Press and hold the email link to copy and paste it here, or enter the code. If the app"
+                + " redirect is enabled, you can also tap the link on this phone."));
     EditText proof =
         input(
             text("Odkaz nebo kód z e-mailu", "Email link or code"),
@@ -215,18 +237,52 @@ public final class AccountActivity extends Activity {
         });
     action(
         text("Změnit adresu nebo poslat nový e-mail", "Change address or request another email"),
-        this::login);
+        () -> {
+          clearPending();
+          login();
+        });
+  }
+
+  private boolean savePending(String verifier, String address) {
+    boolean saved =
+        AccountStore.prefs(this)
+            .edit()
+            .putString("pkce", verifier)
+            .putString("pkceEmail", address)
+            .putLong("pkceAt", System.currentTimeMillis())
+            .commit();
+    if (!saved)
+      status.setText(
+          text(
+              "Přihlášení nelze uložit. Zkus to znovu.",
+              "Could not save the sign-in request. Please retry."));
+    return saved;
+  }
+
+  private void clearPending() {
+    AccountStore.prefs(this).edit().remove("pkce").remove("pkceAt").remove("pkceEmail").apply();
+  }
+
+  private boolean pendingIsFresh(SharedPreferences pending) {
+    long age = System.currentTimeMillis() - pending.getLong("pkceAt", 0);
+    long limit =
+        pending.getString("pkceEmail", "").isEmpty()
+            ? TimeUnit.MINUTES.toMillis(10)
+            : TimeUnit.DAYS.toMillis(1);
+    return pending.contains("pkce") && age >= 0 && age <= limit;
+  }
+
+  private String expiredEmailMessage() {
+    return text(
+        "Tento odkaz nebo kód už byl použitý nebo vypršel. Vyžádej si nový e-mail.",
+        "This link or code was already used or has expired. Request a new email.");
   }
 
   private void oauth(String provider) {
     try {
       String verifier = IdentityService.verifier();
       Uri url = service.authorize(provider, verifier);
-      AccountStore.prefs(this)
-          .edit()
-          .putString("pkce", verifier)
-          .putLong("pkceAt", System.currentTimeMillis())
-          .commit();
+      if (!savePending(verifier, "")) return;
       startActivity(new Intent(Intent.ACTION_VIEW, url).addCategory(Intent.CATEGORY_BROWSABLE));
     } catch (Exception e) {
       status.setText(text("Prohlížeč nelze otevřít.", "Could not open a browser."));
@@ -241,12 +297,20 @@ public final class AccountActivity extends Activity {
     intent.setData(null);
     SharedPreferences p = AccountStore.prefs(this);
     String verifier = p.getString("pkce", "");
-    long age = System.currentTimeMillis() - p.getLong("pkceAt", 0);
-    p.edit().remove("pkce").remove("pkceAt").commit();
+    String expectedEmail = p.getString("pkceEmail", "");
+    String errorCode = uri.getQueryParameter("error_code");
+    if (errorCode == null && uri.getEncodedFragment() != null) {
+      errorCode =
+          Uri.parse("https://callback.invalid/?" + uri.getEncodedFragment())
+              .getQueryParameter("error_code");
+    }
+    if ("otp_expired".equals(errorCode)) {
+      status.setText(expiredEmailMessage());
+      return;
+    }
     String code = uri.getQueryParameter("code");
     if (!service.configured()
-        || age < 0
-        || age > 600000
+        || !pendingIsFresh(p)
         || verifier.isEmpty()
         || code == null
         || code.isEmpty()) {
@@ -256,10 +320,11 @@ public final class AccountActivity extends Activity {
               "Sign-in was not completed. Please retry."));
       return;
     }
-    run(() -> service.exchange(code, verifier), this::verified);
+    run(() -> service.exchange(code, verifier, expectedEmail), this::verified);
   }
 
   private void verified(String token) {
+    clearPending();
     access = token;
     run(
         () -> service.profile(token),
@@ -387,11 +452,13 @@ public final class AccountActivity extends Activity {
                   if (isFinishing() || isDestroyed()) return;
                   busy = false;
                   status.setText(
-                      text(
-                          "Akci se nepodařilo dokončit. Zkontroluj připojení nebo údaje a opakuj"
-                              + " pokus.",
-                          "Could not complete this step. Check your connection or details, then"
-                              + " retry."));
+                      error instanceof IdentityService.ExpiredEmail
+                          ? expiredEmailMessage()
+                          : text(
+                              "Akci se nepodařilo dokončit. Zkontroluj připojení nebo údaje a"
+                                  + " opakuj pokus.",
+                              "Could not complete this step. Check your connection or details, then"
+                                  + " retry."));
                 });
           }
         });
