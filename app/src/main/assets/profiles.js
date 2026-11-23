@@ -70,7 +70,11 @@ export async function profileScreen({ view, nav }) {
     '<p class="profile-count"><strong>' +
     esc(card.verifiedCount) +
     '</strong> ' +
-    t('ověřených úlovků', 'verified catches') +
+    (card.verifiedCount === 1
+      ? t('ověřený úlovek', 'verified catch')
+      : card.verifiedCount >= 2 && card.verifiedCount <= 4
+        ? t('ověřené úlovky', 'verified catches')
+        : t('ověřených úlovků', 'verified catches')) +
     '</p>' +
     '<section><h2>' +
     (own ? t('Moje party', 'My groups') : t('Společné party', 'Groups in common')) +

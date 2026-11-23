@@ -22,6 +22,7 @@ function bindPhotoPreview() {
   function choose(input, camera) {
     if (!input.files[0]) return;
     file = input.files[0];
+    if (!camera) window.Device?.releaseCameraPhoto?.();
     capture = camera ? JSON.parse(window.Device?.cameraFix?.() || 'null') : null;
     by(camera ? 'photo' : 'camera-photo').value = '';
     by('capture-state').textContent = capture
@@ -49,6 +50,7 @@ function bindPhotoPreview() {
     file: () => file || by('photo').files[0],
     capture: () => capture,
     dispose() {
+      window.Device?.releaseCameraPhoto?.();
       if (preview) URL.revokeObjectURL(preview);
     },
   };

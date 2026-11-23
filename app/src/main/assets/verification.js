@@ -29,6 +29,7 @@ export function addVerificationAction(article, record, trip, view, nav) {
     article.append(label);
     return;
   }
+  action.dataset.verifyCatch = record.id;
   action.textContent = labels.submit;
   action.onclick = async () => {
     action.disabled = true;

@@ -35,18 +35,25 @@ public final class CameraPhotoProvider extends ContentProvider {
         .build();
   }
 
-  private File file(Uri uri) {
+  static void discard(Context context, Uri uri) {
+    if (uri != null) {
+      File file = resolve(context, uri);
+      if (file != null) file.delete();
+    }
+  }
+
+  private static File resolve(Context context, Uri uri) {
     String name = uri.getLastPathSegment();
     if (name == null
         || !name.matches("[0-9a-f-]{36}\\.jpg")
         || !("/" + name).equals(uri.getEncodedPath())) return null;
-    File file = new File(directory(getContext()), name);
+    File file = new File(directory(context), name);
     return file.isFile() ? file : null;
   }
 
   @Override
   public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
-    File file = file(uri);
+    File file = resolve(getContext(), uri);
     if (file == null) throw new FileNotFoundException();
     return ParcelFileDescriptor.open(file, ParcelFileDescriptor.parseMode(mode));
   }
@@ -58,7 +65,7 @@ public final class CameraPhotoProvider extends ContentProvider {
 
   @Override
   public String getType(Uri uri) {
-    return file(uri) == null ? null : "image/jpeg";
+    return resolve(getContext(), uri) == null ? null : "image/jpeg";
   }
 
   @Override
@@ -68,7 +75,7 @@ public final class CameraPhotoProvider extends ContentProvider {
             ? new String[] {OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE}
             : projection;
     MatrixCursor result = new MatrixCursor(columns);
-    File file = file(uri);
+    File file = resolve(getContext(), uri);
     if (file != null) {
       MatrixCursor.RowBuilder row = result.newRow();
       for (String col : columns) {

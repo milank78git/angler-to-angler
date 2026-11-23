@@ -29,7 +29,7 @@ public final class FishingActivity extends Activity {
   private final Runnable sessionCheck = this::checkSession;
   private final java.util.concurrent.ExecutorService profileIo =
       java.util.concurrent.Executors.newSingleThreadExecutor();
-  private Uri cameraUri;
+  private Uri cameraUri, deliveredCameraUri;
   private long cameraStarted, cameraReturned;
   private volatile String captureInfo = "";
   private String subject;
@@ -146,6 +146,11 @@ public final class FishingActivity extends Activity {
                 new Intent(FishingActivity.this, AccountActivity.class).putExtra("manage", true));
             finish();
           });
+    }
+
+    @JavascriptInterface
+    public void releaseCameraPhoto() {
+      runOnUiThread(FishingActivity.this::discardDeliveredPhoto);
     }
 
     @JavascriptInterface
@@ -300,7 +305,17 @@ public final class FishingActivity extends Activity {
     }
   }
 
+  private void discardDeliveredPhoto() {
+    CameraPhotoProvider.discard(this, deliveredCameraUri);
+    deliveredCameraUri = null;
+  }
+
   private void finishCamera(Uri result) {
+    if (result == null) CameraPhotoProvider.discard(this, cameraUri);
+    else {
+      discardDeliveredPhoto();
+      deliveredCameraUri = result;
+    }
     if (picker != null) picker.onReceiveValue(result == null ? null : new Uri[] {result});
     picker = null;
     cameraUri = null;
@@ -458,6 +473,8 @@ public final class FishingActivity extends Activity {
   @Override
   protected void onDestroy() {
     profileIo.shutdownNow();
+    discardDeliveredPhoto();
+    CameraPhotoProvider.discard(this, cameraUri);
     if (position != null) position.stop();
     if (picker != null) picker.onReceiveValue(null);
     if (web != null) {

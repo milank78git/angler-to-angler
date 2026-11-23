@@ -30,6 +30,8 @@ final class AccountChecks {
   private volatile boolean wrongEmail, expireGroupSession;
   private volatile String ownGroup;
   private volatile JSONObject savedCard;
+  private volatile int cardRevision;
+  private volatile JSONObject submittedCatch;
   private static final String INVITE = "d18590e4-a811-4937-a16f-8eb2dacc019d";
 
   private JSONObject profile() throws Exception {
@@ -138,18 +140,57 @@ final class AccountChecks {
                               response =
                                   card.put("id", ID)
                                       .put("name", "River")
-                                      .put("revision", savedCard == null ? 0 : 1)
+                                      .put("revision", cardRevision)
                                       .put("groups", new org.json.JSONArray())
                                       .put("verifiedCount", 0)
                                       .toString();
                               break;
                             case "/rest/v1/rpc/angler_save_card":
-                              if (body.getInt("expected") != 0
-                                  || body.getInt("avatar") != 50
-                                  || !body.getBoolean("shared")
-                                  || !body.getString("hometown").equals("Praha")) return 400;
+                              if (body.getInt("expected") != cardRevision
+                                  || !body.getString("hometown").equals("Praha")) return 409;
+                              if (cardRevision == 0
+                                  && (body.getInt("avatar") != 50 || !body.getBoolean("shared")))
+                                return 400;
+                              if (cardRevision == 1
+                                  && (body.getInt("avatar") != 0
+                                      || !body.getString("photo").startsWith("/9j/"))) return 400;
+                              if (cardRevision == 2
+                                  && (!body.isNull("photo") || body.getBoolean("shared")))
+                                return 400;
                               savedCard = body;
-                              response = "{\"revision\":1}";
+                              response =
+                                  new JSONObject().put("revision", ++cardRevision).toString();
+                              break;
+                            case "/rest/v1/rpc/angler_evidence_list":
+                              org.json.JSONArray items = new org.json.JSONArray();
+                              if (submittedCatch != null) items.put(submittedCatch);
+                              response =
+                                  new JSONObject()
+                                      .put("reviewer", false)
+                                      .put("items", items)
+                                      .put("more", false)
+                                      .toString();
+                              break;
+                            case "/rest/v1/rpc/angler_evidence_submit":
+                              if (!body.getString("photo").startsWith("/9j/")
+                                  || body.getInt("lat100") != 5001
+                                  || body.getInt("lon100") != 1412
+                                  || body.getString("water").isEmpty()) return 400;
+                              submittedCatch =
+                                  new JSONObject()
+                                      .put("id", body.getString("catch_id"))
+                                      .put("species", body.getString("species"))
+                                      .put("captured", body.getLong("captured"))
+                                      .put("outcome", "pending");
+                              response = new JSONObject().put("outcome", "pending").toString();
+                              break;
+                            case "/rest/v1/rpc/angler_evidence_remove":
+                              if (submittedCatch == null
+                                  || !submittedCatch
+                                      .getString("id")
+                                      .equals(body.getString("catch_id"))) return 404;
+                              submittedCatch = null;
+                              response = "{}";
                               break;
                             case "/rest/v1/rpc/angler_groups":
                               if (expireGroupSession) return 401;
@@ -290,6 +331,21 @@ final class AccountChecks {
         "document.querySelector('.angler-card')?.innerText.includes('Praha') &&"
             + " !!document.querySelector('.portrait-x9.portrait-y4')");
     app.capture("profile-card");
+    app.js("document.querySelector('#edit-card').click()");
+    app.waitFor("!!document.querySelector('#profile-photo')");
+    app.script("profile-photo.js");
+    app.waitFor(
+        "!!document.querySelector('#portrait-preview img') &&"
+            + " !document.querySelector('#save-card').disabled");
+    app.js("document.querySelector('#save-card').click()");
+    app.waitFor("document.querySelector('.angler-card img')?.naturalWidth === 64");
+    app.js("document.querySelector('#edit-card').click()");
+    app.waitFor("!!document.querySelector('#clear-photo')");
+    app.js(
+        "document.querySelector('#clear-photo').click();document.querySelector('#shared').click();document.querySelector('#save-card').click()");
+    app.waitFor(
+        "!!document.querySelector('.angler-card .no-portrait') &&"
+            + " !!document.querySelector('#account-settings')");
     gate =
         next(
             "AccountActivity", () -> app.js("document.querySelector('#account-settings').click()"));
