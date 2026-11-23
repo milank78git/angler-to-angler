@@ -23,7 +23,6 @@ import android.webkit.WebViewClient;
 import android.widget.Toast;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.Locale;
 
 /** Loads a fixed app-private HTTPS origin and brokers explicit Android user actions. */
 public final class FishingActivity extends Activity {
@@ -166,7 +165,12 @@ public final class FishingActivity extends Activity {
 
     @JavascriptInterface
     public String locale() {
-      return Locale.getDefault().getLanguage();
+      if (Build.VERSION.SDK_INT >= 33) {
+        android.os.LocaleList selected =
+            getSystemService(android.app.LocaleManager.class).getApplicationLocales();
+        if (!selected.isEmpty()) return selected.get(0).getLanguage();
+      }
+      return getResources().getConfiguration().getLocales().get(0).getLanguage();
     }
 
     @JavascriptInterface

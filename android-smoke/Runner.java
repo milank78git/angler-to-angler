@@ -71,7 +71,12 @@ public final class Runner extends Instrumentation {
     waitFor(
         "Array.from(document.querySelectorAll('img[src]')).every(i=>i.complete &&"
             + " i.naturalWidth>0)");
-    getInstrumentationWait();
+    waitForIdleSync();
+    Thread.sleep(250);
+    saveScreenshot(name);
+  }
+
+  private void saveScreenshot(String name) throws Exception {
     android.graphics.Bitmap pixels = getUiAutomation().takeScreenshot();
     java.io.File dir = new java.io.File(getTargetContext().getExternalFilesDir(null), "ui");
     if (!dir.isDirectory() && !dir.mkdirs())
@@ -85,17 +90,10 @@ public final class Runner extends Instrumentation {
     }
   }
 
-  private void getInstrumentationWait() throws InterruptedException {
-    waitForIdleSync();
-    Thread.sleep(250);
-  }
-
   @Override
   public void onStart() {
     Bundle outcome = new Bundle();
     try {
-      java.util.Locale.setDefault(
-          "wide".equals(scenario) ? java.util.Locale.ENGLISH : new java.util.Locale("cs", "CZ"));
       launch();
       waitFor("document.documentElement.lang==='" + ("wide".equals(scenario) ? "en" : "cs") + "'");
       waitFor(
@@ -170,6 +168,11 @@ public final class Runner extends Instrumentation {
       outcome.putString("stream", "ANGLER_SMOKE_PASS\n");
       finish(Activity.RESULT_OK, outcome);
     } catch (Throwable error) {
+      try {
+        saveScreenshot("failure");
+      } catch (Exception captureError) {
+        error.addSuppressed(captureError);
+      }
       outcome.putString(
           "stream", "ANGLER_SMOKE_FAIL " + android.util.Log.getStackTraceString(error));
       finish(Activity.RESULT_CANCELED, outcome);

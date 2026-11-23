@@ -38,7 +38,7 @@ adb install -r build/standalone/angler-journal-debug.apk
 
 Open the project in Android Studio with Gradle 8.9 for IDE development. The standalone build and CI do not require Gradle or application dependencies.
 
-`bash scripts/android-smoke.sh` runs an instrumentation test on a connected **test device**. It clears the application's data on that device, selects a water, checks a season, saves two catches, restarts the activity and verifies the persisted catch list. CI runs this on a fresh emulator. The storage regression suite also checks retrying a save, deleting associated photos and rejecting an orphaned catch.
+Build the preview first. `bash scripts/android-smoke.sh` runs instrumentation on a disposable **Android 15 test emulator**. It clears the preview application, sets its size and language, selects a water, checks a season, saves two catches, reopens the activity and verifies the records and photo. CI runs both Czech phone and English wide layouts and publishes their screenshots. The storage regression suite also checks retrying a save, deleting associated photos and rejecting an orphaned catch.
 
 
 ## Interface and preview build

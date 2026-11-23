@@ -20,13 +20,17 @@ adb install -r "$out/test-signed.apk"
 mkdir -p "$out/screens"
 for scenario in compact wide; do
   if [[ "$scenario" == compact ]]; then
+    language=cs-CZ
     adb shell wm size 720x1440
     adb shell wm density 320
   else
+    language=en-GB
     adb shell wm size 1620x1200
     adb shell wm density 260
   fi
   adb shell pm clear "$app_id"
+  adb shell cmd locale set-app-locales "$app_id" --user 0 --locales "$language"
+  adb shell cmd locale get-app-locales "$app_id" --user 0
   adb shell am instrument -w -e scenario "$scenario" app.anglers.journal.smoke/.Runner | tee "$out/$scenario.txt"
   adb pull "/sdcard/Android/data/$app_id/files/ui/." "$out/screens" || true
   grep -Fq ANGLER_SMOKE_PASS "$out/$scenario.txt"
