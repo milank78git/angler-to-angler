@@ -1,7 +1,7 @@
 \set ON_ERROR_STOP on
 begin;
 create schema auth;
-create table auth.users(id uuid primary key);
+create table auth.users(id uuid primary key, email_confirmed_at timestamptz);
 create role anon; create role authenticated;
 create function auth.uid() returns uuid language sql as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
 create function auth.jwt() returns jsonb language sql as $$select coalesce(nullif(current_setting('request.jwt.claims',true),''),'{}')::jsonb$$;
@@ -27,4 +27,5 @@ reset role;
 do $$begin if (select count(*) from angler_private.acceptances)<>1 then raise exception 'duplicate acceptance';end if;end$$;
 delete from auth.users;
 do $$begin if exists(select from angler_private.acceptances) or exists(select from angler_private.profiles) then raise exception 'deletion incomplete';end if;end$$;
+\ir groups-db.sql
 rollback;

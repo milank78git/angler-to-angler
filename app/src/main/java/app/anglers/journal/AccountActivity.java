@@ -21,7 +21,7 @@ public final class AccountActivity extends Activity {
   private IdentityService service;
   private AccountLayout ui;
   private Button submit;
-  private boolean cs, busy;
+  private boolean cs, busy, groupLogin;
   private String access, email = "";
   private JSONObject profile;
 
@@ -38,18 +38,24 @@ public final class AccountActivity extends Activity {
     } catch (Exception ignored) {
       /* Show the unavailable state. */
     }
-    if (!AccountStore.active(this).isEmpty()
+    SharedPreferences pending = AccountStore.prefs(this);
+    groupLogin =
+        getIntent().getBooleanExtra("groupsSignIn", false)
+            || (getIntent().getData() != null
+                && pendingIsFresh(pending)
+                && pending.getBoolean("pkceForGroups", false));
+    if (!groupLogin
+        && !AccountStore.active(this).isEmpty()
         && getIntent().getData() == null
         && !getIntent().getBooleanExtra("manage", false)) {
       enter();
       return;
     }
     ui = new AccountLayout(this);
-    if (!AccountStore.active(this).isEmpty()) {
+    if (!groupLogin && !AccountStore.active(this).isEmpty()) {
       manage();
       return;
     }
-    SharedPreferences pending = AccountStore.prefs(this);
     email = pending.getString("pkceEmail", "");
     if (!email.isEmpty() && pendingIsFresh(pending) && service != null && service.configured()) {
       inbox();
@@ -63,7 +69,10 @@ public final class AccountActivity extends Activity {
   protected void onNewIntent(Intent intent) {
     super.onNewIntent(intent);
     setIntent(intent);
-    callback(intent);
+    if (intent.getBooleanExtra("groupsSignIn", false) && intent.getData() == null) {
+      groupLogin = true;
+      login();
+    } else callback(intent);
   }
 
   @Override
@@ -261,6 +270,7 @@ public final class AccountActivity extends Activity {
     boolean saved =
         AccountStore.prefs(this)
             .edit()
+            .putBoolean("pkceForGroups", groupLogin)
             .putString("pkce", verifier)
             .putString("pkceEmail", address)
             .putLong("pkceAt", System.currentTimeMillis())
@@ -274,7 +284,13 @@ public final class AccountActivity extends Activity {
   }
 
   private void clearPending() {
-    AccountStore.prefs(this).edit().remove("pkce").remove("pkceAt").remove("pkceEmail").apply();
+    AccountStore.prefs(this)
+        .edit()
+        .remove("pkceForGroups")
+        .remove("pkce")
+        .remove("pkceAt")
+        .remove("pkceEmail")
+        .apply();
   }
 
   private boolean pendingIsFresh(SharedPreferences pending) {
@@ -393,7 +409,6 @@ public final class AccountActivity extends Activity {
       login();
       return;
     }
-    access = null;
     Runnable fresh = () -> activate(result, false);
     if (AccountStore.prefs(this).contains("legacyOwner")
         || !new java.io.File(getApplicationInfo().dataDir, "app_webview").isDirectory()) {
@@ -417,8 +432,15 @@ public final class AccountActivity extends Activity {
 
   private void activate(JSONObject result, boolean legacy) {
 
-    AccountStore.activate(this, result.optString("id"), result.optString("name"), legacy);
-    enter();
+    AccountStore.activate(this, result.optString("id"), result.optString("name"), legacy, access);
+    access = null;
+    if (groupLogin) {
+      groupLogin = false;
+      getIntent().removeExtra("groupsSignIn");
+      getIntent().putExtra("manage", true);
+      manage();
+      startActivity(new Intent(this, GroupsActivity.class));
+    } else enter();
   }
 
   private void enter() {
@@ -433,9 +455,14 @@ public final class AccountActivity extends Activity {
             "O opravu, kopii nebo výmaz účtu požádej na milan.kucera78@gmail.com.",
             "For account correction, access or deletion contact milan.kucera78@gmail.com."));
     action(
+        text("Rybářské party", "Fishing groups"),
+        AccountLayout.Action.PRIMARY,
+        () -> startActivity(new Intent(this, GroupsActivity.class)));
+    action(
         text("Odhlásit se z telefonu", "Sign out on this phone"),
         AccountLayout.Action.SECONDARY,
         () -> {
+          clearPending();
           AccountStore.logout(this);
           login();
         });

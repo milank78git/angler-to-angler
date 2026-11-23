@@ -1,4 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="app.anglers.journal" android:versionCode="10" android:versionName="0.5.0">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="app.anglers.journal" android:versionCode="11" android:versionName="0.6.0">
   <uses-permission android:name="android.permission.INTERNET"/>
   <uses-sdk android:minSdkVersion="26" android:targetSdkVersion="35"/>
   <uses-feature android:name="android.hardware.location" android:required="false"/>
@@ -13,6 +13,7 @@
       <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
       <intent-filter><action android:name="android.intent.action.VIEW"/><category android:name="android.intent.category.DEFAULT"/><category android:name="android.intent.category.BROWSABLE"/><data android:scheme="${applicationId}" android:host="account" android:path="/callback"/></intent-filter>
     </activity>
+    <activity android:name=".GroupsActivity" android:exported="false" android:configChanges="orientation|screenSize|keyboardHidden" android:windowSoftInputMode="adjustResize"/>
     <activity android:name=".FishingActivity" android:exported="false" android:configChanges="orientation|screenSize|keyboardHidden" android:windowSoftInputMode="adjustResize"/>
     <provider android:name=".CatchCardProvider" android:authorities="${applicationId}.catchcards" android:exported="false" android:grantUriPermissions="true"/>
     <receiver android:name=".SeasonReminder" android:exported="false">

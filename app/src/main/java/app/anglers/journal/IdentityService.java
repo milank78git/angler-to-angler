@@ -82,6 +82,20 @@ final class IdentityService {
 
   static final class EmailRateLimit extends IOException {}
 
+  static final class HttpFailure extends IOException {
+    final int status;
+
+    HttpFailure(int status) {
+      super("Account service HTTP " + status);
+      this.status = status;
+    }
+  }
+
+  JSONObject groupRpc(String operation, String token, JSONObject args) throws Exception {
+    if (token == null) throw new HttpFailure(401);
+    return request("/rest/v1/rpc/angler_" + operation, token, args);
+  }
+
   private JSONObject request(String path, String token, JSONObject data) throws Exception {
     if (!configured()) throw new IOException("Account service unavailable");
     HttpURLConnection conn = (HttpURLConnection) new URL(origin + path).openConnection();
@@ -102,7 +116,7 @@ final class IdentityService {
       int status = conn.getResponseCode();
       if (status < 200 || status >= 300) {
         if (path.startsWith("/auth/v1/otp?") && status == 429) throw new EmailRateLimit();
-        throw new IOException("Account service HTTP " + status);
+        throw new HttpFailure(status);
       }
       String result = read(conn.getInputStream());
       return result.isEmpty() || result.equals("null") ? new JSONObject() : new JSONObject(result);

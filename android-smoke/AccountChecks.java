@@ -27,7 +27,13 @@ final class AccountChecks {
   private volatile String expectedChallenge;
   private volatile boolean socialEnabled;
   private volatile int sentEmails;
-  private volatile boolean wrongEmail;
+  private volatile boolean wrongEmail, expireGroupSession;
+  private volatile String ownGroup;
+  private static final String INVITE = "d18590e4-a811-4937-a16f-8eb2dacc019d";
+
+  private JSONObject profile() throws Exception {
+    return new JSONObject().put("id", ID).put("name", "River").put("current", true);
+  }
 
   AccountChecks(Runner app, boolean cs) {
     this.app = app;
@@ -123,8 +129,29 @@ final class AccountChecks {
                                       && body.getString("email").equals("test@example.invalid")
                                   ? 200
                                   : 400;
+                            case "/rest/v1/rpc/angler_groups":
+                              if (expireGroupSession) return 401;
+                              org.json.JSONArray list = new org.json.JSONArray();
+                              if (ownGroup != null)
+                                list.put(
+                                    new JSONObject()
+                                        .put("id", ownGroup)
+                                        .put("name", "River crew")
+                                        .put("owner", true));
+                              response = new JSONObject().put("groups", list).toString();
+                              break;
+                            case "/rest/v1/rpc/angler_group_create":
+                              if (!"River crew".equals(body.getString("group_name"))) return 400;
+                              ownGroup =
+                                  java.util.UUID.fromString(body.getString("group_id")).toString();
+                              response = new JSONObject().put("id", ownGroup).toString();
+                              break;
+                            case "/rest/v1/rpc/angler_group_invite":
+                              if (!body.getString("group_id").equals(ownGroup)) return 403;
+                              response = new JSONObject().put("code", INVITE).toString();
+                              break;
                             case "/rest/v1/rpc/angler_profile":
-                              response = "null";
+                              response = accepted ? profile().toString() : "null";
                               break;
                             case "/rest/v1/rpc/angler_accept":
                               if (!body.getString("nickname").equals("River")
@@ -226,6 +253,73 @@ final class AccountChecks {
     }
   }
 
+  /** Open groups from the journal, create a group, issue a code and renew its online session. */
+  Activity groups() throws Exception {
+    gate = next("AccountActivity", () -> app.js("document.querySelector('#profile').click()"));
+    gate = next("GroupsActivity", () -> click(tr("Rybářské party", "Fishing groups")));
+    String create = tr("Založit partu", "Create a group");
+    click(create);
+    type(tr("Název party (2–60 znaků)", "Group name (2–60 characters)"), "River crew");
+    dialogButton(android.R.id.button1);
+    click("River crew" + tr(" · zakladatel", " · owner"));
+    click(tr("Vystavit pozvánku", "Issue invitation"));
+    find(tr("Pozvánka pro jednoho rybáře", "Invite one angler"));
+    dialogButton(android.R.id.button2);
+    expireGroupSession = true;
+    click(tr("Obnovit seznam", "Refresh groups"));
+    find(tr("Přihlásit se", "Sign in"));
+    // Reauthentication returns to the requested screen and the journal remains accessible.
+    expireGroupSession = false;
+    click(tr("Přihlásit se", "Sign in"));
+    // CLEAR_TOP reuses the original profile activity.
+    gate = profileGate;
+    requestEmail();
+    gate =
+        next(
+            "GroupsActivity",
+            () ->
+                deliverCallback(
+                    Uri.parse(gate.getPackageName() + "://account/callback?code=fixture-code")));
+    find("River crew" + tr(" · zakladatel", " · owner"));
+    app.runOnMainSync(gate::finish);
+    gate = profileGate;
+    return next("FishingActivity", () -> click(tr("Otevřít deník", "Open journal")));
+  }
+
+  private Activity profileGate;
+
+  private interface Step {
+    void run() throws Exception;
+  }
+
+  private Activity next(String name, Step step) throws Exception {
+    Instrumentation.ActivityMonitor monitor =
+        app.addMonitor("app.anglers.journal." + name, null, false);
+    try {
+      step.run();
+      Activity next = app.waitForMonitorWithTimeout(monitor, 15000);
+      if (next == null) throw new AssertionError("Activity did not open: " + name);
+      if ("AccountActivity".equals(name)) profileGate = next;
+      return next;
+    } finally {
+      app.removeMonitor(monitor);
+    }
+  }
+
+  private void dialogButton(int id) {
+    app.runOnMainSync(
+        () -> {
+          for (View root : android.view.inspector.WindowInspector.getGlobalWindowViews()) {
+            View button = root.findViewById(id);
+            if (button != null && button.isShown()) {
+              button.performClick();
+              return;
+            }
+          }
+          throw new AssertionError("Missing dialog button");
+        });
+  }
+
   private void requestEmail() throws Exception {
     type(tr("E-mail", "Email"), "test@example.invalid");
     click(tr("Poslat přihlašovací odkaz", "Send sign-in link"));
@@ -287,7 +381,20 @@ final class AccountChecks {
 
   private void click(String text) throws Exception {
     TextView v = find(text);
-    app.runOnMainSync(v::performClick);
+    app.runOnMainSync(
+        () -> {
+          for (ViewParent parent = v.getParent(); parent != null; parent = parent.getParent()) {
+            if (parent instanceof AdapterView) {
+              AdapterView<?> list = (AdapterView<?>) parent;
+              int pos = list.getPositionForView(v);
+              if (pos >= 0) {
+                list.performItemClick(v, pos, list.getItemIdAtPosition(pos));
+                return;
+              }
+            }
+          }
+          v.performClick();
+        });
   }
 
   private void type(String hint, String value) throws Exception {
@@ -298,7 +405,16 @@ final class AccountChecks {
   private TextView find(String label) throws Exception {
     for (int i = 0; i < 80; i++) {
       TextView[] result = {null};
-      app.runOnMainSync(() -> result[0] = match(gate.findViewById(android.R.id.content), label));
+      app.runOnMainSync(
+          () -> {
+            for (View root : android.view.inspector.WindowInspector.getGlobalWindowViews()) {
+              if (root.hasWindowFocus()) {
+                result[0] = match(root, label);
+                if (result[0] != null) return;
+              }
+            }
+            result[0] = match(gate.findViewById(android.R.id.content), label);
+          });
       if (result[0] != null) return result[0];
       Thread.sleep(100);
     }

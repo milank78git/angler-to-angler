@@ -22,3 +22,9 @@ Milan Kucera handles requests at milan.kucera78@gmail.com. Verify the requester'
 ## Acceptance before release
 
 Verify the consent pages before authentication, both unchecked boxes, first registration, returning user, cancelled provider login, email link on the requesting phone, Google and Facebook redirects with real test identities, logout, document reacceptance, two-account journal isolation and offline expiry. CI exercises both social authorization requests and native callbacks, the PKCE exchange and email registration with a synthetic account service. External provider consoles and mail delivery require a configured deployment.
+
+## Private fishing groups
+
+Apply the `private_fishing_groups` migration after `profiles`. Group management requires a current verified profile, a confirmed email and an online access token. A process restart or an expired bearer may require a new online sign-in. The existing offline journal lease remains independent.
+
+The service stores a group name, owner and membership identifiers. The listing returns only the caller’s group names, IDs and owner/member role. Only an owner may issue a 24-hour, single-use code. Issuing another code revokes its predecessor. The database retains only hashes. Leaving removes the membership. Dissolving a group removes all memberships and the invitation. Account erasure removes that account’s memberships and groups it owns. Include these records when handling a profile access or erasure request. The phone keeps group responses in memory. Journal contents are never uploaded by these functions.

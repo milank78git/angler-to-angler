@@ -1,6 +1,6 @@
 # Angler to Angler
 
-An offline-first Android field journal for anglers. The Czech launcher name is **Rybáři sobě**. Release 0.5.0 is a privately stored journal and a small, sourced pilot catalog. A verified angler profile and acceptance of the current terms are required. Open **My journal** to log a trip on any named water.
+An offline-first Android field journal for anglers. The Czech launcher name is **Rybáři sobě**. Release 0.6.0 is a privately stored journal and a small, sourced pilot catalog. A verified angler profile and acceptance of the current terms are required. Open **My journal** to log a trip on any named water.
 
 ## Try the pilot
 
@@ -9,7 +9,8 @@ An offline-first Android field journal for anglers. The Czech launcher name is *
 3. In airplane mode, log a trip. Add multiple catches or keep it as a blank day. A catch can have a locally stored photo, a manual length, bait, technique and an optional private point. Enter the point by hand or explicitly request a current location.
 4. Open a saved catch in a trip and choose **Share catch**. The preview starts with just the species. Select the length, date, water, bait, technique or photograph individually and review the result before choosing a recipient. The share sheet sends plain text or the caption and a re-encoded JPEG. Receiving apps control how they use the caption. Coordinates, journal notes, original filenames and image metadata are excluded. A photograph or a deliberately selected water name can still identify a place.
 5. From any saved trip, even one with no catches, choose **Share a trip tip**. Write a fresh message, optionally select the water and date, review the exact text and choose a contact or group in Android. You can also add a tip to a catch card.
-6. Close and reopen the app. Return to **My journal** to see the trip. Deleting a trip also deletes its catches and photos. Uninstalling the application deletes local records.
+6. Open **Profile → Fishing groups** while online. Create a group, open its name and issue an invitation. Send the code to one angler. They can paste it under **Join with a code**. Each new code replaces the previous code and expires after 24 hours. Members can leave and the owner can dissolve the group.
+7. Close and reopen the app. Return to **My journal** to see the trip. Deleting a trip also deletes its catches and photos. Uninstalling the application deletes local records.
 
 ## Structure and data
 
@@ -21,7 +22,7 @@ An offline-first Android field journal for anglers. The Czech launcher name is *
 - Reminders apply to the selected water and species. Android schedules approximate local 08:00 notifications on a seasonal transition and on the day after pack expiry. Restart and package replacement reschedule active subscriptions. If notifications are disabled, the app can still be used offline.
 - The APK includes the complete pilot pack. Updates currently ship with a new APK. The map shows generalized river geometry, boundaries, selected restrictions and documented accesses. Check public access locally. A boundary point does not imply an access point.
 - International expansion should add regional packs, local authorities, languages and corresponding rule tests. The first pilot ships one pack. Unlisted waters work worldwide as user-named journal entries.
-- Community groups, paid location tips, payouts, rankings, document verification and automated photo measurement belong to later releases.
+- Posting tips directly to a group, paid location tips, payouts, rankings, document verification and automated photo measurement belong to later releases.
 
 ## Sources
 

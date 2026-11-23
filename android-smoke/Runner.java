@@ -196,7 +196,9 @@ public final class Runner extends Instrumentation {
   public void onStart() {
     Bundle outcome = new Bundle();
     try {
-      bindJournal(new AccountChecks(this, !"wide".equals(scenario)).register());
+      AccountChecks accounts = new AccountChecks(this, !"wide".equals(scenario));
+      bindJournal(accounts.register());
+      bindJournal(accounts.groups());
       waitFor("document.documentElement.lang==='" + ("wide".equals(scenario) ? "en" : "cs") + "'");
       waitFor(
           "getComputedStyle(document.querySelector('#tabs')).flexDirection==='"
