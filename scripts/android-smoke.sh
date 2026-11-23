@@ -18,4 +18,4 @@ adb install -r build/standalone/angler-journal-debug.apk
 adb install -r "$out/test-signed.apk"
 adb shell pm clear app.anglers.journal
 adb shell am instrument -w app.anglers.journal.smoke/.Runner | tee "$out/result.txt"
-rg -q ANGLER_SMOKE_PASS "$out/result.txt"
+grep -Fq ANGLER_SMOKE_PASS "$out/result.txt"

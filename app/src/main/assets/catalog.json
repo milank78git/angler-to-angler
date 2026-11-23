@@ -82,7 +82,8 @@
         14.325173,
         49.959622
       ],
-      "access": null
+      "access": null,
+      "number": "401 001"
     },
     {
       "id": "401009",
@@ -129,7 +130,13 @@
           49.87831264
         ],
         "source": "https://tourist.posazavi.com/cz/Service/Service.aspx?Id=1235"
-      }
+      },
+      "number": "401 009"
     }
-  ]
+  ],
+  "id": "cz-crs-prague",
+  "label": {
+    "cs": "Česko",
+    "en": "Czechia"
+  }
 }
