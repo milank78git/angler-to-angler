@@ -10,7 +10,7 @@ mkdir -p "$out"/{classes,dex}
 java -m jdk.compiler/com.sun.tools.javac.Main -source 8 -target 8 -Xlint:-options -bootclasspath "$bt/core-lambda-stubs.jar:$platform" -d "$out/classes" android-smoke/Runner.java
 java -m jdk.jartool/sun.tools.jar.Main cf "$out/test.jar" -C "$out/classes" .
 "$bt/d8" --lib "$platform" --min-api 26 --output "$out/dex" "$out/test.jar"
-"$bt/aapt2" link -o "$out/test.apk" --manifest android-smoke/AndroidManifest.xml --rename-instrumentation-target-package "$app_id" -I "$platform"
+"$bt/aapt2" link -A android-smoke/assets -o "$out/test.apk" --manifest android-smoke/AndroidManifest.xml --rename-instrumentation-target-package "$app_id" -I "$platform"
 zip -q -j "$out/test.apk" "$out/dex/classes.dex"
 "$bt/zipalign" -f 4 "$out/test.apk" "$out/aligned.apk"
 "$bt/apksigner" sign --ks "${ANDROID_DEBUG_KEYSTORE:-$HOME/.android/debug.keystore}" --ks-pass pass:android --out "$out/test-signed.apk" "$out/aligned.apk"

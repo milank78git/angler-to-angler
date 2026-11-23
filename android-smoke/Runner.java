@@ -64,12 +64,14 @@ public final class Runner extends Instrumentation {
    * Exercise rejection, retry, duplicate submission and native Back against a real WebView form.
    */
   private void saveTripWithRetry() throws Exception {
-    js(
-        "import('./journal.js').then(({Journal})=>{const save=Journal.saveTrip;let"
-            + " attempt=0;Journal.saveTrip=async record=>{if(++attempt===1)throw Error('simulated"
-            + " write failure');await new Promise(resolve=>window.resumeWrite=resolve);return"
-            + " save(record)};window.resetSave=()=>Journal.saveTrip=save})");
-    waitFor("typeof window.resetSave==='function'");
+    try (java.io.BufferedReader source =
+        new java.io.BufferedReader(
+            new java.io.InputStreamReader(
+                getContext().getAssets().open("trip-write.js"),
+                java.nio.charset.StandardCharsets.UTF_8))) {
+      js(source.lines().collect(java.util.stream.Collectors.joining("\n")));
+    }
+    waitFor("!!window.writeProbe");
     form(
         "document.querySelector('#notes').value='Offline smoke test';"
             + "document.querySelector('#notes').dispatchEvent(new Event('input',{bubbles:true}))");
@@ -79,12 +81,12 @@ public final class Runner extends Instrumentation {
             + " smoke test'");
     form("void 0");
     waitFor(
-        "typeof window.resumeWrite==='function' && document.querySelector('form"
+        "window.writeProbe.attempts===2 && document.querySelector('form"
             + " button.primary').disabled");
     js("document.querySelector('form').requestSubmit()");
     sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK);
     waitFor("!!document.querySelector('#notes') && document.querySelector('#notes').disabled");
-    js("window.resumeWrite();window.resetSave()");
+    js("window.writeProbe.resume()");
   }
 
   /**
