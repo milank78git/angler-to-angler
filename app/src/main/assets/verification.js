@@ -1,4 +1,4 @@
-import { screen, by, t, esc, button, back, bindBack, bind, toast } from './ui.js';
+import { screen, by, t, esc, button, back, bindBack, bind, toast, confirmAction } from './ui.js';
 import { today } from './domain.js';
 import { Journal } from './journal.js';
 import { showError } from './profiles.js';
@@ -40,15 +40,25 @@ export function addVerificationAction(article, record, trip, view, nav) {
         nav.open('evidence', { onlyId: record.id });
         return;
       }
-      if (
-        !confirm(
-          t(
-            'Předat kontrolorovi fotku, druh, čas, název vody a přibližnou polohu (na setiny stupně)? Po rozhodnutí se fotka a poloha z fronty odstraní.',
-            'Send the photo, species, time, water name and approximate location (rounded to 0.01 degrees) to a reviewer? The review copy of the image and location is removed after a decision.',
-          ),
-        )
-      )
+      const consent = await confirmAction({
+        title: t('Odeslat fotku ke kontrole?', 'Send photo for review?'),
+        message: t(
+          'Kontrolor uvidí fotku úlovku, druh ryby, čas pořízení, název vody a polohu telefonu zaokrouhlenou na 0,01°.\n\nPo kontrole se odeslaná fotka a poloha z fronty smažou. Fotka ve tvém deníku zůstane.',
+          'The reviewer will see the catch photo, species, capture time, water name and phone location rounded to 0.01°.\n\nAfter the review, the submitted photo and location are removed from the queue. Your journal keeps its photo.',
+        ),
+        accept: t('Odeslat ke kontrole', 'Send for review'),
+        catchPreview: {
+          species: record.speciesName,
+          water: trip.waterName,
+          url: article.querySelector('.preview')?.src,
+        },
+      });
+      if (!view.active()) return;
+      if (!consent) {
+        action.disabled = false;
+        action.focus({ preventScroll: true });
         return;
+      }
       const capture = record.capture;
       const photo = await photoPayload(await Journal.photo(record.id), 1200, 184320);
       if (!view.active()) return;
@@ -165,15 +175,16 @@ export async function evidenceScreen({ view, nav }) {
   screen.querySelectorAll('[data-remove]').forEach(
     (b) =>
       (b.onclick = async () => {
-        if (
-          !confirm(
-            t(
-              'Odstranit záznam kontroly? Úlovek zůstane v deníku. Pokud byl započítaný do profilu, počet se sníží o jeden.',
-              'Remove this review record? The catch stays in your journal. If it counted towards your profile total, the total will decrease by one.',
-            ),
-          )
-        )
-          return;
+        const confirmed = await confirmAction({
+          title: t('Odstranit záznam kontroly?', 'Remove review record?'),
+          message: t(
+            'Úlovek zůstane v deníku. Pokud byl započítaný do profilu, počet se sníží o jeden.',
+            'The catch stays in your journal. If it counted towards your profile total, the total will decrease by one.',
+          ),
+          accept: t('Odstranit záznam', 'Remove record'),
+          destructive: true,
+        });
+        if (!view.active() || !confirmed) return;
         b.disabled = true;
         try {
           await rpc('evidence_remove', { catch_id: b.dataset.remove });

@@ -26,6 +26,21 @@
     </header>
     <main id="screen" tabindex="-1"></main>
     <nav id="tabs" hidden></nav>
+    <dialog id="confirmation" aria-labelledby="confirmation-title" aria-describedby="confirmation-message">
+      <div class="confirmation-heading">
+        <span id="confirmation-icon" aria-hidden="true"></span>
+        <h2 id="confirmation-title"></h2>
+      </div>
+      <div id="confirmation-catch" hidden>
+        <img id="confirmation-photo" alt="" hidden />
+        <div><strong id="confirmation-species"></strong><span id="confirmation-water"></span></div>
+      </div>
+      <p id="confirmation-message"></p>
+      <div class="actions">
+        <button type="button" id="confirmation-cancel" class="secondary" autofocus></button>
+        <button type="button" id="confirmation-accept"></button>
+      </div>
+    </dialog>
     <p id="notice" role="status" hidden></p>
   </body>
 </html>

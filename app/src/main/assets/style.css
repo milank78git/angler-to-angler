@@ -136,6 +136,64 @@ h1:focus,
 main:focus {
   outline: 0;
 }
+#confirmation {
+  width: min(28rem, calc(100% - 2 * var(--gutter)));
+  max-height: calc(100% - 2rem);
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 12px 48px #0004;
+}
+#confirmation::backdrop {
+  background: rgb(0 0 0 / 60%);
+}
+.confirmation-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.confirmation-heading h2 {
+  font: bold 1.45rem/1.15 Georgia, serif;
+}
+#confirmation-icon {
+  color: var(--primary);
+  background: var(--tint);
+  border-radius: 12px;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+#confirmation-catch:not([hidden]) {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding: 0.625rem;
+  background: var(--tint);
+  border-radius: 12px;
+}
+#confirmation-photo {
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 8px;
+  object-fit: cover;
+}
+#confirmation-water {
+  display: block;
+  color: var(--muted);
+}
+#confirmation-message {
+  margin: 0.75rem 0 1.25rem;
+  white-space: pre-line;
+}
+#confirmation .actions {
+  margin: 0;
+  justify-content: flex-end;
+}
 .icon {
   display: inline-block;
   width: 22px;
