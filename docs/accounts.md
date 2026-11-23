@@ -97,3 +97,9 @@ update angler_weekly.entries set held = true where id = $1 and photo is not null
 -- After review, use held = false to reinstate the entry, or remove its shared copy.
 select angler_weekly.remove_entry(group_id, id, null) from angler_weekly.entries where id = $1;
 ```
+
+## Water activity
+
+A trip is private until its owner confirms a contribution. Changes to the local journal do not automatically replace the snapshot. An owner can update it explicitly, withdraw it from their profile, or erase the account. Only the private owner receipt includes the journal identifier. The aggregate API requires a verified pilot profile and exposes neither author identifiers nor individual reports.
+
+A period covers one entire catalog water for one Prague calendar month, first available on day eight of the next month. Each published group needs at least ten trips and five distinct accounts. The server selects the finest safe partition for the entire water/month before applying any filter. It prefers target × method, then target, then method, and finally the whole water. A split is allowed only when every nonempty group in that partition meets both minima. This prevents recovering a suppressed group by subtracting same-period filter totals. Historical totals can change when owners contribute, update or withdraw. Successful trips count all trips with at least one recorded fish, irrespective of target species.

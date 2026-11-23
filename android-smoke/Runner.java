@@ -63,6 +63,20 @@ public final class Runner extends Instrumentation {
     return value;
   }
 
+  void clickReady(String selector) throws Exception {
+    String el = "document.querySelector(" + org.json.JSONObject.quote(selector) + ")";
+    waitFor(
+        "!!"
+            + el
+            + " && !"
+            + el
+            + ".disabled && "
+            + el
+            + ".getClientRects().length>0 &&"
+            + " document.querySelector('#screen').getAttribute('aria-busy')!=='true'");
+    js(el + ".click()");
+  }
+
   void waitFor(String expr) throws Exception {
     long stop = android.os.SystemClock.elapsedRealtime() + 20000;
     while (android.os.SystemClock.elapsedRealtime() < stop) {
@@ -415,6 +429,7 @@ public final class Runner extends Instrumentation {
       waitFor("!!document.querySelector('#navigate')");
       capture("water");
       DiscussionChecks.run(this);
+      ActivityChecks.report(this);
       js("document.querySelector('#open-rules').click()");
       waitFor("document.querySelector('#rule-water').disabled");
       js(
@@ -429,6 +444,7 @@ public final class Runner extends Instrumentation {
       waitFor(
           "!!document.querySelector('#add') && document.querySelectorAll('#catch-list"
               + " article').length===0");
+      ActivityChecks.contribute(this);
       String postedTip = ShareChecks.tripTip(this);
       for (int n = 1; n <= 2; n++) {
         js("document.querySelector('#add').click()");

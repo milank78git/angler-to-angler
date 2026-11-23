@@ -1,4 +1,4 @@
-Účet a volitelné online funkce · pilot 0.10.0
+Účet a volitelné online funkce · pilot 0.11.0
 
 Při registraci e-mailem si volíš heslo a jazyk zpráv vychází z jazyka aplikace. Ověření e-mailu a obnova hesla používají jednorázový odkaz. Pro další odemknutí může zabezpečený telefon uchovat zašifrované oprávnění k účtu. PIN a biometrické údaje ověřuje Android. Odhlášením se toto oprávnění v telefonu smaže.
 
@@ -13,3 +13,5 @@ Dotazy a odpovědi u revíru vidí ověření rybáři v pilotu. Zveřejněním 
 U dotazu můžeš napsat jeho autorovi soukromě. Text, přezdívku a čas odeslání uvidíte v aplikaci vy dva. Blokace zastaví nové zprávy mezi vašimi účty i u jiných revírů. Historie zůstane čitelná. Příjemce může konkrétní zprávu předat správci ke kontrole. Smazání účtu kteréhokoli účastníka odstraní společný rozhovor. Ke zprávě může každý z vás přidat jednu emoji reakci, změnit ji nebo odebrat. Při blokaci lze vlastní reakci stále odebrat.
 
 Do úlovku týdne přihlašuješ jednotlivou fotku pro vybranou partu. Členové uvidí tvou přezdívku, druh ryby, datum výpravy, zmenšenou fotku bez metadat, počet hlasů a pořadí. Okolí na fotce může prozradit místo. Jeden účet může dát jeden hlas každému cizímu úlovku v partě a odebrat ho. Kalendářní týden se řídí časem v Praze. Přihlášku můžeš stáhnout i po skončení kola. Smazání místní výpravy soutěžní kopii nestáhne. Odchod z party odstraní tvé přihlášky a hlasy v dané partě.
+
+Do souhrnné statistiky můžeš samostatně zařadit nebo aktualizovat dokončenou výpravu včetně výpravy bez úlovku. Pod účtem se uloží označení výpravy, revír, kalendářní měsíc, cílový druh, hlavní způsob lovu a počet všech zapsaných ryb. Ostatní přihlášení rybáři vidí pouze souhrny. Smazání v deníku sdílené údaje nestáhne. Odebrat je můžeš i později v Profil → Moje výpravy ve statistice. Smazáním účtu se odstraní všechny tvoje příspěvky.

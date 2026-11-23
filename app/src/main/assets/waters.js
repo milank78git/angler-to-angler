@@ -16,7 +16,7 @@ import {
   toast,
 } from './ui.js';
 /** Projects coordinates at local latitude using equal horizontal and vertical distance scales. */
-function waterMap(w, rivers) {
+export function waterMap(w, rivers, boundariesOnly = false) {
   const lines = rivers[w.id],
     pts = w.bounds.concat([w.danger], w.access ? [w.access.pt] : []);
   const cos = Math.cos((pts[0][1] * Math.PI) / 180);
@@ -41,8 +41,8 @@ function waterMap(w, rivers) {
   return `<figure><svg aria-label="${t('Orientační mapa toku a hranic', 'Overview of river and boundary points')}" role="img" viewBox="0 0 340 170">
     <defs><pattern id="grid" width="22" height="22" patternUnits="userSpaceOnUse"><path d="M22 0H0V22" fill="none" stroke="#cbd8cd" stroke-width=".8"/></pattern></defs>
     <rect width="340" height="170" fill="url(#grid)"/>${paths.join('')}
-    ${marker(w.bounds[0], '1', '#294f43')}${marker(w.bounds[1], '2', '#294f43')}${marker(w.danger, '!', '#9c4736')}
-    ${w.access ? marker(w.access.pt, 'A', '#33668c') : ''}<text x="315" y="21" font-size="12" fill="#476554">↑ N</text>
+    ${marker(w.bounds[0], '1', '#294f43')}${marker(w.bounds[1], '2', '#294f43')}${boundariesOnly ? '' : marker(w.danger, '!', '#9c4736')}
+    ${w.access && !boundariesOnly ? marker(w.access.pt, 'A', '#33668c') : ''}<text x="315" y="21" font-size="12" fill="#476554">↑ N</text>
     </svg><figcaption>${link('https://www.openstreetmap.org/copyright', '© OpenStreetMap contributors · ODbL')}</figcaption></figure>`;
 }
 function isFavorite(pack, w) {
@@ -148,11 +148,12 @@ export function waterScreen({ view, pack, rivers, nav }) {
   screen.innerHTML =
     back(t('Atlas revírů', 'Water atlas')) +
     `<section class="hero detail-hero">${photo(w, 'hero-img')}<div class="hero-copy"><div class="hero-meta">${icon('map-pin')}${esc(w.number)} · ${esc(loc(pack.label))}</div><h1>${esc(w.name)}</h1></div>${favoriteButton(pack, w)}</section><p class="area-line">${icon('route')}${esc(w.area)}</p>
-    <div class="quick-actions">${button('new-trip', t('Zapsat výpravu', 'Log a trip'), 'primary', 'plus')}${button('open-rules', t('Hájení a míry', 'Seasons & sizes'), 'secondary', 'calendar-days')}${button('open-discussion', t('Dotazy u revíru', 'Water questions'), 'secondary')}</div>
+    <div class="quick-actions">${button('new-trip', t('Zapsat výpravu', 'Log a trip'), 'primary', 'plus')}${button('open-rules', t('Hájení a míry', 'Seasons & sizes'), 'secondary', 'calendar-days')}${button('open-discussion', t('Dotazy u revíru', 'Water questions'), 'secondary')}${button('open-activity', t('Aktivita na revíru', 'Water activity'), 'secondary')}</div>
     <div class="columns"><section class="surface">${sectionTitle('map', t('Mapa revíru', 'Water map'))}${waterMap(w, rivers)}<ul class="legend">${landmark('1', loc(w.ends[0]))}${landmark('2', loc(w.ends[1]))}${landmark('!', loc(w.restriction))}${w.access ? landmark('A', loc(w.access)) : ''}</ul></section>
     <section class="surface">${sectionTitle('navigation', t('Přístup k vodě', 'Getting to the water'))}${w.access ? `<p>${esc(loc(w.access))}</p><div class="actions">${button('navigate', t('Otevřít navigaci', 'Open directions'), 'secondary', 'navigation')}</div><div class="rulesrc">${link(w.access.source, t('Zdroj přístupového bodu', 'Access point source'))}</div>` : `<p class="muted">${t('Pro tento revír chybí ověřený přístupový bod.', 'This pack has no verified access point for this water.')}</p>`}</section></div>${credits(w)}`;
   bindBack(nav);
   bind('new-trip', () => nav.open('newTrip', { water: w.id }));
+  bind('open-activity', () => nav.open('waterActivity', { id: w.id }));
   bind('open-discussion', () => nav.open('waterDiscussion', { id: w.id }));
   bind('open-rules', () => nav.open('waterRules', { id: w.id }));
   const fav = screen.querySelector('[data-favorite]');
