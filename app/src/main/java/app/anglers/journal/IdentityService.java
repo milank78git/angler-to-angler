@@ -62,23 +62,25 @@ final class IdentityService {
         Base64.URL_SAFE | Base64.NO_WRAP | Base64.NO_PADDING);
   }
 
-  boolean providerEnabled(String provider) throws Exception {
-    return request("/auth/v1/settings", null, null).getJSONObject("external").getBoolean(provider);
+  JSONObject providers() throws Exception {
+    return request("/auth/v1/settings", null, null).getJSONObject("external");
   }
 
   Uri authorize(String provider, String verifier) throws Exception {
     if (!configured() || !("google".equals(provider) || "facebook".equals(provider)))
       throw new IllegalStateException();
-    return Uri.parse(origin + "/auth/v1/authorize")
-        .buildUpon()
-        .appendQueryParameter("provider", provider)
-        .appendQueryParameter("redirect_to", redirect)
-        .appendQueryParameter("code_challenge", challenge(verifier))
-        .appendQueryParameter("code_challenge_method", "s256")
-        .build();
+    Uri.Builder url =
+        Uri.parse(origin + "/auth/v1/authorize")
+            .buildUpon()
+            .appendQueryParameter("provider", provider)
+            .appendQueryParameter("redirect_to", redirect)
+            .appendQueryParameter("code_challenge", challenge(verifier))
+            .appendQueryParameter("code_challenge_method", "s256");
+    if ("google".equals(provider)) url.appendQueryParameter("prompt", "select_account");
+    return url.build();
   }
 
-  static final class ExpiredEmail extends IOException {}
+  static final class EmailRateLimit extends IOException {}
 
   private JSONObject request(String path, String token, JSONObject data) throws Exception {
     if (!configured()) throw new IOException("Account service unavailable");
@@ -99,14 +101,7 @@ final class IdentityService {
       }
       int status = conn.getResponseCode();
       if (status < 200 || status >= 300) {
-        if (path.equals("/auth/v1/verify") && status == 403) {
-          InputStream error = conn.getErrorStream();
-          if (error != null) {
-            JSONObject problem = new JSONObject(read(error));
-            if ("otp_expired".equals(problem.optString("error_code"))
-                || "otp_expired".equals(problem.optString("code"))) throw new ExpiredEmail();
-          }
-        }
+        if (path.startsWith("/auth/v1/otp?") && status == 429) throw new EmailRateLimit();
         throw new IOException("Account service HTTP " + status);
       }
       String result = read(conn.getInputStream());
@@ -125,29 +120,6 @@ final class IdentityService {
             .put("create_user", true)
             .put("code_challenge", challenge(verifier))
             .put("code_challenge_method", "s256"));
-  }
-
-  /** Redeem only email authentication proofs for this issuer and the address the angler entered. */
-  String verifyEmail(String email, String proof) throws Exception {
-    JSONObject request = new JSONObject().put("type", "email");
-    if (proof.matches("[0-9]{6,10}")) {
-      request.put("email", email).put("token", proof);
-    } else {
-      Uri link = Uri.parse(proof);
-      if (!proof.startsWith(origin + "/auth/v1/verify?")
-          || link.getFragment() != null
-          || link.getQueryParameters("token").size() != 1
-          || link.getQueryParameters("type").size() != 1)
-        throw new IllegalArgumentException("Invalid verification link");
-      String type = link.getQueryParameter("type");
-      if (!"signup".equals(type) && !"magiclink".equals(type) && !"email".equals(type))
-        throw new IllegalArgumentException("Unexpected verification type");
-      String hash = link.getQueryParameter("token");
-      if (hash == null || hash.isEmpty() || hash.length() > 256)
-        throw new IllegalArgumentException("Invalid verification token");
-      request.put("token_hash", hash);
-    }
-    return sessionToken(request("/auth/v1/verify", null, request), email);
   }
 
   private String sessionToken(JSONObject session, String expectedEmail) throws Exception {

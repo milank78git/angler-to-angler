@@ -154,7 +154,7 @@ public final class Runner extends Instrumentation {
     throw new AssertionError("Display did not reach the current UI frame");
   }
 
-  private void saveScreenshot(String name, android.graphics.Bitmap pixels) throws Exception {
+  void saveScreenshot(String name, android.graphics.Bitmap pixels) throws Exception {
     java.io.File dir = new java.io.File(getTargetContext().getExternalFilesDir(null), "ui");
     if (!dir.isDirectory() && !dir.mkdirs())
       throw new java.io.IOException("Screenshot directory unavailable");
