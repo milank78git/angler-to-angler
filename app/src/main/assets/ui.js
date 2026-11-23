@@ -19,6 +19,46 @@ function selectField(id, label, items, selected) {
 function bind(id, fn) {
   by(id).onclick = fn;
 }
+/** Resolve only the open prompt. Android Back and Escape both count as cancellation. */
+function dismissConfirmation() {
+  const dialog = by('confirmation');
+  if (!dialog.open) return false;
+  dialog.close('cancel');
+  return true;
+}
+
+function confirmAction({ title, message, accept, destructive = false, catchPreview }) {
+  const dialog = by('confirmation');
+  if (dialog.open || dialog.onclose) return Promise.resolve(false);
+  by('confirmation-icon').innerHTML = icon(catchPreview ? 'camera' : destructive ? 'triangle-alert' : 'fish-symbol');
+  by('confirmation-title').textContent = title;
+  by('confirmation-catch').hidden = !catchPreview;
+  const image = by('confirmation-photo');
+  if (catchPreview) {
+    by('confirmation-species').textContent = catchPreview.species;
+    by('confirmation-water').textContent = catchPreview.water;
+    image.hidden = !catchPreview.url;
+    if (catchPreview.url) image.src = catchPreview.url;
+  }
+  by('confirmation-message').textContent = message;
+  const cancelButton = by('confirmation-cancel');
+  const acceptButton = by('confirmation-accept');
+  cancelButton.textContent = t('Zrušit', 'Cancel');
+  cancelButton.onclick = dismissConfirmation;
+  acceptButton.textContent = accept;
+  acceptButton.className = destructive ? 'danger' : 'primary';
+  acceptButton.onclick = () => dialog.close('accept');
+  dialog.returnValue = 'cancel';
+  return new Promise((resolve) => {
+    dialog.onclose = () => {
+      dialog.onclose = null;
+      image.removeAttribute('src');
+      resolve(dialog.returnValue === 'accept');
+    };
+    dialog.showModal();
+  });
+}
+
 function toast(message) {
   by('notice').textContent = message;
   by('notice').hidden = false;
@@ -101,6 +141,8 @@ export {
   emptyState,
   back,
   bindBack,
+  confirmAction,
+  dismissConfirmation,
   displayDay,
   field,
   textInput,

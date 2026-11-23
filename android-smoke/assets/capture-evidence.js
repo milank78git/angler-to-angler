@@ -27,7 +27,6 @@
       tx.oncomplete = () => (seeded ? resolve() : reject(Error('Missing photographed catch')));
       tx.onabort = () => reject(tx.error);
     });
-    window.confirm = () => true;
     window.evidenceSeeded = true;
   } finally {
     db.close();

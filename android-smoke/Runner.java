@@ -231,6 +231,21 @@ public final class Runner extends Instrumentation {
     js("document.querySelector('[data-trip]').click()");
     waitFor("!!document.querySelector('[data-verify-catch]')");
     js("document.querySelector('[data-verify-catch]').click()");
+    waitFor(
+        "document.querySelector('#confirmation').open &&"
+            + " !document.querySelector('#confirmation-catch').hidden");
+    capture("review-consent");
+    sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK);
+    waitFor(
+        "!document.querySelector('#confirmation').open &&"
+            + " !document.querySelector('[data-verify-catch]').disabled");
+    js("document.querySelector('[data-verify-catch]').click()");
+    waitFor("document.querySelector('#confirmation').open");
+    js("document.querySelector('#confirmation-cancel').click()");
+    waitFor("!document.querySelector('[data-verify-catch]').disabled");
+    js("document.querySelector('[data-verify-catch]').click()");
+    waitFor("document.querySelector('#confirmation').open");
+    js("document.querySelector('#confirmation-accept').click()");
     waitFor("!!document.querySelector('[data-remove]') && !document.querySelector('#review')");
     boolean cs = !"wide".equals(scenario);
     String card = "document.querySelector('.profile-directory article')";
@@ -266,6 +281,10 @@ public final class Runner extends Instrumentation {
             + card
             + ".textContent.includes(' cm')");
     js("document.querySelector('[data-remove]').click()");
+    waitFor(
+        "document.querySelector('#confirmation').open &&"
+            + " document.querySelector('#confirmation-catch').hidden");
+    js("document.querySelector('#confirmation-accept').click()");
     waitFor(
         "!!document.querySelector('#refresh-evidence') &&"
             + " !document.querySelector('[data-remove]')");
