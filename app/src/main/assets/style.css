@@ -221,6 +221,15 @@ main:focus {
   width: 16px;
   height: 16px;
 }
+#profile {
+  flex: none;
+  white-space: nowrap;
+  padding-inline: 0.65rem;
+}
+@media (max-width: 440px) {
+  .topinner { gap: 0.35rem; }
+  .offline { font-size: 0.68rem; }
+}
 .topinner .icon-btn {
   color: #fff9e7;
 }
