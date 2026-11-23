@@ -35,6 +35,7 @@ final class AccountChecks {
   private volatile JSONObject savedCard;
   private volatile int cardRevision;
   private volatile JSONObject submittedCatch;
+  private volatile JSONObject postedTip;
   private static final String INVITE = "d18590e4-a811-4937-a16f-8eb2dacc019d";
 
   /** Return the chosen database outcome on the next refresh of the submitted catch. */
@@ -245,6 +246,44 @@ final class AccountChecks {
                                         .put("owner", true));
                               response = new JSONObject().put("groups", list).toString();
                               break;
+                            case "/rest/v1/rpc/angler_group_tip_post":
+                              if (!body.getString("group_id").equals(ownGroup)
+                                  || body.length() != 3
+                                  || !body.getString("message")
+                                      .startsWith("Fish the shade <slowly> & pause.")
+                                  || body.getString("message").contains("Offline smoke test"))
+                                return 400;
+                              if (postedTip == null) {
+                                postedTip = body;
+                                return 503; // Commit applied; the client did not receive its
+                                            // receipt.
+                              }
+                              if (!postedTip
+                                      .getString("request_id")
+                                      .equals(body.getString("request_id"))
+                                  || !postedTip
+                                      .getString("message")
+                                      .equals(body.getString("message"))) return 409;
+                              response =
+                                  new JSONObject()
+                                      .put("id", body.getString("request_id"))
+                                      .toString();
+                              break;
+                            case "/rest/v1/rpc/angler_group_tips":
+                              if (!body.getString("group_id").equals(ownGroup)) return 403;
+                              org.json.JSONArray tips = new org.json.JSONArray();
+                              if (postedTip != null)
+                                tips.put(
+                                    new JSONObject()
+                                        .put("text", postedTip.getString("message"))
+                                        .put("author", "River")
+                                        .put("postedAt", System.currentTimeMillis()));
+                              response =
+                                  new JSONObject()
+                                      .put("tips", tips)
+                                      .put("next", JSONObject.NULL)
+                                      .toString();
+                              break;
                             case "/rest/v1/rpc/angler_group_create":
                               if (!"River crew".equals(body.getString("group_name"))) return 400;
                               ownGroup =
@@ -307,6 +346,11 @@ final class AccountChecks {
                     tr("Pokračovat přes Google", "Continue with Google")));
     if (disabledGoogle[0] != null) throw new AssertionError("Disabled provider offered");
     app.captureAccount(gate, "login");
+    click(tr("Podmínky a soukromí", "Terms and privacy"));
+    click(tr("Ochrana osobních údajů", "Privacy notice"));
+    TextView close = find(tr("Zavřít", "Close"));
+    app.captureWindow(close.getRootView(), "privacy-dialog");
+    click(tr("Zavřít", "Close"));
     requestRegistration();
     socialEnabled = true;
     click(tr("Zpět k přihlášení", "Back to sign-in"));
@@ -496,6 +540,10 @@ final class AccountChecks {
     app.waitFor(
         "!!document.querySelector('.angler-card .no-portrait') &&"
             + " !!document.querySelector('#account-settings')");
+    if (cs) {
+      app.js("document.querySelector('#theme').click()");
+      app.waitFor("document.documentElement.dataset.theme === 'dark'");
+    }
     gate =
         next(
             "AccountActivity", () -> app.js("document.querySelector('#account-settings').click()"));
@@ -508,8 +556,13 @@ final class AccountChecks {
     app.captureAccount(gate, "groups");
     click("River crew" + tr(" · zakladatel", " · owner"));
     click(tr("Vystavit pozvánku", "Issue invitation"));
-    find(tr("Pozvánka pro jednoho rybáře", "Invite one angler"));
+    TextView invitation = find(tr("Pozvánka pro jednoho rybáře", "Invite one angler"));
+    app.captureWindow(invitation.getRootView(), "group-invitation");
     dialogButton(android.R.id.button2);
+    click("River crew" + tr(" · zakladatel", " · owner"));
+    click(tr("Rozpustit partu", "Dissolve group"));
+    click(tr("Zrušit", "Cancel"));
+    find(tr("Počet členů: 1", "Members: 1"));
     retryGroup = true;
     click(tr("Obnovit seznam", "Refresh groups"));
     find("River crew" + tr(" · zakladatel", " · owner"));
@@ -532,6 +585,25 @@ final class AccountChecks {
     app.runOnMainSync(gate::finish);
     gate = profileGate;
     return next("FishingActivity", () -> click(tr("Otevřít deník", "Open journal")));
+  }
+
+  /** Read the exact posted preview through the member's normal group screen. */
+  void readGroupTip(String expected) throws Exception {
+    if (postedTip == null || !expected.equals(postedTip.getString("message"))) {
+      throw new AssertionError("Posted text differs from the preview");
+    }
+    app.js("document.querySelector('#profile').click()");
+    app.waitFor("!!document.querySelector('#account-settings')");
+    gate =
+        next(
+            "AccountActivity", () -> app.js("document.querySelector('#account-settings').click()"));
+    gate = next("GroupsActivity", () -> click(tr("Rybářské party", "Fishing groups")));
+    click("River crew" + tr(" · zakladatel", " · owner"));
+    click(tr("Tipy party", "Group tips"));
+    find(expected);
+    app.captureAccount(gate, "group-tips");
+    click(tr("Zpět na party", "Back to groups"));
+    find("River crew" + tr(" · zakladatel", " · owner"));
   }
 
   private Activity profileGate;

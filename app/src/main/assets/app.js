@@ -1,4 +1,4 @@
-import { by, screen, t, cs, bind, button, icon } from './ui.js';
+import { by, screen, t, cs, bind, button, icon, confirmAction, dismissConfirmation } from './ui.js';
 import { Navigation } from './navigation.js';
 import { listWaters, waterScreen } from './waters.js';
 import { rulesScreen } from './seasons.js';
@@ -27,17 +27,24 @@ const views = {
 };
 const nav = new Navigation(
   render,
-  () => confirm(t('Zahodit neuložené změny?', 'Discard unsaved changes?')),
+  () =>
+    confirmAction({
+      title: t('Zahodit neuložené změny?', 'Discard unsaved changes?'),
+      message: t('Po odchodu se změny z tohoto formuláře ztratí.', 'Leaving this form will discard your edits.'),
+      accept: t('Zahodit změny', 'Discard changes'),
+      destructive: true,
+    }),
   () => window.scrollY,
 );
 
 /** Forward native navigation and device events to the current screen. */
-window.handleBack = () => nav.back();
+window.handleBack = () => dismissConfirmation() || nav.back();
 window.reminderChanged = () => window.dispatchEvent(new Event('reminderchange'));
 window.positionResult = (id, fix) =>
   window.dispatchEvent(new CustomEvent('angler-position', { detail: { id, fix } }));
 
 async function render(view, area) {
+  dismissConfirmation();
   const { page } = view.route;
   const editing = page === 'newTrip' || page === 'newCatch' || page === 'editProfile';
   tabs.hidden = editing;
@@ -79,7 +86,8 @@ function setTheme(mode) {
     dark ? t('Zapnout světlý vzhled', 'Use light theme') : t('Zapnout tmavý vzhled', 'Use dark theme'),
   );
   by('theme').innerHTML = icon(dark ? 'sun' : 'moon');
-  if (window.Device && typeof Device.systemBars === 'function') Device.systemBars(dark);
+  if (window.Device && typeof Device.systemBars === 'function')
+    Device.systemBars(dark, !!localStorage.getItem('ui.theme'));
 }
 async function start() {
   document.documentElement.lang = cs ? 'cs' : 'en';

@@ -116,15 +116,18 @@ public final class AccountActivity extends Activity {
     action(
         title,
         AccountLayout.Action.LINK,
-        () ->
-            new AlertDialog.Builder(this)
-                .setTitle(title)
-                .setItems(names, (dialog, item) -> document(pages[item]))
-                .setNegativeButton(android.R.string.cancel, null)
-                .show());
+        () -> {
+          AccountLayout.Prompt menu = ui.prompt(title);
+          for (int i = 0; i < pages.length; i++) {
+            String kind = pages[i], name = names[i];
+            menu.choice(name, AccountLayout.Action.SECONDARY, () -> document(kind, name));
+          }
+          menu.action(text("Zavřít", "Close"), AccountLayout.Action.SECONDARY, null);
+          menu.show();
+        });
   }
 
-  private void document(String kind) {
+  private void document(String kind, String title) {
     try {
       String contents;
       if (kind.equals("license")) {
@@ -142,10 +145,10 @@ public final class AccountActivity extends Activity {
             "\n\n" + IdentityService.asset(this, "optional-profile-" + (cs ? "cs" : "en") + ".txt");
       if (kind.equals("privacy") && service != null && !service.notice.isEmpty())
         contents += "\n\n" + service.notice;
-      new AlertDialog.Builder(this)
-          .setMessage(contents)
-          .setPositiveButton(android.R.string.ok, null)
-          .show();
+      AccountLayout.Prompt reader = ui.prompt(title);
+      reader.description(contents);
+      reader.action(text("Zavřít", "Close"), AccountLayout.Action.PRIMARY, null);
+      reader.show();
     } catch (Exception e) {
       ui.message(text("Dokument nelze načíst.", "Could not load the document."));
     }
@@ -641,19 +644,21 @@ public final class AccountActivity extends Activity {
       fresh.run();
       return;
     }
-    new AlertDialog.Builder(this)
-        .setTitle(text("Deník ze starší verze", "Journal from an older version"))
-        .setMessage(
-            text(
-                "Patří dřívější místní deník na tomto telefonu tobě? Můžeš ho propojit se svým"
-                    + " prvním ověřeným profilem.",
-                "Does the earlier journal on this device belong to you? You can link it to this"
-                    + " first verified profile."))
-        .setCancelable(false)
-        .setNegativeButton(text("Nový deník", "Fresh journal"), (d, w) -> fresh.run())
-        .setPositiveButton(
-            text("Připojit můj deník", "Link my journal"), (d, w) -> activate(result, true))
-        .show();
+    AccountLayout.Prompt journal =
+        ui.prompt(text("Deník ze starší verze", "Journal from an older version"));
+    journal.description(
+        text(
+            "Patří dřívější místní deník na tomto telefonu tobě? Můžeš ho propojit se svým"
+                + " prvním ověřeným profilem.",
+            "Does the earlier journal on this device belong to you? You can link it to this"
+                + " first verified profile."));
+    journal.setCancelable(false);
+    journal.action(
+        text("Připojit můj deník", "Link my journal"),
+        AccountLayout.Action.PRIMARY,
+        () -> activate(result, true));
+    journal.action(text("Nový deník", "Fresh journal"), AccountLayout.Action.SECONDARY, fresh);
+    journal.show();
   }
 
   private void activate(JSONObject result, boolean legacy) {

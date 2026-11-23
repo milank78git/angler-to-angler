@@ -13,6 +13,7 @@ import {
   bind,
   back,
   bindBack,
+  confirmAction,
   emptyState,
   toast,
   displayDay,
@@ -127,15 +128,16 @@ export async function tripScreen({ view, nav, pack }) {
   bind('add', () => nav.open('newCatch', { id }));
   bind('share-tip', () => nav.open('shareCard', { tripId: id }));
   bind('delete', async () => {
-    if (
-      !confirm(
-        t(
-          'Smazat tuto výpravu včetně úlovků, fotek a souřadnic?',
-          'Delete this trip with all catches, photos and coordinates?',
-        ),
-      )
-    )
-      return;
+    const confirmed = await confirmAction({
+      title: t('Smazat výpravu?', 'Delete trip?'),
+      message: t(
+        'Z deníku se smažou také všechny úlovky, fotky a souřadnice této výpravy.',
+        'All catches, photos and coordinates for this trip will also be deleted from your journal.',
+      ),
+      accept: t('Smazat výpravu', 'Delete trip'),
+      destructive: true,
+    });
+    if (!confirmed) return;
     await writeEntry(
       view,
       nav,

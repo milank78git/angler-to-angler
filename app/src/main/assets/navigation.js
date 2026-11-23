@@ -9,31 +9,39 @@ export class Navigation {
     this.current = null;
   }
 
-  /** Keep the form visible until its transaction settles or the user discards edits. */
-  mayLeave() {
-    return !this.current?.saving && (!this.current?.dirty || this.confirmDiscard());
+  /** Android needs an immediate Back result while the form waits for a decision. */
+  leave(transition) {
+    const view = this.current;
+    if (view?.saving) return true;
+    if (!view?.dirty) return transition();
+    this.confirmDiscard().then((discard) => {
+      if (discard && view.active() && !view.saving) transition();
+    });
+    return true;
   }
 
   open(page, props = {}) {
-    if (!this.mayLeave()) return;
-    if (this.stacks.has(page)) {
-      if (this.current?.dirty && this.area !== page) this.stacks.get(this.area).pop();
-      if (this.area === page) this.stacks.set(page, [{ page }]);
-      this.area = page;
-    } else {
-      this.stacks.get(this.area).push({ page, ...props });
-    }
-    this.show();
+    this.leave(() => {
+      if (this.stacks.has(page)) {
+        if (this.current?.dirty && this.area !== page) this.stacks.get(this.area).pop();
+        if (this.area === page) this.stacks.set(page, [{ page }]);
+        this.area = page;
+      } else {
+        this.stacks.get(this.area).push({ page, ...props });
+      }
+      this.show();
+    });
   }
 
   back() {
-    if (!this.mayLeave()) return true;
-    const stack = this.stacks.get(this.area);
-    if (stack.length > 1) stack.pop();
-    else if (this.area !== 'waters') this.area = 'waters';
-    else return false;
-    this.show();
-    return true;
+    return this.leave(() => {
+      const stack = this.stacks.get(this.area);
+      if (stack.length > 1) stack.pop();
+      else if (this.area !== 'waters') this.area = 'waters';
+      else return false;
+      this.show();
+      return true;
+    });
   }
 
   /** A committed operation leaves no editable or deleted entry in the history. */

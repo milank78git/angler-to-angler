@@ -1,3 +1,4 @@
+import { bindGroupTip, groupTipControls } from './group-tip.js';
 import { Journal } from './journal.js';
 import { pixelJpeg } from './photo.js';
 import { back, bindBack, button, by, cs, displayDay, esc, field, loc, screen, t, toast } from './ui.js';
@@ -59,7 +60,8 @@ export async function shareCard({ view, nav, pack }) {
       <section class="surface"><h2>${t('Náhled pro příjemce', 'Recipient preview')}</h2>
         <p id="card-text" aria-live="polite"></p><img id="card-image" class="preview" hidden alt="${t('Sdílená fotografie úlovku', 'Catch photo for sharing')}">
         <p id="card-status" role="status" hidden></p>
-        <div class="actions">${button('card-send', t('Vybrat příjemce', 'Choose recipient'), 'primary')}</div>
+        <div class="actions">${button('card-send', entry ? t('Vybrat příjemce', 'Choose recipient') : t('Sdílet přes jinou aplikaci', 'Share via another app'), 'primary')}</div>
+        ${entry ? '' : groupTipControls()}
       </section>
     </div>`;
   bindBack(nav);
@@ -70,10 +72,13 @@ export async function shareCard({ view, nav, pack }) {
     payload,
     revision = 0;
 
+  const syncGroup = entry ? null : bindGroupTip(view, nav, tripId, () => payload?.text);
+
   /** Keep the last ready preview and the outgoing payload identical, including during rapid changes. */
   async function preview() {
     const current = ++revision;
     payload = null;
+    syncGroup?.();
     send.disabled = true;
     const tip = by('share-tip-text').value.trim();
     const lines = [
@@ -121,6 +126,7 @@ export async function shareCard({ view, nav, pack }) {
     }
     payload = { text, jpeg };
     send.disabled = false;
+    syncGroup?.();
   }
   by('card-options').onchange = preview;
   by('share-tip-text').oninput = () => {
