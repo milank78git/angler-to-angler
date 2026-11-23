@@ -163,6 +163,13 @@ export async function tripScreen({ view, nav, pack }) {
     article.append(share);
     addVerificationAction(article, c, trip, view, nav);
     if (c.hasPhoto) {
+      const nominate = document.createElement('button');
+      nominate.type = 'button';
+      nominate.className = 'secondary';
+      nominate.dataset.weeklyCatch = c.id;
+      nominate.textContent = t('Přihlásit do úlovku týdne', 'Enter catch of the week');
+      nominate.onclick = () => nav.open('weeklyGroups', { tripId: id, catchId: c.id });
+      article.append(nominate);
       const blob = await Journal.photo(c.id);
       if (!view.active()) return;
       if (blob) {

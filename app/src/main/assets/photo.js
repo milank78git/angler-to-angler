@@ -1,5 +1,7 @@
 /** Decode and re-encode into pixels only, dropping source EXIF and location metadata. */
-export async function pixelJpeg(file, maxEdge) {
+export const pixelJpeg = (file, edge) => pixelCopy(file, edge, 'image/jpeg');
+
+async function pixelCopy(file, maxEdge, type) {
   if (!file) return null;
   if (file.size > 30 * 1024 * 1024) throw Error('photo');
   const url = URL.createObjectURL(file),
@@ -19,9 +21,34 @@ export async function pixelJpeg(file, maxEdge) {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
     return await new Promise((resolve, reject) =>
-      canvas.toBlob((b) => (b ? resolve(b) : reject(Error('photo'))), 'image/jpeg', 0.84),
+      canvas.toBlob((b) => (b?.type === type ? resolve(b) : reject(Error('photo'))), type, 0.84),
     );
   } finally {
     URL.revokeObjectURL(url);
   }
+}
+
+/** Keep just the lossy frame from canvas encoders that also emit a color profile. */
+export async function competitionPhoto(file, edge) {
+  const webp = await pixelCopy(file, edge, 'image/webp');
+  const buffer = await webp.arrayBuffer(),
+    bytes = new Uint8Array(buffer),
+    view = new DataView(buffer);
+  const type = (offset) => view.getUint32(offset);
+  if (bytes.length < 20 || type(0) !== 0x52494646 || type(8) !== 0x57454250) throw Error('WebP');
+  for (let offset = 12; offset + 8 <= bytes.length; ) {
+    const length = view.getUint32(offset + 4, true),
+      padded = length + (length % 2);
+    if (offset + 8 + padded > bytes.length) throw Error('WebP chunk');
+    if (type(offset) === 0x56503820) {
+      const header = bytes.slice(0, 12);
+      new DataView(header.buffer).setUint32(4, 12 + padded, true);
+      return new Blob(
+        [header, bytes.subarray(offset, offset + 8 + length), new Uint8Array(padded - length)],
+        { type: 'image/webp' },
+      );
+    }
+    offset += 8 + padded;
+  }
+  throw Error('WebP frame unavailable');
 }

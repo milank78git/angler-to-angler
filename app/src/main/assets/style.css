@@ -1266,3 +1266,22 @@ textarea {
   max-width: 12rem;
   display: block;
 }
+.weekly-groups, .weekly-list {
+  display: grid;
+  gap: .8rem;
+  margin-block: 1rem;
+}
+.weekly-entry { display: grid; gap: .65rem; overflow-wrap: anywhere; }
+.weekly-photo {
+  display: block;
+  width: 100%;
+  max-height: 340px;
+  object-fit: contain;
+  background: var(--tint);
+  border-radius: 12px;
+}
+.weekly-entry button { justify-self: start; }
+.weekly-score { font-weight: 650; }
+@media (min-width: 680px) {
+  .weekly-list { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+}

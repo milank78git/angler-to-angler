@@ -4,6 +4,7 @@ import { listWaters, waterScreen } from './waters.js';
 import { rulesScreen } from './seasons.js';
 import { listTrips, tripForm, tripScreen } from './trips.js';
 import { catchForm } from './catch-form.js';
+import { weeklyGroups, weeklyBoard } from './weekly-catch.js';
 import { messageInbox, messageThread, messageComposer } from './messages.js';
 import { waterDiscussion, discussionComposer } from './discussion.js';
 import { shareCard } from './share-card.js';
@@ -21,6 +22,8 @@ const views = {
   newTrip: tripForm,
   newCatch: catchForm,
   shareCard,
+  weeklyGroups,
+  weeklyBoard,
   messageInbox,
   messageThread,
   messageComposer,
@@ -143,7 +146,9 @@ async function start() {
       .map(([k, label, glyph]) => button('tab' + k, label, 'destination', glyph))
       .join('');
     destinations.forEach(([k]) => bind('tab' + k, () => nav.open(k)));
-    if (window.Device?.openProfile?.()) nav.open('anglerProfile');
+    const weekly = window.Device?.weeklyDestination?.();
+    if (weekly) nav.open('weeklyBoard', { ...JSON.parse(weekly), onExit: () => window.Device.closeGroupBoard() });
+    else if (window.Device?.openProfile?.()) nav.open('anglerProfile');
     else nav.show();
   } catch (error) {
     screen.textContent = t(

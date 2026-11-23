@@ -101,9 +101,9 @@ public final class GroupsActivity extends Activity {
     ui.label(
         t(
             "Na server se ukládá název party, členství a tipy, které do ní odešleš."
-                + " Odchodem se tvoje tipy smažou.",
+                + " Odchodem se smažou i tvé tipy, soutěžní fotky a hlasy.",
             "The service stores the group name, membership and the tips you post to it."
-                + " Leaving deletes your tips."));
+                + " Leaving deletes your tips, competition photos and votes."));
     if (groups.length() == 0)
       ui.label(t("Zatím nejsi v žádné partě.", "You haven’t joined any groups yet."));
     for (int i = 0; i < groups.length(); i++) {
@@ -172,6 +172,14 @@ public final class GroupsActivity extends Activity {
     dialog = ui.prompt(name);
     dialog.choice(
         t("Tipy party", "Group tips"), AccountLayout.Action.SECONDARY, () -> tips(id, name, null));
+    dialog.choice(
+        t("Úlovek týdne", "Catch of the week"),
+        AccountLayout.Action.SECONDARY,
+        () ->
+            startActivity(
+                new Intent(this, FishingActivity.class)
+                    .putExtra(
+                        "weeklyDestination", args("groupId", id, "groupName", name).toString())));
     if (owner)
       dialog.choice(
           t("Vystavit pozvánku", "Issue invitation"),
@@ -243,11 +251,17 @@ public final class GroupsActivity extends Activity {
     dialog.description(
         owner
             ? t(
-                "Parta „" + name + "“ se smaže včetně všech tipů a pozvánky.",
-                "Dissolving “" + name + "” deletes all group tips and its invitation.")
+                "Parta „" + name + "“ se smaže včetně tipů, soutěžních fotek, hlasů a pozvánky.",
+                "Dissolving “"
+                    + name
+                    + "” deletes the group tips, competition photos, votes and invitation.")
             : t(
-                "Tvoje členství v partě „" + name + "“ skončí a tvé tipy se smažou.",
-                "Your membership in “" + name + "” will end and your tips will be deleted."));
+                "Tvoje členství v partě „"
+                    + name
+                    + "“ skončí a smažou se tvé tipy, soutěžní fotky i hlasy.",
+                "Your membership in “"
+                    + name
+                    + "” will end and your tips, competition photos and votes will be deleted."));
     dialog.action(
         leave,
         AccountLayout.Action.DANGER,
