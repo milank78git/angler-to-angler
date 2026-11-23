@@ -52,12 +52,17 @@ public final class Runner extends Instrumentation {
             waitFor("!!document.querySelector('#add') && document.querySelectorAll('#catch-list article').length===0");
             for(int n=1;n<=2;n++) {
                 js("document.querySelector('#add').click()");waitFor("!!document.querySelector('#fish-name')");
+                if(n==1) {
+                    js("const canvas=document.createElement('canvas');canvas.width=32;canvas.height=16;canvas.toBlob(blob=>{const files=new DataTransfer();files.items.add(new File([blob],'catch.png',{type:'image/png'}));document.querySelector('#photo').files=files.files;});");
+                    waitFor("document.querySelector('#photo').files.length===1");
+                }
                 form("document.querySelector('#fish-name').value='Perch';document.querySelector('#length').value='32.5';document.querySelector('#lat').value='-40';document.querySelector('#lon').value='0'");
                 waitFor("document.querySelectorAll('#catch-list article').length==="+n);
             }
             runOnMainSync(()->activity.finish());waitForIdleSync();launch();
             js("document.querySelector('#tabtrips').click()");waitFor("!!document.querySelector('[data-trip]')");
             js("document.querySelector('[data-trip]').click()");waitFor("document.querySelectorAll('#catch-list article').length===2");
+            waitFor("!!document.querySelector('#catch-list img') && document.querySelector('#catch-list img').naturalWidth===32");
             outcome.putString("stream","ANGLER_SMOKE_PASS\n");finish(Activity.RESULT_OK,outcome);
         } catch(Throwable error) {
             outcome.putString("stream","ANGLER_SMOKE_FAIL "+android.util.Log.getStackTraceString(error));finish(Activity.RESULT_CANCELED,outcome);

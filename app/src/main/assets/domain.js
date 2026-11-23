@@ -23,18 +23,6 @@ const Domain = (() => {
     const closed = start <= end ? md >= start && md <= end : md >= start || md <= end;
     return closed ? 'closed' : 'outside';
   }
-  function nextChange(pack, species, section, start) {
-    const initial = season(pack, species, section, start);
-    if (initial === 'unknown') return null;
-    const day = new Date(start + 'T12:00:00Z');
-    for (let i=1; i<=366; i++) {
-      day.setUTCDate(day.getUTCDate()+1);
-      const iso = day.toISOString().slice(0,10);
-      if (iso > pack.until) return null;
-      if (season(pack,species,section,iso) !== initial) return iso;
-    }
-    return null;
-  }
   function point(lat, lon) {
     if (!String(lat).trim() && !String(lon).trim()) return null;
     const read = v => /^[+-]?(?:\d+(?:[.,]\d+)?|[.,]\d+)$/.test(String(v).trim()) ? Number(String(v).trim().replace(',','.')) : NaN;
@@ -48,6 +36,6 @@ const Domain = (() => {
     if (!Number.isFinite(cm) || cm<=0 || cm>2500 || Math.round(cm*10) < 1) throw Error('length');
     return Math.round(cm*10);
   }
-  return {fold,validDay,today,season,nextChange,point,lengthMm};
+  return {fold,validDay,today,season,point,lengthMm};
 })();
 if (typeof module !== 'undefined') module.exports=Domain;
