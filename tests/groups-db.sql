@@ -44,7 +44,8 @@ begin
  begin perform public.angler_group_join(old_code); raise exception 'Rotated token accepted'; exception when invalid_parameter_value then null; end;
  perform public.angler_group_join(code); perform public.angler_group_join(code);
  perform pg_temp.check_that(public.angler_groups()->'groups'->0->>'id'=gid::text
-   and not (public.angler_groups()->'groups'->0->>'owner')::boolean,'Incorrect joined group');
+   and not (public.angler_groups()->'groups'->0->>'owner')::boolean
+   and public.angler_groups()->'groups'->0->>'memberCount'='2','Incorrect joined group');
  begin perform public.angler_group_invite(gid); raise exception 'Member issued invite'; exception when insufficient_privilege then null; end;
  perform public.angler_group_dissolve(gid);
  perform pg_temp.check_that(jsonb_array_length(public.angler_groups()->'groups')=1,'Member dissolved group');
@@ -54,7 +55,9 @@ begin
  perform pg_temp.as_user(2); perform public.angler_group_leave(gid); perform public.angler_group_leave(gid);
  perform pg_temp.check_that(public.angler_groups()->'groups'='[]'::jsonb,'Membership survived leave');
  begin perform public.angler_group_join(code); raise exception 'Left member reused old invite'; exception when invalid_parameter_value then null; end;
- perform pg_temp.as_user(1); replacement := (public.angler_group_invite(gid)->>'code')::uuid;
+ perform pg_temp.as_user(1);
+ perform pg_temp.check_that(public.angler_groups()->'groups'->0->>'memberCount'='1','Owner still counts former member');
+ replacement := (public.angler_group_invite(gid)->>'code')::uuid;
  perform pg_temp.as_user(3); perform public.angler_group_join(replacement);
  perform pg_temp.as_user(1); perform public.angler_group_dissolve(gid);
  perform pg_temp.as_user(3); perform pg_temp.check_that(public.angler_groups()->'groups'='[]'::jsonb,'Dissolved group still visible');

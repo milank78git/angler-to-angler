@@ -115,6 +115,7 @@ public final class GroupsActivity extends Activity {
           name + (owner ? t(" · zakladatel", " · owner") : t(" · člen", " · member")),
           AccountLayout.Action.SECONDARY,
           () -> actions(id, name, owner));
+      ui.label(t("Počet členů: ", "Members: ") + group.getInt("memberCount"));
     }
     button(t("Založit partu", "Create a group"), AccountLayout.Action.PRIMARY, () -> editor(true));
     button(

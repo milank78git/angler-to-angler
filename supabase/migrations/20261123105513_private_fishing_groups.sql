@@ -40,7 +40,8 @@ language plpgsql stable security definer set search_path = '' as $$
 declare actor uuid := angler_groups_private.subject();
 begin
   return jsonb_build_object('groups', coalesce((
-    select jsonb_agg(jsonb_build_object('id',g.id,'name',g.name,'owner',g.owner_id=actor)
+    select jsonb_agg(jsonb_build_object('id',g.id,'name',g.name,'owner',g.owner_id=actor,
+                         'memberCount',1+(select count(*) from angler_groups_private.members c where c.group_id=g.id))
                      order by g.name,g.id)
     from angler_groups_private.groups g
     where g.owner_id=actor or exists (select from angler_groups_private.members m

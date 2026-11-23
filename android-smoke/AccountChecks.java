@@ -137,6 +137,7 @@ final class AccountChecks {
                                     new JSONObject()
                                         .put("id", ownGroup)
                                         .put("name", "River crew")
+                                        .put("memberCount", 1)
                                         .put("owner", true));
                               response = new JSONObject().put("groups", list).toString();
                               break;
@@ -261,6 +262,8 @@ final class AccountChecks {
     click(create);
     type(tr("Název party (2–60 znaků)", "Group name (2–60 characters)"), "River crew");
     dialogButton(android.R.id.button1);
+    find(tr("Počet členů: 1", "Members: 1"));
+    app.captureAccount(gate, "groups");
     click("River crew" + tr(" · zakladatel", " · owner"));
     click(tr("Vystavit pozvánku", "Issue invitation"));
     find(tr("Pozvánka pro jednoho rybáře", "Invite one angler"));
