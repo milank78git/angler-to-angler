@@ -197,6 +197,10 @@ public final class FishingActivity extends Activity {
         case "discussion_withdraw":
         case "discussion_helpful":
         case "discussion_report":
+        case "public_card_options":
+        case "public_card_publish":
+        case "public_card_withdraw":
+        case "public_cards":
         case "activity_state":
         case "activity_change":
         case "activity_summary":

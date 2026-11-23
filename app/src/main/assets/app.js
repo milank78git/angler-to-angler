@@ -4,6 +4,7 @@ import { listWaters, waterScreen } from './waters.js';
 import { rulesScreen } from './seasons.js';
 import { listTrips, tripForm, tripScreen } from './trips.js';
 import { catchForm } from './catch-form.js';
+import { publicCardEditor, myPublicCards } from './public-cards.js';
 import { activityContribution, myActivity, waterActivity } from './water-activity.js';
 import { weeklyGroups, weeklyBoard } from './weekly-catch.js';
 import { messageInbox, messageThread, messageComposer } from './messages.js';
@@ -23,6 +24,8 @@ const views = {
   newTrip: tripForm,
   newCatch: catchForm,
   shareCard,
+  publicCardEditor,
+  myPublicCards,
   activityContribution,
   myActivity,
   waterActivity,

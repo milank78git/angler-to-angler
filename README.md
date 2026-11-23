@@ -1,6 +1,6 @@
 # Angler to Angler
 
-An offline-first Android field journal for anglers. The Czech launcher name is **Rybáři sobě**. Release 0.11.0 is a privately stored journal and a small, sourced pilot catalog. A verified angler profile and acceptance of the current terms are required. Open **My journal** to log a trip on any named water.
+An offline-first Android field journal for anglers. The Czech launcher name is **Rybáři sobě**. Release 0.12.0 is a privately stored journal and a small, sourced pilot catalog. A verified angler profile and acceptance of the current terms are required. Open **My journal** to log a trip on any named water.
 
 ## Try the pilot
 
@@ -22,6 +22,8 @@ An offline-first Android field journal for anglers. The Czech launcher name is *
 12. From a photographed catch in the journal, choose **Enter catch of the week**, select a fishing group and confirm its preview. Members can open **Profile → Group catch of the week** or go directly from their group. Each account can vote once per other catch. Ties share a rank. Rounds run Monday through Sunday in Prague time. Past rounds are available from the board.
 
 13. From a completed journal trip on a catalog water choose **Trip contribution**. Review the whole water, month, target species, main method and total recorded fish before confirming. Blank trips are included. Manage snapshots independently of local entries under **Profile → My activity contributions**. Under **Waters → water name → Water activity**, select a calendar month and optional filters. The success fraction describes only contributed trips and appears when the sample includes a blank trip.
+
+14. From a saved catch choose **Public catch card**. The preview includes the fish species, display name and catch month. Exact day, an enabled catalog water, photo and reviewed length are individual choices. Confirm to create a link. Anyone who has the link can open it in a browser. Under **Profile → My public cards**, share or revoke a link even after deleting the trip from the phone.
 
 ## Structure and data
 

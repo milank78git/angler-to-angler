@@ -492,6 +492,7 @@ public final class Runner extends Instrumentation {
               + " img').naturalWidth===32");
       ShareChecks.run(this);
       WeeklyChecks.run(this);
+      PublicCardChecks.run(this);
       checkEvidenceSubmission(accounts);
       accounts.readGroupTip(postedTip);
       outcome.putString("stream", "ANGLER_SMOKE_PASS\n");
