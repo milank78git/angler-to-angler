@@ -1,5 +1,6 @@
 const screen = document.querySelector('#screen');
 let noticeTimer;
+let finishConfirmation;
 const cs = (window.Device ? Device.locale() : navigator.language).toLowerCase().startsWith('cs');
 const t = (cz, en) => (cs ? cz : en),
   loc = (obj) => obj[cs ? 'cs' : 'en'];
@@ -20,16 +21,23 @@ function bind(id, fn) {
   by(id).onclick = fn;
 }
 /** Resolve only the open prompt. Android Back and Escape both count as cancellation. */
-function dismissConfirmation() {
+function closeConfirmation(accepted) {
   const dialog = by('confirmation');
   if (!dialog.open) return false;
-  dialog.close('cancel');
+  dialog.close(accepted ? 'accept' : 'cancel');
+  // The browser queues its close event. Release the current prompt before another tap.
+  finishConfirmation?.(accepted);
   return true;
+}
+
+function dismissConfirmation() {
+  return closeConfirmation(false);
 }
 
 function confirmAction({ title, message, accept, destructive = false, catchPreview }) {
   const dialog = by('confirmation');
-  if (dialog.open || dialog.onclose) return Promise.resolve(false);
+  if (dialog.open) return Promise.resolve(false);
+  finishConfirmation?.(false);
   by('confirmation-icon').innerHTML = icon(catchPreview ? 'camera' : 'triangle-alert');
   by('confirmation-title').textContent = title;
   by('confirmation-catch').hidden = !catchPreview;
@@ -47,13 +55,22 @@ function confirmAction({ title, message, accept, destructive = false, catchPrevi
   cancelButton.onclick = dismissConfirmation;
   acceptButton.textContent = accept;
   acceptButton.className = destructive ? 'danger' : 'primary';
-  acceptButton.onclick = () => dialog.close('accept');
+  acceptButton.onclick = () => closeConfirmation(true);
   dialog.returnValue = 'cancel';
   return new Promise((resolve) => {
-    dialog.onclose = () => {
-      dialog.onclose = null;
+    finishConfirmation = (accepted) => {
+      finishConfirmation = null;
+      dialog.onclose = dialog.oncancel = null;
       image.removeAttribute('src');
-      resolve(dialog.returnValue === 'accept');
+      resolve(accepted);
+    };
+    dialog.oncancel = (event) => {
+      event.preventDefault();
+      dismissConfirmation();
+    };
+    // An externally closed dialog may deliver its event after a new prompt has opened.
+    dialog.onclose = () => {
+      if (!dialog.open) finishConfirmation?.(false);
     };
     dialog.showModal();
   });
