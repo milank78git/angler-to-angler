@@ -71,13 +71,41 @@ public final class Runner extends Instrumentation {
     waitFor(
         "Array.from(document.querySelectorAll('img[src]')).every(i=>i.complete &&"
             + " i.naturalWidth>0)");
-    waitForIdleSync();
-    Thread.sleep(250);
-    saveScreenshot(name);
+    // DOM readiness precedes the emulator compositor. Wait for a test-only swatch to
+    // appear, then disappear, before recording the unmodified screen.
+    int[] origin = new int[2];
+    runOnMainSync(() -> web.getLocationOnScreen(origin));
+    double ratio = Double.parseDouble(js("window.devicePixelRatio"));
+    int x = origin[0] + (int) Math.round(12 * ratio), y = origin[1] + (int) Math.round(12 * ratio);
+    js(
+        "(()=>{const el=document.createElement('div');el.id='capture-sync';const s=el.style;"
+            + "s.position='fixed';s.left='4px';s.top='4px';s.width='16px';s.height='16px';s.zIndex='2147483647';s.backgroundColor='rgb(213,"
+            + " 5, 235)';document.body.append(el)})()");
+    frameAt(x, y, true).recycle();
+    js("document.getElementById('capture-sync').remove()");
+    saveScreenshot(name, frameAt(x, y, false));
   }
 
-  private void saveScreenshot(String name) throws Exception {
-    android.graphics.Bitmap pixels = getUiAutomation().takeScreenshot();
+  private android.graphics.Bitmap frameAt(int x, int y, boolean swatchVisible) throws Exception {
+    long deadline = android.os.SystemClock.elapsedRealtime() + 15000;
+    do {
+      runOnMainSync(() -> web.postInvalidateOnAnimation());
+      android.graphics.Bitmap frame = getUiAutomation().takeScreenshot();
+      if (frame != null) {
+        int pixel = frame.getPixel(x, y);
+        boolean matches =
+            Math.abs(android.graphics.Color.red(pixel) - 213) < 12
+                && android.graphics.Color.green(pixel) < 18
+                && Math.abs(android.graphics.Color.blue(pixel) - 235) < 12;
+        if (matches == swatchVisible) return frame;
+        frame.recycle();
+      }
+      Thread.sleep(120);
+    } while (android.os.SystemClock.elapsedRealtime() < deadline);
+    throw new AssertionError("Display did not reach the current UI frame");
+  }
+
+  private void saveScreenshot(String name, android.graphics.Bitmap pixels) throws Exception {
     java.io.File dir = new java.io.File(getTargetContext().getExternalFilesDir(null), "ui");
     if (!dir.isDirectory() && !dir.mkdirs())
       throw new java.io.IOException("Screenshot directory unavailable");
@@ -101,6 +129,9 @@ public final class Runner extends Instrumentation {
               + ("wide".equals(scenario) ? "column" : "row")
               + "'");
       capture("atlas");
+      runOnMainSync(() -> web.getSettings().setTextZoom(200));
+      waitFor("document.documentElement.scrollWidth<=window.innerWidth+1");
+      runOnMainSync(() -> web.getSettings().setTextZoom(100));
       js(
           "document.querySelector('[data-favorite]').click();document.getElementById('saved').click()");
       waitFor("document.querySelectorAll('[data-water]').length===1");
@@ -127,7 +158,7 @@ public final class Runner extends Instrumentation {
           "document.querySelector('#rule-date').value='2026-06-15';document.querySelector('#rule-date').dispatchEvent(new"
               + " Event('change'))");
       waitFor("!!document.querySelector('.result.closed')");
-      js("handleBack()");
+      sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK);
       waitFor("!!document.querySelector('#new-trip')");
       js("document.querySelector('#new-trip').click()");
       waitFor("!!document.querySelector('#notes')");
@@ -169,7 +200,7 @@ public final class Runner extends Instrumentation {
       finish(Activity.RESULT_OK, outcome);
     } catch (Throwable error) {
       try {
-        saveScreenshot("failure");
+        saveScreenshot("failure", getUiAutomation().takeScreenshot());
       } catch (Exception captureError) {
         error.addSuppressed(captureError);
       }
