@@ -11,9 +11,9 @@ final class MessageChecks {
   static final String TOPIC = "01c121a2-a7e5-4512-af61-cf07a7f29141";
   static final String TITLE = "How was the north bank?";
   private static final String THREAD = "00e26dd1-b89b-4c71-acf6-744de7bca0be";
-  private static final String BODY = "Private <reply> & details";
+  private static final String BODY = "Private 🎣<reply> & details 👩🏽‍💻";
   private static final String TIME = "2026-11-23T10:00:00Z";
-  private String request;
+  private String request, reaction;
   private boolean blocked, reported;
 
   JSONObject response(String op, JSONObject args) throws Exception {
@@ -39,6 +39,8 @@ final class MessageChecks {
                   .put("id", "2")
                   .put("mine", false)
                   .put("body", "Thanks!")
+                  .put("myReaction", reaction == null ? JSONObject.NULL : reaction)
+                  .put("peerReaction", "🐟")
                   .put("postedAt", TIME)
                   .put("reported", reported));
           items.put(
@@ -73,6 +75,15 @@ final class MessageChecks {
           throw new IOException("Wrong block target");
         blocked = args.getBoolean("blocked");
         break;
+      case "message_react":
+        if (!THREAD.equals(args.getString("thread_id"))
+            || !"2".equals(args.getString("message_id"))
+            || blocked && !args.isNull("emoji"))
+          throw new IOException("Unexpected reaction target");
+        reaction = args.isNull("emoji") ? null : args.getString("emoji");
+        return new JSONObject()
+            .put("myReaction", reaction == null ? JSONObject.NULL : reaction)
+            .put("peerReaction", "🐟");
       case "message_report":
         if (!THREAD.equals(args.getString("thread_id"))
             || !"2".equals(args.getString("message_id")))
@@ -103,29 +114,67 @@ final class MessageChecks {
     app.waitFor("document.querySelector('#message-tools')?.hidden===false");
     click(app, "#write-message");
     app.waitFor("!!document.querySelector('#message-text')");
-    app.js("document.querySelector('#message-text').value=" + JSONObject.quote(BODY));
-    click(app, "#message-form button");
+    app.js(
+        "var draftField=document.querySelector('#message-text');draftField.value="
+            + JSONObject.quote(BODY.replace("🎣", ""))
+            + ";draftField.setSelectionRange(8,8);document.querySelector('#inline-emoji').open=true");
+    click(app, "#inline-emoji .emoji-choices button:nth-child(7)");
+    app.waitFor("document.querySelector('#message-text').value===" + JSONObject.quote(BODY));
+    click(app, "#message-form .savebar button");
     app.waitFor(
         "document.querySelector('#confirmation').open &&"
             + " document.querySelector('#confirmation-message').textContent==="
             + JSONObject.quote("Lake\n\n" + BODY));
     click(app, "#confirmation-cancel");
     app.waitFor("!document.querySelector('#confirmation').open");
-    accept(app, "#message-form button");
+    accept(app, "#message-form .savebar button");
     app.waitFor(
         "!!document.querySelector('#send-error')?.textContent &&"
             + " !document.querySelector('#message-text').disabled");
-    accept(app, "#message-form button");
+    accept(app, "#message-form .savebar button");
     app.waitFor(
         "document.querySelector('#message-items article:last-child"
             + " .discussion-body')?.textContent==="
             + JSONObject.quote(BODY));
-    accept(app, "#message-items article button");
-    app.waitFor("document.querySelector('#message-items article button')?.disabled===true");
+    String picker = "#message-items article:first-child .message-reactions";
+    click(app, picker + " summary");
+    app.waitFor(
+        "!!document.querySelector(" + JSONObject.quote(picker + " .emoji-choices button") + ")");
+    click(app, picker + " .emoji-choices button");
+    app.waitFor(
+        "document.querySelector("
+            + JSONObject.quote(picker + " p")
+            + ").textContent.includes('👍')");
+    click(app, picker + " summary");
+    app.waitFor("!!document.querySelector(" + JSONObject.quote(picker + " input") + ")");
+    app.js(
+        "var reactionInput=document.querySelector("
+            + JSONObject.quote(picker + " input")
+            + ");reactionInput.value='👩🏽‍💻';reactionInput.dispatchEvent(new"
+            + " KeyboardEvent('keydown',{key:'Enter',bubbles:true}))");
+    app.waitFor(
+        "document.querySelector("
+            + JSONObject.quote(picker + " p")
+            + ").textContent.includes('👩🏽‍💻')");
+    accept(app, "#message-items .report-message");
+    app.waitFor("document.querySelector('#message-items .report-message')?.disabled===true");
     accept(app, "#block-peer");
     app.waitFor(
         "document.querySelector('#message-tools')?.hidden===false &&"
             + " document.querySelector('#write-message').hidden");
+    app.waitFor(
+        "!document.querySelector("
+            + JSONObject.quote(picker + " summary")
+            + ") && document.querySelector("
+            + JSONObject.quote(picker + " p")
+            + ").textContent.includes('👩🏽‍💻')");
+    click(app, picker + " button");
+    app.waitFor(
+        "!document.querySelector("
+            + JSONObject.quote(picker + " p")
+            + ").textContent.includes('👩🏽‍💻') && document.querySelector("
+            + JSONObject.quote(picker + " p")
+            + ").textContent.includes('🐟')");
     app.capture("blocked-private-conversation");
     click(app, "#profile");
     app.waitFor("!!document.querySelector('#private-inbox')");

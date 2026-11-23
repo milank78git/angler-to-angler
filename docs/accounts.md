@@ -69,6 +69,8 @@ The pilot operator reviews flags in `angler_discussions.reports` joined to `angl
 
 Apply the `private_messages` migration after water discussions. The first message is addressed to the author of a visible question. Verified participants can continue from their inbox after the original question is withdrawn. The service resolves the recipient and enforces one conversation per pair across all waters. A block by either party stops new messages and leaves the existing history readable. Unblocking removes only the caller's own block.
 
+Apply the `message_reactions` migration to enable one optional emoji per participant per message. Each participant can change only their own reaction. During a block they can still remove it. Both reactions are visible only in that conversation and are erased with it. Include reactions with message exports.
+
 The pilot operator can review reported messages with the following query. A report identifies only the selected incoming message. Use the position to locate the reported entry when handling the request. The mobile roles cannot query these tables. Include the user's conversations when fulfilling an account access request. Deleting either participant's account removes the thread, its messages and report flags.
 
 ```sql

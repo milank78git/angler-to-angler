@@ -67,6 +67,7 @@ begin
     and jsonb_array_length(public.angler_message_inbox()->'items')=1,'History cursor or duplicate conversation');
 end$$;
 reset role;
+\ir message-reactions-db.sql
 delete from auth.users where id='00000000-0000-4000-8000-000000000003';
 select pg_temp.check_that(not exists(select from angler_messages.entries) and not exists(select from angler_messages.threads),
   'Account deletion retained conversations');

@@ -237,6 +237,7 @@ final class AccountChecks {
                             case "/rest/v1/rpc/angler_message_history":
                             case "/rest/v1/rpc/angler_message_send":
                             case "/rest/v1/rpc/angler_message_report":
+                            case "/rest/v1/rpc/angler_message_react":
                             case "/rest/v1/rpc/angler_message_block":
                               response =
                                   messages

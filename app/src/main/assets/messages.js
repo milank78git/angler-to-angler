@@ -1,3 +1,4 @@
+import { bindInlineEmoji, messageReactions } from './message-emoji.js';
 import { newJournalId } from './journal.js';
 import { rpc } from './profile-api.js';
 import {
@@ -168,8 +169,8 @@ export async function messageThread({ view, nav }) {
               (blocked
                 ? t('Zrušíš svoji blokaci tohoto účtu.', 'Remove your block on this account.')
                 : t(
-                    'Ani jeden z vás nebude moct posílat další zprávy. Dosavadní rozhovor vám zůstane.',
-                    'Neither of you will be able to send new messages. Your existing history stays available.',
+                    'Ani jeden z vás nebude moct posílat další zprávy ani přidávat reakce. Dosavadní rozhovor vám zůstane.',
+                    'Neither of you will be able to send new messages or add reactions. Your existing history stays available.',
                   )),
           });
           if (accepted && view.active())
@@ -227,8 +228,10 @@ export async function messageThread({ view, nav }) {
                 (err) => toast(errorText(err)),
               );
           };
+          flag.classList.add('report-message');
           card.append(flag);
         }
+        card.append(messageReactions(view, data, item, errorText));
         by('message-items').append(card);
       }
     },
@@ -254,6 +257,9 @@ export function messageComposer({ view, nav }) {
       t('Tvoje zpráva', 'Your message'),
       '<textarea id="message-text" rows="5" required maxlength="1600"></textarea>',
     ) +
+    '<details id="inline-emoji"><summary>' +
+    t('Vložit emoji', 'Insert emoji') +
+    '</summary></details>' +
     '<p class="meta">' +
     t(
       'Zprávu uvidíte jen vy dva. Příjemce ji může nahlásit správci.',
@@ -264,6 +270,7 @@ export function messageComposer({ view, nav }) {
     '</button></div></form>';
   bindBack(nav);
   const form = by('message-form');
+  bindInlineEmoji();
   trackEdits(form, view);
   let attempt;
   form.onsubmit = async (event) => {

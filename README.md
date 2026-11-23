@@ -17,7 +17,7 @@ An offline-first Android field journal for anglers. The Czech launcher name is *
 
 10. In the atlas, open a water and choose **Water questions**. Ask a question or open one to post a free answer. You can include the date you fished. The question author can mark another angler’s answer as helpful. Signed-in anglers can report a post or withdraw their own. Withdrawing a question removes the thread.
 
-11. Open another angler’s question and choose **Reply privately**. Confirm the recipient and text. Both anglers can continue under **Profile → Private messages**. Either can block further messages across waters or report an individual received message.
+11. Open another angler’s question and choose **Reply privately**. Confirm the recipient and text. Both anglers can continue under **Profile → Private messages**. Use **Insert emoji** in a draft or type with your Android keyboard. Under a sent or received message, choose **React** to add a quick or keyboard emoji. You can replace or remove your reaction. Either can block further messages across waters or report an individual received message.
 
 ## Structure and data
 

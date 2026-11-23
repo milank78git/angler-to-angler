@@ -1234,3 +1234,35 @@ textarea {
 #message-items {
   overflow-wrap: anywhere;
 }
+.message-reactions,
+#inline-emoji {
+  margin-top: .6rem;
+}
+.message-reactions summary,
+#inline-emoji summary {
+  cursor: pointer;
+  padding-block: .65rem;
+  color: var(--primary);
+  font-weight: 650;
+}
+.message-reactions .meta:empty {
+  display: none;
+}
+.emoji-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .3rem;
+  margin: .4rem 0;
+}
+.emoji-choices button {
+  padding: .35rem;
+  font-size: 1.4rem;
+}
+.emoji-choices button[aria-pressed="true"] {
+  border: 2px solid var(--primary);
+  background: var(--tint);
+}
+.message-reactions input {
+  max-width: 12rem;
+  display: block;
+}

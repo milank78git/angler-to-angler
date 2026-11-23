@@ -190,6 +190,7 @@ public final class FishingActivity extends Activity {
         case "message_send":
         case "message_block":
         case "message_report":
+        case "message_react":
         case "groups":
         case "group_tip_post":
         case "save_card":
