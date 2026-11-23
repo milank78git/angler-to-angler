@@ -19,12 +19,21 @@ ANGLER_ACCOUNT_CONFIG_FILE=android-smoke/account-config.json ANGLER_TEST_OUTPUT=
 adb install -r build/smoke-app/angler-journal-debug.apk
 adb install -r "$out/test-signed.apk"
 mkdir -p "$out/screens"
+# The optional system-lock test runs on the disposable CI emulator only.
+secure_emulator=false
+if [[ "${CI:-}" == true && "$(adb shell getprop ro.kernel.qemu | tr -d '\r')" == 1 ]]; then
+  secure_emulator=true
+fi
 for scenario in compact wide; do
   if [[ "$scenario" == compact ]]; then
     language=cs-CZ
     adb shell wm size 720x1440
     adb shell wm density 320
   else
+    if $secure_emulator; then
+      adb shell locksettings set-pin 482619 | grep -F 'set to'
+      trap 'adb shell locksettings clear --old 482619 >/dev/null' EXIT
+    fi
     language=en-GB
     adb shell wm size 1620x1200
     adb shell wm density 260
@@ -36,3 +45,9 @@ for scenario in compact wide; do
   adb pull "/sdcard/Android/data/$app_id/files/ui/." "$out/screens" || true
   grep -Fq ANGLER_SMOKE_PASS "$out/$scenario.txt"
 done
+
+if $secure_emulator; then
+  adb shell am force-stop "$app_id"
+  adb shell am instrument -w -e scenario unlock app.anglers.journal.smoke/.Runner | tee "$out/unlock.txt"
+  grep -Fq ANGLER_UNLOCK_PASS "$out/unlock.txt"
+fi

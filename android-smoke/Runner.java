@@ -27,7 +27,7 @@ public final class Runner extends Instrumentation {
     android.content.Context target = getTargetContext();
     android.content.pm.PackageInfo info =
         target.getPackageManager().getPackageInfo(target.getPackageName(), 0);
-    String prefix = "wide".equals(scenario) ? "Preview" : "Pilot";
+    String prefix = "compact".equals(scenario) ? "Pilot" : "Preview";
     return prefix + " " + info.versionName + " (" + info.getLongVersionCode() + ")";
   }
 
@@ -162,6 +162,7 @@ public final class Runner extends Instrumentation {
   private android.graphics.Bitmap frameAt(
       android.view.View target, int x, int y, boolean swatchVisible) throws Exception {
     long deadline = android.os.SystemClock.elapsedRealtime() + 15000;
+    boolean checkedLauncher = false;
     do {
       runOnMainSync(target::postInvalidateOnAnimation);
       android.graphics.Bitmap frame = getUiAutomation().takeScreenshot();
@@ -174,9 +175,29 @@ public final class Runner extends Instrumentation {
         if (matches == swatchVisible) return frame;
         frame.recycle();
       }
+      if (!checkedLauncher && deadline - android.os.SystemClock.elapsedRealtime() < 12000) {
+        checkedLauncher = true;
+        dismissLauncherDialog();
+      }
       Thread.sleep(120);
     } while (android.os.SystemClock.elapsedRealtime() < deadline);
     throw new AssertionError("Display did not reach the current UI frame");
+  }
+
+  /**
+   * A stalled emulator launcher can cover the app during startup. Leave application errors visible.
+   */
+  private void dismissLauncherDialog() {
+    android.view.accessibility.AccessibilityNodeInfo root =
+        getUiAutomation().getRootInActiveWindow();
+    if (root == null
+        || !"android".contentEquals(String.valueOf(root.getPackageName()))
+        || root.findAccessibilityNodeInfosByText("Pixel Launcher").isEmpty()) return;
+    java.util.List<android.view.accessibility.AccessibilityNodeInfo> close =
+        root.findAccessibilityNodeInfosByViewId("android:id/aerr_close");
+    if (close.isEmpty()) close = root.findAccessibilityNodeInfosByText("Close app");
+    if (close.size() == 1)
+      close.get(0).performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK);
   }
 
   private void saveScreenshot(String name, android.graphics.Bitmap pixels) throws Exception {
@@ -196,7 +217,7 @@ public final class Runner extends Instrumentation {
    * Exercise a captured journal photo through the real WebView, native RPC bridge and withdrawal
    * UI.
    */
-  private void checkEvidenceSubmission() throws Exception {
+  private void checkEvidenceSubmission(AccountChecks accounts) throws Exception {
     js("document.querySelector('#tabtrips').click()");
     waitFor("!!document.querySelector('[data-trip]')");
     js("document.querySelector('[data-trip]').click()");
@@ -211,16 +232,108 @@ public final class Runner extends Instrumentation {
     waitFor("!!document.querySelector('[data-verify-catch]')");
     js("document.querySelector('[data-verify-catch]').click()");
     waitFor("!!document.querySelector('[data-remove]') && !document.querySelector('#review')");
+    boolean cs = !"wide".equals(scenario);
+    String card = "document.querySelector('.profile-directory article')";
+    waitFor(
+        card
+            + "?.querySelector('strong')?.textContent === "
+            + org.json.JSONObject.quote(cs ? "Čeká na kontrolu" : "Awaiting review"));
+    accounts.setPhotoReview("measured", 635);
+    js("document.querySelector('#refresh-evidence').click()");
+    waitFor(
+        card
+            + "?.textContent.includes("
+            + org.json.JSONObject.quote(
+                cs ? "Délka odečtená z míry · 63,5 cm" : "Length read from ruler · 63.5 cm")
+            + ")");
+    accounts.setPhotoReview("estimated", 650);
+    js("document.querySelector('#refresh-evidence').click()");
+    waitFor(
+        card
+            + "?.textContent.includes("
+            + org.json.JSONObject.quote(
+                cs
+                    ? "Délka odhadnutá podle měřítka · 65 cm"
+                    : "Length estimated from a reference · 65 cm")
+            + ")");
+    accounts.setPhotoReview("unverified", null);
+    js("document.querySelector('#refresh-evidence').click()");
+    waitFor(
+        card
+            + "?.querySelector('strong')?.textContent === "
+            + org.json.JSONObject.quote(cs ? "Nedostatečný podklad" : "Insufficient evidence")
+            + " && !"
+            + card
+            + ".textContent.includes(' cm')");
     js("document.querySelector('[data-remove]').click()");
     waitFor(
         "!!document.querySelector('#refresh-evidence') &&"
             + " !document.querySelector('[data-remove]')");
   }
 
+  /**
+   * Exercise the actual Android PIN UI, Keystore decryption and offline journal after process
+   * death.
+   */
+  private void coldUnlock() throws Exception {
+    android.content.Context ctx = getTargetContext();
+    String envelope = ctx.getSharedPreferences("angler-account", 0).getString("deviceSession", "");
+    if (envelope.isEmpty() || envelope.contains("fixture-"))
+      throw new AssertionError("Missing sealed credential");
+    ActivityMonitor journal = addMonitor("app.anglers.journal.FishingActivity", null, false);
+    try {
+      startActivitySync(
+          new Intent(Intent.ACTION_MAIN)
+              .setClassName(ctx.getPackageName(), "app.anglers.journal.AccountActivity")
+              .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+      long deadline = android.os.SystemClock.elapsedRealtime() + 15000;
+      boolean shown = false;
+      while (android.os.SystemClock.elapsedRealtime() < deadline) {
+        android.view.accessibility.AccessibilityNodeInfo root =
+            getUiAutomation().getRootInActiveWindow();
+        if (root != null
+            && ("com.android.systemui".contentEquals(String.valueOf(root.getPackageName()))
+                || "com.android.settings".contentEquals(String.valueOf(root.getPackageName())))) {
+          shown = true;
+          break;
+        }
+        Thread.sleep(120);
+      }
+      if (!shown || journal.getHits() != 0)
+        throw new AssertionError("OS credential screen required");
+      Thread.sleep(500);
+      try (android.os.ParcelFileDescriptor command =
+              getUiAutomation().executeShellCommand("input text 482619");
+          java.io.InputStream result =
+              new android.os.ParcelFileDescriptor.AutoCloseInputStream(command)) {
+        while (result.read() != -1) {}
+      }
+      try (android.os.ParcelFileDescriptor command =
+              getUiAutomation().executeShellCommand("input keyevent KEYCODE_ENTER");
+          java.io.InputStream result =
+              new android.os.ParcelFileDescriptor.AutoCloseInputStream(command)) {
+        while (result.read() != -1) {}
+      }
+      Activity restored = waitForMonitorWithTimeout(journal, 15000);
+      if (restored == null) throw new AssertionError("PIN did not unlock the offline journal");
+      bindJournal(restored);
+      js("document.querySelector('#tabtrips').click()");
+      waitFor("document.querySelectorAll('[data-trip]').length===1");
+    } finally {
+      removeMonitor(journal);
+    }
+  }
+
   @Override
   public void onStart() {
     Bundle outcome = new Bundle();
     try {
+      if ("unlock".equals(scenario)) {
+        coldUnlock();
+        outcome.putString("stream", "ANGLER_UNLOCK_PASS\n");
+        finish(Activity.RESULT_OK, outcome);
+        return;
+      }
       AccountChecks accounts = new AccountChecks(this, !"wide".equals(scenario));
       bindJournal(accounts.register());
       bindJournal(accounts.groups());
@@ -313,7 +426,7 @@ public final class Runner extends Instrumentation {
           "!!document.querySelector('#catch-list img') && document.querySelector('#catch-list"
               + " img').naturalWidth===32");
       ShareChecks.run(this);
-      checkEvidenceSubmission();
+      checkEvidenceSubmission(accounts);
       outcome.putString("stream", "ANGLER_SMOKE_PASS\n");
       finish(Activity.RESULT_OK, outcome);
     } catch (Throwable error) {

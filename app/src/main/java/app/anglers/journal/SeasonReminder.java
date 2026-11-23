@@ -79,7 +79,7 @@ public final class SeasonReminder extends BroadcastReceiver {
   @Override
   public void onReceive(Context context, Intent intent) {
     try {
-      if (AccountStore.active(context).isEmpty()) return;
+      if (AccountStore.remainingMillis(context) == 0) return;
       JSONObject pack = catalog(context);
       Instant now = Instant.now();
       if (FIRE.equals(intent.getAction())) {

@@ -2,60 +2,129 @@ package app.anglers.journal;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import org.json.JSONObject;
 
-/**
- * Stores the identity confirmed by the profile service for bounded offline use. No OAuth tokens are
- * persisted.
- */
+/** Keeps a verified offline lease and a device-authenticated refresh credential for one profile. */
 final class AccountStore {
   static final String REVISION = "2026-11-23";
   private static final long WINDOW = TimeUnit.DAYS.toMillis(7);
-
-  // An online session belongs to one verified subject and only lives in this process.
-  private static String tokenSubject = "", token;
-
-  static synchronized String onlineToken(Context c) {
-    return !tokenSubject.isEmpty() && tokenSubject.equals(active(c)) ? token : null;
-  }
-
-  static synchronized void forgetToken() {
-    tokenSubject = "";
-    token = null;
-  }
+  private static final Object REFRESH_LOCK = new Object();
+  private static IdentityService.Session session;
+  private static long generation;
 
   static SharedPreferences prefs(Context c) {
     return c.getSharedPreferences("angler-account", Context.MODE_PRIVATE);
   }
 
-  static String active(Context c) {
-    SharedPreferences p = prefs(c);
-    return remainingMillis(c) > 0 ? p.getString("subject", "") : "";
+  static synchronized void lock() {
+    session = null;
+  }
+
+  static synchronized String active(Context c) {
+    return session != null
+            && session.id.equals(prefs(c).getString("subject", ""))
+            && remainingMillis(c) > 0
+        ? session.id
+        : "";
   }
 
   static long remainingMillis(Context c) {
     SharedPreferences p = prefs(c);
     long age = System.currentTimeMillis() - p.getLong("verified", 0);
-    if (age < 0 || age >= WINDOW || !REVISION.equals(p.getString("revision", ""))) return 0;
+    if (age < 0
+        || age >= WINDOW
+        || !p.contains("subject")
+        || !REVISION.equals(p.getString("revision", ""))) return 0;
     return WINDOW - age;
   }
 
+  private static void persist(Context c, IdentityService.Session value) {
+    try {
+      DeviceVault.save(c, value);
+    } catch (Exception unavailable) {
+      DeviceVault.clear(c);
+    } // Password sign-in still works.
+  }
+
+  static synchronized IdentityService.Session unlock(Context c) throws Exception {
+    session = DeviceVault.open(c);
+    return session;
+  }
+
+  /** Called only after Auth and the profile RPC agree on identity and legal revisions. */
   static synchronized void activate(
-      Context c, String id, String name, boolean claimLegacy, String access) {
-    String subject = UUID.fromString(id).toString();
+      Context c, String name, boolean claimLegacy, IdentityService.Session value) {
     SharedPreferences p = prefs(c);
-    if (!subject.equals(p.getString("subject", ""))) SeasonReminder.clearSubscriptions(c);
+    if (!value.id.equals(p.getString("subject", ""))) {
+      SeasonReminder.clearSubscriptions(c);
+      DeviceVault.clear(c);
+    }
     SharedPreferences.Editor edit =
         p.edit()
-            .putString("subject", subject)
+            .putString("subject", value.id)
             .putString("name", name)
+            .putString("email", value.email)
             .putString("revision", REVISION)
             .putLong("verified", System.currentTimeMillis());
-    if (!p.contains("legacyOwner")) edit.putString("legacyOwner", claimLegacy ? subject : "");
+    if (!p.contains("legacyOwner")) edit.putString("legacyOwner", claimLegacy ? value.id : "");
     edit.apply();
-    tokenSubject = subject;
-    token = access;
+    generation++;
+    session = value;
+    persist(c, value);
+  }
+
+  /** Coalesce concurrent refreshes, including the single retry after an API rejects a bearer. */
+  static IdentityService.Session online(
+      Context c, IdentityService service, String id, IdentityService.Session rejected)
+      throws Exception {
+    synchronized (REFRESH_LOCK) {
+      IdentityService.Session current;
+      long owner;
+      synchronized (AccountStore.class) {
+        current = session;
+        owner = generation;
+        if (current == null || !current.id.equals(id) || current.refresh.isEmpty())
+          throw new IdentityService.HttpFailure(401);
+        if (current != rejected
+            && !current.access.isEmpty()
+            && current.expires - System.currentTimeMillis() > 30000) return current;
+      }
+      IdentityService.Session next;
+      try {
+        next = service.refresh(current);
+      } catch (IdentityService.HttpFailure err) {
+        if (err.status != 400 && err.status != 401 && err.status != 403) throw err;
+        synchronized (AccountStore.class) {
+          if (owner == generation) {
+            DeviceVault.clear(c);
+            if (session == current)
+              session = new IdentityService.Session(id, current.email, "", "", 0);
+          }
+        }
+        throw new IdentityService.HttpFailure(401);
+      }
+      synchronized (AccountStore.class) {
+        if (owner != generation) throw new IdentityService.HttpFailure(401);
+        persist(c, next);
+        if (session != current) throw new IdentityService.HttpFailure(401);
+        session = next;
+        return next;
+      }
+    }
+  }
+
+  static JSONObject rpc(
+      Context c, IdentityService service, String id, String method, JSONObject args)
+      throws Exception {
+    if (id.isEmpty() || !id.equals(active(c))) throw new IdentityService.HttpFailure(401);
+    IdentityService.Session auth = online(c, service, id, null);
+    try {
+      return service.rpc(method, auth.access, args);
+    } catch (IdentityService.HttpFailure err) {
+      if (err.status != 401) throw err;
+      return service.rpc(method, online(c, service, id, auth).access, args);
+    }
   }
 
   static String journal(Context c) {
@@ -66,9 +135,18 @@ final class AccountStore {
         : "angler-field-journal-" + id;
   }
 
-  static void logout(Context c) {
-    forgetToken();
-    prefs(c).edit().remove("subject").remove("name").remove("verified").remove("revision").apply();
+  static synchronized void logout(Context c) {
+    generation++;
+    session = null;
+    DeviceVault.clear(c);
+    prefs(c)
+        .edit()
+        .remove("subject")
+        .remove("email")
+        .remove("name")
+        .remove("verified")
+        .remove("revision")
+        .apply();
     SeasonReminder.clearSubscriptions(c);
   }
 }

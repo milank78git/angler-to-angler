@@ -27,12 +27,20 @@ final class AccountChecks {
   private volatile String expectedChallenge;
   private volatile boolean socialEnabled;
   private volatile int sentEmails;
-  private volatile boolean wrongEmail, expireGroupSession;
+  private volatile boolean wrongEmail, expireGroupSession, retryGroup;
+  private volatile int passwordSignIns, refreshes;
+  private static final String PASSWORD = "fixture-password";
   private volatile String ownGroup;
   private volatile JSONObject savedCard;
   private volatile int cardRevision;
   private volatile JSONObject submittedCatch;
   private static final String INVITE = "d18590e4-a811-4937-a16f-8eb2dacc019d";
+
+  /** Return the chosen database outcome on the next refresh of the submitted catch. */
+  void setPhotoReview(String outcome, Integer lengthMm) throws Exception {
+    submittedCatch =
+        new JSONObject(submittedCatch.toString()).put("outcome", outcome).put("mm", lengthMm);
+  }
 
   private JSONObject profile() throws Exception {
     return new JSONObject().put("id", ID).put("name", "River").put("current", true);
@@ -95,23 +103,38 @@ final class AccountChecks {
                           JSONObject body = new JSONObject(request.toString("UTF-8"));
                           switch (u.getPath()) {
                             case "/auth/v1/token":
-                              byte[] hash =
-                                  MessageDigest.getInstance("SHA-256")
-                                      .digest(
-                                          body.getString("code_verifier")
-                                              .getBytes(StandardCharsets.US_ASCII));
-                              String challenge =
-                                  Base64.encodeToString(
-                                      hash, Base64.URL_SAFE | Base64.NO_WRAP | Base64.NO_PADDING);
-                              if (!"grant_type=pkce".equals(u.getQuery())
-                                  || !"fixture-code".equals(body.getString("auth_code"))
-                                  || !challenge.equals(expectedChallenge)) return 403;
+                              if ("grant_type=password".equals(u.getQuery())) {
+                                if (!PASSWORD.equals(body.getString("password"))
+                                    || !"test@example.invalid".equals(body.getString("email")))
+                                  return 400;
+                                passwordSignIns++;
+                              } else if ("grant_type=refresh_token".equals(u.getQuery())) {
+                                if (expireGroupSession
+                                    || !"fixture-refresh".equals(body.getString("refresh_token")))
+                                  return 400;
+                                refreshes++;
+                              } else {
+                                byte[] hash =
+                                    MessageDigest.getInstance("SHA-256")
+                                        .digest(
+                                            body.getString("code_verifier")
+                                                .getBytes(StandardCharsets.US_ASCII));
+                                String challenge =
+                                    Base64.encodeToString(
+                                        hash, Base64.URL_SAFE | Base64.NO_WRAP | Base64.NO_PADDING);
+                                if (!"grant_type=pkce".equals(u.getQuery())
+                                    || !"fixture-code".equals(body.getString("auth_code"))
+                                    || !challenge.equals(expectedChallenge)) return 403;
+                              }
                               response =
                                   new JSONObject()
                                       .put("access_token", "fixture-session")
+                                      .put("refresh_token", "fixture-refresh")
+                                      .put("expires_in", 3600)
                                       .put(
                                           "user",
                                           new JSONObject()
+                                              .put("id", ID)
                                               .put(
                                                   "email",
                                                   wrongEmail
@@ -119,7 +142,21 @@ final class AccountChecks {
                                                       : "test@example.invalid"))
                                       .toString();
                               return 200;
-                            case "/auth/v1/otp":
+                            case "/auth/v1/user":
+                              if (!"PUT".equals(getRequestMethod())
+                                  || !PASSWORD.equals(body.getString("password"))
+                                  || !"Bearer fixture-session"
+                                      .equals(getRequestProperty("Authorization"))) return 403;
+                              response = new JSONObject().put("id", ID).toString();
+                              return 200;
+                            case "/auth/v1/signup":
+                              if (!PASSWORD.equals(body.getString("password"))
+                                  || !(cs ? "cs" : "en")
+                                      .equals(body.getJSONObject("data").getString("locale")))
+                                return 400;
+                            // Signup and recovery both bind their email link to the requesting
+                            // phone.
+                            case "/auth/v1/recover":
                               sentEmails++;
                               String redirect =
                                   Uri.parse(u.toString()).getQueryParameter("redirect_to");
@@ -193,7 +230,10 @@ final class AccountChecks {
                               response = "{}";
                               break;
                             case "/rest/v1/rpc/angler_groups":
-                              if (expireGroupSession) return 401;
+                              if (expireGroupSession || retryGroup) {
+                                retryGroup = false;
+                                return 401;
+                              }
                               org.json.JSONArray list = new org.json.JSONArray();
                               if (ownGroup != null)
                                 list.put(
@@ -267,7 +307,7 @@ final class AccountChecks {
                     tr("Pokračovat přes Google", "Continue with Google")));
     if (disabledGoogle[0] != null) throw new AssertionError("Disabled provider offered");
     app.captureAccount(gate, "login");
-    requestEmail();
+    requestRegistration();
     socialEnabled = true;
     click(tr("Změnit e-mail", "Change email"));
     find(tr("Pokračovat přes Google", "Continue with Google"));
@@ -275,7 +315,16 @@ final class AccountChecks {
     app.captureAccount(gate, "login-social");
     checkSocialLogin("Facebook");
     checkSocialLogin("Google");
-    requestEmail();
+    click(tr("Nastavit nebo obnovit heslo", "Set or reset password"));
+    type(tr("E-mail", "Email"), "test@example.invalid");
+    click(tr("Poslat odkaz pro nastavení hesla", "Send password setup link"));
+    find(tr("Otevřít poštu", "Open inbox"));
+    deliverCallback(Uri.parse(gate.getPackageName() + "://account/callback?code=fixture-code"));
+    type(tr("Nové heslo", "New password"), PASSWORD);
+    click(tr("Uložit heslo", "Save password"));
+    find(tr("Přezdívka (2–60 znaků)", "Display name (2–60 characters)"));
+    click(tr("Zpět k přihlášení", "Back to sign-in"));
+    requestRegistration();
     app.captureAccount(gate, "inbox");
     Uri redirect = Uri.parse(gate.getPackageName() + "://account/callback");
     deliverCallback(redirect.buildUpon().appendQueryParameter("error_code", "otp_expired").build());
@@ -283,9 +332,14 @@ final class AccountChecks {
         tr(
             "Odkaz už byl použitý nebo vypršel. Nech si poslat nový.",
             "This link was already used or has expired. Request a new one."));
-    click(tr("Poslat nový odkaz", "Send a new link"));
-    for (int i = 0; i < 80 && sentEmails < 3; i++) Thread.sleep(100);
-    if (sentEmails != 3) throw new AssertionError("Resend did not request a new message");
+    int beforeResend = sentEmails;
+    click(tr("Vyžádat nový odkaz", "Request another link"));
+    type(tr("Nové heslo", "New password"), PASSWORD);
+    click(tr("Zaregistrovat se", "Register"));
+    find(tr("Otevřít poštu", "Open inbox"));
+    for (int i = 0; i < 80 && sentEmails == beforeResend; i++) Thread.sleep(100);
+    if (sentEmails != beforeResend + 1)
+      throw new AssertionError("Resend did not request a new message");
     wrongEmail = true;
     Uri success = redirect.buildUpon().appendQueryParameter("code", "fixture-code").build();
     deliverCallback(success);
@@ -330,6 +384,9 @@ final class AccountChecks {
     app.waitFor(
         "document.querySelector('.angler-card')?.innerText.includes('Praha') &&"
             + " !!document.querySelector('.portrait-x9.portrait-y4')");
+    app.waitFor(
+        "document.querySelector('.profile-count h2')?.textContent === "
+            + JSONObject.quote(tr("Úlovky doložené fotkou", "Photo-documented catches")));
     app.capture("profile-card");
     app.js("document.querySelector('#edit-card').click()");
     app.waitFor("!!document.querySelector('#profile-photo')");
@@ -360,6 +417,10 @@ final class AccountChecks {
     click(tr("Vystavit pozvánku", "Issue invitation"));
     find(tr("Pozvánka pro jednoho rybáře", "Invite one angler"));
     dialogButton(android.R.id.button2);
+    retryGroup = true;
+    click(tr("Obnovit seznam", "Refresh groups"));
+    find("River crew" + tr(" · zakladatel", " · owner"));
+    if (refreshes != 1) throw new AssertionError("Expired access token was not refreshed");
     expireGroupSession = true;
     click(tr("Obnovit seznam", "Refresh groups"));
     find(tr("Přihlásit se", "Sign in"));
@@ -368,13 +429,12 @@ final class AccountChecks {
     click(tr("Přihlásit se", "Sign in"));
     // CLEAR_TOP reuses the original profile activity.
     gate = profileGate;
-    requestEmail();
-    gate =
-        next(
-            "GroupsActivity",
-            () ->
-                deliverCallback(
-                    Uri.parse(gate.getPackageName() + "://account/callback?code=fixture-code")));
+    int emailsBefore = sentEmails;
+    type(tr("E-mail", "Email"), "test@example.invalid");
+    type(tr("Heslo", "Password"), PASSWORD);
+    gate = next("GroupsActivity", () -> click(tr("Přihlásit se", "Sign in")));
+    if (passwordSignIns != 1 || sentEmails != emailsBefore)
+      throw new AssertionError("Routine sign-in sent email");
     find("River crew" + tr(" · zakladatel", " · owner"));
     app.runOnMainSync(gate::finish);
     gate = profileGate;
@@ -415,9 +475,11 @@ final class AccountChecks {
         });
   }
 
-  private void requestEmail() throws Exception {
+  private void requestRegistration() throws Exception {
+    click(tr("Vytvořit účet", "Create account"));
     type(tr("E-mail", "Email"), "test@example.invalid");
-    click(tr("Poslat přihlašovací odkaz", "Send sign-in link"));
+    type(tr("Nové heslo", "New password"), PASSWORD);
+    click(tr("Zaregistrovat se", "Register"));
     find(tr("Otevřít poštu", "Open inbox"));
   }
 

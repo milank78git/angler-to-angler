@@ -1,19 +1,19 @@
 # Angler to Angler
 
-An offline-first Android field journal for anglers. The Czech launcher name is **Rybáři sobě**. Release 0.6.0 is a privately stored journal and a small, sourced pilot catalog. A verified angler profile and acceptance of the current terms are required. Open **My journal** to log a trip on any named water.
+An offline-first Android field journal for anglers. The Czech launcher name is **Rybáři sobě**. Release 0.6.1 is a privately stored journal and a small, sourced pilot catalog. A verified angler profile and acceptance of the current terms are required. Open **My journal** to log a trip on any named water.
 
 ## Try the pilot
 
 1. Open [GitHub Releases](https://github.com/milank78git/angler-to-angler/releases), select the desired pilot and download the **.apk** under **Assets**. Install it over the previous pilot to retain your private journal. Android 8.0 or later and an up-to-date Android System WebView are required.
-2. Enter your email and tap the link on the same phone, or select an enabled social provider. Complete your profile on first sign-in. Operator setup is described in [Accounts](docs/accounts.md). Search for **401 009** or **Sazava**. Open the water, inspect its boundaries and riverside access, and switch species, section and date. Directions open the device's map application.
+2. Create an account with email and password, confirm the email once on the same phone and complete your profile. Next time, unlock with your phone’s fingerprint or screen lock, or sign in with your password. If you previously used email links, choose **Set or reset password** once with the original email. Enabled social providers are also available. Operator setup is described in [Accounts](docs/accounts.md). Search for **401 009** or **Sazava**. Open the water, inspect its boundaries and riverside access, and switch species, section and date. Directions open the device's map application.
 3. In airplane mode, log a trip. Add multiple catches or keep it as a blank day. A catch can have a locally stored photo, a manual length, bait, technique and an optional private point. Enter the point by hand or explicitly request a current location.
 4. Open a saved catch in a trip and choose **Share catch**. The preview starts with just the species. Select the length, date, water, bait, technique or photograph individually and review the result before choosing a recipient. The share sheet sends plain text or the caption and a re-encoded JPEG. Receiving apps control how they use the caption. Coordinates, journal notes, original filenames and image metadata are excluded. A photograph or a deliberately selected water name can still identify a place.
 5. From any saved trip, even one with no catches, choose **Share a trip tip**. Write a fresh message, optionally select the water and date, review the exact text and choose a contact or group in Android. You can also add a tip to a catch card.
 6. Open **Profile → Account and group settings → Fishing groups** while online. Create a group, open its name and issue an invitation. Send the code to one angler. They can paste it under **Join with a code**. Each new code replaces the previous code and expires after 24 hours. Members can leave and the owner can dissolve the group.
 7. Close and reopen the app. Return to **My journal** to see the trip. Deleting a trip also deletes its catches and photos. Uninstalling the application deletes local records.
 
-8. Under **Profile → Edit profile**, choose one of 50 bundled portraits or a personal picture, enter your hometown, tagline and biography, and optionally publish to signed-in anglers. The card shows your groups and verified catch count.
-9. To request catch verification, use **Photograph catch for verification** while at the water, then submit the saved catch from its trip. Check the outcome or withdraw the record under **Profile → Catch verification**. Gallery photos and manual lengths stay unverified.
+8. Under **Profile → Edit profile**, choose one of 50 bundled portraits or a personal picture, enter your hometown, tagline and biography, and optionally publish to signed-in anglers. The card shows your groups and the number of photo-documented catches.
+9. To document a catch, use **Photograph catch at the water** while at the water, then submit the saved catch from its trip. Check the outcome or withdraw the record under **Profile → My submitted catch photos**. The result distinguishes a length read from a ruler from an estimate based on a known-size reference. Only reviewed catches with either outcome count. Gallery photos and manually entered lengths can be kept in the journal.
 
 ## Structure and data
 
@@ -25,7 +25,7 @@ An offline-first Android field journal for anglers. The Czech launcher name is *
 - Reminders apply to the selected water and species. Android schedules approximate local 08:00 notifications on a seasonal transition and on the day after pack expiry. Restart and package replacement reschedule active subscriptions. If notifications are disabled, the app can still be used offline.
 - The APK includes the complete pilot pack. Updates currently ship with a new APK. The map shows generalized river geometry, boundaries, selected restrictions and documented accesses. Check public access locally. A boundary point does not imply an access point.
 - International expansion should add regional packs, local authorities, languages and corresponding rule tests. The first pilot ships one pack. Unlisted waters work worldwide as user-named journal entries.
-- Posting tips directly to a group, paid location tips, payouts, rankings, document verification and automated photo measurement belong to later releases.
+- Posting tips directly to a group, paid location tips, payouts, rankings, document verification and automated photo measurement belong to later releases. A future competition, record claim or prize would need a separate evidence standard, such as a continuous in-app clip with a randomized camera movement.
 
 ## Sources
 

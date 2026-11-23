@@ -86,9 +86,7 @@ public final class GroupsActivity extends Activity {
   }
 
   private void refresh() {
-    if (subject.isEmpty()
-        || !subject.equals(AccountStore.active(this))
-        || AccountStore.onlineToken(this) == null) {
+    if (subject.isEmpty() || !subject.equals(AccountStore.active(this))) {
       signIn();
       return;
     }
@@ -266,8 +264,7 @@ public final class GroupsActivity extends Activity {
   /** Bind each request and its response to the same in-memory verified session. */
   private void request(String method, JSONObject args, Result result) {
     if (busy) return;
-    String token = AccountStore.onlineToken(this);
-    if (token == null || !subject.equals(AccountStore.active(this))) {
+    if (subject.isEmpty() || !subject.equals(AccountStore.active(this))) {
       signIn();
       return;
     }
@@ -282,7 +279,7 @@ public final class GroupsActivity extends Activity {
           JSONObject value = null;
           int status = 0;
           try {
-            value = service.rpc(method, token, args);
+            value = AccountStore.rpc(this, service, subject, method, args);
           } catch (IdentityService.HttpFailure e) {
             status = e.status;
           } catch (Exception ignored) {
@@ -294,13 +291,11 @@ public final class GroupsActivity extends Activity {
               () -> {
                 if (isDestroyed() || isFinishing()) return;
                 busy = false;
-                if (!token.equals(AccountStore.onlineToken(this))
-                    || !subject.equals(AccountStore.active(this))) {
+                if (!subject.equals(AccountStore.active(this))) {
                   signIn();
                   return;
                 }
                 if (http == 401) {
-                  AccountStore.forgetToken();
                   signIn();
                   return;
                 }

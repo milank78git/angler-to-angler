@@ -195,13 +195,14 @@ public final class FishingActivity extends Activity {
             int status = 200;
             org.json.JSONObject result = null;
             try {
-              String token = AccountStore.onlineToken(FishingActivity.this);
-              if (token == null || !subject.equals(AccountStore.active(FishingActivity.this)))
-                throw new IdentityService.HttpFailure(401);
               if (body.length() > 260000) throw new IdentityService.HttpFailure(413);
               result =
-                  new IdentityService(FishingActivity.this, "cs".equals(locale()))
-                      .rpc(operation, token, new org.json.JSONObject(body));
+                  AccountStore.rpc(
+                      FishingActivity.this,
+                      new IdentityService(FishingActivity.this, "cs".equals(locale())),
+                      subject,
+                      operation,
+                      new org.json.JSONObject(body));
             } catch (IdentityService.HttpFailure error) {
               status = error.status;
             } catch (Exception error) {
