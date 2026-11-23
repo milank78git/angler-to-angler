@@ -10,13 +10,13 @@ function validDay(value) {
   const date = new Date(value + 'T12:00:00Z');
   return !isNaN(date) && date.toISOString().slice(0, 10) === value;
 }
-function today(zone) {
+function today(zone, instant = new Date()) {
   const parts = new Intl.DateTimeFormat('en-GB', {
     timeZone: zone,
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
-  }).formatToParts(new Date());
+  }).formatToParts(instant);
   const get = (type) => parts.find((p) => p.type === type).value;
   return get('year') + '-' + get('month') + '-' + get('day');
 }

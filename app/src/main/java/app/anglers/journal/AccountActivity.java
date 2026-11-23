@@ -21,7 +21,7 @@ public final class AccountActivity extends Activity {
   private IdentityService service;
   private AccountLayout ui;
   private Button submit;
-  private boolean cs, busy, groupLogin;
+  private boolean cs, busy, groupLogin, profileLogin;
   private String access, email = "";
   private JSONObject profile;
 
@@ -44,7 +44,13 @@ public final class AccountActivity extends Activity {
             || (getIntent().getData() != null
                 && pendingIsFresh(pending)
                 && pending.getBoolean("pkceForGroups", false));
+    profileLogin =
+        getIntent().getBooleanExtra("profileSignIn", false)
+            || (getIntent().getData() != null
+                && pendingIsFresh(pending)
+                && pending.getBoolean("pkceForProfile", false));
     if (!groupLogin
+        && !profileLogin
         && !AccountStore.active(this).isEmpty()
         && getIntent().getData() == null
         && !getIntent().getBooleanExtra("manage", false)) {
@@ -52,7 +58,7 @@ public final class AccountActivity extends Activity {
       return;
     }
     ui = new AccountLayout(this);
-    if (!groupLogin && !AccountStore.active(this).isEmpty()) {
+    if (!groupLogin && !profileLogin && !AccountStore.active(this).isEmpty()) {
       manage();
       return;
     }
@@ -69,8 +75,11 @@ public final class AccountActivity extends Activity {
   protected void onNewIntent(Intent intent) {
     super.onNewIntent(intent);
     setIntent(intent);
-    if (intent.getBooleanExtra("groupsSignIn", false) && intent.getData() == null) {
-      groupLogin = true;
+    if ((intent.getBooleanExtra("groupsSignIn", false)
+            || intent.getBooleanExtra("profileSignIn", false))
+        && intent.getData() == null) {
+      groupLogin = intent.getBooleanExtra("groupsSignIn", false);
+      profileLogin = intent.getBooleanExtra("profileSignIn", false);
       login();
     } else callback(intent);
   }
@@ -124,6 +133,9 @@ public final class AccountActivity extends Activity {
       } else {
         contents = IdentityService.asset(this, kind + "-" + (cs ? "cs" : "en") + ".txt");
       }
+      if (kind.equals("privacy"))
+        contents +=
+            "\n\n" + IdentityService.asset(this, "optional-profile-" + (cs ? "cs" : "en") + ".txt");
       if (kind.equals("privacy") && service != null && !service.notice.isEmpty())
         contents += "\n\n" + service.notice;
       new AlertDialog.Builder(this)
@@ -271,6 +283,7 @@ public final class AccountActivity extends Activity {
         AccountStore.prefs(this)
             .edit()
             .putBoolean("pkceForGroups", groupLogin)
+            .putBoolean("pkceForProfile", profileLogin)
             .putString("pkce", verifier)
             .putString("pkceEmail", address)
             .putLong("pkceAt", System.currentTimeMillis())
@@ -287,6 +300,7 @@ public final class AccountActivity extends Activity {
     AccountStore.prefs(this)
         .edit()
         .remove("pkceForGroups")
+        .remove("pkceForProfile")
         .remove("pkce")
         .remove("pkceAt")
         .remove("pkceEmail")
@@ -444,7 +458,10 @@ public final class AccountActivity extends Activity {
   }
 
   private void enter() {
-    startActivity(new Intent(this, FishingActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+    startActivity(
+        new Intent(this, FishingActivity.class)
+            .putExtra("openProfile", profileLogin)
+            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
     finish();
   }
 

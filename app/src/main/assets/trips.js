@@ -1,3 +1,4 @@
+import { addVerificationAction } from './verification.js';
 import { Journal, newJournalId } from './journal.js';
 import * as Domain from './domain.js';
 import {
@@ -158,6 +159,7 @@ export async function tripScreen({ view, nav, pack }) {
     share.textContent = t('Sdílet úlovek', 'Share catch');
     share.onclick = () => nav.open('shareCard', { tripId: id, catchId: c.id });
     article.append(share);
+    addVerificationAction(article, c, trip, view, nav);
     if (c.hasPhoto) {
       const blob = await Journal.photo(c.id);
       if (!view.active()) return;

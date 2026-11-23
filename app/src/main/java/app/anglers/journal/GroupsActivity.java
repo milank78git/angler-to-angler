@@ -282,7 +282,7 @@ public final class GroupsActivity extends Activity {
           JSONObject value = null;
           int status = 0;
           try {
-            value = service.groupRpc(method, token, args);
+            value = service.rpc(method, token, args);
           } catch (IdentityService.HttpFailure e) {
             status = e.status;
           } catch (Exception ignored) {

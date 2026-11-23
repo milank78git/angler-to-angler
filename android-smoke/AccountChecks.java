@@ -29,6 +29,7 @@ final class AccountChecks {
   private volatile int sentEmails;
   private volatile boolean wrongEmail, expireGroupSession;
   private volatile String ownGroup;
+  private volatile JSONObject savedCard;
   private static final String INVITE = "d18590e4-a811-4937-a16f-8eb2dacc019d";
 
   private JSONObject profile() throws Exception {
@@ -129,6 +130,27 @@ final class AccountChecks {
                                       && body.getString("email").equals("test@example.invalid")
                                   ? 200
                                   : 400;
+                            case "/rest/v1/rpc/angler_card":
+                              JSONObject card =
+                                  savedCard == null
+                                      ? new JSONObject()
+                                      : new JSONObject(savedCard.toString());
+                              response =
+                                  card.put("id", ID)
+                                      .put("name", "River")
+                                      .put("revision", savedCard == null ? 0 : 1)
+                                      .put("groups", new org.json.JSONArray())
+                                      .put("verifiedCount", 0)
+                                      .toString();
+                              break;
+                            case "/rest/v1/rpc/angler_save_card":
+                              if (body.getInt("expected") != 0
+                                  || body.getInt("avatar") != 50
+                                  || !body.getBoolean("shared")
+                                  || !body.getString("hometown").equals("Praha")) return 400;
+                              savedCard = body;
+                              response = "{\"revision\":1}";
+                              break;
                             case "/rest/v1/rpc/angler_groups":
                               if (expireGroupSession) return 401;
                               org.json.JSONArray list = new org.json.JSONArray();
@@ -256,7 +278,21 @@ final class AccountChecks {
 
   /** Open groups from the journal, create a group, issue a code and renew its online session. */
   Activity groups() throws Exception {
-    gate = next("AccountActivity", () -> app.js("document.querySelector('#profile').click()"));
+    app.js("document.querySelector('#profile').click()");
+    app.waitFor("!!document.querySelector('#edit-card')");
+    app.js("document.querySelector('#edit-card').click()");
+    app.waitFor("document.querySelectorAll('[name=portrait]').length===50");
+    app.js(
+        "document.querySelector('[name=portrait][value=\"50\"]').click();document.querySelector('#hometown').value='Praha';document.querySelector('#tagline').value='River"
+            + " days';document.querySelector('#biography').value='Fishing since"
+            + " 1998';document.querySelector('#shared').click();document.querySelector('#save-card').click()");
+    app.waitFor(
+        "document.querySelector('.angler-card')?.innerText.includes('Praha') &&"
+            + " !!document.querySelector('.portrait-x9.portrait-y4')");
+    app.capture("profile-card");
+    gate =
+        next(
+            "AccountActivity", () -> app.js("document.querySelector('#account-settings').click()"));
     gate = next("GroupsActivity", () -> click(tr("Rybářské party", "Fishing groups")));
     String create = tr("Založit partu", "Create a group");
     click(create);

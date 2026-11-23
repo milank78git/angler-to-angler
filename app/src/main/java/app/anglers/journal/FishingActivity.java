@@ -20,13 +20,18 @@ import android.widget.Toast;
 
 /** Loads a fixed app-private HTTPS origin and brokers explicit Android user actions. */
 public final class FishingActivity extends Activity {
-  private static final int PHOTO = 51, NOTIFY = 53;
+  private static final int PHOTO = 51, NOTIFY = 53, CAMERA = 54, CAMERA_FIX = Integer.MAX_VALUE;
   private WebView web;
   private ValueCallback<Uri[]> picker;
   private PositionRequest position;
   private CatchShare shares;
   private final Handler sessionTimer = new Handler(Looper.getMainLooper());
   private final Runnable sessionCheck = this::checkSession;
+  private final java.util.concurrent.ExecutorService profileIo =
+      java.util.concurrent.Executors.newSingleThreadExecutor();
+  private Uri cameraUri;
+  private long cameraStarted, cameraReturned;
+  private volatile String captureInfo = "";
   private String subject;
   private String pendingReminder;
 
@@ -75,6 +80,25 @@ public final class FishingActivity extends Activity {
               WebView view, ValueCallback<Uri[]> callback, FileChooserParams params) {
             if (picker != null) picker.onReceiveValue(null);
             picker = callback;
+            captureInfo = "";
+            if (params.isCaptureEnabled()) {
+              try {
+                cameraUri = CameraPhotoProvider.create(FishingActivity.this);
+                Intent capture =
+                    new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE)
+                        .putExtra(android.provider.MediaStore.EXTRA_OUTPUT, cameraUri)
+                        .addFlags(
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION
+                                | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                capture.setClipData(android.content.ClipData.newRawUri("catch", cameraUri));
+                cameraStarted = System.currentTimeMillis();
+                startActivityForResult(capture, CAMERA);
+              } catch (java.io.IOException | ActivityNotFoundException | SecurityException error) {
+                finishCamera(null);
+                show(R.string.open_error);
+              }
+              return true;
+            }
             Intent intent =
                 new Intent(Intent.ACTION_OPEN_DOCUMENT)
                     .addCategory(Intent.CATEGORY_OPENABLE)
@@ -121,6 +145,72 @@ public final class FishingActivity extends Activity {
             startActivity(
                 new Intent(FishingActivity.this, AccountActivity.class).putExtra("manage", true));
             finish();
+          });
+    }
+
+    @JavascriptInterface
+    public String cameraFix() {
+      return captureInfo;
+    }
+
+    @JavascriptInterface
+    public boolean openProfile() {
+      return getIntent().getBooleanExtra("openProfile", false);
+    }
+
+    @JavascriptInterface
+    public void profileSignIn() {
+      runOnUiThread(
+          () -> {
+            startActivity(
+                new Intent(FishingActivity.this, AccountActivity.class)
+                    .putExtra("profileSignIn", true)
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+            finish();
+          });
+    }
+
+    @JavascriptInterface
+    public void profileRequest(int id, String operation, String body) {
+      switch (operation) {
+        case "card":
+        case "directory":
+        case "save_card":
+        case "evidence_submit":
+        case "evidence_list":
+        case "evidence_review":
+        case "evidence_decide":
+        case "evidence_remove":
+          break;
+        default:
+          return;
+      }
+      profileIo.execute(
+          () -> {
+            int status = 200;
+            org.json.JSONObject result = null;
+            try {
+              String token = AccountStore.onlineToken(FishingActivity.this);
+              if (token == null || !subject.equals(AccountStore.active(FishingActivity.this)))
+                throw new IdentityService.HttpFailure(401);
+              if (body.length() > 260000) throw new IdentityService.HttpFailure(413);
+              result =
+                  new IdentityService(FishingActivity.this, "cs".equals(locale()))
+                      .rpc(operation, token, new org.json.JSONObject(body));
+            } catch (IdentityService.HttpFailure error) {
+              status = error.status;
+            } catch (Exception error) {
+              status = 503;
+            }
+            final int code = status;
+            final String payload = result == null ? "null" : result.toString();
+            runOnUiThread(
+                () -> {
+                  if (!isFinishing()
+                      && !isDestroyed()
+                      && subject.equals(AccountStore.active(FishingActivity.this)))
+                    signal("window.profileReply?.(" + id + "," + code + "," + payload + ")");
+                });
           });
     }
 
@@ -210,6 +300,12 @@ public final class FishingActivity extends Activity {
     }
   }
 
+  private void finishCamera(Uri result) {
+    if (picker != null) picker.onReceiveValue(result == null ? null : new Uri[] {result});
+    picker = null;
+    cameraUri = null;
+  }
+
   private void enableReminder(String key) {
     if (!SeasonReminder.notificationsEnabled(this)) show(R.string.notify_error);
     else SeasonReminder.toggle(this, key, true);
@@ -233,6 +329,30 @@ public final class FishingActivity extends Activity {
   }
 
   private void positionResult(int id, Location fix) {
+    if (id == CAMERA_FIX) {
+      if (fix != null
+          && !fix.isFromMockProvider()
+          && fix.hasAccuracy()
+          && fix.getAccuracy() <= 100
+          && Math.abs(fix.getTime() - cameraReturned) <= 120000L
+          && cameraReturned - cameraStarted <= 120000L
+          && cameraReturned >= cameraStarted) {
+        try {
+          captureInfo =
+              new org.json.JSONObject()
+                  .put("captured", cameraReturned)
+                  .put("fixed", fix.getTime())
+                  .put("lat", Math.round(fix.getLatitude() * 100))
+                  .put("lon", Math.round(fix.getLongitude() * 100))
+                  .put("accuracy", Math.ceil(fix.getAccuracy()))
+                  .toString();
+        } catch (org.json.JSONException ignored) {
+          captureInfo = "";
+        }
+      }
+      finishCamera(cameraUri);
+      return;
+    }
     if (fix == null) {
       show(R.string.location_error);
       signal("window.positionResult?.(" + id + ",null)");
@@ -271,6 +391,16 @@ public final class FishingActivity extends Activity {
   @Override
   protected void onActivityResult(int code, int result, Intent data) {
     super.onActivityResult(code, result, data);
+    if (code == CAMERA) {
+      if (cameraUri != null)
+        revokeUriPermission(
+            cameraUri,
+            Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+      if (result == RESULT_OK && cameraUri != null && picker != null) {
+        cameraReturned = System.currentTimeMillis();
+        position.request(CAMERA_FIX);
+      } else finishCamera(null);
+    }
     if (code == CatchShare.REQUEST) shares.finished();
     if (code == PHOTO && picker != null) {
       Uri photo = result == RESULT_OK && data != null ? data.getData() : null;
@@ -327,6 +457,7 @@ public final class FishingActivity extends Activity {
 
   @Override
   protected void onDestroy() {
+    profileIo.shutdownNow();
     if (position != null) position.stop();
     if (picker != null) picker.onReceiveValue(null);
     if (web != null) {

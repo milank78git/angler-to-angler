@@ -1099,3 +1099,37 @@ textarea {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+
+.angler-card, .angler-editor, .profile-directory { display: grid; gap: 1rem; min-width: 0; }
+.angler-heading,.directory-entry { display: flex; align-items: center; gap: 1rem; }
+.angler-heading h1 { font-size: clamp(1.8rem, 7vw, 3rem); }
+.angler-portrait { display: inline-grid; width: 5rem; aspect-ratio: 1; border-radius: 50%; flex-shrink: 0;
+  object-fit: cover; background-image: url('angler-portraits.webp'); background-size: 1000% 500%; }
+.no-portrait { background: var(--tint); place-items: center; }
+.profile-count strong { font-size: 1.75rem; }
+.biography { white-space: pre-wrap; }
+.portrait-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(48px,1fr)); gap: .5rem; padding: .75rem; }
+.portrait-choice { position: relative; display: block; cursor: pointer; }
+.portrait-choice .angler-portrait { width: 100%; vertical-align: middle; }
+.portrait-choice input { position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; }
+.portrait-choice input:checked + span { outline: 4px solid var(--primary); }
+.portrait-choice input:focus-visible + span { outline: 4px solid var(--focus); }
+.publish-choice { display:flex; align-items:center; gap:.6rem; }
+.publish-choice input { width:1.3rem; height:1.3rem; flex-shrink:0; }
+.directory-entry .angler-portrait { width: 3rem; }
+.review-image { width:100%; height:auto; }
+.portrait-x0 { background-position-x: 0.00000%; }
+.portrait-x1 { background-position-x: 11.11111%; }
+.portrait-x2 { background-position-x: 22.22222%; }
+.portrait-x3 { background-position-x: 33.33333%; }
+.portrait-x4 { background-position-x: 44.44444%; }
+.portrait-x5 { background-position-x: 55.55556%; }
+.portrait-x6 { background-position-x: 66.66667%; }
+.portrait-x7 { background-position-x: 77.77778%; }
+.portrait-x8 { background-position-x: 88.88889%; }
+.portrait-x9 { background-position-x: 100.00000%; }
+.portrait-y0 { background-position-y: 0%; }
+.portrait-y1 { background-position-y: 25%; }
+.portrait-y2 { background-position-y: 50%; }
+.portrait-y3 { background-position-y: 75%; }
+.portrait-y4 { background-position-y: 100%; }

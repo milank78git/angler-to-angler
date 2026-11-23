@@ -91,7 +91,7 @@ final class IdentityService {
     }
   }
 
-  JSONObject groupRpc(String operation, String token, JSONObject args) throws Exception {
+  JSONObject rpc(String operation, String token, JSONObject args) throws Exception {
     if (token == null) throw new HttpFailure(401);
     return request("/rest/v1/rpc/angler_" + operation, token, args);
   }
