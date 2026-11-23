@@ -22,21 +22,38 @@ public final class Runner extends Instrumentation {
     start();
   }
 
+  /** Read the actual target APK so the UI assertions stay valid across releases. */
+  String expectedVersionLabel() throws Exception {
+    android.content.Context target = getTargetContext();
+    android.content.pm.PackageInfo info =
+        target.getPackageManager().getPackageInfo(target.getPackageName(), 0);
+    String prefix = "wide".equals(scenario) ? "Preview" : "Pilot";
+    return prefix + " " + info.versionName + " (" + info.getLongVersionCode() + ")";
+  }
+
   private void launch() throws Exception {
     Intent i =
         new Intent(Intent.ACTION_MAIN)
             .setClassName(
                 getTargetContext().getPackageName(), "app.anglers.journal.FishingActivity")
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-    activity = startActivitySync(i);
+    bindJournal(startActivitySync(i));
+  }
+
+  private void bindJournal(Activity journal) throws Exception {
+    activity = journal;
     runOnMainSync(
         () ->
             web =
                 (WebView) ((ViewGroup) activity.findViewById(android.R.id.content)).getChildAt(0));
     waitFor("!!document.querySelector('[data-water]')");
+    waitFor(
+        "document.querySelector('#app-version').getBoundingClientRect().height > 0 && "
+            + "document.querySelector('#app-version').textContent === "
+            + org.json.JSONObject.quote(expectedVersionLabel()));
   }
 
-  private String js(String code) throws Exception {
+  String js(String code) throws Exception {
     ArrayBlockingQueue<String> answer = new ArrayBlockingQueue<>(1);
     runOnMainSync(
         () ->
@@ -46,7 +63,7 @@ public final class Runner extends Instrumentation {
     return value;
   }
 
-  private void waitFor(String expr) throws Exception {
+  void waitFor(String expr) throws Exception {
     long stop = android.os.SystemClock.elapsedRealtime() + 20000;
     while (android.os.SystemClock.elapsedRealtime() < stop) {
       if ("true".equals(js(expr))) return;
@@ -54,6 +71,15 @@ public final class Runner extends Instrumentation {
     }
     throw new AssertionError(
         "Timed out: " + expr + "; page=" + js("document.body.innerText.slice(0,450)"));
+  }
+
+  void script(String name) throws Exception {
+    try (java.io.BufferedReader source =
+        new java.io.BufferedReader(
+            new java.io.InputStreamReader(
+                getContext().getAssets().open(name), java.nio.charset.StandardCharsets.UTF_8))) {
+      js(source.lines().collect(java.util.stream.Collectors.joining("\n")));
+    }
   }
 
   private void form(String code) throws Exception {
@@ -64,13 +90,7 @@ public final class Runner extends Instrumentation {
    * Exercise rejection, retry, duplicate submission and native Back against a real WebView form.
    */
   private void saveTripWithRetry() throws Exception {
-    try (java.io.BufferedReader source =
-        new java.io.BufferedReader(
-            new java.io.InputStreamReader(
-                getContext().getAssets().open("trip-write.js"),
-                java.nio.charset.StandardCharsets.UTF_8))) {
-      js(source.lines().collect(java.util.stream.Collectors.joining("\n")));
-    }
+    script("trip-write.js");
     waitFor("!!window.writeProbe");
     form(
         "document.querySelector('#notes').value='Offline smoke test';"
@@ -92,7 +112,7 @@ public final class Runner extends Instrumentation {
   /**
    * Capture actual emulator pixels and check accessible labels, target sizes and viewport overflow.
    */
-  private void capture(String name) throws Exception {
+  void capture(String name) throws Exception {
     waitFor("document.documentElement.scrollWidth <= window.innerWidth + 1");
     waitFor(
         "Array.from(document.querySelectorAll('button')).filter(b=>b.offsetWidth).every(b=>b.offsetWidth>=48"
@@ -110,15 +130,40 @@ public final class Runner extends Instrumentation {
         "(()=>{const el=document.createElement('div');el.id='capture-sync';const s=el.style;"
             + "s.position='fixed';s.left='4px';s.top='4px';s.width='16px';s.height='16px';s.zIndex='2147483647';s.backgroundColor='rgb(213,"
             + " 5, 235)';document.body.append(el)})()");
-    frameAt(x, y, true).recycle();
+    frameAt(web, x, y, true).recycle();
     js("document.getElementById('capture-sync').remove()");
-    saveScreenshot(name, frameAt(x, y, false));
+    saveScreenshot(name, frameAt(web, x, y, false));
   }
 
-  private android.graphics.Bitmap frameAt(int x, int y, boolean swatchVisible) throws Exception {
+  /** Wait for the compositor to present this native page before saving its screenshot. */
+  void captureAccount(Activity gate, String name) throws Exception {
+    android.view.View root = gate.findViewById(android.R.id.content);
+    android.graphics.drawable.ColorDrawable mark =
+        new android.graphics.drawable.ColorDrawable(android.graphics.Color.rgb(213, 5, 235));
+    int[] point = new int[2];
+    runOnMainSync(
+        () -> {
+          root.getLocationOnScreen(point);
+          int offsetX = root.getWidth() / 2;
+          int offsetY = root.getHeight() / 4;
+          mark.setBounds(offsetX, offsetY, offsetX + 16, offsetY + 16);
+          point[0] += offsetX + 8;
+          point[1] += offsetY + 8;
+          root.getOverlay().add(mark);
+        });
+    try {
+      frameAt(root, point[0], point[1], true).recycle();
+    } finally {
+      runOnMainSync(() -> root.getOverlay().remove(mark));
+    }
+    saveScreenshot(name, frameAt(root, point[0], point[1], false));
+  }
+
+  private android.graphics.Bitmap frameAt(
+      android.view.View target, int x, int y, boolean swatchVisible) throws Exception {
     long deadline = android.os.SystemClock.elapsedRealtime() + 15000;
     do {
-      runOnMainSync(() -> web.postInvalidateOnAnimation());
+      runOnMainSync(target::postInvalidateOnAnimation);
       android.graphics.Bitmap frame = getUiAutomation().takeScreenshot();
       if (frame != null) {
         int pixel = frame.getPixel(x, y);
@@ -151,7 +196,7 @@ public final class Runner extends Instrumentation {
   public void onStart() {
     Bundle outcome = new Bundle();
     try {
-      launch();
+      bindJournal(new AccountChecks(this, !"wide".equals(scenario)).register());
       waitFor("document.documentElement.lang==='" + ("wide".equals(scenario) ? "en" : "cs") + "'");
       waitFor(
           "getComputedStyle(document.querySelector('#tabs')).flexDirection==='"
@@ -225,7 +270,7 @@ public final class Runner extends Instrumentation {
           waitFor("document.querySelector('#photo').files.length===1");
         }
         form(
-            "document.querySelector('#position-fields').open=true;document.querySelector('#fish-name').value='Perch';document.querySelector('#length').value='32.5';document.querySelector('#lat').value='-40';document.querySelector('#lon').value='0'");
+            "document.querySelector('#bait').value='spinner';document.querySelector('#technique').value='jigging';document.querySelector('#position-fields').open=true;document.querySelector('#fish-name').value='Perch';document.querySelector('#length').value='32.5';document.querySelector('#lat').value='-40';document.querySelector('#lon').value='0'");
         waitFor("document.querySelectorAll('#catch-list article').length===" + n);
       }
       runOnMainSync(() -> activity.finish());
@@ -239,6 +284,7 @@ public final class Runner extends Instrumentation {
       waitFor(
           "!!document.querySelector('#catch-list img') && document.querySelector('#catch-list"
               + " img').naturalWidth===32");
+      ShareChecks.run(this);
       outcome.putString("stream", "ANGLER_SMOKE_PASS\n");
       finish(Activity.RESULT_OK, outcome);
     } catch (Throwable error) {

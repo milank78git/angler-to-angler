@@ -9,6 +9,8 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -22,11 +24,20 @@ public final class FishingActivity extends Activity {
   private WebView web;
   private ValueCallback<Uri[]> picker;
   private PositionRequest position;
+  private CatchShare shares;
+  private final Handler sessionTimer = new Handler(Looper.getMainLooper());
+  private final Runnable sessionCheck = this::checkSession;
+  private String subject;
   private String pendingReminder;
 
   @Override
   public void onCreate(Bundle state) {
     super.onCreate(state);
+    subject = AccountStore.active(this);
+    if (subject.isEmpty()) {
+      lockAccount();
+      return;
+    }
     if (state != null) pendingReminder = state.getString("reminder");
     web = new WebView(this);
     setContentView(web);
@@ -54,6 +65,7 @@ public final class FishingActivity extends Activity {
     settings.setGeolocationEnabled(false);
     settings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
     web.addJavascriptInterface(new Device(), "Device");
+    shares = new CatchShare(this);
     position = new PositionRequest(this, this::positionResult);
     web.setWebViewClient(new LocalAssetClient(getAssets(), this::openExternal));
     web.setWebChromeClient(
@@ -87,6 +99,31 @@ public final class FishingActivity extends Activity {
 
   /** Methods are accessible only to packaged scripts. Android UI calls run on the main thread. */
   public final class Device {
+    @JavascriptInterface
+    public String versionLabel() {
+      return AppVersion.label(FishingActivity.this);
+    }
+
+    @JavascriptInterface
+    public String journalName() {
+      return AccountStore.journal(FishingActivity.this);
+    }
+
+    @JavascriptInterface
+    public String subjectId() {
+      return subject;
+    }
+
+    @JavascriptInterface
+    public void profile() {
+      runOnUiThread(
+          () -> {
+            startActivity(
+                new Intent(FishingActivity.this, AccountActivity.class).putExtra("manage", true));
+            finish();
+          });
+    }
+
     @JavascriptInterface
     public boolean nightMode() {
       int mask = android.content.res.Configuration.UI_MODE_NIGHT_MASK;
@@ -122,6 +159,11 @@ public final class FishingActivity extends Activity {
         if (!selected.isEmpty()) return selected.get(0).getLanguage();
       }
       return getResources().getConfiguration().getLocales().get(0).getLanguage();
+    }
+
+    @JavascriptInterface
+    public boolean shareCatch(String caption, String jpeg) {
+      return shares.open(caption, jpeg);
     }
 
     @JavascriptInterface
@@ -229,6 +271,7 @@ public final class FishingActivity extends Activity {
   @Override
   protected void onActivityResult(int code, int result, Intent data) {
     super.onActivityResult(code, result, data);
+    if (code == CatchShare.REQUEST) shares.finished();
     if (code == PHOTO && picker != null) {
       Uri photo = result == RESULT_OK && data != null ? data.getData() : null;
       picker.onReceiveValue(
@@ -256,12 +299,40 @@ public final class FishingActivity extends Activity {
         });
   }
 
+  private void lockAccount() {
+    startActivity(new Intent(this, AccountActivity.class));
+    finish();
+  }
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+    checkSession();
+  }
+
+  private void checkSession() {
+    if (isFinishing()) return;
+    if (!subject.equals(AccountStore.active(this))) {
+      lockAccount();
+      return;
+    }
+    sessionTimer.postDelayed(sessionCheck, AccountStore.remainingMillis(this));
+  }
+
+  @Override
+  protected void onPause() {
+    sessionTimer.removeCallbacks(sessionCheck);
+    super.onPause();
+  }
+
   @Override
   protected void onDestroy() {
-    position.stop();
+    if (position != null) position.stop();
     if (picker != null) picker.onReceiveValue(null);
-    web.removeJavascriptInterface("Device");
-    web.destroy();
+    if (web != null) {
+      web.removeJavascriptInterface("Device");
+      web.destroy();
+    }
     web = null;
     super.onDestroy();
   }

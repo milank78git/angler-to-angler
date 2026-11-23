@@ -1,0 +1,323 @@
+package app.anglers.journal.smoke;
+
+import android.app.Activity;
+import android.app.Instrumentation;
+import android.content.Intent;
+import android.net.Uri;
+import android.util.Base64;
+import android.view.*;
+import android.widget.*;
+import java.io.*;
+import java.net.*;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import org.json.JSONObject;
+
+/**
+ * Drives the actual onboarding screens. Only the test APK intercepts the synthetic account host.
+ */
+final class AccountChecks {
+  private static final String ID = "11111111-1111-4111-8111-111111111111";
+  private final Runner app;
+  private final boolean cs;
+  private Activity gate;
+  private volatile boolean accepted;
+  private volatile String expectedChallenge;
+  private volatile boolean socialEnabled;
+  private volatile int sentEmails;
+  private volatile boolean wrongEmail;
+
+  AccountChecks(Runner app, boolean cs) {
+    this.app = app;
+    this.cs = cs;
+  }
+
+  private String tr(String cz, String en) {
+    return cs ? cz : en;
+  }
+
+  Activity register() throws Exception {
+    URL.setURLStreamHandlerFactory(
+        protocol ->
+            "https".equals(protocol)
+                ? new URLStreamHandler() {
+                  @Override
+                  protected URLConnection openConnection(URL u) throws IOException {
+                    if (!"identity.angler.invalid".equals(u.getHost()))
+                      throw new IOException("Unexpected test endpoint");
+                    return new HttpURLConnection(u) {
+                      final ByteArrayOutputStream request = new ByteArrayOutputStream();
+                      String response = "";
+
+                      @Override
+                      public void connect() {}
+
+                      @Override
+                      public void disconnect() {}
+
+                      @Override
+                      public boolean usingProxy() {
+                        return false;
+                      }
+
+                      @Override
+                      public OutputStream getOutputStream() {
+                        return request;
+                      }
+
+                      @Override
+                      public int getResponseCode() throws IOException {
+                        try {
+                          if ("/auth/v1/settings".equals(u.getPath())
+                              && "GET".equals(getRequestMethod())) {
+                            response =
+                                new JSONObject()
+                                    .put(
+                                        "external",
+                                        new JSONObject()
+                                            .put("google", socialEnabled)
+                                            .put("email", true)
+                                            .put("facebook", socialEnabled))
+                                    .toString();
+                            return 200;
+                          }
+                          JSONObject body = new JSONObject(request.toString("UTF-8"));
+                          switch (u.getPath()) {
+                            case "/auth/v1/token":
+                              byte[] hash =
+                                  MessageDigest.getInstance("SHA-256")
+                                      .digest(
+                                          body.getString("code_verifier")
+                                              .getBytes(StandardCharsets.US_ASCII));
+                              String challenge =
+                                  Base64.encodeToString(
+                                      hash, Base64.URL_SAFE | Base64.NO_WRAP | Base64.NO_PADDING);
+                              if (!"grant_type=pkce".equals(u.getQuery())
+                                  || !"fixture-code".equals(body.getString("auth_code"))
+                                  || !challenge.equals(expectedChallenge)) return 403;
+                              response =
+                                  new JSONObject()
+                                      .put("access_token", "fixture-session")
+                                      .put(
+                                          "user",
+                                          new JSONObject()
+                                              .put(
+                                                  "email",
+                                                  wrongEmail
+                                                      ? "other@example.invalid"
+                                                      : "test@example.invalid"))
+                                      .toString();
+                              return 200;
+                            case "/auth/v1/otp":
+                              sentEmails++;
+                              String redirect =
+                                  Uri.parse(u.toString()).getQueryParameter("redirect_to");
+                              expectedChallenge = body.getString("code_challenge");
+                              return (app.getTargetContext().getPackageName()
+                                              + "://account/callback")
+                                          .equals(redirect)
+                                      && expectedChallenge.matches("[A-Za-z0-9_-]{43}")
+                                      && "s256".equals(body.getString("code_challenge_method"))
+                                      && body.getString("email").equals("test@example.invalid")
+                                  ? 200
+                                  : 400;
+                            case "/rest/v1/rpc/angler_profile":
+                              response = "null";
+                              break;
+                            case "/rest/v1/rpc/angler_accept":
+                              if (!body.getString("nickname").equals("River")
+                                  || !body.getString("terms").equals("2026-11-23")
+                                  || !body.getString("privacy").equals("2026-11-23")) return 400;
+                              response =
+                                  new JSONObject()
+                                      .put("id", ID)
+                                      .put("name", "River")
+                                      .put("current", true)
+                                      .toString();
+                              accepted = true;
+                              break;
+                            default:
+                              return 404;
+                          }
+                          return "Bearer fixture-session"
+                                  .equals(getRequestProperty("Authorization"))
+                              ? 200
+                              : 403;
+                        } catch (Exception e) {
+                          throw new IOException(e);
+                        }
+                      }
+
+                      @Override
+                      public InputStream getInputStream() {
+                        return new ByteArrayInputStream(response.getBytes(StandardCharsets.UTF_8));
+                      }
+                    };
+                  }
+                }
+                : null);
+    gate =
+        app.startActivitySync(
+            new Intent(Intent.ACTION_MAIN)
+                .setClassName(
+                    app.getTargetContext().getPackageName(), "app.anglers.journal.AccountActivity")
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+    if (!find(app.expectedVersionLabel()).isShown())
+      throw new AssertionError("Version hidden at sign-in");
+    app.waitForIdleSync();
+    TextView[] disabledGoogle = {null};
+    app.runOnMainSync(
+        () ->
+            disabledGoogle[0] =
+                match(
+                    gate.findViewById(android.R.id.content),
+                    tr("Pokračovat přes Google", "Continue with Google")));
+    if (disabledGoogle[0] != null) throw new AssertionError("Disabled provider offered");
+    app.captureAccount(gate, "login");
+    requestEmail();
+    socialEnabled = true;
+    click(tr("Změnit e-mail", "Change email"));
+    find(tr("Pokračovat přes Google", "Continue with Google"));
+    app.waitForIdleSync();
+    app.captureAccount(gate, "login-social");
+    checkSocialLogin("Facebook");
+    checkSocialLogin("Google");
+    requestEmail();
+    app.captureAccount(gate, "inbox");
+    Uri redirect = Uri.parse(gate.getPackageName() + "://account/callback");
+    deliverCallback(redirect.buildUpon().appendQueryParameter("error_code", "otp_expired").build());
+    find(
+        tr(
+            "Odkaz už byl použitý nebo vypršel. Nech si poslat nový.",
+            "This link was already used or has expired. Request a new one."));
+    click(tr("Poslat nový odkaz", "Send a new link"));
+    for (int i = 0; i < 80 && sentEmails < 3; i++) Thread.sleep(100);
+    if (sentEmails != 3) throw new AssertionError("Resend did not request a new message");
+    wrongEmail = true;
+    Uri success = redirect.buildUpon().appendQueryParameter("code", "fixture-code").build();
+    deliverCallback(success);
+    find(
+        tr(
+            "Akci se nepodařilo dokončit. Zkontroluj připojení nebo údaje a opakuj pokus.",
+            "Could not complete this step. Check your connection or details, then retry."));
+    wrongEmail = false;
+    deliverCallback(success);
+    type(tr("Přezdívka (2–60 znaků)", "Display name (2–60 characters)"), "River");
+    String save = tr("Uložit profil", "Save profile");
+    assertDisabled(save);
+    click(tr("Přijímám podmínky používání.", "I accept the terms of use."));
+    assertDisabled(save);
+    click(
+        tr(
+            "Seznámil/a jsem se s informacemi o zpracování údajů.",
+            "I acknowledge the privacy notice."));
+    Instrumentation.ActivityMonitor monitor =
+        app.addMonitor("app.anglers.journal.FishingActivity", null, false);
+    try {
+      click(save);
+      Activity journal = app.waitForMonitorWithTimeout(monitor, 15000);
+      if (journal == null || !accepted)
+        throw new AssertionError("Verified registration did not open journal");
+      return journal;
+    } finally {
+      app.removeMonitor(monitor);
+    }
+  }
+
+  private void requestEmail() throws Exception {
+    type(tr("E-mail", "Email"), "test@example.invalid");
+    click(tr("Poslat přihlašovací odkaz", "Send sign-in link"));
+    find(tr("Otevřít poštu", "Open inbox"));
+  }
+
+  /**
+   * Exercise both external browser requests and their native callbacks without a provider account.
+   */
+  private void checkSocialLogin(String provider) throws Exception {
+    ArrayBlockingQueue<Uri> outgoing = new ArrayBlockingQueue<>(1);
+    Instrumentation.ActivityMonitor browser =
+        new Instrumentation.ActivityMonitor() {
+          @Override
+          public Instrumentation.ActivityResult onStartActivity(Intent intent) {
+            Uri target = intent.getData();
+            if (!Intent.ACTION_VIEW.equals(intent.getAction())
+                || target == null
+                || !"https".equals(target.getScheme())) return null;
+            outgoing.offer(target);
+            return new Instrumentation.ActivityResult(Activity.RESULT_CANCELED, null);
+          }
+        };
+    app.addMonitor(browser);
+    Uri target;
+    try {
+      click(tr("Pokračovat přes ", "Continue with ") + provider);
+      target = outgoing.poll(5, TimeUnit.SECONDS);
+    } finally {
+      app.removeMonitor(browser);
+    }
+    String pkg = gate.getPackageName();
+    String redirect = pkg + "://account/callback";
+    if (target == null
+        || !"identity.angler.invalid".equals(target.getHost())
+        || !"/auth/v1/authorize".equals(target.getPath())
+        || !provider.equalsIgnoreCase(target.getQueryParameter("provider"))
+        || !"s256".equalsIgnoreCase(target.getQueryParameter("code_challenge_method"))
+        || (provider.equals("Google")
+            && !"select_account".equals(target.getQueryParameter("prompt")))
+        || !redirect.equals(target.getQueryParameter("redirect_to")))
+      throw new AssertionError("Unexpected authorization request for " + provider);
+    expectedChallenge = target.getQueryParameter("code_challenge");
+    if (expectedChallenge == null || !expectedChallenge.matches("[A-Za-z0-9_-]{43}"))
+      throw new AssertionError("Missing S256 challenge");
+    deliverCallback(Uri.parse(redirect + "?code=fixture-code"));
+    click(tr("Zpět k přihlášení", "Back to sign-in"));
+    expectedChallenge = null;
+  }
+
+  private void deliverCallback(Uri uri) {
+    Intent callback = new Intent(Intent.ACTION_VIEW, uri).addCategory(Intent.CATEGORY_BROWSABLE);
+    app.runOnMainSync(() -> gate.startActivity(callback));
+  }
+
+  private void assertDisabled(String text) throws Exception {
+    if (find(text).isEnabled()) throw new AssertionError("Premature profile acceptance");
+  }
+
+  private void click(String text) throws Exception {
+    TextView v = find(text);
+    app.runOnMainSync(v::performClick);
+  }
+
+  private void type(String hint, String value) throws Exception {
+    EditText e = (EditText) find(hint);
+    app.runOnMainSync(() -> e.setText(value));
+  }
+
+  private TextView find(String label) throws Exception {
+    for (int i = 0; i < 80; i++) {
+      TextView[] result = {null};
+      app.runOnMainSync(() -> result[0] = match(gate.findViewById(android.R.id.content), label));
+      if (result[0] != null) return result[0];
+      Thread.sleep(100);
+    }
+    throw new AssertionError("Account control missing: " + label);
+  }
+
+  private TextView match(View view, String label) {
+    if (view instanceof TextView) {
+      TextView text = (TextView) view;
+      if (label.contentEquals(text.getText()) || label.equals(String.valueOf(text.getHint())))
+        return text;
+    }
+    if (view instanceof ViewGroup) {
+      ViewGroup group = (ViewGroup) view;
+      for (int i = 0; i < group.getChildCount(); i++) {
+        TextView match = match(group.getChildAt(i), label);
+        if (match != null) return match;
+      }
+    }
+    return null;
+  }
+}

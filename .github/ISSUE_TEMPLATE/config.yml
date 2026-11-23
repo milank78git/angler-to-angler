@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Private security report
+    url: https://github.com/milank78git/angler-to-angler/blob/main/SECURITY.md
+    about: Use the private reporting address for security issues.

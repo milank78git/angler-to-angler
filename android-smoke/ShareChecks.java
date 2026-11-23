@@ -1,0 +1,147 @@
+package app.anglers.journal.smoke;
+
+import android.app.Activity;
+import android.app.Instrumentation.ActivityMonitor;
+import android.app.Instrumentation.ActivityResult;
+import android.content.ContentResolver;
+import android.content.Intent;
+import android.content.pm.ProviderInfo;
+import android.database.Cursor;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.provider.OpenableColumns;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import org.json.JSONTokener;
+
+/**
+ * Checks what actually leaves the app, intercepting the chooser before it can send to a recipient.
+ */
+final class ShareChecks {
+  private static void check(boolean ok, String message) {
+    if (!ok) throw new AssertionError(message);
+  }
+
+  private static Intent outgoing(Runner app) throws Exception {
+    ArrayBlockingQueue<Intent> captured = new ArrayBlockingQueue<>(1);
+    ActivityMonitor monitor =
+        new ActivityMonitor() {
+          @Override
+          public ActivityResult onStartActivity(Intent intent) {
+            if (!Intent.ACTION_CHOOSER.equals(intent.getAction())) return null;
+            captured.offer(intent);
+            return new ActivityResult(Activity.RESULT_CANCELED, null);
+          }
+        };
+    app.addMonitor(monitor);
+    try {
+      app.js("document.querySelector('#card-send').click()");
+      Intent chooser = captured.poll(10, TimeUnit.SECONDS);
+      check(chooser != null, "System chooser was not requested");
+      Intent send = chooser.getParcelableExtra(Intent.EXTRA_INTENT);
+      check(send != null && Intent.ACTION_SEND.equals(send.getAction()), "Expected a send intent");
+      app.waitForIdleSync();
+      return send;
+    } finally {
+      app.removeMonitor(monitor);
+    }
+  }
+
+  static void run(Runner app) throws Exception {
+    app.script("share-photo-fixture.js");
+    app.waitFor("window.photoSeeded===true");
+    app.js("document.querySelector('[data-share-catch]').click()");
+    app.waitFor("document.querySelector('#card-text')?.textContent==='Perch'");
+    app.waitFor("!document.querySelector('#card-options input:checked')");
+    Intent minimal = outgoing(app);
+    check(
+        "text/plain".equals(minimal.getType())
+            && "Perch".equals(minimal.getStringExtra(Intent.EXTRA_TEXT))
+            && !minimal.hasExtra(Intent.EXTRA_STREAM)
+            && (minimal.getClipData() == null
+                || (minimal.getClipData().getItemCount() == 1
+                    && minimal.getClipData().getItemAt(0).getUri() == null
+                    && "Perch".contentEquals(minimal.getClipData().getItemAt(0).getText()))),
+        "Unselected private information left the app");
+    app.js(
+        "for(const k of"
+            + " ['water','day','bait','technique'])document.querySelector('#share-'+k).click()");
+    app.waitFor(
+        "document.querySelector('#card-text').textContent.includes('Sázava 1') &&"
+            + " document.querySelector('#card-text').textContent.includes('spinner') &&"
+            + " document.querySelector('#card-text').textContent.includes('jigging')");
+    app.js(
+        "for(const k of"
+            + " ['water','day','bait','technique'])document.querySelector('#share-'+k).click()");
+    app.js(
+        "document.querySelector('#share-length').click();document.querySelector('#share-photo').click();document.querySelector('#share-photo').click()");
+    app.waitFor(
+        "document.querySelector('#card-image').hidden &&"
+            + " !document.querySelector('#card-send').disabled");
+    app.js("document.querySelector('#share-photo').click()");
+    app.waitFor(
+        "document.querySelector('#card-image').naturalWidth===32 &&"
+            + " !document.querySelector('#card-send').disabled");
+    app.capture("share");
+    String preview =
+        (String)
+            new JSONTokener(app.js("document.querySelector('#card-text').textContent")).nextValue();
+    String src =
+        (String) new JSONTokener(app.js("document.querySelector('#card-image').src")).nextValue();
+    Intent send = outgoing(app);
+    check(
+        preview.equals(send.getStringExtra(Intent.EXTRA_TEXT))
+            && preview.matches("Perch\\n(Délka|Length) · 32[.,]5 cm"),
+        "Caption did not match the preview");
+    check("image/jpeg".equals(send.getType()), "Wrong attachment type");
+    Uri uri = send.getParcelableExtra(Intent.EXTRA_STREAM);
+    check(
+        uri != null && uri.equals(send.getClipData().getItemAt(0).getUri()),
+        "Inconsistent URI grant");
+    int flags = send.getFlags();
+    check(
+        (flags & Intent.FLAG_GRANT_READ_URI_PERMISSION) != 0
+            && (flags & Intent.FLAG_GRANT_WRITE_URI_PERMISSION) == 0,
+        "Invalid URI permissions");
+    ProviderInfo info =
+        app.getTargetContext().getPackageManager().resolveContentProvider(uri.getAuthority(), 0);
+    check(
+        info != null && !info.exported && info.grantUriPermissions,
+        "Unexpected provider visibility");
+    ContentResolver resolver = app.getTargetContext().getContentResolver();
+    try (InputStream in = resolver.openInputStream(uri);
+        ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+      byte[] buffer = new byte[4096];
+      int size;
+      while ((size = in.read(buffer)) != -1) out.write(buffer, 0, size);
+      byte[] image = out.toByteArray();
+      byte[] expected =
+          android.util.Base64.decode(
+              src.substring(src.indexOf(',') + 1), android.util.Base64.DEFAULT);
+      check(
+          Arrays.equals(image, expected)
+              && BitmapFactory.decodeByteArray(image, 0, image.length).getWidth() == 32,
+          "Preview bytes differ from the attachment");
+      check(
+          !new String(image, StandardCharsets.ISO_8859_1).contains("private-gps-marker"),
+          "JPEG comment escaped");
+    }
+    try (Cursor row =
+        resolver.query(uri, new String[] {OpenableColumns.DISPLAY_NAME}, null, null, null)) {
+      check(
+          row != null && row.moveToFirst() && "catch-photo.jpg".equals(row.getString(0)),
+          "Private filename exposed");
+    }
+    app.js("document.querySelector('#back').click()");
+    app.waitFor("document.querySelectorAll('[data-share-catch]').length===2");
+    app.js("document.querySelectorAll('[data-share-catch]')[1].click()");
+    app.waitFor(
+        "document.querySelector('#card-text')?.textContent==='Perch' &&"
+            + " !document.querySelector('#share-photo') && !document.querySelector('#card-options"
+            + " input:checked')");
+  }
+}

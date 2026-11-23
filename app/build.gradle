@@ -6,7 +6,17 @@ android {
         applicationId 'app.anglers.journal'
         minSdk 26
         targetSdk 35
-        versionCode 3
-        versionName '0.2.1'
+        versionCode 9
+        versionName '0.4.4'
     }
 }
+
+def accountAssets = layout.buildDirectory.dir('generated/accountAssets')
+def generateAccountConfig = tasks.register('generateAccountConfig', Exec) {
+    def output = accountAssets.get().file('account-config.json').asFile
+    outputs.dir(accountAssets)
+    outputs.upToDateWhen { false }
+    commandLine 'python3', rootProject.file('scripts/account-config.py'), output
+}
+android.sourceSets.main.assets.srcDir(accountAssets)
+tasks.named('preBuild').configure { dependsOn(generateAccountConfig) }

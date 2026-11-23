@@ -4,6 +4,7 @@ import { listWaters, waterScreen } from './waters.js';
 import { rulesScreen } from './seasons.js';
 import { listTrips, tripForm, tripScreen } from './trips.js';
 import { catchForm } from './catch-form.js';
+import { shareCard } from './share-card.js';
 const tabs = by('tabs'),
   catalog = {};
 const views = {
@@ -15,6 +16,7 @@ const views = {
   trip: tripScreen,
   newTrip: tripForm,
   newCatch: catchForm,
+  shareCard,
 };
 const nav = new Navigation(
   render,
@@ -74,7 +76,14 @@ function setTheme(mode) {
 }
 async function start() {
   document.documentElement.lang = cs ? 'cs' : 'en';
+  by('profile').textContent=t('Profil','Profile');
+  bind('profile',()=>window.Device.profile());
   by('brand').textContent = t('Rybáři sobě', 'Angler to Angler');
+  const versionLabel = window.Device?.versionLabel?.();
+  if (versionLabel) {
+    by('app-version').textContent = versionLabel;
+    by('app-version').hidden = false;
+  }
   by('mark').innerHTML = icon('fish-symbol');
   by('offline').innerHTML = icon('check') + t('Offline podklady', 'Offline pack');
   const system = matchMedia('(prefers-color-scheme: dark)');

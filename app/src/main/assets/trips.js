@@ -149,6 +149,13 @@ export async function tripScreen({ view, nav, pack }) {
     article.className = 'surface catch-card';
     by('catch-list').append(article);
     article.innerHTML = catchDetails(c, pack.species);
+    const share = document.createElement('button');
+    share.className = 'secondary';
+    share.type = 'button';
+    share.dataset.shareCatch = c.id;
+    share.textContent = t('Sdílet úlovek', 'Share catch');
+    share.onclick = () => nav.open('shareCard', { tripId: id, catchId: c.id });
+    article.append(share);
     if (c.hasPhoto) {
       const blob = await Journal.photo(c.id);
       if (!view.active()) return;

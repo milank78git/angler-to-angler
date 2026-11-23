@@ -1,0 +1,11 @@
+Podmínky používání · verze 2026-11-23
+
+Provozovatel: Milan Kucera. Kontakt: milan.kucera78@gmail.com.
+
+Rybáři sobě je bezplatný rybářský atlas a soukromý deník. Pro používání potřebuješ vlastní ověřený účet a přezdívku. O přístup se neděl a přihlášení nevydávej za účet jiné osoby. Žádosti ohledně služby včetně ukončení účtu přijímáme na kontaktním e-mailu.
+
+Obsah deníku zůstává tvůj. K fotografiím a textům, které sdílíš, musíš mít potřebná oprávnění. Před odesláním zkontroluj náhled i příjemce. Příjemce může kopii dál uložit. Snímky, souřadnice a soukromé poznámky se do účtu automaticky nezálohují.
+
+Atlas pokrývá vyznačené revíry a období. Před lovem ověř aktuální místní pravidla u uživatele revíru. Deník ani přihlášení nenahrazují povolenku. Povinná práva spotřebitele a zákonná odpovědnost zůstávají zachovány.
+
+Zdrojový kód projektu je dostupný pod Apache License 2.0. Mapové podklady, fotografie a ikony mají vlastní licence uvedené v aplikaci a v repozitáři. Při podstatné změně podmínek zobrazíme nové znění k potvrzení.

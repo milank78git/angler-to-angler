@@ -1,0 +1,10 @@
+name: Bug report
+description: Report an application or build problem using sample data.
+body:
+  - type: textarea
+    id: observation
+    attributes:
+      label: Steps, expected result and observed result
+      description: Include Android and app versions. Omit private locations, photos and personal identifiers.
+    validations:
+      required: true

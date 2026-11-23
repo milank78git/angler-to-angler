@@ -46,7 +46,7 @@ function waterMap(w, rivers) {
     </svg><figcaption>${link('https://www.openstreetmap.org/copyright', '© OpenStreetMap contributors · ODbL')}</figcaption></figure>`;
 }
 function isFavorite(pack, w) {
-  return localStorage.getItem(`water.${pack.id}.${w.id}`) === '1';
+  return localStorage.getItem(`water.${window.Device.subjectId()}.${pack.id}.${w.id}`) === '1';
 }
 function favoriteButton(pack, w) {
   const saved = isFavorite(pack, w);
@@ -57,7 +57,7 @@ function favoriteButton(pack, w) {
 }
 function toggleFavorite(pack, id) {
   const w = pack.waters.find((x) => x.id === id);
-  const key = `water.${pack.id}.${id}`;
+  const key = `water.${window.Device.subjectId()}.${pack.id}.${id}`;
   if (isFavorite(pack, w)) localStorage.removeItem(key);
   else localStorage.setItem(key, '1');
 }

@@ -29,6 +29,11 @@ public final class SeasonReminder extends BroadcastReceiver {
     return c.getSharedPreferences("season-watches", 0);
   }
 
+  static void clearSubscriptions(Context c) {
+    for (String key : prefs(c).getAll().keySet()) cancel(c, key);
+    c.getSystemService(NotificationManager.class).cancelAll();
+  }
+
   static boolean watching(Context c, String key) {
     return prefs(c).contains(key);
   }
@@ -74,6 +79,7 @@ public final class SeasonReminder extends BroadcastReceiver {
   @Override
   public void onReceive(Context context, Intent intent) {
     try {
+      if (AccountStore.active(context).isEmpty()) return;
       JSONObject pack = catalog(context);
       Instant now = Instant.now();
       if (FIRE.equals(intent.getAction())) {
@@ -157,7 +163,7 @@ public final class SeasonReminder extends BroadcastReceiver {
     manager.createNotificationChannel(
         new NotificationChannel(
             CHANNEL, c.getString(R.string.season), NotificationManager.IMPORTANCE_DEFAULT));
-    Intent open = new Intent(c, FishingActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    Intent open = new Intent(c, AccountActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
     PendingIntent target =
         PendingIntent.getActivity(
             c, 0, open, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
