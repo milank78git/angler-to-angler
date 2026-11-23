@@ -23,6 +23,12 @@ const postTime = new Intl.DateTimeFormat(cs ? 'cs-CZ' : 'en-GB', { dateStyle: 'm
 const questions = () => t('Dotazy u revíru', 'Water questions');
 const reply = () => t('Odpovědět', 'Reply');
 const withdraw = () => t('Stáhnout příspěvek', 'Withdraw post');
+const removed = () => t('Text příspěvku byl odstraněn.', 'The text of this post was removed.');
+const linked = () =>
+  t(
+    'Příspěvek už má textovou odpověď a zůstává ve vlákně.',
+    'This post has a text reply and stays in the thread.',
+  );
 const report = () => t('Nahlásit příspěvek', 'Report post');
 
 function errorText(error) {
@@ -47,14 +53,25 @@ function postCard(item) {
   card.className = 'surface discussion-post';
   card.innerHTML =
     '<p class="meta">' +
-    esc(item.author) +
+    esc(item.removed ? t('Odstraněný příspěvek', 'Removed post') : item.author) +
     ' · ' +
     t('Publikováno', 'Posted') +
     ' ' +
     esc(postTime.format(new Date(item.postedAt))) +
     '</p>' +
+    (item.replyTo
+      ? '<blockquote class="discussion-context"><strong>' +
+        esc(
+          item.replyTo.author
+            ? t('Odpověď pro ', 'Reply to ') + item.replyTo.author
+            : t('Odpověď na příspěvek', 'In reply to a post'),
+        ) +
+        '</strong><br>' +
+        esc(item.replyTo.excerpt ?? removed()) +
+        '</blockquote>'
+      : '') +
     '<p class="discussion-body">' +
-    esc(item.body) +
+    esc(item.body ?? removed()) +
     '</p>' +
     (item.tripDay
       ? '<p class="meta">' + t('Datum výpravy', 'Trip date') + ' · ' + esc(displayDay(item.tripDay)) + '</p>'
@@ -138,7 +155,13 @@ export async function waterDiscussion({ view, nav, pack }) {
       return card;
     }
     const failed = (err) => toast(errorText(err));
-    if (item.mine) {
+    if (item.removed) return card;
+    if (item.mine && !item.canWithdraw) {
+      const reason = document.createElement('p');
+      reason.className = 'meta withdrawal-locked';
+      reason.textContent = linked();
+      card.append(reason);
+    } else if (item.mine) {
       action(
         card,
         withdraw(),
@@ -147,19 +170,19 @@ export async function waterDiscussion({ view, nav, pack }) {
             title: withdraw() + '?',
             accept: withdraw(),
             destructive: true,
-            message: isRoot
-              ? t(
-                  'Dotaz i všechny odpovědi zmizí z diskuse.',
-                  'The question and all its replies will be removed.',
-                )
-              : t('Tvoje odpověď zmizí z diskuse.', 'Your answer will be removed.'),
+            message: t('Tvůj text zmizí z diskuse.', 'Your text will be removed from the discussion.'),
           });
           if (accepted && view.active())
             await submitChange(
               view,
               () => rpc('discussion_withdraw', { water_key: key, post_id: item.id }),
               () => (isRoot ? nav.back() : nav.show()),
-              failed,
+              (error) => {
+                if (error.status === 409) {
+                  toast(linked());
+                  nav.show();
+                } else failed(error);
+              },
             );
         },
         'danger',
@@ -192,12 +215,13 @@ export async function waterDiscussion({ view, nav, pack }) {
             failed,
           );
       });
+      flag.classList.add('report-post');
       if (item.reported) {
         flag.disabled = true;
         flag.textContent = t('Nahlášeno', 'Reported');
       }
       if (!isRoot && question.mine) {
-        action(
+        const mark = action(
           card,
           item.helpful ? t('Zrušit označení', 'Remove helpful mark') : t('Užitečná odpověď', 'Mark helpful'),
           () =>
@@ -210,7 +234,20 @@ export async function waterDiscussion({ view, nav, pack }) {
               failed,
             ),
         );
+        mark.classList.add('mark-helpful');
       }
+    }
+    if (!isRoot && !question.removed) {
+      const respond = action(card, t('Odpovědět na příspěvek', 'Reply to this post'), () =>
+        nav.open('discussionComposer', {
+          id,
+          questionId,
+          replyToId: item.id,
+          questionText: item.body,
+          replyAuthor: item.author,
+        }),
+      );
+      respond.classList.add('reply-to-post');
     }
     return card;
   }
@@ -232,6 +269,7 @@ export async function waterDiscussion({ view, nav, pack }) {
         if (question) {
           by('discussion-root').append(makeCard(question, true));
           by('answers-title').hidden = false;
+          by('discussion-compose').hidden = !!question.removed;
         }
         by('discussion-tools').hidden = false;
       }
@@ -270,7 +308,12 @@ export function discussionComposer({ view, nav, pack }) {
     (questionId ? t('Odpověď u revíru', 'Answer at this water') : t('Nový dotaz', 'New question')) +
     '</h1></div>' +
     (questionId
-      ? '<blockquote class="discussion-context">' + esc(view.route.questionText) + '</blockquote>'
+      ? '<blockquote class="discussion-context">' +
+        (view.route.replyAuthor
+          ? '<strong>' + esc(t('Odpověď pro ', 'Reply to ') + view.route.replyAuthor) + '</strong><br>'
+          : '') +
+        esc(view.route.questionText) +
+        '</blockquote>'
       : '') +
     '<form id="discussion-form" class="entry-form"><section class="surface">' +
     field(
@@ -323,6 +366,7 @@ export function discussionComposer({ view, nav, pack }) {
       attempt = {
         water_key: pack.country + ':' + id,
         question_id: questionId,
+        ...(view.route.replyToId ? { reply_to_id: view.route.replyToId } : {}),
         request_id: newJournalId(),
         message,
         trip_day: day,
@@ -331,7 +375,7 @@ export function discussionComposer({ view, nav, pack }) {
     await submitChange(
       view,
       async () => {
-        const receipt = await rpc('discussion_post', attempt);
+        const receipt = await rpc(view.route.replyToId ? 'discussion_reply' : 'discussion_post', attempt);
         if (receipt.id?.replaceAll('-', '') !== attempt.request_id.replaceAll('-', ''))
           throw Error('Invalid discussion receipt');
       },

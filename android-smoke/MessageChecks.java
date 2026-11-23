@@ -97,7 +97,10 @@ final class MessageChecks {
   }
 
   private static void click(Runner app, String selector) throws Exception {
-    app.js("document.querySelector(" + JSONObject.quote(selector) + ").click()");
+    String target = "document.querySelector(" + JSONObject.quote(selector) + ")";
+    app.waitFor(
+        "!!" + target + " && !" + target + ".disabled && " + target + ".getClientRects().length>0");
+    app.js(target + ".click()");
   }
 
   private static void accept(Runner app, String selector) throws Exception {
@@ -108,7 +111,7 @@ final class MessageChecks {
 
   /** Enter on a foreign question in the feed and return to its water afterwards. */
   static void run(Runner app) throws Exception {
-    click(app, "#discussion-items button");
+    click(app, "#discussion-items article:last-child button");
     app.waitFor("!!document.querySelector('#private-reply')");
     click(app, "#private-reply");
     app.waitFor("document.querySelector('#message-tools')?.hidden===false");

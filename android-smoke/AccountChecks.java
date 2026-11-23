@@ -248,6 +248,7 @@ final class AccountChecks {
                               break;
                             case "/rest/v1/rpc/angler_water_discussion":
                             case "/rest/v1/rpc/angler_discussion_post":
+                            case "/rest/v1/rpc/angler_discussion_reply":
                             case "/rest/v1/rpc/angler_discussion_withdraw":
                             case "/rest/v1/rpc/angler_discussion_helpful":
                             case "/rest/v1/rpc/angler_discussion_report":
