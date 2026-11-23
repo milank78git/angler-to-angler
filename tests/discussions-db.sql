@@ -1,4 +1,4 @@
-\ir ../supabase/migrations/20261123144311_water_discussions.sql
+\ir ../supabase/migrations/20261123153421_water_discussions.sql
 select pg_temp.check_that(not has_table_privilege('authenticated','angler_discussions.posts','select')
   and not has_table_privilege('authenticated','angler_discussions.reports','insert')
   and not has_function_privilege('authenticated','angler_discussions.remove_content(text,uuid,uuid)','execute')
