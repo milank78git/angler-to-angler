@@ -51,6 +51,37 @@ final class ShareChecks {
     }
   }
 
+  private static void typeTip(Runner app, String text) throws Exception {
+    app.js("(() => {const field=document.querySelector('#share-tip-text');field.value="
+        + org.json.JSONObject.quote(text) + ";field.dispatchEvent(new Event('input'));})()");
+  }
+
+  /** Verify a catch-free trip can send newly authored text through the actual Android chooser. */
+  static void tripTip(Runner app) throws Exception {
+    app.js("document.querySelector('#share-tip').click()");
+    app.waitFor("document.querySelector('#share-tip-text')?.value==='' && document.querySelector('#card-send').disabled");
+    app.js("document.querySelector('#share-water').click()");
+    app.waitFor("document.querySelector('#card-send').disabled");
+    app.js("document.querySelector('#share-water').click()");
+    String tip = "Fish the shade <slowly> & pause.";
+    typeTip(app, tip);
+    app.waitFor("document.querySelector('#card-text').textContent==='" + tip + "' && !document.querySelector('#card-text slowly')");
+    Intent message = outgoing(app);
+    check("text/plain".equals(message.getType()) && tip.equals(message.getStringExtra(Intent.EXTRA_TEXT))
+        && !message.hasExtra(Intent.EXTRA_STREAM), "Trip notes or location leaked into the tip");
+    app.js("document.querySelector('#share-water').click();document.querySelector('#share-day').click()");
+    String preview = (String) new JSONTokener(app.js("document.querySelector('#card-text').textContent")).nextValue();
+    check(preview.startsWith(tip + "\n") && preview.contains("Sázava 1") && !preview.contains("Offline smoke test"),
+        "Incorrect optional trip fields");
+    check(preview.equals(outgoing(app).getStringExtra(Intent.EXTRA_TEXT)), "Tip did not match its preview");
+    app.js("document.querySelector('#back').click()");
+    app.waitFor("!!document.querySelector('#share-tip')");
+    app.js("document.querySelector('#share-tip').click()");
+    app.waitFor("document.querySelector('#share-tip-text')?.value==='' && document.querySelector('#card-send').disabled");
+    app.js("document.querySelector('#back').click()");
+    app.waitFor("!!document.querySelector('#add')");
+  }
+
   static void run(Runner app) throws Exception {
     app.script("share-photo-fixture.js");
     app.waitFor("window.photoSeeded===true");
@@ -86,6 +117,8 @@ final class ShareChecks {
     app.waitFor(
         "document.querySelector('#card-image').naturalWidth===32 &&"
             + " !document.querySelector('#card-send').disabled");
+    typeTip(app, "Slow retrieve.");
+    app.waitFor("document.querySelector('#card-text').textContent.includes('Slow retrieve.') && !document.querySelector('#card-send').disabled");
     app.capture("share");
     String preview =
         (String)
@@ -95,7 +128,7 @@ final class ShareChecks {
     Intent send = outgoing(app);
     check(
         preview.equals(send.getStringExtra(Intent.EXTRA_TEXT))
-            && preview.matches("Perch\\n(Délka|Length) · 32[.,]5 cm"),
+            && preview.matches("Perch\\nSlow retrieve\\.\\n(Délka|Length) · 32[.,]5 cm"),
         "Caption did not match the preview");
     check("image/jpeg".equals(send.getType()), "Wrong attachment type");
     Uri uri = send.getParcelableExtra(Intent.EXTRA_STREAM);
