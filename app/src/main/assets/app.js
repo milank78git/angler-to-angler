@@ -76,6 +76,8 @@ function setTheme(mode) {
 }
 async function start() {
   document.documentElement.lang = cs ? 'cs' : 'en';
+  by('profile').textContent=t('Profil','Profile');
+  bind('profile',()=>window.Device.profile());
   by('brand').textContent = t('Rybáři sobě', 'Angler to Angler');
   by('mark').innerHTML = icon('fish-symbol');
   by('offline').innerHTML = icon('check') + t('Offline podklady', 'Offline pack');

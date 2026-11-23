@@ -28,7 +28,11 @@ public final class Runner extends Instrumentation {
             .setClassName(
                 getTargetContext().getPackageName(), "app.anglers.journal.FishingActivity")
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-    activity = startActivitySync(i);
+    bindJournal(startActivitySync(i));
+  }
+
+  private void bindJournal(Activity journal) throws Exception {
+    activity = journal;
     runOnMainSync(
         () ->
             web =
@@ -154,7 +158,7 @@ public final class Runner extends Instrumentation {
   public void onStart() {
     Bundle outcome = new Bundle();
     try {
-      launch();
+      bindJournal(new AccountChecks(this, !"wide".equals(scenario)).register());
       waitFor("document.documentElement.lang==='" + ("wide".equals(scenario) ? "en" : "cs") + "'");
       waitFor(
           "getComputedStyle(document.querySelector('#tabs')).flexDirection==='"

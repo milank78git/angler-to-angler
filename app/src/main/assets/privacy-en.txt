@@ -1,0 +1,9 @@
+Privacy notice · revision 2026-11-23
+
+Controller: Milan Kucera, milan.kucera78@gmail.com. Contact the controller to request access, correction of your display name, erasure, portability, restriction or to object. You may complain to the Czech Office for Personal Data Protection (uoou.gov.cz) or your local supervisory authority.
+
+To provide your account under the contract (GDPR Article 6(1)(b)), we use a verified identifier, email supplied by you or your provider, display name, sign-in method and timestamped document acknowledgements. These data are required for an account. The profile and acceptance records are retained while the account is active. The controller handles verified closure requests by deleting the identity and linked records. The app carries out no profiling or automated decisions with legal effects.
+
+A service compatible with Supabase Auth handles identity. If you select Google or Facebook, that provider receives the sign-in request and network and device information under its own privacy policy. You can also request a verification code through the email delivery service. The deployment notice shown before sign-in identifies the hosting and mail providers, operational backup retention and any international transfers or safeguards.
+
+Trips, catches, exact positions, photos and notes stay on the phone. Enter a position manually or request device location. Delete a trip in the journal. Signing out locks local records. Clearing app data erases all local journals on that device. When you choose to share, Android passes the previewed data to the recipient you select, who may keep a copy. No advertising trackers or marketing consents are used. Acknowledgement records delivery of this notice.

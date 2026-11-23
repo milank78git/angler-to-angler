@@ -6,13 +6,13 @@ export const newJournalId = () =>
       );
 
 /** Opens the existing v1 journal lazily. The atlas can run independently of this database. */
-export function createJournal(factory = globalThis.indexedDB) {
+export function createJournal(factory = globalThis.indexedDB, name = 'angler-field-journal') {
   let connection;
 
   function open() {
     if (connection) return connection;
     connection = new Promise((resolve, reject) => {
-      const req = factory.open('angler-field-journal', 1);
+      const req = factory.open(name, 1);
       req.onupgradeneeded = () => {
         const trips = req.result.createObjectStore('trips', { keyPath: 'id' });
         trips.createIndex('day', 'day');
@@ -127,4 +127,4 @@ export function createJournal(factory = globalThis.indexedDB) {
     saveTrip: (trip) => transaction(['trips'], 'readwrite', (tx) => tx.objectStore('trips').put(trip)),
   };
 }
-export const Journal = createJournal();
+export const Journal = createJournal(globalThis.indexedDB,globalThis.Device?.journalName?.());

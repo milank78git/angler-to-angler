@@ -15,14 +15,17 @@ elif [[ $# != 0 ]]; then
   echo "Usage: bash scripts/build-debug.sh [--preview]" >&2
   exit 2
 fi
+if [[ -n "${ANGLER_TEST_OUTPUT:-}" && "${1:-}" == "--preview" ]]; then out=build/smoke-app; fi
 rm -rf "$out"
 mkdir -p "$out"/{gen,classes,dex}
+cp -R app/src/main/assets "$out/assets"
+python3 scripts/account-config.py "$out/assets/account-config.json"
 manifest="$out/AndroidManifest.xml"
 label=app_name
 if [[ "${1:-}" == "--preview" ]]; then label=app_name_preview; fi
 sed -e 's/${applicationId}/'"$app_id"'/g' -e "s|@string/app_name\"|@string/$label\"|g" app/src/main/AndroidManifest.xml > "$manifest"
 "$bt/aapt2" compile --dir app/src/main/res -o "$out/resources.zip"
-"$bt/aapt2" link -o "$out/resources.apk" --manifest "$manifest" "${link_args[@]}" -I "$platform" --java "$out/gen" -A app/src/main/assets "$out/resources.zip"
+"$bt/aapt2" link -o "$out/resources.apk" --manifest "$manifest" "${link_args[@]}" -I "$platform" --java "$out/gen" -A "$out/assets" "$out/resources.zip"
 find app/src/main/java "$out/gen" -name '*.java' | sort > "$out/sources"
 java -m jdk.compiler/com.sun.tools.javac.Main -source 8 -target 8 -bootclasspath "$bt/core-lambda-stubs.jar:$platform" -Xlint:-options -d "$out/classes" @"$out/sources"
 java -m jdk.jartool/sun.tools.jar.Main cf "$out/classes.jar" -C "$out/classes" .

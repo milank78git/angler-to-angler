@@ -23,11 +23,17 @@ public final class FishingActivity extends Activity {
   private ValueCallback<Uri[]> picker;
   private PositionRequest position;
   private CatchShare shares;
+  private String subject;
   private String pendingReminder;
 
   @Override
   public void onCreate(Bundle state) {
     super.onCreate(state);
+    subject = AccountStore.active(this);
+    if (subject.isEmpty()) {
+      lockAccount();
+      return;
+    }
     if (state != null) pendingReminder = state.getString("reminder");
     web = new WebView(this);
     setContentView(web);
@@ -89,6 +95,26 @@ public final class FishingActivity extends Activity {
 
   /** Methods are accessible only to packaged scripts. Android UI calls run on the main thread. */
   public final class Device {
+    @JavascriptInterface
+    public String journalName() {
+      return AccountStore.journal(FishingActivity.this);
+    }
+
+    @JavascriptInterface
+    public String subjectId() {
+      return subject;
+    }
+
+    @JavascriptInterface
+    public void profile() {
+      runOnUiThread(
+          () -> {
+            startActivity(
+                new Intent(FishingActivity.this, AccountActivity.class).putExtra("manage", true));
+            finish();
+          });
+    }
+
     @JavascriptInterface
     public boolean nightMode() {
       int mask = android.content.res.Configuration.UI_MODE_NIGHT_MASK;
@@ -264,12 +290,25 @@ public final class FishingActivity extends Activity {
         });
   }
 
+  private void lockAccount() {
+    startActivity(new Intent(this, AccountActivity.class));
+    finish();
+  }
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+    if (!isFinishing() && !subject.equals(AccountStore.active(this))) lockAccount();
+  }
+
   @Override
   protected void onDestroy() {
-    position.stop();
+    if (position != null) position.stop();
     if (picker != null) picker.onReceiveValue(null);
-    web.removeJavascriptInterface("Device");
-    web.destroy();
+    if (web != null) {
+      web.removeJavascriptInterface("Device");
+      web.destroy();
+    }
     web = null;
     super.onDestroy();
   }
