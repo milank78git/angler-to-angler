@@ -25,7 +25,7 @@ final class AccountChecks {
   private Activity gate;
   private volatile boolean accepted;
   private volatile String expectedChallenge;
-  private volatile boolean googleEnabled;
+  private volatile boolean socialEnabled;
   private volatile int sentEmails;
   private volatile boolean wrongEmail;
 
@@ -77,9 +77,9 @@ final class AccountChecks {
                                     .put(
                                         "external",
                                         new JSONObject()
-                                            .put("google", googleEnabled)
+                                            .put("google", socialEnabled)
                                             .put("email", true)
-                                            .put("facebook", true))
+                                            .put("facebook", socialEnabled))
                                     .toString();
                             return 200;
                           }
@@ -166,7 +166,7 @@ final class AccountChecks {
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
     if (!find(app.expectedVersionLabel()).isShown())
       throw new AssertionError("Version hidden at sign-in");
-    find(tr("Pokračovat přes Facebook", "Continue with Facebook"));
+    app.waitForIdleSync();
     TextView[] disabledGoogle = {null};
     app.runOnMainSync(
         () ->
@@ -176,7 +176,12 @@ final class AccountChecks {
                     tr("Pokračovat přes Google", "Continue with Google")));
     if (disabledGoogle[0] != null) throw new AssertionError("Disabled provider offered");
     app.saveScreenshot("login", app.getUiAutomation().takeScreenshot());
-    googleEnabled = true;
+    requestEmail();
+    socialEnabled = true;
+    click(tr("Změnit e-mail", "Change email"));
+    find(tr("Pokračovat přes Google", "Continue with Google"));
+    app.waitForIdleSync();
+    app.saveScreenshot("login-social", app.getUiAutomation().takeScreenshot());
     checkSocialLogin("Facebook");
     checkSocialLogin("Google");
     requestEmail();
@@ -188,8 +193,8 @@ final class AccountChecks {
             "Odkaz už byl použitý nebo vypršel. Nech si poslat nový.",
             "This link was already used or has expired. Request a new one."));
     click(tr("Poslat nový odkaz", "Send a new link"));
-    for (int i = 0; i < 80 && sentEmails < 2; i++) Thread.sleep(100);
-    if (sentEmails != 2) throw new AssertionError("Resend did not request a new message");
+    for (int i = 0; i < 80 && sentEmails < 3; i++) Thread.sleep(100);
+    if (sentEmails != 3) throw new AssertionError("Resend did not request a new message");
     wrongEmail = true;
     Uri success = redirect.buildUpon().appendQueryParameter("code", "fixture-code").build();
     deliverCallback(success);

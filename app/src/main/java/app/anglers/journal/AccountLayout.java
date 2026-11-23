@@ -87,12 +87,6 @@ final class AccountLayout {
     Window window = activity.getWindow();
     window.setStatusBarColor(paper);
     window.setNavigationBarColor(paper);
-    window
-        .getDecorView()
-        .setSystemUiVisibility(
-            dark
-                ? 0
-                : View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
     ScrollView scroll = new ScrollView(activity);
     scroll.setBackgroundColor(paper);
     scroll.setFitsSystemWindows(true);
@@ -111,6 +105,21 @@ final class AccountLayout {
     scroll.addView(
         column, new FrameLayout.LayoutParams(-1, -2, Gravity.TOP | Gravity.CENTER_HORIZONTAL));
     activity.setContentView(scroll);
+    if (android.os.Build.VERSION.SDK_INT >= 30) {
+      android.view.WindowInsetsController bars = window.getInsetsController();
+      int flags =
+          android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
+              | android.view.WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS;
+      if (bars != null) bars.setSystemBarsAppearance(dark ? 0 : flags, flags);
+    } else {
+      window
+          .getDecorView()
+          .setSystemUiVisibility(
+              dark
+                  ? 0
+                  : View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+                      | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
+    }
 
     FrameLayout masthead = new FrameLayout(activity);
     masthead.setBackground(shape(0xff163e36, 0, 20));
