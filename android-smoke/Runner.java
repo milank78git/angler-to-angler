@@ -137,7 +137,11 @@ public final class Runner extends Instrumentation {
 
   /** Wait for the compositor to present this native page before saving its screenshot. */
   void captureAccount(Activity gate, String name) throws Exception {
-    android.view.View root = gate.findViewById(android.R.id.content);
+    captureWindow(gate.findViewById(android.R.id.content), name);
+  }
+
+  /** The native overlay stays visible above a WebView modal, including its backdrop. */
+  void captureWindow(android.view.View root, String name) throws Exception {
     android.graphics.drawable.ColorDrawable mark =
         new android.graphics.drawable.ColorDrawable(android.graphics.Color.rgb(213, 5, 235));
     int[] point = new int[2];
@@ -234,7 +238,8 @@ public final class Runner extends Instrumentation {
     waitFor(
         "document.querySelector('#confirmation').open &&"
             + " !document.querySelector('#confirmation-catch').hidden");
-    capture("review-consent");
+    waitFor("document.querySelector('#confirmation-photo').naturalWidth > 0");
+    captureAccount(activity, "review-consent");
     sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK);
     waitFor(
         "!document.querySelector('#confirmation').open &&"

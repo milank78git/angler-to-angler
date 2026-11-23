@@ -307,6 +307,11 @@ final class AccountChecks {
                     tr("Pokračovat přes Google", "Continue with Google")));
     if (disabledGoogle[0] != null) throw new AssertionError("Disabled provider offered");
     app.captureAccount(gate, "login");
+    click(tr("Podmínky a soukromí", "Terms and privacy"));
+    click(tr("Ochrana osobních údajů", "Privacy notice"));
+    TextView close = find(tr("Zavřít", "Close"));
+    app.captureWindow(close.getRootView(), "privacy-dialog");
+    click(tr("Zavřít", "Close"));
     requestRegistration();
     socialEnabled = true;
     click(tr("Zpět k přihlášení", "Back to sign-in"));
@@ -508,8 +513,13 @@ final class AccountChecks {
     app.captureAccount(gate, "groups");
     click("River crew" + tr(" · zakladatel", " · owner"));
     click(tr("Vystavit pozvánku", "Issue invitation"));
-    find(tr("Pozvánka pro jednoho rybáře", "Invite one angler"));
+    TextView invitation = find(tr("Pozvánka pro jednoho rybáře", "Invite one angler"));
+    app.captureWindow(invitation.getRootView(), "group-invitation");
     dialogButton(android.R.id.button2);
+    click("River crew" + tr(" · zakladatel", " · owner"));
+    click(tr("Rozpustit partu", "Dissolve group"));
+    click(tr("Zrušit", "Cancel"));
+    find(tr("Počet členů: 1", "Members: 1"));
     retryGroup = true;
     click(tr("Obnovit seznam", "Refresh groups"));
     find("River crew" + tr(" · zakladatel", " · owner"));

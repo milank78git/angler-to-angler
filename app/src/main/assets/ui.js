@@ -30,7 +30,7 @@ function dismissConfirmation() {
 function confirmAction({ title, message, accept, destructive = false, catchPreview }) {
   const dialog = by('confirmation');
   if (dialog.open || dialog.onclose) return Promise.resolve(false);
-  by('confirmation-icon').innerHTML = icon(catchPreview ? 'camera' : destructive ? 'triangle-alert' : 'fish-symbol');
+  by('confirmation-icon').innerHTML = icon(catchPreview ? 'camera' : 'triangle-alert');
   by('confirmation-title').textContent = title;
   by('confirmation-catch').hidden = !catchPreview;
   const image = by('confirmation-photo');

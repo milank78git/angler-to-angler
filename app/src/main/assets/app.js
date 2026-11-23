@@ -86,7 +86,8 @@ function setTheme(mode) {
     dark ? t('Zapnout světlý vzhled', 'Use light theme') : t('Zapnout tmavý vzhled', 'Use dark theme'),
   );
   by('theme').innerHTML = icon(dark ? 'sun' : 'moon');
-  if (window.Device && typeof Device.systemBars === 'function') Device.systemBars(dark, !!localStorage.getItem('ui.theme'));
+  if (window.Device && typeof Device.systemBars === 'function')
+    Device.systemBars(dark, !!localStorage.getItem('ui.theme'));
 }
 async function start() {
   document.documentElement.lang = cs ? 'cs' : 'en';
