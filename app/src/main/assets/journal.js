@@ -121,6 +121,7 @@ export function createJournal(factory = globalThis.indexedDB) {
     saveCatch,
     removeTrip,
     trip: (id) => read('trips', (s) => s.get(id)),
+    catchById: (id) => read('catches', (store) => store.get(id)),
     catches: (id) => read('catches', (s) => s.index('tripId').getAll(id)),
     photo: (id) => read('photos', (s) => s.get(id)),
     saveTrip: (trip) => transaction(['trips'], 'readwrite', (tx) => tx.objectStore('trips').put(trip)),

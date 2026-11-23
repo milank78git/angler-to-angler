@@ -22,6 +22,7 @@ public final class FishingActivity extends Activity {
   private WebView web;
   private ValueCallback<Uri[]> picker;
   private PositionRequest position;
+  private CatchShare shares;
   private String pendingReminder;
 
   @Override
@@ -54,6 +55,7 @@ public final class FishingActivity extends Activity {
     settings.setGeolocationEnabled(false);
     settings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
     web.addJavascriptInterface(new Device(), "Device");
+    shares = new CatchShare(this);
     position = new PositionRequest(this, this::positionResult);
     web.setWebViewClient(new LocalAssetClient(getAssets(), this::openExternal));
     web.setWebChromeClient(
@@ -122,6 +124,11 @@ public final class FishingActivity extends Activity {
         if (!selected.isEmpty()) return selected.get(0).getLanguage();
       }
       return getResources().getConfiguration().getLocales().get(0).getLanguage();
+    }
+
+    @JavascriptInterface
+    public boolean shareCatch(String caption, String jpeg) {
+      return shares.open(caption, jpeg);
     }
 
     @JavascriptInterface
@@ -229,6 +236,7 @@ public final class FishingActivity extends Activity {
   @Override
   protected void onActivityResult(int code, int result, Intent data) {
     super.onActivityResult(code, result, data);
+    if (code == CatchShare.REQUEST) shares.finished();
     if (code == PHOTO && picker != null) {
       Uri photo = result == RESULT_OK && data != null ? data.getData() : null;
       picker.onReceiveValue(

@@ -6,20 +6,21 @@ platform="${ANDROID_PLATFORM_JAR:-$sdk/platforms/android-35/android.jar}"
 bt="${ANDROID_BUILD_TOOLS:-$sdk/build-tools/35.0.0}"
 out=build/standalone
 link_args=()
-manifest=app/src/main/AndroidManifest.xml
+app_id=app.anglers.journal
 if [[ "${1:-}" == "--preview" ]]; then
   out=build/preview
-  link_args=(--rename-manifest-package app.anglers.journal.preview)
+  app_id=app.anglers.journal.preview
+  link_args=(--rename-manifest-package "$app_id")
 elif [[ $# != 0 ]]; then
   echo "Usage: bash scripts/build-debug.sh [--preview]" >&2
   exit 2
 fi
 rm -rf "$out"
 mkdir -p "$out"/{gen,classes,dex}
-if [[ "${1:-}" == "--preview" ]]; then
-  sed 's/@string\/app_name"/@string\/app_name_preview"/' "$manifest" > "$out/AndroidManifest.xml"
-  manifest="$out/AndroidManifest.xml"
-fi
+manifest="$out/AndroidManifest.xml"
+label=app_name
+if [[ "${1:-}" == "--preview" ]]; then label=app_name_preview; fi
+sed -e 's/${applicationId}/'"$app_id"'/g' -e "s|@string/app_name\"|@string/$label\"|g" app/src/main/AndroidManifest.xml > "$manifest"
 "$bt/aapt2" compile --dir app/src/main/res -o "$out/resources.zip"
 "$bt/aapt2" link -o "$out/resources.apk" --manifest "$manifest" "${link_args[@]}" -I "$platform" --java "$out/gen" -A app/src/main/assets "$out/resources.zip"
 find app/src/main/java "$out/gen" -name '*.java' | sort > "$out/sources"

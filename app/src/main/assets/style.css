@@ -1069,3 +1069,23 @@ textarea {
     }
   }
 }
+
+.card-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  margin: 0;
+  cursor: pointer;
+}
+.card-option input {
+  width: 22px;
+  height: 22px;
+  min-height: 0;
+  padding: 0;
+  accent-color: var(--primary);
+}
+#card-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

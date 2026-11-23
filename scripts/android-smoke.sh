@@ -7,7 +7,7 @@ platform="${ANDROID_PLATFORM_JAR:-$sdk/platforms/android-35/android.jar}"
 app_id=app.anglers.journal.preview
 out=build/smoke
 mkdir -p "$out"/{classes,dex}
-java -m jdk.compiler/com.sun.tools.javac.Main -source 8 -target 8 -Xlint:-options -bootclasspath "$bt/core-lambda-stubs.jar:$platform" -d "$out/classes" android-smoke/Runner.java
+java -m jdk.compiler/com.sun.tools.javac.Main -source 8 -target 8 -Xlint:-options -bootclasspath "$bt/core-lambda-stubs.jar:$platform" -d "$out/classes" android-smoke/*.java
 java -m jdk.jartool/sun.tools.jar.Main cf "$out/test.jar" -C "$out/classes" .
 "$bt/d8" --lib "$platform" --min-api 26 --output "$out/dex" "$out/test.jar"
 "$bt/aapt2" link -A android-smoke/assets -o "$out/test.apk" --manifest android-smoke/AndroidManifest.xml --rename-instrumentation-target-package "$app_id" -I "$platform"

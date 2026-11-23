@@ -1,17 +1,19 @@
 # Angler to Angler
 
-An offline-first Android field journal for anglers. The Czech launcher name is **Rybáři sobě**. Release 0.2.1 is a privately stored journal and a small, sourced pilot catalog. Use the search, water detail and season selector without an account. Open **My journal** to log a trip on any named water.
+An offline-first Android field journal for anglers. The Czech launcher name is **Rybáři sobě**. Release 0.3.0 is a privately stored journal and a small, sourced pilot catalog. Use the search, water detail and season selector without an account. Open **My journal** to log a trip on any named water.
 
 ## Try the pilot
 
 1. Install the debug APK from the pull request's **Android pilot** workflow artifact. Android 8.0 or later and an up-to-date Android System WebView are required.
 2. Search for **401 009** or **Sazava**. Open the water, inspect its boundaries and riverside access, and switch species, section and date. Directions open the device's map application.
 3. In airplane mode, log a trip. Add multiple catches or keep it as a blank day. A catch can have a locally stored photo, a manual length, bait, technique and an optional private point. Enter the point by hand or explicitly request a current location.
-4. Close and reopen the app. Return to **My journal** to see the trip. Deleting a trip also deletes its catches and photos. Uninstalling the application deletes local records.
+4. Open a saved catch in a trip and choose **Share catch**. The preview starts with just the species. Select the length, date, water, bait, technique or photograph individually and review the result before choosing a recipient. The share sheet sends plain text or the caption and a re-encoded JPEG. Receiving apps control how they use the caption. Coordinates, journal notes, original filenames and image metadata are excluded. A photograph or a deliberately selected water name can still identify a place.
+5. Close and reopen the app. Return to **My journal** to see the trip. Deleting a trip also deletes its catches and photos. Uninstalling the application deletes local records.
 
 ## Structure and data
 
 - The WebView starts in `app.js`. Navigation owns the lifetime of each screen. The atlas, seasons, trip views and catch editor each import their dependencies explicitly. Only the three native callbacks are exposed on the window.
+- Catch sharing uses the system chooser. For a selected photo the chooser receives a read grant for a single randomly named file in the private cache. The provider stops serving copies after 24 hours and cleans up expired files on later use.
 - Android supplies the document picker, one-shot location, external map handoff and opt-in seasonal notifications. Packaged web assets run on a fixed, private origin inside the Android application. It has no internet permission, accounts, backup, server or analytics. Source links open an external browser.
 - IndexedDB keeps trip, catch and image records. A catch and its re-encoded JPEG are committed in a single transaction. Images are resized to a maximum edge of 1,920 pixels and omit source metadata. Saved lengths use integer millimetres. GPS records distinguish angler position from strike location, provider accuracy and observation time.
 - The 2026 Czech pack contains two main-river reaches and four species. It has a country, IANA time zone, revision, inclusive validity period, scientific names, regional sizes, closed seasons and primary sources. A restricted section returns a prohibition. An unknown section or expired pack returns an unknown status. Local seasonal results cover the selected rule only. The app UI is available in Czech and English, following the device language.

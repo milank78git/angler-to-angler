@@ -1,4 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="app.anglers.journal" android:versionCode="3" android:versionName="0.2.1">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="app.anglers.journal" android:versionCode="4" android:versionName="0.3.0">
   <uses-sdk android:minSdkVersion="26" android:targetSdkVersion="35"/>
   <uses-feature android:name="android.hardware.location" android:required="false"/>
   <uses-feature android:name="android.hardware.location.gps" android:required="false"/>
@@ -11,6 +11,7 @@
     <activity android:name=".FishingActivity" android:exported="true" android:configChanges="orientation|screenSize|keyboardHidden" android:windowSoftInputMode="adjustResize">
       <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
     </activity>
+    <provider android:name=".CatchCardProvider" android:authorities="${applicationId}.catchcards" android:exported="false" android:grantUriPermissions="true"/>
     <receiver android:name=".SeasonReminder" android:exported="false">
       <intent-filter><action android:name="android.intent.action.BOOT_COMPLETED"/><action android:name="android.intent.action.MY_PACKAGE_REPLACED"/><action android:name="android.intent.action.TIME_SET"/></intent-filter>
     </receiver>

@@ -4,6 +4,7 @@ import { listWaters, waterScreen } from './waters.js';
 import { rulesScreen } from './seasons.js';
 import { listTrips, tripForm, tripScreen } from './trips.js';
 import { catchForm } from './catch-form.js';
+import { shareCard } from './share-card.js';
 const tabs = by('tabs'),
   catalog = {};
 const views = {
@@ -15,6 +16,7 @@ const views = {
   trip: tripScreen,
   newTrip: tripForm,
   newCatch: catchForm,
+  shareCard,
 };
 const nav = new Navigation(
   render,

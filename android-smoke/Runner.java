@@ -36,7 +36,7 @@ public final class Runner extends Instrumentation {
     waitFor("!!document.querySelector('[data-water]')");
   }
 
-  private String js(String code) throws Exception {
+  String js(String code) throws Exception {
     ArrayBlockingQueue<String> answer = new ArrayBlockingQueue<>(1);
     runOnMainSync(
         () ->
@@ -46,7 +46,7 @@ public final class Runner extends Instrumentation {
     return value;
   }
 
-  private void waitFor(String expr) throws Exception {
+  void waitFor(String expr) throws Exception {
     long stop = android.os.SystemClock.elapsedRealtime() + 20000;
     while (android.os.SystemClock.elapsedRealtime() < stop) {
       if ("true".equals(js(expr))) return;
@@ -54,6 +54,15 @@ public final class Runner extends Instrumentation {
     }
     throw new AssertionError(
         "Timed out: " + expr + "; page=" + js("document.body.innerText.slice(0,450)"));
+  }
+
+  void script(String name) throws Exception {
+    try (java.io.BufferedReader source =
+        new java.io.BufferedReader(
+            new java.io.InputStreamReader(
+                getContext().getAssets().open(name), java.nio.charset.StandardCharsets.UTF_8))) {
+      js(source.lines().collect(java.util.stream.Collectors.joining("\n")));
+    }
   }
 
   private void form(String code) throws Exception {
@@ -64,13 +73,7 @@ public final class Runner extends Instrumentation {
    * Exercise rejection, retry, duplicate submission and native Back against a real WebView form.
    */
   private void saveTripWithRetry() throws Exception {
-    try (java.io.BufferedReader source =
-        new java.io.BufferedReader(
-            new java.io.InputStreamReader(
-                getContext().getAssets().open("trip-write.js"),
-                java.nio.charset.StandardCharsets.UTF_8))) {
-      js(source.lines().collect(java.util.stream.Collectors.joining("\n")));
-    }
+    script("trip-write.js");
     waitFor("!!window.writeProbe");
     form(
         "document.querySelector('#notes').value='Offline smoke test';"
@@ -92,7 +95,7 @@ public final class Runner extends Instrumentation {
   /**
    * Capture actual emulator pixels and check accessible labels, target sizes and viewport overflow.
    */
-  private void capture(String name) throws Exception {
+  void capture(String name) throws Exception {
     waitFor("document.documentElement.scrollWidth <= window.innerWidth + 1");
     waitFor(
         "Array.from(document.querySelectorAll('button')).filter(b=>b.offsetWidth).every(b=>b.offsetWidth>=48"
@@ -225,7 +228,7 @@ public final class Runner extends Instrumentation {
           waitFor("document.querySelector('#photo').files.length===1");
         }
         form(
-            "document.querySelector('#position-fields').open=true;document.querySelector('#fish-name').value='Perch';document.querySelector('#length').value='32.5';document.querySelector('#lat').value='-40';document.querySelector('#lon').value='0'");
+            "document.querySelector('#bait').value='spinner';document.querySelector('#technique').value='jigging';document.querySelector('#position-fields').open=true;document.querySelector('#fish-name').value='Perch';document.querySelector('#length').value='32.5';document.querySelector('#lat').value='-40';document.querySelector('#lon').value='0'");
         waitFor("document.querySelectorAll('#catch-list article').length===" + n);
       }
       runOnMainSync(() -> activity.finish());
@@ -239,6 +242,7 @@ public final class Runner extends Instrumentation {
       waitFor(
           "!!document.querySelector('#catch-list img') && document.querySelector('#catch-list"
               + " img').naturalWidth===32");
+      ShareChecks.run(this);
       outcome.putString("stream", "ANGLER_SMOKE_PASS\n");
       finish(Activity.RESULT_OK, outcome);
     } catch (Throwable error) {
