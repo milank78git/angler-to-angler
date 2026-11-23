@@ -20,6 +20,7 @@ import org.json.JSONObject;
  */
 final class AccountChecks {
   private static final String ID = "11111111-1111-4111-8111-111111111111";
+  private final DiscussionChecks discussions = new DiscussionChecks();
   private final Runner app;
   private final boolean cs;
   private Activity gate;
@@ -231,6 +232,18 @@ final class AccountChecks {
                               submittedCatch = null;
                               response = "{}";
                               break;
+                            case "/rest/v1/rpc/angler_water_discussion":
+                            case "/rest/v1/rpc/angler_discussion_post":
+                            case "/rest/v1/rpc/angler_discussion_withdraw":
+                            case "/rest/v1/rpc/angler_discussion_helpful":
+                            case "/rest/v1/rpc/angler_discussion_report":
+                              response =
+                                  discussions
+                                      .response(
+                                          u.getPath().substring("/rest/v1/rpc/angler_".length()),
+                                          body)
+                                      .toString();
+                              break;
                             case "/rest/v1/rpc/angler_groups":
                               if (expireGroupSession || retryGroup) {
                                 retryGroup = false;
@@ -256,7 +269,7 @@ final class AccountChecks {
                               if (postedTip == null) {
                                 postedTip = body;
                                 return 503; // Commit applied; the client did not receive its
-                                            // receipt.
+                                // receipt.
                               }
                               if (!postedTip
                                       .getString("request_id")

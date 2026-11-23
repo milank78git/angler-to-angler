@@ -1,6 +1,6 @@
 # Angler to Angler
 
-An offline-first Android field journal for anglers. The Czech launcher name is **Rybáři sobě**. Release 0.7.0 is a privately stored journal and a small, sourced pilot catalog. A verified angler profile and acceptance of the current terms are required. Open **My journal** to log a trip on any named water.
+An offline-first Android field journal for anglers. The Czech launcher name is **Rybáři sobě**. Release 0.8.0 is a privately stored journal and a small, sourced pilot catalog. A verified angler profile and acceptance of the current terms are required. Open **My journal** to log a trip on any named water.
 
 ## Try the pilot
 
@@ -14,6 +14,8 @@ An offline-first Android field journal for anglers. The Czech launcher name is *
 
 8. Under **Profile → Edit profile**, choose one of 50 bundled portraits or a personal picture, enter your hometown, tagline and biography, and optionally publish to signed-in anglers. The card shows your groups and the number of photo-documented catches.
 9. To document a catch, use **Photograph catch at the water** while at the water, then submit the saved catch from its trip. Check the outcome or withdraw the record under **Profile → My submitted catch photos**. The result distinguishes a length read from a ruler from an estimate based on a known-size reference. Only reviewed catches with either outcome count. Gallery photos and manually entered lengths can be kept in the journal.
+
+10. In the atlas, open a water and choose **Water questions**. Ask a question or open one to post a free answer. You can include the date you fished. The question author can mark another angler’s answer as helpful. Signed-in anglers can report a post or withdraw their own. Withdrawing a question removes the thread.
 
 ## Structure and data
 

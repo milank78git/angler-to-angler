@@ -1,4 +1,4 @@
-Account and optional online features · pilot 0.7.0
+Account and optional online features · pilot 0.8.0
 
 When registering by email, you choose a password. The language of the app at registration determines your account email language. Email verification and password recovery use a single-use link. A secured phone can store an encrypted credential for subsequent unlocks. Android verifies your screen lock or biometrics. Signing out removes the credential from this phone.
 
@@ -7,3 +7,5 @@ Saving a profile stores your chosen picture, hometown, tagline and biography wit
 You choose each catch photo to send for review. The reviewer receives a resized photo without original metadata, species, capture time, water name and approximate location rounded to 0.01 degrees. The hosted image, water and location are removed after a decision. A photo may itself reveal the fishing spot. The pilot retains the result, length, capture and decision times, identifiers and image fingerprint until you remove the review record or close the account. Pending photos stay in the review queue until a reviewer decides, you withdraw them or the account is deleted. You can withdraw a record under Profile → My submitted catch photos. Deleting a local trip removes its local copy. Backup retention and contact details are in the deployment notice.
 
 When you post a trip tip to a group, current members see your display name, posting time and the exact text in the preview. Your tips are deleted when you leave the group, the group is dissolved or your account is erased. Deleting the local trip only deletes its local copy.
+
+Questions and answers at a water are visible to verified pilot anglers. Posting shares your display name, text, publication time and the trip date you enter for an answer. You can withdraw your posts. Withdrawing a question removes its replies. Reports go privately to the pilot operator. Account erasure removes your contributions and reports.

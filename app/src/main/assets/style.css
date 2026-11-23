@@ -188,7 +188,8 @@ main:focus {
 }
 #confirmation-message {
   margin: 0.75rem 0 1.25rem;
-  white-space: pre-line;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 #confirmation .actions {
   margin: 0;
@@ -1200,3 +1201,23 @@ textarea {
 .portrait-y2 { background-position-y: 50%; }
 .portrait-y3 { background-position-y: 75%; }
 .portrait-y4 { background-position-y: 100%; }
+
+.discussion-post {
+  margin-block: .75rem;
+  overflow-wrap: anywhere;
+}
+.discussion-context {
+  margin: .75rem 0;
+  padding-inline-start: 1rem;
+  border-inline-start: 3px solid var(--primary);
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.discussion-context,
+.discussion-body {
+  white-space: pre-wrap;
+}
+.discussion-helpful {
+  color: var(--primary);
+  font-weight: 650;
+}

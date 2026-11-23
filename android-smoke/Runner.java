@@ -414,6 +414,7 @@ public final class Runner extends Instrumentation {
       js("document.querySelector('[data-water]').click()");
       waitFor("!!document.querySelector('#navigate')");
       capture("water");
+      DiscussionChecks.run(this);
       js("document.querySelector('#open-rules').click()");
       waitFor("document.querySelector('#rule-water').disabled");
       js(
