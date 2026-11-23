@@ -61,6 +61,33 @@ public final class Runner extends Instrumentation {
   }
 
   /**
+   * Exercise rejection, retry, duplicate submission and native Back against a real WebView form.
+   */
+  private void saveTripWithRetry() throws Exception {
+    js(
+        "import('./journal.js').then(({Journal})=>{const save=Journal.saveTrip;let"
+            + " attempt=0;Journal.saveTrip=async record=>{if(++attempt===1)throw Error('simulated"
+            + " write failure');await new Promise(resolve=>window.resumeWrite=resolve);return"
+            + " save(record)};window.resetSave=()=>Journal.saveTrip=save})");
+    waitFor("typeof window.resetSave==='function'");
+    form(
+        "document.querySelector('#notes').value='Offline smoke test';"
+            + "document.querySelector('#notes').dispatchEvent(new Event('input',{bubbles:true}))");
+    waitFor(
+        "!document.querySelector('#notice').hidden && !document.querySelector('form"
+            + " button.primary').disabled && document.querySelector('#notes').value==='Offline"
+            + " smoke test'");
+    form("void 0");
+    waitFor(
+        "typeof window.resumeWrite==='function' && document.querySelector('form"
+            + " button.primary').disabled");
+    js("document.querySelector('form').requestSubmit()");
+    sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK);
+    waitFor("!!document.querySelector('#notes') && document.querySelector('#notes').disabled");
+    js("window.resumeWrite();window.resetSave()");
+  }
+
+  /**
    * Capture actual emulator pixels and check accessible labels, target sizes and viewport overflow.
    */
   private void capture(String name) throws Exception {
@@ -162,7 +189,7 @@ public final class Runner extends Instrumentation {
       waitFor("!!document.querySelector('#new-trip')");
       js("document.querySelector('#new-trip').click()");
       waitFor("!!document.querySelector('#notes')");
-      form("document.querySelector('#notes').value='Offline smoke test'");
+      saveTripWithRetry();
       waitFor(
           "!!document.querySelector('#add') && document.querySelectorAll('#catch-list"
               + " article').length===0");
@@ -174,6 +201,20 @@ public final class Runner extends Instrumentation {
                 + " document.querySelector('#tabs').hidden");
         if (n == 1) {
           capture("catch");
+          form(
+              "document.querySelector('#fish-name').value='Perch';document.querySelector('#length').value='0x20'");
+          waitFor(
+              "document.activeElement.id==='length' &&"
+                  + " !document.querySelector('#form-error').hidden");
+          form(
+              "document.querySelector('#length').value='32.5';document.querySelector('#lat').value='2';document.querySelector('#lon').value='181'");
+          waitFor(
+              "document.activeElement.id==='lon' &&"
+                  + " document.querySelector('#position-fields').open");
+          js("window.positionResult(123456,{lat:10,lon:20,time:1,accuracy:5})");
+          waitFor(
+              "document.querySelector('#lat').value==='2' &&"
+                  + " document.querySelector('#lon').value==='181'");
           js(
               "const"
                   + " canvas=document.createElement('canvas');canvas.width=32;canvas.height=16;canvas.toBlob(blob=>{const"
@@ -189,7 +230,7 @@ public final class Runner extends Instrumentation {
       waitForIdleSync();
       launch();
       js("document.querySelector('#tabtrips').click()");
-      waitFor("!!document.querySelector('[data-trip]')");
+      waitFor("document.querySelectorAll('[data-trip]').length===1");
       capture("journal");
       js("document.querySelector('[data-trip]').click()");
       waitFor("document.querySelectorAll('#catch-list article').length===2");

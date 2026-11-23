@@ -1,6 +1,6 @@
 # Angler to Angler
 
-An offline-first Android field journal for anglers. The Czech launcher name is **Rybáři sobě**. Release 0.2.0 is a privately stored journal and a small, sourced pilot catalog. Use the search, water detail and season selector without an account. Open **My journal** to log a trip on any named water.
+An offline-first Android field journal for anglers. The Czech launcher name is **Rybáři sobě**. Release 0.2.1 is a privately stored journal and a small, sourced pilot catalog. Use the search, water detail and season selector without an account. Open **My journal** to log a trip on any named water.
 
 ## Try the pilot
 
@@ -11,6 +11,7 @@ An offline-first Android field journal for anglers. The Czech launcher name is *
 
 ## Structure and data
 
+- The WebView starts in `app.js`. Navigation owns the lifetime of each screen. The atlas, seasons, trip views and catch editor each import their dependencies explicitly. Only the three native callbacks are exposed on the window.
 - Android supplies the document picker, one-shot location, external map handoff and opt-in seasonal notifications. Packaged web assets run on a fixed, private origin inside the Android application. It has no internet permission, accounts, backup, server or analytics. Source links open an external browser.
 - IndexedDB keeps trip, catch and image records. A catch and its re-encoded JPEG are committed in a single transaction. Images are resized to a maximum edge of 1,920 pixels and omit source metadata. Saved lengths use integer millimetres. GPS records distinguish angler position from strike location, provider accuracy and observation time.
 - The 2026 Czech pack contains two main-river reaches and four species. It has a country, IANA time zone, revision, inclusive validity period, scientific names, regional sizes, closed seasons and primary sources. A restricted section returns a prohibition. An unknown section or expired pack returns an unknown status. Local seasonal results cover the selected rule only. The app UI is available in Czech and English, following the device language.
@@ -38,7 +39,7 @@ adb install -r build/standalone/angler-journal-debug.apk
 
 Open the project in Android Studio with Gradle 8.9 for IDE development. The standalone build and CI do not require Gradle or application dependencies.
 
-Build the preview first. `bash scripts/android-smoke.sh` runs instrumentation on a disposable **Android 15 test emulator**. It clears the preview application, sets its size and language, selects a water, checks a season, saves two catches, reopens the activity and verifies the records and photo. CI runs both Czech phone and English wide layouts and publishes their screenshots. The storage regression suite also checks retrying a save, deleting associated photos and rejecting an orphaned catch.
+Build the preview first. `bash scripts/android-smoke.sh` runs instrumentation on a disposable **Android 15 test emulator**. It clears the preview application, sets its size and language, selects a water, checks a season, saves two catches, reopens the activity and verifies the records and photo. CI runs both Czech phone and English wide layouts and publishes their screenshots. The emulator also rejects a write, retries it, sends Android Back during a pending write and checks which coordinate field receives focus after invalid input. Unit tests cover navigation history, atomic photo replacement and native alarm scheduling across daylight saving time and pack expiry.
 
 
 ## Interface and preview build

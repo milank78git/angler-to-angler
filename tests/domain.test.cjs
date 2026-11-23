@@ -11,6 +11,7 @@ test('search handles Czech accents, spacing and case', () => {
 test('signed GPS input preserves the prime meridian and rejects partial or invalid coordinates', () => {
   assert.deepEqual(d.point('0', '-1,5'), { lat: 0, lon: -1.5 });
   assert.equal(d.point('', ''), null);
+  assert.throws(() => d.point('2', '181'), /^Error: lon$/);
   for (const args of [
     ['', '1'],
     ['90.01', '0'],
@@ -23,7 +24,8 @@ test('signed GPS input preserves the prime meridian and rejects partial or inval
 test('manual centimetres round to integer millimetres', () => {
   assert.equal(d.lengthMm('64,5'), 645);
   assert.equal(d.lengthMm(''), null);
-  for (const v of ['0', '-2', 'x', '2600', '0.02']) assert.throws(() => d.lengthMm(v));
+  for (const v of ['0', '-2', 'x', '2600', '0.02', '0x20', '1e2', '0b10'])
+    assert.throws(() => d.lengthMm(v));
 });
 test('regional seasons include both boundaries and wrap across New Year', () => {
   for (const [day, expected] of [

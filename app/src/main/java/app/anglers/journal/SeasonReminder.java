@@ -14,9 +14,9 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.MonthDay;
 import java.time.ZoneId;
-import java.util.Locale;
+import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -44,23 +44,52 @@ public final class SeasonReminder extends BroadcastReceiver {
         c, 0, i, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
   }
 
-  static void toggle(Context c, String key, boolean enabled) {
+  static boolean notificationsEnabled(Context context) {
+    NotificationManager manager = context.getSystemService(NotificationManager.class);
+    NotificationChannel channel = manager.getNotificationChannel(CHANNEL);
+    return manager.areNotificationsEnabled()
+        && (channel == null || channel.getImportance() != NotificationManager.IMPORTANCE_NONE);
+  }
+
+  private static void cancel(Context context, String key) {
+    prefs(context).edit().remove(key).apply();
+    context.getSystemService(AlarmManager.class).cancel(alarm(context, key, 0));
+  }
+
+  static void toggle(Context context, String key, boolean enabled) {
     if (key == null
         || key.length() > 200
         || !key.matches("[a-zA-Z0-9._-]+/[a-zA-Z0-9._-]+/[a-zA-Z0-9._-]+")) return;
     if (!enabled) {
-      prefs(c).edit().remove(key).apply();
-      c.getSystemService(AlarmManager.class).cancel(alarm(c, key, 0));
-    } else schedule(c, key, false, 0);
+      cancel(context, key);
+      return;
+    }
+    try {
+      refresh(context, catalog(context), key, 0, Instant.now());
+    } catch (Exception e) {
+      android.util.Log.e("SeasonReminder", "Could not enable reminder", e);
+    }
   }
 
   @Override
-  public void onReceive(Context c, Intent intent) {
-    if (FIRE.equals(intent.getAction())) {
-      String key = intent.getStringExtra("key");
-      long due = intent.getLongExtra("due", 0);
-      if (key != null && due > 0 && prefs(c).getLong(key, 0) == due) schedule(c, key, true, due);
-    } else for (String key : prefs(c).getAll().keySet()) schedule(c, key, false, 0);
+  public void onReceive(Context context, Intent intent) {
+    try {
+      JSONObject pack = catalog(context);
+      Instant now = Instant.now();
+      if (FIRE.equals(intent.getAction())) {
+        String key = intent.getStringExtra("key");
+        long due = intent.getLongExtra("due", 0);
+        if (key != null && due > 0 && prefs(context).getLong(key, 0) == due)
+          refresh(context, pack, key, due, now);
+        return;
+      }
+      for (Map.Entry<String, ?> watch : prefs(context).getAll().entrySet()) {
+        if (watch.getValue() instanceof Long)
+          refresh(context, pack, watch.getKey(), (Long) watch.getValue(), now);
+      }
+    } catch (Exception e) {
+      android.util.Log.e("SeasonReminder", "Could not restore the reminder schedule", e);
+    }
   }
 
   private static JSONObject catalog(Context c) throws Exception {
@@ -73,63 +102,53 @@ public final class SeasonReminder extends BroadcastReceiver {
     }
   }
 
-  private static boolean closed(JSONArray bounds, LocalDate day) throws Exception {
-    String md = day.toString().substring(5), a = bounds.getString(0), b = bounds.getString(1);
-    return a.compareTo(b) <= 0
-        ? md.compareTo(a) >= 0 && md.compareTo(b) <= 0
-        : md.compareTo(a) >= 0 || md.compareTo(b) <= 0;
-  }
-
-  private static void schedule(Context c, String key, boolean notify, long due) {
-    try {
-      JSONObject pack = catalog(c);
-      String[] parts = key.split("/");
-      if (parts.length != 3 || !pack.getString("id").equals(parts[0])) return;
-      JSONObject fish = pack.getJSONObject("species").getJSONObject(parts[2]), water = null;
+  /** Reconcile one persisted subscription against the currently installed pack. */
+  private static void refresh(Context c, JSONObject pack, String key, long previousDue, Instant now)
+      throws org.json.JSONException {
+    String[] parts = key.split("/");
+    JSONObject fish = null, water = null;
+    if (parts.length == 3 && pack.getString("id").equals(parts[0])) {
+      fish = pack.getJSONObject("species").optJSONObject(parts[2]);
       JSONArray waters = pack.getJSONArray("waters");
-      for (int i = 0; i < waters.length(); i++)
-        if (parts[1].equals(waters.getJSONObject(i).getString("id")))
-          water = waters.getJSONObject(i);
-      if (water == null) return;
-      ZoneId zone = ZoneId.of(pack.getString("zone"));
-      LocalDate today = LocalDate.now(zone), end = LocalDate.parse(pack.getString("until"));
-      LocalDate start = LocalDate.parse(pack.getString("from"));
-      JSONArray bounds = fish.getJSONArray("window");
-      boolean cs = Locale.getDefault().getLanguage().equals("cs");
-      if (notify && today.equals(Instant.ofEpochMilli(due).atZone(zone).toLocalDate())) {
-        String note =
-            today.isAfter(end)
-                ? (cs
-                    ? "Skončila platnost podkladů. Ověřte aktuální podmínky."
-                    : "The local rules pack has expired. Check the current conditions.")
-                : closed(bounds, today)
-                    ? (cs ? "Dnes začíná hájení." : "The closed season begins today.")
-                    : (cs
-                        ? "Uvedené období hájení skončilo. Ověřte další místní podmínky."
-                        : "The listed closed season has ended. Check other local restrictions.");
-        post(c, key, water.getString("name") + " · " + fish.getString(cs ? "cs" : "en"), note);
-      }
-      if (today.isAfter(end)) {
-        prefs(c).edit().remove(key).apply();
-        return;
-      }
-      Instant now = Instant.now();
-      LocalDate candidate = today.isBefore(start) ? start : today;
-      for (; !candidate.isAfter(end.plusDays(1)); candidate = candidate.plusDays(1)) {
-        Instant at = candidate.atTime(LocalTime.of(8, 0)).atZone(zone).toInstant();
-        if (!at.isAfter(now)) continue;
-        if (candidate.equals(end.plusDays(1))
-            || (!candidate.equals(start)
-                && closed(bounds, candidate) != closed(bounds, candidate.minusDays(1)))) {
-          long stamp = at.toEpochMilli();
-          prefs(c).edit().putLong(key, stamp).apply();
-          c.getSystemService(AlarmManager.class)
-              .setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, stamp, alarm(c, key, stamp));
-          return;
+      for (int i = 0; i < waters.length(); i++) {
+        JSONObject candidate = waters.getJSONObject(i);
+        if (parts[1].equals(candidate.getString("id"))) {
+          water = candidate;
+          break;
         }
       }
-    } catch (Exception e) {
-      android.util.Log.e("SeasonReminder", "Cannot schedule a local season reminder", e);
+    }
+    if (water == null || fish == null) {
+      cancel(c, key);
+      return;
+    }
+    JSONArray bounds = fish.getJSONArray("window");
+    SeasonCalendar calendar =
+        new SeasonCalendar(
+            ZoneId.of(pack.getString("zone")),
+            LocalDate.parse(pack.getString("from")),
+            LocalDate.parse(pack.getString("until")),
+            MonthDay.parse("--" + bounds.getString(0)),
+            MonthDay.parse("--" + bounds.getString(1)));
+    SeasonCalendar.Event event = calendar.dueToday(previousDue, now);
+    Instant next = calendar.next(now);
+    if (next == null) cancel(c, key);
+    else {
+      long stamp = next.toEpochMilli();
+      c.getSystemService(AlarmManager.class)
+          .setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, stamp, alarm(c, key, stamp));
+      prefs(c).edit().putLong(key, stamp).apply();
+    }
+    if (event != null && notificationsEnabled(c)) {
+      String lang = c.getResources().getConfiguration().getLocales().get(0).getLanguage();
+      String name = fish.getString("cs".equals(lang) ? "cs" : "en");
+      int message =
+          event == SeasonCalendar.Event.EXPIRES
+              ? R.string.pack_expired
+              : event == SeasonCalendar.Event.CLOSES
+                  ? R.string.season_begins
+                  : R.string.season_ends;
+      post(c, key, water.getString("name") + " · " + name, c.getString(message));
     }
   }
 

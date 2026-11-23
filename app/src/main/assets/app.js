@@ -1,128 +1,65 @@
-'use strict';
-const screen = document.querySelector('#screen'),
-  tabs = document.querySelector('#tabs');
-const cs = (window.Device ? Device.locale() : navigator.language).toLowerCase().startsWith('cs');
-const t = (cz, en) => (cs ? cz : en),
-  loc = (obj) => obj[cs ? 'cs' : 'en'];
-const esc = (s) =>
-  String(s ?? '').replace(
-    /[&<>"']/g,
-    (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c],
-  );
-const by = (id) => document.getElementById(id);
-const options = (pairs, sel) =>
-  pairs
-    .map(
-      ([val, label]) =>
-        '<option value="' +
-        esc(val) +
-        '"' +
-        (val === sel ? ' selected' : '') +
-        '>' +
-        esc(label) +
-        '</option>',
-    )
-    .join('');
-function bind(id, fn) {
-  by(id).onclick = fn;
-}
-function toast(message) {
-  by('notice').textContent = message;
-  by('notice').hidden = false;
-  clearTimeout(noticeTimer);
-  noticeTimer = setTimeout(() => (by('notice').hidden = true), 4600);
-}
-let pack,
-  rivers,
-  draft = false,
-  noticeTimer,
-  viewVersion = 0,
-  disposeView = () => {};
-let area = 'waters';
-const stacks = Object.fromEntries(['waters', 'rules', 'trips'].map((page) => [page, [{ page }]]));
-let route = stacks.waters[0];
-const icon = (name) =>
-  `<svg class="icon" aria-hidden="true" focusable="false"><use href="icons.svg#${name}"></use></svg>`;
-const button = (id, label, cls = '', glyph = '') =>
-  `<button id="${id}" type="button" class="${cls}">${glyph ? icon(glyph) : ''}<span>${esc(label)}</span></button>`;
-const link = (url, label) => `<a href="${esc(url)}">${esc(label)}</a>`;
-const sectionTitle = (glyph, label) => `<h2 class="section-title">${icon(glyph)}${esc(label)}</h2>`;
-const emptyState = (glyph, title, body = '') =>
-  `<div class="empty">${icon(glyph)}<strong>${esc(title)}</strong>${body ? `<p>${esc(body)}</p>` : ''}</div>`;
-const back = (label) => button('back', label, 'back', 'arrow-left');
-function bindBack() {
-  bind('back', handleBack);
-}
-function mayLeave() {
-  return !draft || confirm(t('Zahodit neuložené změny?', 'Discard unsaved changes?'));
-}
-/** Each top-level destination owns its history, including search filters and scroll position. */
-function remember() {
-  route.scroll = window.scrollY;
-  disposeView();
-  disposeView = () => {};
-  draft = false;
-}
-function go(page, props = {}) {
-  if (!mayLeave()) return;
-  remember();
-  if (Object.prototype.hasOwnProperty.call(stacks, page)) {
-    if (area === page) stacks[area] = [{ page }];
-    area = page;
-  } else {
-    stacks[area].push({ page, ...props });
-  }
-  paint();
-}
-function showSavedTrip(id) {
-  remember();
-  if (area !== 'trips' && route.page === 'newTrip') stacks[area].pop();
-  area = 'trips';
-  stacks.trips = [{ page: 'trips' }, { page: 'trip', id }];
-  paint();
-}
-function handleBack() {
-  if (stacks[area].length === 1 && area === 'waters') return false;
-  if (!mayLeave()) return true;
-  remember();
-  if (stacks[area].length > 1) stacks[area].pop();
-  else area = 'waters';
-  paint();
-  return true;
-}
-async function paint() {
-  route = stacks[area][stacks[area].length - 1];
-  const version = ++viewVersion;
-  const editing = route.page === 'newTrip' || route.page === 'newCatch';
+import { by, screen, t, cs, bind, button, icon } from './ui.js';
+import { Navigation } from './navigation.js';
+import { listWaters, waterScreen } from './waters.js';
+import { rulesScreen } from './seasons.js';
+import { listTrips, tripForm, tripScreen } from './trips.js';
+import { catchForm } from './catch-form.js';
+const tabs = by('tabs'),
+  catalog = {};
+const views = {
+  waters: listWaters,
+  water: waterScreen,
+  rules: rulesScreen,
+  waterRules: rulesScreen,
+  trips: listTrips,
+  trip: tripScreen,
+  newTrip: tripForm,
+  newCatch: catchForm,
+};
+const nav = new Navigation(
+  render,
+  () => confirm(t('Zahodit neuložené změny?', 'Discard unsaved changes?')),
+  () => window.scrollY,
+);
+
+/** The native bridge only needs these three callbacks; feature code stays module scoped. */
+window.handleBack = () => nav.back();
+window.reminderChanged = () => window.dispatchEvent(new Event('reminderchange'));
+window.positionResult = (id, fix) =>
+  window.dispatchEvent(new CustomEvent('angler-position', { detail: { id, fix } }));
+
+async function render(view, area) {
+  const { page } = view.route;
+  const editing = page === 'newTrip' || page === 'newCatch';
   tabs.hidden = editing;
   document.body.classList.toggle('editing', editing);
-  Object.keys(stacks).forEach((key) => {
-    const el = by('tab' + key);
-    el.setAttribute('aria-current', area === key ? 'page' : 'false');
-  });
-  screen.dataset.page = route.page;
-  const views = {
-    waters: listWaters,
-    water: waterScreen,
-    rules: rulesScreen,
-    waterRules: rulesScreen,
-    trips: listTrips,
-    trip: tripScreen,
-    newTrip: tripForm,
-    newCatch: catchForm,
-  };
+  for (const key of ['waters', 'rules', 'trips'])
+    by('tab' + key).setAttribute('aria-current', area === key ? 'page' : 'false');
+  // Retire old interactive nodes before the new screen starts asynchronous reads.
+  screen.replaceChildren();
+  screen.dataset.page = page;
+  screen.setAttribute('aria-busy', 'true');
   try {
-    await views[route.page]();
-    if (version !== viewVersion) return;
-    const h = screen.querySelector('h1');
-    if (h) {
-      h.tabIndex = -1;
-      h.focus({ preventScroll: true });
-      document.title = h.textContent + ' · ' + by('brand').textContent;
+    await views[page]({ view, nav, ...catalog });
+    if (!view.active()) return;
+    const title = screen.querySelector('h1');
+    if (title) {
+      title.tabIndex = -1;
+      title.focus({ preventScroll: true });
+      document.title = title.textContent + ' · ' + by('brand').textContent;
     }
-    window.scrollTo(0, route.scroll || 0);
+    window.scrollTo(0, view.route.scroll || 0);
   } catch (error) {
-    if (version === viewVersion) toast(t('Obrazovku se nepodařilo načíst.', 'Could not open this screen.'));
+    if (!view.active()) return;
+    console.error('Could not render ' + page, error);
+    screen.innerHTML =
+      '<p role="alert">' +
+      t('Obrazovku se nepodařilo načíst.', 'Could not open this screen.') +
+      '</p>' +
+      button('retry', t('Zkusit znovu', 'Retry'));
+    bind('retry', () => nav.show());
+  } finally {
+    if (view.active()) screen.removeAttribute('aria-busy');
   }
 }
 function setTheme(mode) {
@@ -155,21 +92,25 @@ async function start() {
     setTheme(mode);
   });
   try {
-    [pack, rivers] = await Promise.all(
-      ['catalog.json', 'rivers.json'].map((p) => fetch(p).then((r) => r.json())),
+    [catalog.pack, catalog.rivers] = await Promise.all(
+      ['catalog.json', 'rivers.json'].map(async (path) => {
+        const response = await fetch(path);
+        if (!response.ok) throw Error(path);
+        return response.json();
+      }),
     );
-    await Journal.open();
-    const nav = [
+
+    const destinations = [
       ['waters', t('Revíry', 'Waters'), 'map'],
       ['rules', t('Hájení', 'Seasons'), 'calendar-days'],
       ['trips', t('Deník', 'Journal'), 'book-open'],
     ];
     tabs.setAttribute('aria-label', t('Hlavní navigace', 'Main navigation'));
-    tabs.innerHTML = nav
+    tabs.innerHTML = destinations
       .map(([k, label, glyph]) => button('tab' + k, label, 'destination', glyph))
       .join('');
-    nav.forEach(([k]) => bind('tab' + k, () => go(k)));
-    await paint();
+    destinations.forEach(([k]) => bind('tab' + k, () => nav.open(k)));
+    nav.show();
   } catch (error) {
     screen.textContent = t(
       'Místní data se nepodařilo otevřít. Zkus aplikaci znovu spustit.',
