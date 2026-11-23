@@ -61,7 +61,9 @@ public final class AccountActivity extends Activity {
     } else if (!groupLogin && !profileLogin && !AccountStore.active(this).isEmpty()) {
       if (getIntent().getBooleanExtra("manage", false)) manage();
       else enter();
-    } else if (pendingIsFresh(pending) && !pending.getString("pkceEmail", "").isEmpty()) inbox();
+    } else if (pendingIsFresh(pending)
+        && pending.getBoolean("pkceMailAccepted", true)
+        && !pending.getString("pkceEmail", "").isEmpty()) inbox();
     else {
       login();
       if (DeviceVault.enrolled(this) && !groupLogin && !profileLogin) unlock();
@@ -324,6 +326,7 @@ public final class AccountActivity extends Activity {
                 return service.signUp(email, secret, verifier);
               },
               (IdentityService.Session session) -> {
+                p.edit().putBoolean("pkceMailAccepted", true).apply();
                 if (session != null) verified(session);
                 else {
                   inbox();
@@ -447,13 +450,18 @@ public final class AccountActivity extends Activity {
   }
 
   private boolean savePending(String verifier, String address, String purpose) {
+    SharedPreferences pending = AccountStore.prefs(this);
+    boolean previouslyAccepted =
+        verifier.equals(pending.getString("pkce", ""))
+            && pending.getBoolean("pkceMailAccepted", true);
     boolean saved =
-        AccountStore.prefs(this)
+        pending
             .edit()
             .putBoolean("pkceForGroups", groupLogin)
             .putBoolean("pkceForProfile", profileLogin)
             .putString("pkce", verifier)
             .putString("pkcePurpose", purpose)
+            .putBoolean("pkceMailAccepted", previouslyAccepted)
             .putString("pkceEmail", address)
             .putLong("pkceAt", System.currentTimeMillis())
             .commit();
@@ -472,6 +480,7 @@ public final class AccountActivity extends Activity {
         .remove("pkceForProfile")
         .remove("pkce")
         .remove("pkcePurpose")
+        .remove("pkceMailAccepted")
         .remove("pkceAt")
         .remove("pkceEmail")
         .apply();
@@ -625,15 +634,26 @@ public final class AccountActivity extends Activity {
 
   private void activate(JSONObject result, boolean legacy) {
 
-    AccountStore.activate(this, result.optString("name"), legacy, signing);
-    signing = null;
-    if (groupLogin) {
-      groupLogin = false;
-      getIntent().removeExtra("groupsSignIn");
-      getIntent().putExtra("manage", true);
-      manage();
-      startActivity(new Intent(this, GroupsActivity.class));
-    } else enter();
+    IdentityService.Session auth = signing;
+    run(
+        () -> {
+          AccountStore.activate(this, result.getString("name"), legacy, auth);
+          return auth.id;
+        },
+        id -> {
+          signing = null;
+          if (!id.equals(AccountStore.active(this))) {
+            login();
+            return;
+          }
+          if (groupLogin) {
+            groupLogin = false;
+            getIntent().removeExtra("groupsSignIn");
+            getIntent().putExtra("manage", true);
+            manage();
+            startActivity(new Intent(this, GroupsActivity.class));
+          } else enter();
+        });
   }
 
   private void enter() {
@@ -711,6 +731,10 @@ public final class AccountActivity extends Activity {
                 + " obnovit heslo.",
             "Incorrect email or password. If you previously signed in by link, select Set or reset"
                 + " password.");
+      if ("email_address_not_authorized".equals(code))
+        return text(
+            "Pilot zatím nemůže na tuto adresu poslat zprávu. Obrať se na správce pilotu.",
+            "The pilot cannot send to this address yet. Contact the pilot operator.");
       if ("email_not_confirmed".equals(code))
         return text(
             "Nejdřív potvrď e-mail na tomto telefonu.", "Confirm your email on this phone first.");

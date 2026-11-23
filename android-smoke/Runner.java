@@ -162,6 +162,7 @@ public final class Runner extends Instrumentation {
   private android.graphics.Bitmap frameAt(
       android.view.View target, int x, int y, boolean swatchVisible) throws Exception {
     long deadline = android.os.SystemClock.elapsedRealtime() + 15000;
+    boolean checkedLauncher = false;
     do {
       runOnMainSync(target::postInvalidateOnAnimation);
       android.graphics.Bitmap frame = getUiAutomation().takeScreenshot();
@@ -174,9 +175,29 @@ public final class Runner extends Instrumentation {
         if (matches == swatchVisible) return frame;
         frame.recycle();
       }
+      if (!checkedLauncher && deadline - android.os.SystemClock.elapsedRealtime() < 12000) {
+        checkedLauncher = true;
+        dismissLauncherDialog();
+      }
       Thread.sleep(120);
     } while (android.os.SystemClock.elapsedRealtime() < deadline);
     throw new AssertionError("Display did not reach the current UI frame");
+  }
+
+  /**
+   * A stalled emulator launcher can cover the app during startup. Leave application errors visible.
+   */
+  private void dismissLauncherDialog() {
+    android.view.accessibility.AccessibilityNodeInfo root =
+        getUiAutomation().getRootInActiveWindow();
+    if (root == null
+        || !"android".contentEquals(String.valueOf(root.getPackageName()))
+        || root.findAccessibilityNodeInfosByText("Pixel Launcher").isEmpty()) return;
+    java.util.List<android.view.accessibility.AccessibilityNodeInfo> close =
+        root.findAccessibilityNodeInfosByViewId("android:id/aerr_close");
+    if (close.isEmpty()) close = root.findAccessibilityNodeInfosByText("Close app");
+    if (close.size() == 1)
+      close.get(0).performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK);
   }
 
   private void saveScreenshot(String name, android.graphics.Bitmap pixels) throws Exception {

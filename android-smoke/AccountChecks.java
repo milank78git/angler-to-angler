@@ -315,6 +315,15 @@ final class AccountChecks {
     app.captureAccount(gate, "login-social");
     checkSocialLogin("Facebook");
     checkSocialLogin("Google");
+    click(tr("Nastavit nebo obnovit heslo", "Set or reset password"));
+    type(tr("E-mail", "Email"), "test@example.invalid");
+    click(tr("Poslat odkaz pro nastavení hesla", "Send password setup link"));
+    find(tr("Otevřít poštu", "Open inbox"));
+    deliverCallback(Uri.parse(gate.getPackageName() + "://account/callback?code=fixture-code"));
+    type(tr("Nové heslo", "New password"), PASSWORD);
+    click(tr("Uložit heslo", "Save password"));
+    find(tr("Přezdívka (2–60 znaků)", "Display name (2–60 characters)"));
+    click(tr("Zpět k přihlášení", "Back to sign-in"));
     requestRegistration();
     app.captureAccount(gate, "inbox");
     Uri redirect = Uri.parse(gate.getPackageName() + "://account/callback");
@@ -323,12 +332,14 @@ final class AccountChecks {
         tr(
             "Odkaz už byl použitý nebo vypršel. Nech si poslat nový.",
             "This link was already used or has expired. Request a new one."));
+    int beforeResend = sentEmails;
     click(tr("Vyžádat nový odkaz", "Request another link"));
     type(tr("Nové heslo", "New password"), PASSWORD);
     click(tr("Zaregistrovat se", "Register"));
     find(tr("Otevřít poštu", "Open inbox"));
-    for (int i = 0; i < 80 && sentEmails < 3; i++) Thread.sleep(100);
-    if (sentEmails != 3) throw new AssertionError("Resend did not request a new message");
+    for (int i = 0; i < 80 && sentEmails == beforeResend; i++) Thread.sleep(100);
+    if (sentEmails != beforeResend + 1)
+      throw new AssertionError("Resend did not request a new message");
     wrongEmail = true;
     Uri success = redirect.buildUpon().appendQueryParameter("code", "fixture-code").build();
     deliverCallback(success);
