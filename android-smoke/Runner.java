@@ -202,7 +202,9 @@ public final class Runner extends Instrumentation {
     js("document.querySelector('[data-trip]').click()");
     waitFor("!!document.querySelector('[data-share-catch]')");
     script("capture-evidence.js");
-    waitFor("window.evidenceSeeded===true");
+    waitFor("window.evidenceSeeded===true || !!window.evidenceSeedError");
+    if (!"true".equals(js("window.evidenceSeeded===true")))
+      throw new AssertionError("Capture fixture failed: " + js("window.evidenceSeedError"));
     js("document.querySelector('#tabtrips').click()");
     waitFor("!!document.querySelector('[data-trip]')");
     js("document.querySelector('[data-trip]').click()");
