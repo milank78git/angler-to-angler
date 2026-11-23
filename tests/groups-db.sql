@@ -1,5 +1,5 @@
 -- Runs in the same disposable transaction as profile-db.sql.
-\ir ../supabase/migrations/20261123105513_private_fishing_groups.sql
+\ir ../supabase/migrations/20261123110524_private_fishing_groups.sql
 insert into auth.users values
  ('00000000-0000-4000-8000-000000000001',now()), ('00000000-0000-4000-8000-000000000002',now()),
  ('00000000-0000-4000-8000-000000000003',now()), ('00000000-0000-4000-8000-000000000004',null);
