@@ -1,4 +1,4 @@
-Account and optional online features · pilot 0.11.0
+Account and optional online features · pilot 0.12.0
 
 When registering by email, you choose a password. The language of the app at registration determines your account email language. Email verification and password recovery use a single-use link. A secured phone can store an encrypted credential for subsequent unlocks. Android verifies your screen lock or biometrics. Signing out removes the credential from this phone.
 
@@ -15,3 +15,5 @@ You can reply privately to the author of a water question. Both participants can
 You enter a catch photo into a group of your choice. Members see your display name, species, trip date, resized photo without metadata, vote count and rank. The surroundings in the photo may reveal the spot. Each member can cast or remove one vote per other catch in the group. Rounds use the Prague calendar week. You may withdraw an entry after voting closes. Deleting the local trip does not withdraw the shared entry. Leaving the group removes your entries and votes in that group.
 
 You can choose to contribute or update each completed trip, including a blank trip. Your account stores the trip identifier, water, calendar month, target species, main fishing method and total number of recorded fish. Other signed-in anglers see aggregate results only. Deleting a local trip does not withdraw the contribution. You can withdraw it later under Profile → My activity contributions. Erasing your account removes all your contributions.
+
+A public card is created after you confirm its preview. Anyone with the link can see your display name, species and catch month, plus any selected day, water, reviewed length or photo stripped of metadata. The card stores the confirmed snapshot. Revoke a link under Profile → My public cards. Account erasure revokes all links. Recipients can keep copies they saved before revocation.

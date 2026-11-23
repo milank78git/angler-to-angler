@@ -163,6 +163,13 @@ export async function tripScreen({ view, nav, pack }) {
     share.textContent = t('Sdílet úlovek', 'Share catch');
     share.onclick = () => nav.open('shareCard', { tripId: id, catchId: c.id });
     article.append(share);
+    const publicCard = document.createElement('button');
+    publicCard.type = 'button';
+    publicCard.className = 'secondary';
+    publicCard.dataset.publicCatch = c.id;
+    publicCard.textContent = t('Veřejná karta úlovku', 'Public catch card');
+    publicCard.onclick = () => nav.open('publicCardEditor', { tripId: id, catchId: c.id });
+    article.append(publicCard);
     addVerificationAction(article, c, trip, view, nav);
     if (c.hasPhoto) {
       const nominate = document.createElement('button');
