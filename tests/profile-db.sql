@@ -31,4 +31,6 @@ do $$begin if exists(select from angler_private.acceptances) or exists(select fr
 \ir profile-card-db.sql
 \ir group-tips-db.sql
 \ir discussions-db.sql
+\ir messages-db.sql
+\ir forum-replies-db.sql
 rollback;

@@ -182,9 +182,16 @@ public final class FishingActivity extends Activity {
         case "directory":
         case "water_discussion":
         case "discussion_post":
+        case "discussion_reply":
         case "discussion_withdraw":
         case "discussion_helpful":
         case "discussion_report":
+        case "message_inbox":
+        case "message_history":
+        case "message_send":
+        case "message_block":
+        case "message_report":
+        case "message_react":
         case "groups":
         case "group_tip_post":
         case "save_card":

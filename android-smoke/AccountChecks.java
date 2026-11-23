@@ -20,6 +20,7 @@ import org.json.JSONObject;
  */
 final class AccountChecks {
   private static final String ID = "11111111-1111-4111-8111-111111111111";
+  private final MessageChecks messages = new MessageChecks();
   private final DiscussionChecks discussions = new DiscussionChecks();
   private final Runner app;
   private final boolean cs;
@@ -232,8 +233,22 @@ final class AccountChecks {
                               submittedCatch = null;
                               response = "{}";
                               break;
+                            case "/rest/v1/rpc/angler_message_inbox":
+                            case "/rest/v1/rpc/angler_message_history":
+                            case "/rest/v1/rpc/angler_message_send":
+                            case "/rest/v1/rpc/angler_message_report":
+                            case "/rest/v1/rpc/angler_message_react":
+                            case "/rest/v1/rpc/angler_message_block":
+                              response =
+                                  messages
+                                      .response(
+                                          u.getPath().substring("/rest/v1/rpc/angler_".length()),
+                                          body)
+                                      .toString();
+                              break;
                             case "/rest/v1/rpc/angler_water_discussion":
                             case "/rest/v1/rpc/angler_discussion_post":
+                            case "/rest/v1/rpc/angler_discussion_reply":
                             case "/rest/v1/rpc/angler_discussion_withdraw":
                             case "/rest/v1/rpc/angler_discussion_helpful":
                             case "/rest/v1/rpc/angler_discussion_report":

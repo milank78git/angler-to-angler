@@ -11,8 +11,8 @@ final class DiscussionChecks {
   private static final String QUESTION = "Which bank <today> & why?";
   private static final String ANSWER = "The west bank.";
   private final String neighbor = "ccd0a1e3-c131-4297-b3a9-5f6b87e0512a";
-  private JSONObject question, answer;
-  private boolean helpful, reported;
+  private JSONObject question, answer, followup;
+  private boolean helpful, reported, answerHasReplies;
 
   private JSONObject card(String id, String text, boolean mine) throws Exception {
     return new JSONObject()
@@ -29,20 +29,45 @@ final class DiscussionChecks {
       case "water_discussion":
         boolean thread = !body.isNull("question_id");
         JSONArray items = new JSONArray();
-        if (thread) {
+        JSONObject foreign =
+            card(MessageChecks.TOPIC, MessageChecks.TITLE, false).put("replyCount", 0);
+        JSONObject root = question;
+        if (thread && MessageChecks.TOPIC.equals(body.getString("question_id"))) {
+          root = foreign;
+        } else if (thread) {
           if (!question.getString("id").equals(body.getString("question_id")))
             throw new IOException("Wrong thread");
-          if (answer != null) items.put(answer);
+          root.put("canWithdraw", false);
+          if (followup != null) items.put(followup);
+          if (answer != null) items.put(answer.put("canWithdraw", !answerHasReplies));
           items.put(
               card(neighbor, "I fished the bend.", false)
                   .put("tripDay", "2026-05-10")
                   .put("helpful", helpful)
                   .put("reported", reported));
-        } else if (question != null) items.put(question);
+        } else {
+          if (question != null) items.put(question);
+          items.put(foreign);
+        }
         return new JSONObject()
-            .put("question", thread ? question : JSONObject.NULL)
+            .put("question", thread ? root : JSONObject.NULL)
             .put("items", items)
             .put("next", JSONObject.NULL);
+      case "discussion_reply":
+        if (!question.getString("id").equals(body.getString("question_id"))
+            || !answer.getString("id").equals(body.getString("reply_to_id")))
+          throw new IOException("Wrong reply target");
+        answerHasReplies = true;
+        followup =
+            card(body.getString("request_id"), body.getString("message"), true)
+                .put("canWithdraw", true)
+                .put(
+                    "replyTo",
+                    new JSONObject()
+                        .put("id", answer.getString("id"))
+                        .put("author", "River")
+                        .put("excerpt", ANSWER));
+        return new JSONObject().put("id", body.getString("request_id"));
       case "discussion_post":
         if (body.length() != 5) throw new IOException("Unexpected post fields");
         String id = body.getString("request_id");
@@ -74,10 +99,9 @@ final class DiscussionChecks {
         reported = true;
         break;
       case "discussion_withdraw":
-        if (!question.getString("id").equals(body.getString("post_id")))
+        if (followup == null || !followup.getString("id").equals(body.getString("post_id")))
           throw new IOException("Wrong withdrawal");
-        question = null;
-        answer = null;
+        followup = null;
         break;
       default:
         throw new IOException("Unexpected discussion operation");
@@ -86,7 +110,10 @@ final class DiscussionChecks {
   }
 
   private static void click(Runner app, String selector) throws Exception {
-    app.js("document.querySelector(" + JSONObject.quote(selector) + ").click()");
+    String target = "document.querySelector(" + JSONObject.quote(selector) + ")";
+    app.waitFor(
+        "!!" + target + " && !" + target + ".disabled && " + target + ".getClientRects().length>0");
+    app.js(target + ".click()");
   }
 
   private static void postPreview(Runner app) throws Exception {
@@ -131,20 +158,41 @@ final class DiscussionChecks {
     app.waitFor(
         "document.querySelector('#discussion-items .discussion-body')?.textContent==="
             + JSONObject.quote(ANSWER));
-    click(app, "#discussion-items article:last-child .actions button:last-child");
+    click(app, "#discussion-items article:last-child .mark-helpful");
     app.waitFor("!!document.querySelector('.discussion-helpful')");
-    click(app, "#discussion-items article:last-child .actions button");
+    click(app, "#discussion-items article:last-child .report-post");
     app.waitFor("document.querySelector('#confirmation').open");
     click(app, "#confirmation-accept");
     app.waitFor("!!document.querySelector('#discussion-items article:last-child button:disabled')");
+    app.waitFor(
+        "!!document.querySelector('#discussion-root .withdrawal-locked') &&"
+            + " !document.querySelector('#discussion-root .danger')");
+    click(app, "#discussion-items article:first-child .reply-to-post");
+    app.waitFor(
+        "document.querySelector('blockquote')?.textContent.includes("
+            + JSONObject.quote(ANSWER)
+            + ") && !!document.querySelector('#discussion-text')");
+    app.js("document.querySelector('#discussion-text').value='Following up on that answer.'");
+    postPreview(app);
+    click(app, "#confirmation-accept");
+    app.waitFor(
+        "document.querySelector('#discussion-items article:first-child"
+            + " blockquote')?.textContent.includes("
+            + JSONObject.quote(ANSWER)
+            + ") && !!document.querySelector('#discussion-items article:nth-child(2)"
+            + " .withdrawal-locked')");
     app.capture("water-discussion");
-    click(app, "#discussion-root .danger");
+    click(app, "#discussion-items article:first-child .danger");
     app.waitFor("document.querySelector('#confirmation').open");
     click(app, "#confirmation-accept");
     app.waitFor(
         "document.querySelector('#discussion-tools')?.hidden===false &&"
-            + " document.querySelector('#discussion-items').childElementCount===0");
+            + " document.querySelector('#discussion-items').childElementCount===2 &&"
+            + " !document.querySelector('#discussion-items article:first-child blockquote')");
     click(app, "#back");
-    app.waitFor("!!document.querySelector('#open-rules')");
+    app.waitFor(
+        "document.querySelectorAll('#discussion-items article').length===2 &&"
+            + " !!document.querySelector('#discussion-items article:last-child button')");
+    MessageChecks.run(app);
   }
 }

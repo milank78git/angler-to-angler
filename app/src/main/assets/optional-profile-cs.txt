@@ -1,4 +1,4 @@
-Účet a volitelné online funkce · pilot 0.8.0
+Účet a volitelné online funkce · pilot 0.9.0
 
 Při registraci e-mailem si volíš heslo a jazyk zpráv vychází z jazyka aplikace. Ověření e-mailu a obnova hesla používají jednorázový odkaz. Pro další odemknutí může zabezpečený telefon uchovat zašifrované oprávnění k účtu. PIN a biometrické údaje ověřuje Android. Odhlášením se toto oprávnění v telefonu smaže.
 
@@ -8,4 +8,6 @@ Fotku každého úlovku posíláš ke kontrole samostatně. Kontrolor obdrží z
 
 Když pošleš tip z výpravy do party, její současní členové uvidí tvou přezdívku, čas odeslání a přesný text z náhledu. Tvé tipy se smažou při odchodu z party, rozpuštění party nebo smazání účtu. Smazání výpravy v deníku odstraní jen místní kopii.
 
-Dotazy a odpovědi u revíru vidí ověření rybáři v pilotu. Zveřejněním sdílíš přezdívku, text, čas zveřejnění a případné datum výpravy u odpovědi. Vlastní příspěvek můžeš stáhnout. Stažením dotazu se odstraní i jeho odpovědi. Hlášení dostává soukromě správce pilotu. Smazáním účtu se odstraní tvé příspěvky a hlášení.
+Dotazy a odpovědi u revíru vidí ověření rybáři v pilotu. Zveřejněním sdílíš přezdívku, text, čas zveřejnění a případné datum výpravy u odpovědi. Vlastní text můžeš stáhnout, dokud na něj nepřijde veřejná textová odpověď. Při zásahu správce nebo smazání účtu zůstanou odpovědi ostatních ve vlákně. Hlášení dostává soukromě správce pilotu. Smazáním účtu se odstraní tvé příspěvky a hlášení.
+
+U dotazu můžeš napsat jeho autorovi soukromě. Text, přezdívku a čas odeslání uvidíte v aplikaci vy dva. Blokace zastaví nové zprávy mezi vašimi účty i u jiných revírů. Historie zůstane čitelná. Příjemce může konkrétní zprávu předat správci ke kontrole. Smazání účtu kteréhokoli účastníka odstraní společný rozhovor. Ke zprávě může každý z vás přidat jednu emoji reakci, změnit ji nebo odebrat. Při blokaci lze vlastní reakci stále odebrat.

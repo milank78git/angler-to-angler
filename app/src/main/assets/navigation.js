@@ -54,6 +54,13 @@ export class Navigation {
     this.show();
   }
 
+  /** Replace the question-based destination with the conversation returned by the server. */
+  backToMessage(threadId) {
+    const stack = this.stacks.get(this.area);
+    stack.splice(-2, 2, { page: 'messageThread', threadId });
+    this.show();
+  }
+
   show() {
     if (this.current) {
       this.current.route.scroll = this.getScroll();

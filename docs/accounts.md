@@ -63,4 +63,19 @@ The profile counts **Photo-documented catches**. A ruler reading and an estimate
 
 Apply the `water_discussions` migration. Each enabled water has a stable country-prefixed catalog ID and local time zone. Signed-in anglers with current verified profiles can read the feed. A question and its replies belong to one water. Posts expose the display name, text, publication time and an optional trip date for replies. Only the question author can mark another angler's reply as helpful.
 
-The pilot operator reviews flags in `angler_discussions.reports` joined to `angler_discussions.posts` on `posts.id = reports.post_id`. The operator can dismiss a flag by deleting the reviewed report, or withdraw the reported content using the database operator connection and `select angler_discussions.remove_content($1, $2, null)` with its water key and post UUID. Mobile users have no access to that operator function. Withdrawal clears the text, trip date, flags and replies. The service retains the withdrawn post’s identifier and ownership until account erasure to prevent an old request from republishing it. Include owned posts and submitted reports when fulfilling an account export.
+The pilot operator reviews flags in `angler_discussions.reports` joined to `angler_discussions.posts` on `posts.id = reports.post_id`. The operator can dismiss a flag by deleting the reviewed report, or withdraw the reported content using the database operator connection and `select angler_discussions.remove_content($1, $2, null)` with its water key and post UUID. Mobile users have no access to that operator function. Apply the `forum_reply_context` migration to protect the topic and its addressed replies. A participant may withdraw only their own text that has never received a public text reply. An emoji or private message does not lock a forum post. Operator removal clears only the selected text, trip date and flags. Linked replies survive and their quotation becomes a removal notice. Profile erasure removes that author’s text and identity while other participants retain their contributions. The service retains the withdrawn post’s identifier and ownership until account erasure to prevent an old request from republishing it. Include owned posts and submitted reports when fulfilling an account export.
+
+## Private messages
+
+Apply the `private_messages` migration after water discussions. The first message is addressed to the author of a visible question. Verified participants can continue from their inbox after the original question is withdrawn. The service resolves the recipient and enforces one conversation per pair across all waters. A block by either party stops new messages and leaves the existing history readable. Unblocking removes only the caller's own block.
+
+Apply the `message_reactions` migration to enable one optional emoji per participant per message. Each participant can change only their own reaction. During a block they can still remove it. Both reactions are visible only in that conversation and are erased with it. Include reactions with message exports.
+
+The pilot operator can review reported messages with the following query. A report identifies only the selected incoming message. Use the position to locate the reported entry when handling the request. The mobile roles cannot query these tables. Include the user's conversations when fulfilling an account access request. Deleting either participant's account removes the thread, its messages and report flags.
+
+```sql
+select position, body, posted_at, reported_at
+from angler_messages.entries
+where reported_at is not null
+order by reported_at;
+```
