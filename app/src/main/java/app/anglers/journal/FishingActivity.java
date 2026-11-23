@@ -229,7 +229,12 @@ public final class FishingActivity extends Activity {
 
     /** Keep native navigation glyphs legible beside the selected WebView palette. */
     @JavascriptInterface
-    public void systemBars(boolean dark) {
+    public void systemBars(boolean dark, boolean userSelected) {
+      android.content.SharedPreferences.Editor appearance =
+          getSharedPreferences("appearance", MODE_PRIVATE).edit();
+      if (userSelected) appearance.putBoolean("dark", dark);
+      else appearance.remove("dark");
+      appearance.apply();
       runOnUiThread(
           () -> {
             int navigationColor = dark ? 0xff1b2e2a : 0xfffffef8;

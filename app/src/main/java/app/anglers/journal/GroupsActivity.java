@@ -1,7 +1,6 @@
 package app.anglers.journal;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
@@ -20,7 +19,7 @@ public final class GroupsActivity extends Activity {
   private IdentityService service;
   private String subject;
   private boolean cs, busy;
-  private AlertDialog dialog;
+  private AccountLayout.Prompt dialog;
   private EditText dialogInput;
 
   private String t(String cz, String en) {
@@ -126,119 +125,104 @@ public final class GroupsActivity extends Activity {
   /** Keep the draft and request ID through recoverable network failures. */
   private void editor(boolean create) {
     String id = UUID.randomUUID().toString();
-    EditText input = new EditText(this);
-    input.setSingleLine();
-    input.setInputType(InputType.TYPE_CLASS_TEXT);
-    input.setHint(
-        create
-            ? t("Název party (2–60 znaků)", "Group name (2–60 characters)")
-            : t("Kód pozvánky", "Invitation code"));
     String action =
         create ? t("Založit partu", "Create a group") : t("Přijmout pozvánku", "Join with a code");
-    AlertDialog form =
-        new AlertDialog.Builder(this)
-            .setTitle(action)
-            .setView(input)
-            .setNegativeButton(android.R.string.cancel, null)
-            .setPositiveButton(action, null)
-            .create();
-    dialog = form;
+    dialog = ui.prompt(action);
+    EditText input =
+        dialog.input(
+            create
+                ? t("Název party (2–60 znaků)", "Group name (2–60 characters)")
+                : t("Kód pozvánky", "Invitation code"),
+            InputType.TYPE_CLASS_TEXT);
     dialogInput = input;
-    form.show();
-    form.getButton(AlertDialog.BUTTON_POSITIVE)
-        .setOnClickListener(
-            v -> {
-              if (busy) return;
-              String value = input.getText().toString().trim();
-              if (create
-                  && (value.codePointCount(0, value.length()) < 2
-                      || value.codePointCount(0, value.length()) > 60)) {
-                input.setError(input.getHint());
-                return;
-              }
-              if (!create && !value.matches("(?i)[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}")) {
-                input.setError(
-                    t("Vlož celý kód z pozvánky.", "Paste the complete invitation code."));
-                return;
-              }
-              JSONObject args =
-                  create ? args("group_id", id, "group_name", value) : args("invite_code", value);
-              request(
-                  create ? "group_create" : "group_join",
-                  args,
-                  result -> {
-                    closeDialog();
-                    refresh();
-                  });
-            });
+    dialog.submit(
+        action,
+        () -> {
+          if (busy) return;
+          String value = input.getText().toString().trim();
+          if (create
+              && (value.codePointCount(0, value.length()) < 2
+                  || value.codePointCount(0, value.length()) > 60)) {
+            input.setError(input.getHint());
+            return;
+          }
+          if (!create && !value.matches("(?i)[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}")) {
+            input.setError(t("Vlož celý kód z pozvánky.", "Paste the complete invitation code."));
+            return;
+          }
+          JSONObject args =
+              create ? args("group_id", id, "group_name", value) : args("invite_code", value);
+          request(
+              create ? "group_create" : "group_join",
+              args,
+              result -> {
+                closeDialog();
+                refresh();
+              });
+        });
+    dialog.action(t("Zrušit", "Cancel"), AccountLayout.Action.SECONDARY, null);
+    dialog.show();
   }
 
   private void actions(String id, String name, boolean owner) {
     String leave =
         owner ? t("Rozpustit partu", "Dissolve group") : t("Opustit partu", "Leave group");
-    String[] options =
+    dialog = ui.prompt(name);
+    if (owner)
+      dialog.choice(
+          t("Vystavit pozvánku", "Issue invitation"),
+          AccountLayout.Action.PRIMARY,
+          () ->
+              request(
+                  "group_invite",
+                  args("group_id", id),
+                  result -> invitation(result.getString("code"))));
+    dialog.choice(leave, AccountLayout.Action.DANGER, () -> confirmLeave(id, name, owner, leave));
+    dialog.action(t("Zavřít", "Close"), AccountLayout.Action.SECONDARY, null);
+    dialog.show();
+  }
+
+  private void confirmLeave(String id, String name, boolean owner, String leave) {
+    dialog = ui.prompt(leave + "?");
+    dialog.description(
         owner
-            ? new String[] {t("Vystavit pozvánku", "Issue invitation"), leave}
-            : new String[] {leave};
-    dialog =
-        new AlertDialog.Builder(this)
-            .setTitle(name)
-            .setItems(
-                options,
-                (d, i) -> {
-                  if (owner && i == 0) {
-                    request(
-                        "group_invite",
-                        args("group_id", id),
-                        result -> invitation(result.getString("code")));
-                  } else {
-                    dialog =
-                        new AlertDialog.Builder(this)
-                            .setTitle(leave + "?")
-                            .setMessage(
-                                owner
-                                    ? t(
-                                        "Parta se smaže všem členům a její pozvánka přestane"
-                                            + " platit.",
-                                        "All members will lose this group and its invitation will"
-                                            + " stop working.")
-                                    : name)
-                            .setNegativeButton(android.R.string.cancel, null)
-                            .setPositiveButton(
-                                leave,
-                                (confirm, which) ->
-                                    request(
-                                        owner ? "group_dissolve" : "group_leave",
-                                        args("group_id", id),
-                                        result -> refresh()))
-                            .show();
-                  }
-                })
-            .setNegativeButton(android.R.string.cancel, null)
-            .show();
+            ? t(
+                "Parta „" + name + "“ se smaže všem členům a její pozvánka přestane platit.",
+                "All members will lose “" + name + "” and its invitation will stop working.")
+            : t(
+                "Tvoje členství v partě „" + name + "“ skončí.",
+                "Your membership in “" + name + "” will end."));
+    dialog.action(
+        leave,
+        AccountLayout.Action.DANGER,
+        () ->
+            request(
+                owner ? "group_dissolve" : "group_leave",
+                args("group_id", id),
+                result -> refresh()));
+    dialog.action(t("Zrušit", "Cancel"), AccountLayout.Action.SECONDARY, null);
+    dialog.show();
   }
 
   private void invitation(String code) {
-    dialog =
-        new AlertDialog.Builder(this)
-            .setTitle(t("Pozvánka pro jednoho rybáře", "Invite one angler"))
-            .setMessage(
-                code
-                    + "\n\n"
-                    + t(
-                        "Kód platí 24 hodin. Nový kód nahradí předchozí.",
-                        "The code lasts 24 hours. A new code replaces the previous one."))
-            .setPositiveButton(
-                t("Sdílet kód", "Share code"),
-                (d, i) ->
-                    startActivity(
-                        Intent.createChooser(
-                            new Intent(Intent.ACTION_SEND)
-                                .setType("text/plain")
-                                .putExtra(Intent.EXTRA_TEXT, code),
-                            null)))
-            .setNegativeButton(android.R.string.cancel, null)
-            .show();
+    dialog = ui.prompt(t("Pozvánka pro jednoho rybáře", "Invite one angler"));
+    dialog.code(code);
+    dialog.description(
+        t(
+            "Kód platí 24 hodin. Nový kód nahradí předchozí.",
+            "The code lasts 24 hours. A new code replaces the previous one."));
+    dialog.action(
+        t("Sdílet kód", "Share code"),
+        AccountLayout.Action.PRIMARY,
+        () ->
+            startActivity(
+                Intent.createChooser(
+                    new Intent(Intent.ACTION_SEND)
+                        .setType("text/plain")
+                        .putExtra(Intent.EXTRA_TEXT, code),
+                    null)));
+    dialog.action(t("Zavřít", "Close"), AccountLayout.Action.SECONDARY, null);
+    dialog.show();
   }
 
   private void closeDialog() {

@@ -2,12 +2,12 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { Navigation } = require('../app/src/main/assets/navigation.js');
 
-test('dirty edits require confirmation, and a pending write always consumes Back', () => {
+test('dirty edits require confirmation, and a pending write always consumes Back', async () => {
   let discard = false,
     prompts = 0;
   const nav = new Navigation(
     () => {},
-    () => {
+    async () => {
       prompts++;
       return discard;
     },
@@ -18,6 +18,7 @@ test('dirty edits require confirmation, and a pending write always consumes Back
   const form = nav.current;
   form.dirty = true;
   assert.equal(nav.back(), true);
+  await Promise.resolve();
   assert.equal(prompts, 1);
   assert.equal(nav.current, form);
   form.saving = true;
@@ -28,6 +29,7 @@ test('dirty edits require confirmation, and a pending write always consumes Back
   assert.equal(nav.current, form);
   form.saving = false;
   nav.open('rules');
+  await Promise.resolve();
   nav.open('trips');
   assert.equal(nav.current.route.page, 'trips');
   assert.equal(form.active(), false);

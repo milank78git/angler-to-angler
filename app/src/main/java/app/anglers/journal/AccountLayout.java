@@ -1,6 +1,7 @@
 package app.anglers.journal;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -22,6 +23,7 @@ final class AccountLayout {
   enum Action {
     PRIMARY,
     SECONDARY,
+    DANGER,
     LINK
   }
 
@@ -34,9 +36,13 @@ final class AccountLayout {
 
   AccountLayout(Activity activity) {
     this.activity = activity;
-    dark =
+    boolean systemDark =
         (activity.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK)
             == Configuration.UI_MODE_NIGHT_YES;
+    dark =
+        activity
+            .getSharedPreferences("appearance", Activity.MODE_PRIVATE)
+            .getBoolean("dark", systemDark);
     paper = colour("#F5F6EF", "#101D1C");
     surface = colour("#FFFEF8", "#1B2E2A");
     ink = colour("#142F2B", "#EEF4E9");
@@ -191,11 +197,17 @@ final class AccountLayout {
     b.setMinHeight(dp(kind == Action.LINK ? 48 : 52));
     b.setPadding(dp(16), dp(8), dp(16), dp(8));
     int fill = kind == Action.PRIMARY ? primary : kind == Action.SECONDARY ? surface : paper;
+    int foreground = kind == Action.PRIMARY ? onPrimary : primary;
+    int outline = kind == Action.SECONDARY ? border : 0;
+    if (kind == Action.DANGER) {
+      fill = colour("#FFF1E8", "#492D25");
+      foreground = colour("#8F3526", "#FFD6CC");
+      outline = colour("#B77D6D", "#A87C68");
+    }
     b.setTextColor(
         new ColorStateList(
-            new int[][] {{-android.R.attr.state_enabled}, {}},
-            new int[] {muted, kind == Action.PRIMARY ? onPrimary : primary}));
-    Drawable background = shape(fill, kind == Action.SECONDARY ? border : 0, 14);
+            new int[][] {{-android.R.attr.state_enabled}, {}}, new int[] {muted, foreground}));
+    Drawable background = shape(fill, outline, 14);
     android.graphics.drawable.StateListDrawable states =
         new android.graphics.drawable.StateListDrawable();
     states.addState(
@@ -209,6 +221,10 @@ final class AccountLayout {
   }
 
   EditText field(String hint, int type) {
+    return field(form, hint, type);
+  }
+
+  private EditText field(LinearLayout parent, String hint, int type) {
     EditText f = new EditText(activity);
     f.setSingleLine();
     f.setInputType(type);
@@ -223,8 +239,105 @@ final class AccountLayout {
     state.addState(new int[] {android.R.attr.state_focused}, shape(surface, primary, 14));
     state.addState(new int[] {}, shape(surface, border, 14));
     f.setBackground(state);
-    add(form, f, 12);
+    add(parent, f, 12);
     return f;
+  }
+
+  /** A journal-styled modal with scrollable content and actions that stay within reach. */
+  final class Prompt extends Dialog {
+    private final LinearLayout body;
+    private final LinearLayout actions;
+
+    Prompt(String title) {
+      super(activity);
+      requestWindowFeature(Window.FEATURE_NO_TITLE);
+      setTitle(title);
+      LinearLayout panel = new LinearLayout(activity);
+      panel.setOrientation(LinearLayout.VERTICAL);
+      panel.setPadding(dp(20), dp(20), dp(20), dp(16));
+      panel.setBackground(shape(surface, colour("#CFDBCE", "#3B5148"), 18));
+      panel.setFocusableInTouchMode(true);
+      ScrollView scroll = new ScrollView(activity);
+      panel.addView(scroll, new LinearLayout.LayoutParams(-1, -2, 1));
+      body = new LinearLayout(activity);
+      body.setOrientation(LinearLayout.VERTICAL);
+      scroll.addView(body);
+      LinearLayout header = new LinearLayout(activity);
+      header.setGravity(Gravity.CENTER_VERTICAL);
+      body.addView(header);
+      ImageView mark = new ImageView(activity);
+      mark.setImageResource(R.drawable.fish);
+      mark.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+      mark.setBackground(shape(0xff154b43, 0, 10));
+      mark.setClipToOutline(true);
+      header.addView(mark, new LinearLayout.LayoutParams(dp(36), dp(36)));
+      TextView heading = text(title, 23, ink, Typeface.create("serif", Typeface.BOLD));
+      if (android.os.Build.VERSION.SDK_INT >= 28) heading.setAccessibilityHeading(true);
+      LinearLayout.LayoutParams label = new LinearLayout.LayoutParams(0, -2, 1);
+      label.setMarginStart(dp(12));
+      header.addView(heading, label);
+      actions = new LinearLayout(activity);
+      actions.setOrientation(LinearLayout.VERTICAL);
+      add(panel, actions, 4);
+      setContentView(panel);
+      Window window = getWindow();
+      window.setBackgroundDrawableResource(android.R.color.transparent);
+      int width =
+          Math.min(dp(448), dp(activity.getResources().getConfiguration().screenWidthDp - 32));
+      window.setLayout(width, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+      window.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+      setCanceledOnTouchOutside(true);
+    }
+
+    void description(String value) {
+      TextView paragraph = text(value, 16, ink, Typeface.DEFAULT);
+      paragraph.setLineSpacing(dp(3), 1);
+      add(body, paragraph, 14);
+    }
+
+    void code(String value) {
+      TextView token = text(value, 17, primary, Typeface.MONOSPACE);
+      token.setTextIsSelectable(true);
+      token.setBackground(shape(colour("#DCEAE0", "#29463B"), 0, 12));
+      token.setPadding(dp(14), dp(12), dp(14), dp(12));
+      add(body, token, 14);
+    }
+
+    EditText input(String hint, int type) {
+      return field(body, hint, type);
+    }
+
+    void choice(String label, Action kind, Runnable next) {
+      button(
+          body,
+          label,
+          kind,
+          () -> {
+            dismiss();
+            next.run();
+          });
+    }
+
+    /** The editor keeps the dialog open until validation and the server request succeed. */
+    void submit(String label, Runnable submit) {
+      button(actions, label, Action.PRIMARY, submit).setId(android.R.id.button1);
+    }
+
+    void action(String label, Action kind, Runnable next) {
+      button(
+              actions,
+              label,
+              kind,
+              () -> {
+                dismiss();
+                if (next != null) next.run();
+              })
+          .setId(kind == Action.SECONDARY ? android.R.id.button2 : android.R.id.button1);
+    }
+  }
+
+  Prompt prompt(String title) {
+    return new Prompt(title);
   }
 
   CheckBox check(String title) {
