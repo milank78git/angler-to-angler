@@ -1,6 +1,6 @@
 # Angler to Angler
 
-An offline-first Android field journal for anglers. The Czech launcher name is **Rybáři sobě**. Release 0.1.0 is a privately stored journal and a small, sourced pilot catalog. Use the search, water detail and season selector without an account. Open **My journal** to log a trip on any named water.
+An offline-first Android field journal for anglers. The Czech launcher name is **Rybáři sobě**. Release 0.2.0 is a privately stored journal and a small, sourced pilot catalog. Use the search, water detail and season selector without an account. Open **My journal** to log a trip on any named water.
 
 ## Try the pilot
 
@@ -39,3 +39,14 @@ adb install -r build/standalone/angler-journal-debug.apk
 Open the project in Android Studio with Gradle 8.9 for IDE development. The standalone build and CI do not require Gradle or application dependencies.
 
 `bash scripts/android-smoke.sh` runs an instrumentation test on a connected **test device**. It clears the application's data on that device, selects a water, checks a season, saves two catches, restarts the activity and verifies the persisted catch list. CI runs this on a fresh emulator. The storage regression suite also checks retrying a save, deleting associated photos and rejecting an orphaned catch.
+
+
+## Interface and preview build
+
+The phone has three primary destinations: Waters, Seasons and Journal. Each remembers its place. At 600 CSS pixels the navigation moves to a side rail. Contextual buttons create trips and catches. The field form keeps species, length and photo immediately visible and groups optional fishing and location details in expandable sections. Favorites, appearance and the journal work offline. The interface follows the system day/night preference until the user chooses a theme.
+
+Design references: [Android adaptive navigation](https://developer.android.com/design/ui/mobile/guides/layout-and-content/layout-and-nav-patterns), [Material 3 Expressive research](https://design.google/library/expressive-material-design-google-research), [Android touch targets](https://support.google.com/accessibility/android/answer/7101858), [Apple tab bars](https://developer.apple.com/design/human-interface-guidelines/tab-bars) and [WCAG 2.2 contrast](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html).
+
+The two resized offline photographs are credited in the app and in the regional catalog, with links to each original and license. Berounka is by Aktron / Wikimedia Commons, CC BY-SA 3.0. Sázava is by Huhulenik / Wikimedia Commons, CC BY 3.0. The interface includes selected Lucide icons. Their license travels with the APK in `icon-license.txt`.
+
+`bash scripts/build-debug.sh --preview` builds an independently installable sideload preview in `build/preview`. CI debug builds use ephemeral signing keys. The preview uses a separate Android application ID, so testers can keep the original pilot and its private journal on the same device. The standard build retains its original application ID, database schema and storage origin.

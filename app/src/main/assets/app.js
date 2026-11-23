@@ -10,16 +10,6 @@ const esc = (s) =>
     (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c],
   );
 const by = (id) => document.getElementById(id);
-let pack,
-  rivers,
-  route = { page: 'waters' },
-  draft = false,
-  noticeTimer,
-  viewVersion = 0;
-let disposeView = () => {};
-const button = (id, label, cls = '') =>
-  '<button type="button" class="' + cls + '" id="' + id + '">' + esc(label) + '</button>';
-const link = (url, label) => '<a href="' + esc(url) + '">' + esc(label) + '</a>';
 const options = (pairs, sel) =>
   pairs
     .map(
@@ -42,307 +32,148 @@ function toast(message) {
   clearTimeout(noticeTimer);
   noticeTimer = setTimeout(() => (by('notice').hidden = true), 4600);
 }
+let pack,
+  rivers,
+  draft = false,
+  noticeTimer,
+  viewVersion = 0,
+  disposeView = () => {};
+let area = 'waters';
+const stacks = Object.fromEntries(['waters', 'rules', 'trips'].map((page) => [page, [{ page }]]));
+let route = stacks.waters[0];
+const icon = (name) =>
+  `<svg class="icon" aria-hidden="true" focusable="false"><use href="icons.svg#${name}"></use></svg>`;
+const button = (id, label, cls = '', glyph = '') =>
+  `<button id="${id}" type="button" class="${cls}">${glyph ? icon(glyph) : ''}<span>${esc(label)}</span></button>`;
+const link = (url, label) => `<a href="${esc(url)}">${esc(label)}</a>`;
+const sectionTitle = (glyph, label) => `<h2 class="section-title">${icon(glyph)}${esc(label)}</h2>`;
+const emptyState = (glyph, title, body = '') =>
+  `<div class="empty">${icon(glyph)}<strong>${esc(title)}</strong>${body ? `<p>${esc(body)}</p>` : ''}</div>`;
+const back = (label) => button('back', label, 'back', 'arrow-left');
+function bindBack() {
+  bind('back', handleBack);
+}
 function mayLeave() {
   return !draft || confirm(t('Zahodit neuložené změny?', 'Discard unsaved changes?'));
 }
-function go(page, props = {}) {
-  if (!mayLeave()) return;
+/** Each top-level destination owns its history, including search filters and scroll position. */
+function remember() {
+  route.scroll = window.scrollY;
   disposeView();
   disposeView = () => {};
   draft = false;
-  route = { page, ...props };
-  viewVersion++;
-  const library = ['waters', 'water'].includes(page);
-  by('tabwaters').className = library ? 'active' : '';
-  by('tabtrips').className = library ? '' : 'active';
-  by('tabwaters').setAttribute('aria-current', library ? 'page' : 'false');
-  by('tabtrips').setAttribute('aria-current', library ? 'false' : 'page');
-  const render = {
+}
+function go(page, props = {}) {
+  if (!mayLeave()) return;
+  remember();
+  if (Object.prototype.hasOwnProperty.call(stacks, page)) {
+    if (area === page) stacks[area] = [{ page }];
+    area = page;
+  } else {
+    stacks[area].push({ page, ...props });
+  }
+  paint();
+}
+function showSavedTrip(id) {
+  remember();
+  if (area !== 'trips' && route.page === 'newTrip') stacks[area].pop();
+  area = 'trips';
+  stacks.trips = [{ page: 'trips' }, { page: 'trip', id }];
+  paint();
+}
+function handleBack() {
+  if (stacks[area].length === 1 && area === 'waters') return false;
+  if (!mayLeave()) return true;
+  remember();
+  if (stacks[area].length > 1) stacks[area].pop();
+  else area = 'waters';
+  paint();
+  return true;
+}
+async function paint() {
+  route = stacks[area][stacks[area].length - 1];
+  const version = ++viewVersion;
+  const editing = route.page === 'newTrip' || route.page === 'newCatch';
+  tabs.hidden = editing;
+  document.body.classList.toggle('editing', editing);
+  Object.keys(stacks).forEach((key) => {
+    const el = by('tab' + key);
+    el.setAttribute('aria-current', area === key ? 'page' : 'false');
+  });
+  screen.dataset.page = route.page;
+  const views = {
     waters: listWaters,
     water: waterScreen,
+    rules: rulesScreen,
+    waterRules: rulesScreen,
     trips: listTrips,
     trip: tripScreen,
     newTrip: tripForm,
     newCatch: catchForm,
   };
-  Promise.resolve()
-    .then(() => render[page]())
-    .catch(() => toast(t('Záznam se nepodařilo načíst.', 'The record could not be loaded.')));
-  window.scrollTo(0, 0);
-}
-function handleBack() {
-  if (route.page === 'waters') return false;
-  const dest = {
-    water: ['waters'],
-    trips: ['waters'],
-    newTrip: route.water ? ['water', { id: route.water }] : ['trips'],
-    trip: ['trips'],
-    newCatch: ['trip', { id: route.id }],
-  }[route.page];
-  if (dest) go(...dest);
-  return true;
-}
-function back(label) {
-  return button('back', '‹  ' + label, 'back');
-}
-function bindBack() {
-  bind('back', handleBack);
-}
-function listWaters() {
-  screen.innerHTML =
-    '<h1>' +
-    t('Revíry', 'Fishing waters') +
-    '</h1><label for="search">' +
-    t('Název, číslo revíru nebo obec', 'Name, water number or town') +
-    '</label><input type="search" id="search" placeholder="Sázava, 401 009…"><p class="meta act">' +
-    esc(loc(pack.label)) +
-    ' · ' +
-    t('podklady uložené v telefonu', 'available offline') +
-    '</p><div id="waters"></div>';
-  const render = () => {
-    const q = Domain.fold(by('search').value);
-    const matches = pack.waters.filter((w) => Domain.fold(w.name + ' ' + w.id + ' ' + w.area).includes(q));
-    by('waters').innerHTML =
-      matches
-        .map(
-          (w) =>
-            '<button class="tile" data-water="' +
-            w.id +
-            '"><span class="meta">' +
-            esc(w.number) +
-            '</span><strong>' +
-            esc(w.name) +
-            '</strong><span>' +
-            esc(w.area) +
-            '</span></button>',
-        )
-        .join('') ||
-      '<p>' +
-        t(
-          'Tento revír v balíčku není. V deníku můžeš zadat vlastní vodu.',
-          'No matching water in this pack. You can enter any water in your journal.',
-        ) +
-        '</p>';
-    by('waters')
-      .querySelectorAll('button')
-      .forEach((b) => (b.onclick = () => go('water', { id: b.dataset.water })));
-  };
-  by('search').oninput = render;
-  render();
-}
-/** Projects coordinates at local latitude using equal horizontal and vertical distance scales. */
-function waterMap(w) {
-  const lines = rivers[w.id],
-    pts = w.bounds.concat([w.danger], w.access ? [w.access.pt] : []);
-  const cos = Math.cos((pts[0][1] * Math.PI) / 180);
-  const xs = pts.map((p) => p[0] * cos),
-    ys = pts.map((p) => p[1]);
-  const cx = (Math.min(...xs) + Math.max(...xs)) / 2,
-    cy = (Math.min(...ys) + Math.max(...ys)) / 2;
-  const scale = Math.min(
-    292 / (Math.max(...xs) - Math.min(...xs)),
-    120 / (Math.max(...ys) - Math.min(...ys)),
-  );
-  const xy = (p) => [(170 + (p[0] * cos - cx) * scale).toFixed(1), (85 - (p[1] - cy) * scale).toFixed(1)];
-  const path = lines
-    .map(
-      (line) =>
-        '<polyline points="' +
-        line.map((p) => xy(p).join(',')).join(' ') +
-        '" fill="none" stroke="#57978d" stroke-width="5" stroke-linejoin="round"/>',
-    )
-    .join('');
-  function marker(p, text, color) {
-    const [x, y] = xy(p);
-    return (
-      '<g transform="translate(' +
-      x +
-      ' ' +
-      y +
-      ')"><circle r="9" fill="' +
-      color +
-      '" stroke="white" stroke-width="1.7"/><text y="3.8" text-anchor="middle" fill="white" font-size="11" font-weight="bold">' +
-      text +
-      '</text></g>'
-    );
+  try {
+    await views[route.page]();
+    if (version !== viewVersion) return;
+    const h = screen.querySelector('h1');
+    if (h) {
+      h.tabIndex = -1;
+      h.focus({ preventScroll: true });
+      document.title = h.textContent + ' · ' + by('brand').textContent;
+    }
+    window.scrollTo(0, route.scroll || 0);
+  } catch (error) {
+    if (version === viewVersion) toast(t('Obrazovku se nepodařilo načíst.', 'Could not open this screen.'));
   }
-  return (
-    '<figure><svg aria-label="' +
-    t('Orientační mapa toku a hranic', 'Overview of river and boundary points') +
-    '" role="img" viewBox="0 0 340 170"><defs><pattern id="grid" width="22" height="22" patternUnits="userSpaceOnUse"><path d="M22 0H0V22" fill="none" stroke="#cbd8cd" stroke-width=".8"/></pattern></defs><rect width="340" height="170" fill="url(#grid)"/>' +
-    path +
-    marker(w.bounds[0], '1', '#294f43') +
-    marker(w.bounds[1], '2', '#294f43') +
-    marker(w.danger, '!', '#9c4736') +
-    (w.access ? marker(w.access.pt, 'A', '#33668c') : '') +
-    '<text x="315" y="21" font-size="12" fill="#476554">↑ N</text></svg><figcaption>' +
-    link('https://www.openstreetmap.org/copyright', '© OpenStreetMap contributors · ODbL') +
-    '</figcaption></figure>'
+}
+function setTheme(mode) {
+  const dark = mode === 'dark';
+  document.documentElement.dataset.theme = mode;
+  by('theme').setAttribute(
+    'aria-label',
+    dark ? t('Zapnout světlý vzhled', 'Use light theme') : t('Zapnout tmavý vzhled', 'Use dark theme'),
   );
-}
-function waterScreen() {
-  const w = pack.waters.find((v) => v.id === route.id);
-  screen.innerHTML =
-    back(t('Revíry', 'Waters')) +
-    '<p class="meta">' +
-    pack.country +
-    ' · ' +
-    w.id +
-    '</p><h1>' +
-    esc(w.name) +
-    '</h1>' +
-    waterMap(w) +
-    '<p class="meta act">1 · ' +
-    esc(loc(w.ends[0])) +
-    '<br>2 · ' +
-    esc(loc(w.ends[1])) +
-    '<br>! · ' +
-    esc(loc(w.restriction)) +
-    '</p>' +
-    (w.access
-      ? '<div class="panel"><h3>A · ' +
-        esc(loc(w.access)) +
-        '</h3><div class="actions">' +
-        button('navigate', t('Navigovat k přístupu', 'Directions to access point')) +
-        '</div>' +
-        link(w.access.source, t('Zdroj přístupového bodu', 'Access point source')) +
-        '</div>'
-      : '<p class="quiet">' +
-        t(
-          'Pro tento revír zatím nemáme ověřený přístupový bod.',
-          'There is no verified access point for this water in the pack.',
-        ) +
-        '</p>') +
-    button('new-trip', t('Zapsat výpravu', 'Log a trip'), 'primary act') +
-    '<h2>' +
-    t('Hájení a míry', 'Seasons and sizes') +
-    '</h2><label for="section">' +
-    t('Úsek', 'Section') +
-    '</label><select id="section">' +
-    options(
-      [
-        ['main', t('Hlavní tok', 'Main river')],
-        ['restricted', loc(w.restriction)],
-        ['other', t('Jiný úsek / přítok', 'Other section / tributary')],
-      ],
-      'main',
-    ) +
-    '</select>' +
-    '<div class="pair"><div><label for="species">' +
-    t('Druh', 'Species') +
-    '</label><select id="species">' +
-    options(
-      Object.entries(pack.species).map(([k, v]) => [k, loc(v)]),
-      Object.keys(pack.species)[0],
-    ) +
-    '</select></div><div><label for="rule-date">' +
-    t('Datum lovu', 'Fishing date') +
-    '</label><input type="date" id="rule-date" value="' +
-    Domain.today(pack.zone) +
-    '"></div></div><div id="status" aria-live="polite"></div><div id="watch"></div><p class="meta act">' +
-    t(
-      'Výběr pravidel pro čtyři druhy. Ověř si také další místní omezení.',
-      'Selected rules for four species. Check other local restrictions as well.',
-    ) +
-    '<br>' +
-    t('Podklady ověřeny', 'Sources checked') +
-    ' ' +
-    pack.revision +
-    ' · ' +
-    t('platnost do', 'valid through') +
-    ' ' +
-    pack.until +
-    '</p><div class="rulesrc">' +
-    link(w.source, t('Karta revíru ČRS', 'Fishery authority')) +
-    link(pack.law, t('Vyhláška · § 13', 'National closed seasons')) +
-    '</div>';
-  bindBack();
-  bind('new-trip', () => go('newTrip', { water: w.id }));
-  if (w.access)
-    bind('navigate', () =>
-      window.Device
-        ? Device.navigate(w.access.pt[1], w.access.pt[0])
-        : toast(t('Navigace je dostupná v aplikaci pro Android.', 'Navigation is available on Android.')),
-    );
-  ['section', 'species', 'rule-date'].forEach((k) => (by(k).onchange = () => ruleResult(w)));
-  ruleResult(w);
-}
-function ruleResult(w) {
-  const section = by('section').value,
-    s = by('species').value,
-    day = by('rule-date').value;
-  const status = Domain.season(pack, s, section, day);
-  const labels = {
-    closed: t('Ryba je hájená', 'Closed season'),
-    outside: t('Mimo uvedenou dobu hájení', 'Outside the listed closed season'),
-    unknown: t('Pro tuto volbu chybí ověřené pravidlo', 'No verified rule for this selection'),
-    prohibited: t('V tomto úseku je lov zakázán', 'Fishing is prohibited in this section'),
-  };
-  const valid = status === 'closed' || status === 'outside';
-  const windowLabel = pack.species[s].window
-    .map((d) =>
-      new Intl.DateTimeFormat(cs ? 'cs-CZ' : 'en-GB', {
-        day: 'numeric',
-        month: 'short',
-        timeZone: 'UTC',
-      }).format(new Date('2000-' + d + 'T12:00Z')),
-    )
-    .join(' – ');
-  by('status').innerHTML =
-    '<div class="panel result ' +
-    status +
-    '"><strong>' +
-    labels[status] +
-    '</strong>' +
-    (valid
-      ? '<p>' +
-        windowLabel +
-        (w.size[s] ? ' · ' + t('nejmenší míra', 'minimum size') + ' ' + w.size[s] + ' cm' : '') +
-        '</p>'
-      : '') +
-    '</div>';
-  const key = pack.id + '/' + w.id + '/' + s;
-  by('watch').innerHTML = '';
-  if (!window.Device || section !== 'main') return;
-  const watching = Device.watching(key),
-    today = Domain.today(pack.zone);
-  if (!watching && (today > pack.until || today < pack.from)) return;
-  by('watch').innerHTML =
-    button(
-      'watch-toggle',
-      watching
-        ? t('Vypnout připomínky', 'Stop reminders')
-        : t('Připomínat změny hájení', 'Remind me of season changes'),
-    ) +
-    '<p class="meta">' +
-    t(
-      'Pro hlavní tok. Telefon připomene také konec platnosti podkladů.',
-      'For the main river. Includes a reminder when the local rules pack expires.',
-    ) +
-    '</p>';
-  bind('watch-toggle', () => Device.reminder(key, !watching));
-}
-function reminderChanged() {
-  if (route.page === 'water') ruleResult(pack.waters.find((w) => w.id === route.id));
+  by('theme').innerHTML = icon(dark ? 'sun' : 'moon');
+  if (window.Device && typeof Device.systemBars === 'function') Device.systemBars(dark);
 }
 async function start() {
   document.documentElement.lang = cs ? 'cs' : 'en';
   by('brand').textContent = t('Rybáři sobě', 'Angler to Angler');
+  by('mark').innerHTML = icon('fish-symbol');
+  by('offline').innerHTML = icon('check') + t('Offline podklady', 'Offline pack');
+  const system = matchMedia('(prefers-color-scheme: dark)');
+  const sync = () =>
+    setTheme(
+      localStorage.getItem('ui.theme') ||
+        ((window.Device ? Device.nightMode() : system.matches) ? 'dark' : 'light'),
+    );
+  sync();
+  if (system.addEventListener) system.addEventListener('change', sync);
+  else system.addListener(sync);
+  bind('theme', () => {
+    const mode = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('ui.theme', mode);
+    setTheme(mode);
+  });
   try {
     [pack, rivers] = await Promise.all(
       ['catalog.json', 'rivers.json'].map((p) => fetch(p).then((r) => r.json())),
     );
     await Journal.open();
-    tabs.innerHTML =
-      button('tabwaters', t('Revíry', 'Waters')) + button('tabtrips', t('Můj deník', 'My journal'));
-    tabs.hidden = false;
-    bind('tabwaters', () => go('waters'));
-    bind('tabtrips', () => go('trips'));
-    go('waters');
-  } catch (e) {
+    const nav = [
+      ['waters', t('Revíry', 'Waters'), 'map'],
+      ['rules', t('Hájení', 'Seasons'), 'calendar-days'],
+      ['trips', t('Deník', 'Journal'), 'book-open'],
+    ];
+    tabs.setAttribute('aria-label', t('Hlavní navigace', 'Main navigation'));
+    tabs.innerHTML = nav
+      .map(([k, label, glyph]) => button('tab' + k, label, 'destination', glyph))
+      .join('');
+    nav.forEach(([k]) => bind('tab' + k, () => go(k)));
+    await paint();
+  } catch (error) {
     screen.textContent = t(
       'Místní data se nepodařilo otevřít. Zkus aplikaci znovu spustit.',
-      'Local data could not be opened. Try restarting the app.',
+      'Could not open local data. Try restarting the app.',
     );
   }
 }

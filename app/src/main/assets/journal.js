@@ -67,6 +67,21 @@ const Journal = (() => {
   }
   return {
     open,
+    catchCounts: () =>
+      new Promise((resolve, reject) => {
+        const counts = new Map();
+        const req = db.transaction('catches').objectStore('catches').index('tripId').openKeyCursor();
+        req.onsuccess = () => {
+          const cur = req.result;
+          if (!cur) {
+            resolve(counts);
+            return;
+          }
+          counts.set(cur.key, (counts.get(cur.key) || 0) + 1);
+          cur.continue();
+        };
+        req.onerror = () => reject(req.error);
+      }),
     trips: () => read('trips', (s) => s.getAll()),
     catches: (id) => read('catches', (s) => s.index('tripId').getAll(id)),
     trip: (id) => read('trips', (s) => s.get(id)),

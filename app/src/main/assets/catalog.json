@@ -83,7 +83,14 @@
         49.959622
       ],
       "access": null,
-      "number": "401 001"
+      "number": "401 001",
+      "photo": {
+        "asset": "berounka.webp",
+        "author": "Aktron / Wikimedia Commons",
+        "source": "https://commons.wikimedia.org/wiki/File:Černošice,_Dolní_Mokropsy,_pohled_na_Berounku_a_jez.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/"
+      }
     },
     {
       "id": "401009",
@@ -131,12 +138,20 @@
         ],
         "source": "https://tourist.posazavi.com/cz/Service/Service.aspx?Id=1235"
       },
-      "number": "401 009"
+      "number": "401 009",
+      "photo": {
+        "asset": "sazava.webp",
+        "author": "Huhulenik / Wikimedia Commons",
+        "source": "https://commons.wikimedia.org/wiki/File:River_Sazava_and_Mednik_Hill.jpg",
+        "license": "CC BY 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/3.0/"
+      }
     }
   ],
   "id": "cz-crs-prague",
   "label": {
     "cs": "Česko",
     "en": "Czechia"
-  }
+  },
+  "coverWater": "401009"
 }

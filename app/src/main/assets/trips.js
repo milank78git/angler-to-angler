@@ -2,7 +2,9 @@
 const uid = () =>
   typeof crypto.randomUUID === 'function'
     ? crypto.randomUUID()
-    : Array.from(crypto.getRandomValues(new Uint8Array(16)), (b) => b.toString(16).padStart(2, '0')).join('');
+    : Array.from(crypto.getRandomValues(new Uint8Array(16)), (b) => b.toString(16).padStart(2, '0')).join(
+        '',
+      );
 const tripName = (r) => r.waterName;
 const displayDay = (day) =>
   new Intl.DateTimeFormat(cs ? 'cs-CZ' : 'en-GB', { dateStyle: 'medium', timeZone: 'UTC' }).format(
@@ -21,42 +23,41 @@ function dirty(form) {
 }
 function saved(page, props) {
   draft = false;
-  go(page, props);
+  if (page === 'trip') showSavedTrip(props.id);
+  else {
+    stacks.trips = [{ page: 'trips' }];
+    go(page, props);
+  }
 }
 async function listTrips() {
-  const version = viewVersion,
-    trips = await Journal.trips();
+  const version = viewVersion;
+  const [trips, counts] = await Promise.all([Journal.trips(), Journal.catchCounts()]);
   if (version !== viewVersion) return;
   trips.sort((a, b) => b.day.localeCompare(a.day) || b.created - a.created);
-  screen.innerHTML =
-    '<h1>' +
-    t('Můj deník', 'My journal') +
-    '</h1><p class="quiet">' +
-    t(
-      'Výpravy, fotografie a souřadnice zůstávají v tomto telefonu.',
-      'Trips, photos and coordinates stay on this phone.',
-    ) +
-    '</p><div class="actions">' +
-    button('add-trip', t('Nová výprava', 'New trip'), 'primary') +
-    '</div>' +
-    (trips.length
-      ? trips
-          .map(
-            (r) =>
-              '<button class="tile" data-trip="' +
-              esc(r.id) +
-              '"><span class="meta">' +
-              esc(displayDay(r.day)) +
-              '</span><strong>' +
-              esc(tripName(r)) +
-              '</strong>' +
-              (r.notes ? '<span>' + esc(r.notes.slice(0, 100)) + '</span>' : '') +
-              '</button>',
-          )
-          .join('')
-      : '<p class="empty">' +
-        t('Sem můžeš zapsat i vycházku bez úlovku.', 'You can log a day on the water even without a catch.') +
-        '</p>');
+  const total = Array.from(counts.values()).reduce((a, b) => a + b, 0);
+  screen.innerHTML = `<section class="journal-head"><div class="journal-art" aria-hidden="true">${icon('book-open')}</div>
+    <h1>${t('Můj deník', 'My journal')}</h1><p>${icon('lock-keyhole')}${t('Soukromě v tomto telefonu', 'Private on this phone')}</p>
+    <div class="metrics"><span><strong>${trips.length}</strong>${t('Výpravy', 'Trips')}</span><span><strong>${total}</strong>${t('Úlovky', 'Catches')}</span></div></section>
+    <div class="list-heading"><h2>${t('Moje výpravy', 'My trips')}</h2>${button('add-trip', t('Nová výprava', 'New trip'), 'primary', 'plus')}</div>
+    <div class="trip-list">${
+      trips
+        .map((trip) => {
+          const d = new Date(trip.day + 'T12:00:00Z'),
+            locale = cs ? 'cs-CZ' : 'en-GB',
+            count = counts.get(trip.id) || 0;
+          return `<button class="trip-row" data-trip="${esc(trip.id)}"><span class="date-stamp" aria-hidden="true"><strong>${d.getUTCDate()}</strong>${esc(d.toLocaleString(locale, { month: 'short', timeZone: 'UTC' }))}</span>
+        <span class="row-main"><span class="number">${esc(displayDay(trip.day))}</span><strong>${esc(trip.waterName)}</strong><span class="sub">${t('Úlovky', 'Catches')} · ${count}${trip.notes ? ' · ' + esc(trip.notes.slice(0, 90)) : ''}</span></span>${icon('chevron-right')}</button>`;
+        })
+        .join('') ||
+      emptyState(
+        'notebook-pen',
+        t('Zapiš první výpravu', 'Log your first trip'),
+        t(
+          'Zůstane v deníku, i když tentokrát nic nezabere.',
+          'A day on the water belongs here even without a catch.',
+        ),
+      )
+    }</div>`;
   bind('add-trip', () => go('newTrip'));
   screen
     .querySelectorAll('[data-trip]')
@@ -66,36 +67,12 @@ function tripForm() {
   const selected = route.water || '';
   screen.innerHTML =
     back(t('Zpět', 'Back')) +
-    '<h1>' +
-    t('Nová výprava', 'New trip') +
-    '</h1><form id="form">' +
-    field(
-      'water',
-      t('Revír nebo voda', 'Fishing water'),
-      '<select id="water">' +
-        options(
-          [['', t('Vlastní voda', 'Other water')], ...pack.waters.map((w) => [w.id, w.name])],
-          selected,
-        ) +
-        '</select>',
-    ) +
-    '<div id="custom">' +
-    textInput('water-name', t('Název vody', 'Water name'), '', 'maxlength="100"') +
-    '</div>' +
-    textInput(
-      'day',
-      t('Datum výpravy', 'Trip date'),
-      Domain.today(selected ? pack.zone : undefined),
-      'type="date" required',
-    ) +
-    field(
-      'notes',
-      t('Poznámka k výpravě', 'Trip notes'),
-      '<textarea maxlength="4000" id="notes"></textarea>',
-    ) +
-    '<div class="actions"><button class="primary">' +
-    t('Uložit výpravu', 'Save trip') +
-    '</button></div></form>';
+    `<div class="page-intro"><div class="title-mark">${icon('notebook-pen')}</div><h1>${t('Nová výprava', 'New trip')}</h1></div>
+  <form id="form" class="entry-form"><section class="surface">${field('water', t('Revír nebo voda', 'Fishing water'), '<select id="water">' + options([['', t('Vlastní voda', 'Other water')], ...pack.waters.map((w) => [w.id, w.name])], selected) + '</select>')}
+  <div id="custom">${textInput('water-name', t('Název vody', 'Water name'), '', 'maxlength="100"')}</div>
+  ${textInput('day', t('Datum výpravy', 'Trip date'), Domain.today(selected ? pack.zone : undefined), 'type="date" required')}
+  ${field('notes', t('Poznámky', 'Notes'), '<textarea id="notes" maxlength="4000" rows="3"></textarea>')}</section>
+  <div class="savebar"><button class="primary">${icon('check')}${t('Uložit výpravu', 'Save trip')}</button></div></form>`;
   bindBack();
   dirty(by('form'));
   function custom() {
@@ -155,9 +132,9 @@ async function tripScreen() {
     '</p><h1>' +
     esc(trip.waterName) +
     '</h1>' +
-    (trip.notes ? '<p>' + esc(trip.notes) + '</p>' : '') +
+    (trip.notes ? '<p class="trip-note">' + esc(trip.notes) + '</p>' : '') +
     '<div class="actions">' +
-    button('add', t('Přidat úlovek', 'Add catch'), 'primary') +
+    button('add', t('Přidat úlovek', 'Add catch'), 'primary', 'plus') +
     '</div><h2>' +
     t('Úlovky', 'Catches') +
     ' · ' +
@@ -189,14 +166,15 @@ async function tripScreen() {
     : '<p class="empty">' + t('Zapsaná výprava bez úlovku.', 'A trip with no catches recorded.') + '</p>';
   for (const c of catches.sort((a, b) => a.created - b.created)) {
     const article = document.createElement('article');
-    article.className = 'panel';
+    article.className = 'surface catch-card';
     by('catch-list').append(article);
     const position = c.position,
       label =
         position?.kind === 'strike'
           ? t('Místo záběru', 'Strike location')
           : t('Stanoviště rybáře', 'Angler position');
-    const fmt = (n) => new Intl.NumberFormat(cs ? 'cs-CZ' : 'en-GB', { maximumFractionDigits: 1 }).format(n);
+    const fmt = (n) =>
+      new Intl.NumberFormat(cs ? 'cs-CZ' : 'en-GB', { maximumFractionDigits: 1 }).format(n);
     article.innerHTML =
       '<h3>' +
       esc(c.speciesId ? loc(pack.species[c.speciesId]) : c.speciesName) +
@@ -228,7 +206,7 @@ async function tripScreen() {
         img.className = 'preview';
         img.alt = t('Fotografie úlovku', 'Catch photograph');
         img.src = url;
-        article.append(img);
+        article.prepend(img);
       }
     }
   }
@@ -284,66 +262,25 @@ function catchForm() {
     currentFix = null;
     if (window.Device) Device.cancelLocation();
   };
-  screen.innerHTML =
-    back(t('Výprava', 'Trip')) +
-    '<h1>' +
-    t('Nový úlovek', 'New catch') +
-    '</h1><form id="form">' +
-    field(
-      'fish',
-      t('Druh ryby', 'Fish species'),
-      '<select id="fish">' +
-        options(
-          [
-            ['', t('Vyber druh nebo napiš vlastní', 'Choose a species or enter your own')],
-            ...Object.entries(pack.species).map(([k, v]) => [k, loc(v)]),
-          ],
-          '',
-        ) +
-        '</select>',
-    ) +
-    '<div id="custom-fish">' +
-    textInput('fish-name', t('Vlastní název druhu', 'Species name'), '', 'maxlength="100"') +
-    '</div>' +
-    textInput(
-      'length',
-      t('Ručně změřená délka (cm)', 'Manually measured length (cm)'),
-      '',
-      'inputmode="decimal" placeholder="64,5"',
-    ) +
-    textInput('bait', t('Na co zabral', 'Bait or lure'), '', 'maxlength="300"') +
-    textInput('technique', t('Technika lovu', 'Fishing technique'), '', 'maxlength="500"') +
-    field('photo', t('Fotografie úlovku', 'Catch photo'), '<input type="file" id="photo" accept="image/*">') +
-    '<fieldset><legend>' +
-    t('Soukromá poloha · volitelné', 'Private location · optional') +
-    '</legend>' +
-    field(
-      'kind',
-      t('Co bod označuje', 'Point represents'),
-      '<select id="kind">' +
-        options(
-          [
-            ['stand', t('Stanoviště rybáře', 'Angler position')],
-            ['strike', t('Místo záběru', 'Strike location')],
-          ],
-          'stand',
-        ) +
-        '</select>',
-    ) +
-    '<div class="pair"><div>' +
-    textInput('lat', t('Šířka', 'Latitude'), '', 'inputmode="text" placeholder="49.8783"') +
-    '</div><div>' +
-    textInput('lon', t('Délka', 'Longitude'), '', 'inputmode="text" placeholder="14.4282"') +
-    '</div></div><div class="act">' +
-    button('gps', t('Použít současnou polohu', 'Use current location')) +
-    '</div><small>' +
-    t(
-      'U starší fotky zadej bod ručně nebo ho ponech prázdný.',
-      'For an older photo, enter its location manually or leave the point empty.',
-    ) +
-    '</small></fieldset><div class="actions"><button class="primary">' +
-    t('Uložit úlovek', 'Save catch') +
-    '</button></div></form>';
+  screen.innerHTML = catchFields();
+  let preview;
+  const release = disposeView;
+  disposeView = () => {
+    if (preview) URL.revokeObjectURL(preview);
+    release();
+  };
+  by('photo').onchange = () => {
+    if (preview) URL.revokeObjectURL(preview);
+    const file = by('photo').files[0];
+    preview = file ? URL.createObjectURL(file) : null;
+    const img = by('photo-preview');
+    img.hidden = !file;
+    if (file) img.src = preview;
+    else img.removeAttribute('src');
+    by('photo-label').textContent = file
+      ? t('Změnit fotografii', 'Change photo')
+      : t('Přidat fotografii', 'Add photo');
+  };
   bindBack();
   dirty(by('form'));
   by('fish-name').required = true;
@@ -385,14 +322,17 @@ function catchForm() {
       lengthMm = Domain.lengthMm(by('length').value);
       point = Domain.point(by('lat').value, by('lon').value);
     } catch (err) {
-      toast(
+      if (err.message !== 'length') by('position-fields').open = true;
+      const invalid = by(err.message === 'length' ? 'length' : 'lat');
+      invalid.focus();
+      by('form-error').hidden = false;
+      by('form-error').textContent =
         err.message === 'length'
           ? t('Uveď kladnou délku v centimetrech.', 'Enter a positive length in centimetres.')
           : t(
               'Zkontroluj obě souřadnice (šířka ±90°, délka ±180°).',
               'Check both coordinates (latitude ±90°, longitude ±180°).',
-            ),
-      );
+            );
       return;
     }
     const position = point
@@ -434,4 +374,31 @@ function catchForm() {
       );
     }
   };
+}
+function catchFields() {
+  return (
+    back(t('Výprava', 'Trip')) +
+    `<div class="page-intro"><div class="title-mark">${icon('fish')}</div><h1>${t('Nový úlovek', 'New catch')}</h1></div>
+  <form id="form" class="entry-form"><section class="surface">${field('fish', t('Druh ryby', 'Fish species'), '<select id="fish">' + options([['', t('Vlastní druh', 'Other species')], ...Object.entries(pack.species).map(([k, v]) => [k, loc(v)])], '') + '</select>')}
+    <div id="custom-fish">${textInput('fish-name', t('Název druhu', 'Species name'), '', 'maxlength="100"')}</div>
+    ${textInput('length', t('Změřená délka (cm)', 'Measured length (cm)'), '', 'inputmode="decimal" placeholder="64,5"')}
+    <div class="photo-field"><input type="file" id="photo" accept="image/*"><label for="photo">${icon('camera')}<span id="photo-label">${t('Přidat fotografii', 'Add photo')}</span></label><img id="photo-preview" class="preview" hidden alt=""></div></section>
+  <details class="fold"><summary>${icon('fish-symbol')}${t('Nástraha a technika', 'Bait and technique')}</summary><div class="fold-body">${textInput('bait', t('Na co zabral', 'Bait or lure'), '', 'maxlength="300"')}${textInput('technique', t('Technika lovu', 'Fishing technique'), '', 'maxlength="500"')}</div></details>
+  <details id="position-fields" class="fold"><summary>${icon('lock-keyhole')}${t('Soukromá poloha', 'Private location')}</summary><div class="fold-body">${field(
+    'kind',
+    t('Co bod označuje', 'Point represents'),
+    '<select id="kind">' +
+      options(
+        [
+          ['stand', t('Stanoviště rybáře', 'Angler position')],
+          ['strike', t('Místo záběru', 'Strike location')],
+        ],
+        'stand',
+      ) +
+      '</select>',
+  )}
+  <div class="pair"><div>${textInput('lat', t('Šířka', 'Latitude'), '', 'placeholder="49.8783"')}</div><div>${textInput('lon', t('Délka', 'Longitude'), '', 'placeholder="14.4282"')}</div></div>
+  <div class="actions">${button('gps', t('Použít současnou polohu', 'Use current location'), 'secondary', 'locate-fixed')}</div><small>${t('U starší fotky zadej místo ručně nebo ho nech prázdné.', 'For older photos, enter the location manually or leave it empty.')}</small></div></details>
+  <p class="field-error" id="form-error" role="alert" hidden></p><div class="savebar"><button class="primary">${icon('check')}${t('Uložit úlovek', 'Save catch')}</button></div></form>`
+  );
 }

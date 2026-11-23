@@ -44,18 +44,21 @@ public final class FishingActivity extends Activity {
     web = new WebView(this);
     setContentView(web);
     if (Build.VERSION.SDK_INT >= 35) {
-      web.setOnApplyWindowInsetsListener(
-          (v, insets) -> {
-            android.graphics.Insets bars =
-                insets.getInsets(
-                    android.view.WindowInsets.Type.systemBars()
-                        | android.view.WindowInsets.Type.displayCutout()
-                        | android.view.WindowInsets.Type.ime());
-            v.setPadding(bars.left, bars.top, bars.right, bars.bottom);
-            return insets;
-          });
+      findViewById(android.R.id.content)
+          .setOnApplyWindowInsetsListener(
+              (v, insets) -> {
+                android.graphics.Insets bars =
+                    insets.getInsets(
+                        android.view.WindowInsets.Type.systemBars()
+                            | android.view.WindowInsets.Type.displayCutout()
+                            | android.view.WindowInsets.Type.ime());
+                v.setPadding(bars.left, bars.top, bars.right, bars.bottom);
+                return android.view.WindowInsets.CONSUMED;
+              });
     }
-    getWindow().setStatusBarColor(0xff163d35);
+    getWindow().setStatusBarColor(0xff0d3432);
+    getWindow().setNavigationBarColor(0xff0d3432);
+    web.setBackgroundColor(0xff0d3432);
     WebSettings settings = web.getSettings();
     settings.setJavaScriptEnabled(true);
     settings.setDomStorageEnabled(true);
@@ -79,7 +82,11 @@ public final class FishingActivity extends Activity {
                       ? "text/html"
                       : path.endsWith(".js")
                           ? "text/javascript"
-                          : path.endsWith(".css") ? "text/css" : "application/json";
+                          : path.endsWith(".css")
+                              ? "text/css"
+                              : path.endsWith(".webp")
+                                  ? "image/webp"
+                                  : path.endsWith(".svg") ? "image/svg+xml" : "application/json";
               try {
                 InputStream data = getAssets().open(path.substring(1));
                 return new WebResourceResponse(mime, "utf-8", data);
@@ -120,11 +127,43 @@ public final class FishingActivity extends Activity {
             return true;
           }
         });
+    if (Build.VERSION.SDK_INT >= 33) {
+      getOnBackInvokedDispatcher()
+          .registerOnBackInvokedCallback(
+              android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT, this::onBackPressed);
+    }
     web.loadUrl("https://" + HOST + "/index.html");
   }
 
   /** Methods are accessible only to packaged scripts. Android UI calls run on the main thread. */
   public final class Device {
+    @JavascriptInterface
+    public boolean nightMode() {
+      int mask = android.content.res.Configuration.UI_MODE_NIGHT_MASK;
+      return (getResources().getConfiguration().uiMode & mask)
+          == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+    }
+
+    /** Keep native navigation glyphs legible beside the selected WebView palette. */
+    @JavascriptInterface
+    public void systemBars(boolean dark) {
+      runOnUiThread(
+          () -> {
+            int navigationColor = dark ? 0xff1b2e2a : 0xfffffef8;
+            getWindow().setNavigationBarColor(navigationColor);
+            if (Build.VERSION.SDK_INT >= 35)
+              findViewById(android.R.id.content)
+                  .setBackground(
+                      new android.graphics.drawable.GradientDrawable(
+                          android.graphics.drawable.GradientDrawable.Orientation.TOP_BOTTOM,
+                          new int[] {0xff0d3432, navigationColor}));
+            android.view.View decor = getWindow().getDecorView();
+            int light = android.view.View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+            int flags = decor.getSystemUiVisibility();
+            decor.setSystemUiVisibility(dark ? flags & ~light : flags | light);
+          });
+    }
+
     @JavascriptInterface
     public String locale() {
       return Locale.getDefault().getLanguage();
@@ -314,7 +353,11 @@ public final class FishingActivity extends Activity {
     web.evaluateJavascript(
         "typeof handleBack==='function' && handleBack()",
         result -> {
-          if (!"true".equals(result)) super.onBackPressed();
+          if (!"true".equals(result)) {
+            if (Build.VERSION.SDK_INT >= 33 && isTaskRoot()) moveTaskToBack(true);
+            else if (Build.VERSION.SDK_INT >= 33) finish();
+            else super.onBackPressed();
+          }
         });
   }
 

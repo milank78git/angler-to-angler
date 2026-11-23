@@ -23,10 +23,16 @@ jobs:
         with:
           packages: "platforms;android-35 build-tools;35.0.0 platform-tools"
       - run: bash scripts/build-debug.sh
+      - run: bash scripts/build-debug.sh --preview
       - uses: actions/upload-artifact@v4
         with:
           name: angler-journal-debug
           path: build/standalone/angler-journal-debug.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: angler-ui-preview
+          path: build/preview/angler-journal-debug.apk
 
       - name: Enable KVM
         run: |
@@ -36,7 +42,14 @@ jobs:
       - name: Exercise journal and offline catalog on Android
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 30
+          api-level: 35
           arch: x86_64
           target: google_apis
           script: bash scripts/android-smoke.sh
+      - name: Upload emulator screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-ui-screens
+          path: build/smoke/screens
+          if-no-files-found: warn
