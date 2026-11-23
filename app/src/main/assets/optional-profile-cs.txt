@@ -1,4 +1,6 @@
-Volitelné online funkce · pilot 0.6.1
+Účet a volitelné online funkce · pilot 0.6.1
+
+Při registraci e-mailem si volíš heslo a jazyk zpráv vychází z jazyka aplikace. Ověření e-mailu a obnova hesla používají jednorázový odkaz. Pro další odemknutí může zabezpečený telefon uchovat zašifrované oprávnění k účtu. PIN a biometrické údaje ověřuje Android. Odhlášením se toto oprávnění v telefonu smaže.
 
 Uložením profilu se k účtu v pilotu uloží zvolený obrázek, místo původu, popisek a text o tobě. Profil je zpočátku soukromý. Po zveřejnění ho včetně počtu úlovků doložených fotkou uvidí přihlášení rybáři. Z part uvidí jen ty, ve kterých jste společně. Obrázek i texty můžeš odstranit a zveřejnění kdykoliv vypnout v úpravě profilu.
 

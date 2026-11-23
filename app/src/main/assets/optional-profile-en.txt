@@ -1,4 +1,6 @@
-Optional online features · pilot 0.6.1
+Account and optional online features · pilot 0.6.1
+
+When registering by email, you choose a password. The language of the app at registration determines your account email language. Email verification and password recovery use a single-use link. A secured phone can store an encrypted credential for subsequent unlocks. Android verifies your screen lock or biometrics. Signing out removes the credential from this phone.
 
 Saving a profile stores your chosen picture, hometown, tagline and biography with your pilot account. The card is initially private. If you publish it, signed-in pilot anglers can see the card and photo-documented catch total. They see only groups they share with you. You can remove the picture, clear the fields and withdraw publication under Edit profile.
 

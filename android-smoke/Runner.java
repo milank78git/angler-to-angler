@@ -27,7 +27,7 @@ public final class Runner extends Instrumentation {
     android.content.Context target = getTargetContext();
     android.content.pm.PackageInfo info =
         target.getPackageManager().getPackageInfo(target.getPackageName(), 0);
-    String prefix = "wide".equals(scenario) ? "Preview" : "Pilot";
+    String prefix = "compact".equals(scenario) ? "Pilot" : "Preview";
     return prefix + " " + info.versionName + " (" + info.getLongVersionCode() + ")";
   }
 
@@ -250,10 +250,69 @@ public final class Runner extends Instrumentation {
             + " !document.querySelector('[data-remove]')");
   }
 
+  /**
+   * Exercise the actual Android PIN UI, Keystore decryption and offline journal after process
+   * death.
+   */
+  private void coldUnlock() throws Exception {
+    android.content.Context ctx = getTargetContext();
+    String envelope = ctx.getSharedPreferences("angler-account", 0).getString("deviceSession", "");
+    if (envelope.isEmpty() || envelope.contains("fixture-"))
+      throw new AssertionError("Missing sealed credential");
+    ActivityMonitor journal = addMonitor("app.anglers.journal.FishingActivity", null, false);
+    try {
+      startActivitySync(
+          new Intent(Intent.ACTION_MAIN)
+              .setClassName(ctx.getPackageName(), "app.anglers.journal.AccountActivity")
+              .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+      long deadline = android.os.SystemClock.elapsedRealtime() + 15000;
+      boolean shown = false;
+      while (android.os.SystemClock.elapsedRealtime() < deadline) {
+        android.view.accessibility.AccessibilityNodeInfo root =
+            getUiAutomation().getRootInActiveWindow();
+        if (root != null
+            && ("com.android.systemui".contentEquals(String.valueOf(root.getPackageName()))
+                || "com.android.settings".contentEquals(String.valueOf(root.getPackageName())))) {
+          shown = true;
+          break;
+        }
+        Thread.sleep(120);
+      }
+      if (!shown || journal.getHits() != 0)
+        throw new AssertionError("OS credential screen required");
+      Thread.sleep(500);
+      try (android.os.ParcelFileDescriptor command =
+              getUiAutomation().executeShellCommand("input text 482619");
+          java.io.InputStream result =
+              new android.os.ParcelFileDescriptor.AutoCloseInputStream(command)) {
+        while (result.read() != -1) {}
+      }
+      try (android.os.ParcelFileDescriptor command =
+              getUiAutomation().executeShellCommand("input keyevent KEYCODE_ENTER");
+          java.io.InputStream result =
+              new android.os.ParcelFileDescriptor.AutoCloseInputStream(command)) {
+        while (result.read() != -1) {}
+      }
+      Activity restored = waitForMonitorWithTimeout(journal, 15000);
+      if (restored == null) throw new AssertionError("PIN did not unlock the offline journal");
+      bindJournal(restored);
+      js("document.querySelector('#tabtrips').click()");
+      waitFor("document.querySelectorAll('[data-trip]').length===1");
+    } finally {
+      removeMonitor(journal);
+    }
+  }
+
   @Override
   public void onStart() {
     Bundle outcome = new Bundle();
     try {
+      if ("unlock".equals(scenario)) {
+        coldUnlock();
+        outcome.putString("stream", "ANGLER_UNLOCK_PASS\n");
+        finish(Activity.RESULT_OK, outcome);
+        return;
+      }
       AccountChecks accounts = new AccountChecks(this, !"wide".equals(scenario));
       bindJournal(accounts.register());
       bindJournal(accounts.groups());

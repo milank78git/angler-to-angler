@@ -22,7 +22,10 @@ public final class AccountActivity extends Activity {
   private AccountLayout ui;
   private Button submit;
   private boolean cs, busy, groupLogin, profileLogin;
-  private String access, email = "";
+  private String email = "";
+  private IdentityService.Session signing;
+  private android.os.CancellationSignal prompt;
+  private boolean managing;
   private JSONObject profile;
 
   private String text(String cz, String en) {
@@ -49,26 +52,26 @@ public final class AccountActivity extends Activity {
             || (getIntent().getData() != null
                 && pendingIsFresh(pending)
                 && pending.getBoolean("pkceForProfile", false));
-    if (!groupLogin
-        && !profileLogin
-        && !AccountStore.active(this).isEmpty()
-        && getIntent().getData() == null
-        && !getIntent().getBooleanExtra("manage", false)) {
-      enter();
-      return;
-    }
     ui = new AccountLayout(this);
-    if (!groupLogin && !profileLogin && !AccountStore.active(this).isEmpty()) {
-      manage();
-      return;
-    }
-    email = pending.getString("pkceEmail", "");
-    if (!email.isEmpty() && pendingIsFresh(pending) && service != null && service.configured()) {
-      inbox();
-    } else {
+    email = pending.getString("pkceEmail", pending.getString("email", ""));
+    if (getIntent().getData() != null) {
+      if (pendingIsFresh(pending) && !email.isEmpty()) inbox();
+      else login();
+      callback(getIntent());
+    } else if (!groupLogin && !profileLogin && !AccountStore.active(this).isEmpty()) {
+      if (getIntent().getBooleanExtra("manage", false)) manage();
+      else enter();
+    } else if (pendingIsFresh(pending) && !pending.getString("pkceEmail", "").isEmpty()) inbox();
+    else {
       login();
+      if (DeviceVault.enrolled(this) && !groupLogin && !profileLogin) unlock();
     }
-    callback(getIntent());
+  }
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+    if (managing && AccountStore.active(this).isEmpty()) login();
   }
 
   @Override
@@ -87,7 +90,8 @@ public final class AccountActivity extends Activity {
   @Override
   protected void onDestroy() {
     io.shutdownNow();
-    access = null;
+    if (prompt != null) prompt.cancel();
+    signing = null;
     super.onDestroy();
   }
 
@@ -148,34 +152,48 @@ public final class AccountActivity extends Activity {
   }
 
   private void login() {
-    access = null;
+    signing = null;
+    managing = false;
     profile = null;
-    ui.page(text("Přihlásit se", "Sign in"), true);
-    ui.label(text("Pošleme ti e-mail s přihlašovacím odkazem.", "We’ll email you a sign-in link."));
+    ui.page(text("Přihlášení", "Account sign-in"), true);
     boolean ready = service != null && service.configured();
-    EditText address =
-        ui.field(
-            text("E-mail", "Email"),
-            InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-    address.setAutofillHints(View.AUTOFILL_HINT_EMAIL_ADDRESS);
-    address.setText(email);
+    if (DeviceVault.enrolled(this))
+      action(
+          text("Odemknout telefonem", "Unlock with device"),
+          AccountLayout.Action.PRIMARY,
+          this::unlock);
+    EditText address = addressField();
+    EditText password = passwordField(false);
     Button send =
         action(
-            text("Poslat přihlašovací odkaz", "Send sign-in link"),
+            text("Přihlásit se", "Sign in"),
             AccountLayout.Action.PRIMARY,
             () -> {
-              String value = address.getText().toString().trim();
-              if (!android.util.Patterns.EMAIL_ADDRESS.matcher(value).matches()) {
-                address.setError(text("Zkontroluj adresu.", "Check the address."));
-                return;
-              }
-              sendEmail(value);
+              if (!readAddress(address) || !validPassword(password, false)) return;
+              String secret = password.getText().toString();
+              run(() -> service.signIn(email, secret), this::verified);
             });
     send.setEnabled(ready);
-    address.setImeOptions(android.view.inputmethod.EditorInfo.IME_ACTION_GO);
-    address.setOnEditorActionListener(
+    password.setImeOptions(android.view.inputmethod.EditorInfo.IME_ACTION_GO);
+    password.setOnEditorActionListener(
         (v, id, e) ->
             id == android.view.inputmethod.EditorInfo.IME_ACTION_GO && send.performClick());
+    action(
+            text("Vytvořit účet", "Create account"),
+            AccountLayout.Action.SECONDARY,
+            () -> {
+              email = address.getText().toString().trim();
+              emailForm(false);
+            })
+        .setEnabled(ready);
+    action(
+            text("Nastavit nebo obnovit heslo", "Set or reset password"),
+            AccountLayout.Action.LINK,
+            () -> {
+              email = address.getText().toString().trim();
+              emailForm(true);
+            })
+        .setEnabled(ready);
     LinearLayout social = new LinearLayout(this);
     social.setOrientation(LinearLayout.VERTICAL);
     ui.form.addView(social);
@@ -223,23 +241,171 @@ public final class AccountActivity extends Activity {
         });
   }
 
-  /** Reuse the pending verifier on resend so a rate limit cannot invalidate the previous link. */
-  private void sendEmail(String address) {
-    if (busy || service == null || !service.configured()) return;
-    SharedPreferences pending = AccountStore.prefs(this);
-    boolean same =
-        address.equalsIgnoreCase(pending.getString("pkceEmail", "")) && pendingIsFresh(pending);
-    String verifier = same ? pending.getString("pkce", "") : IdentityService.verifier();
-    run(
+  private EditText addressField() {
+    EditText field =
+        ui.field(
+            text("E-mail", "Email"),
+            InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+    field.setAutofillHints(View.AUTOFILL_HINT_USERNAME, View.AUTOFILL_HINT_EMAIL_ADDRESS);
+    field.setText(email);
+    return field;
+  }
+
+  private boolean readAddress(EditText field) {
+    String value = field.getText().toString().trim();
+    if (!android.util.Patterns.EMAIL_ADDRESS.matcher(value).matches()) {
+      field.setError(text("Zkontroluj adresu.", "Check the address."));
+      return false;
+    }
+    email = value;
+    return true;
+  }
+
+  private EditText passwordField(boolean fresh) {
+    EditText field =
+        ui.field(
+            fresh ? text("Nové heslo", "New password") : text("Heslo", "Password"),
+            InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+    field.setSaveEnabled(false);
+    field.setAutofillHints(fresh ? "newPassword" : View.AUTOFILL_HINT_PASSWORD);
+    return field;
+  }
+
+  private boolean validPassword(EditText field, boolean fresh) {
+    String value = field.getText().toString();
+    if (!value.isEmpty() && (!fresh || value.codePointCount(0, value.length()) >= 8)) return true;
+    field.setError(
+        fresh
+            ? text("Zadej alespoň 8 znaků.", "Use at least 8 characters.")
+            : text("Zadej heslo.", "Enter your password."));
+    return false;
+  }
+
+  private void emailForm(boolean recovery) {
+    ui.page(
+        recovery ? text("Nastavení hesla", "Password setup") : text("Registrace", "Registration"),
+        false);
+    ui.label(
+        recovery
+            ? text(
+                "Pokud už máš účet, pošleme ti odkaz pro nastavení hesla. Použij stejný e-mail jako"
+                    + " při registraci.",
+                "If you already have an account, we’ll send a link to set your password. Use the"
+                    + " email you registered with.")
+            : text(
+                "Zvol si heslo s alespoň 8 znaky. E-mail ověříš jednou na tomto telefonu.",
+                "Choose a password with at least 8 characters. Confirm your email once on this"
+                    + " phone."));
+    EditText address = addressField();
+    EditText password = recovery ? null : passwordField(true);
+    action(
+        recovery
+            ? text("Poslat odkaz pro nastavení hesla", "Send password setup link")
+            : text("Zaregistrovat se", "Register"),
+        AccountLayout.Action.PRIMARY,
         () -> {
-          service.sendSignInEmail(address, verifier);
-          return address;
-        },
-        sent -> {
-          if (!savePending(verifier, sent)) return;
-          email = sent;
-          inbox();
-          callback(getIntent());
+          if (!readAddress(address) || (!recovery && !validPassword(password, true))) return;
+          String purpose = recovery ? "recovery" : "signup";
+          SharedPreferences p = AccountStore.prefs(this);
+          String verifier =
+              pendingIsFresh(p)
+                      && purpose.equals(p.getString("pkcePurpose", ""))
+                      && email.equalsIgnoreCase(p.getString("pkceEmail", ""))
+                  ? p.getString("pkce", "")
+                  : IdentityService.verifier();
+          if (!savePending(verifier, email, purpose)) return;
+          String secret = recovery ? "" : password.getText().toString();
+          run(
+              () -> {
+                if (recovery) {
+                  service.recover(email, verifier);
+                  return null;
+                }
+                return service.signUp(email, secret, verifier);
+              },
+              (IdentityService.Session session) -> {
+                if (session != null) verified(session);
+                else {
+                  inbox();
+                  callback(getIntent());
+                }
+              });
+        });
+    action(text("Zpět k přihlášení", "Back to sign-in"), AccountLayout.Action.LINK, this::login);
+  }
+
+  private void choosePassword(IdentityService.Session recovery) {
+    clearPending();
+    ui.page(text("Nastav nové heslo", "Set a new password"), false);
+    EditText field = passwordField(true);
+    action(
+        text("Uložit heslo", "Save password"),
+        AccountLayout.Action.PRIMARY,
+        () -> {
+          if (!validPassword(field, true)) return;
+          String secret = field.getText().toString();
+          run(
+              () -> {
+                service.setPassword(recovery, secret);
+                return recovery;
+              },
+              this::verified);
+        });
+    action(text("Zpět k přihlášení", "Back to sign-in"), AccountLayout.Action.LINK, this::login);
+  }
+
+  /** Use the OS authentication UI and a Keystore-protected key on the same device. */
+  private void unlock() {
+    if (busy || prompt != null || !DeviceVault.enrolled(this)) return;
+    String title = text("Odemknout deník", "Unlock journal");
+    if (android.os.Build.VERSION.SDK_INT >= 29) {
+      android.hardware.biometrics.BiometricPrompt.Builder builder =
+          new android.hardware.biometrics.BiometricPrompt.Builder(this).setTitle(title);
+      if (android.os.Build.VERSION.SDK_INT >= 30)
+        builder.setAllowedAuthenticators(
+            android.hardware.biometrics.BiometricManager.Authenticators.BIOMETRIC_STRONG
+                | android.hardware.biometrics.BiometricManager.Authenticators.DEVICE_CREDENTIAL);
+      else builder.setDeviceCredentialAllowed(true);
+      prompt = new android.os.CancellationSignal();
+      builder
+          .build()
+          .authenticate(
+              prompt,
+              getMainExecutor(),
+              new android.hardware.biometrics.BiometricPrompt.AuthenticationCallback() {
+                @Override
+                public void onAuthenticationSucceeded(
+                    android.hardware.biometrics.BiometricPrompt.AuthenticationResult result) {
+                  prompt = null;
+                  if (!isFinishing() && !isDestroyed()) openVault();
+                }
+
+                @Override
+                public void onAuthenticationError(int code, CharSequence message) {
+                  prompt = null;
+                }
+              });
+    } else {
+      Intent confirm =
+          getSystemService(KeyguardManager.class).createConfirmDeviceCredentialIntent(title, null);
+      if (confirm != null) startActivityForResult(confirm, 31);
+    }
+  }
+
+  @Override
+  protected void onActivityResult(int request, int result, Intent data) {
+    super.onActivityResult(request, result, data);
+    if (request == 31 && result == RESULT_OK) openVault();
+  }
+
+  private void openVault() {
+    run(
+        () -> AccountStore.unlock(this),
+        local -> {
+          if (!groupLogin && !profileLogin && !AccountStore.active(this).isEmpty()) {
+            if (getIntent().getBooleanExtra("manage", false)) manage();
+            else enter();
+          } else run(() -> AccountStore.online(this, service, local.id, null), this::verified);
         });
   }
 
@@ -265,10 +431,12 @@ public final class AccountActivity extends Activity {
                     "Open your webmail in the browser on this phone."));
           }
         });
-    action(
-        text("Poslat nový odkaz", "Send a new link"),
-        AccountLayout.Action.SECONDARY,
-        () -> sendEmail(email));
+    String purpose = AccountStore.prefs(this).getString("pkcePurpose", "");
+    if ("recovery".equals(purpose) || "signup".equals(purpose))
+      action(
+          text("Vyžádat nový odkaz", "Request another link"),
+          AccountLayout.Action.SECONDARY,
+          () -> emailForm("recovery".equals(purpose)));
     action(
         text("Změnit e-mail", "Change email"),
         AccountLayout.Action.LINK,
@@ -278,13 +446,14 @@ public final class AccountActivity extends Activity {
         });
   }
 
-  private boolean savePending(String verifier, String address) {
+  private boolean savePending(String verifier, String address, String purpose) {
     boolean saved =
         AccountStore.prefs(this)
             .edit()
             .putBoolean("pkceForGroups", groupLogin)
             .putBoolean("pkceForProfile", profileLogin)
             .putString("pkce", verifier)
+            .putString("pkcePurpose", purpose)
             .putString("pkceEmail", address)
             .putLong("pkceAt", System.currentTimeMillis())
             .commit();
@@ -302,6 +471,7 @@ public final class AccountActivity extends Activity {
         .remove("pkceForGroups")
         .remove("pkceForProfile")
         .remove("pkce")
+        .remove("pkcePurpose")
         .remove("pkceAt")
         .remove("pkceEmail")
         .apply();
@@ -326,7 +496,7 @@ public final class AccountActivity extends Activity {
     try {
       String verifier = IdentityService.verifier();
       Uri url = service.authorize(provider, verifier);
-      if (!savePending(verifier, "")) return;
+      if (!savePending(verifier, "", "oauth")) return;
       startActivity(new Intent(Intent.ACTION_VIEW, url).addCategory(Intent.CATEGORY_BROWSABLE));
     } catch (Exception e) {
       ui.message(text("Prohlížeč nelze otevřít.", "Could not open a browser."));
@@ -364,14 +534,20 @@ public final class AccountActivity extends Activity {
               "Sign-in was not completed. Please retry."));
       return;
     }
-    run(() -> service.exchange(code, verifier, expectedEmail), this::verified);
+    boolean recovery = "recovery".equals(p.getString("pkcePurpose", ""));
+    run(
+        () -> service.exchange(code, verifier, expectedEmail),
+        session -> {
+          if (recovery) choosePassword(session);
+          else verified(session);
+        });
   }
 
-  private void verified(String token) {
+  private void verified(IdentityService.Session auth) {
     clearPending();
-    access = token;
+    signing = auth;
     run(
-        () -> service.profile(token),
+        () -> service.profile(auth.access),
         result -> {
           profile = result;
           if (result.optBoolean("current")) finishProfile(result);
@@ -407,7 +583,7 @@ public final class AccountActivity extends Activity {
                 return;
               }
               if (!terms.isChecked() || !privacy.isChecked()) return;
-              run(() -> service.accept(access, name), this::finishProfile);
+              run(() -> service.accept(signing.access, name), this::finishProfile);
             });
     submit.setEnabled(false);
     CompoundButton.OnCheckedChangeListener update =
@@ -419,7 +595,10 @@ public final class AccountActivity extends Activity {
   }
 
   private void finishProfile(JSONObject result) {
-    if (!result.optBoolean("current") || !result.has("id") || !result.has("name")) {
+    if (!result.optBoolean("current")
+        || signing == null
+        || !signing.id.equals(result.optString("id"))
+        || !result.has("name")) {
       login();
       return;
     }
@@ -446,8 +625,8 @@ public final class AccountActivity extends Activity {
 
   private void activate(JSONObject result, boolean legacy) {
 
-    AccountStore.activate(this, result.optString("id"), result.optString("name"), legacy, access);
-    access = null;
+    AccountStore.activate(this, result.optString("name"), legacy, signing);
+    signing = null;
     if (groupLogin) {
       groupLogin = false;
       getIntent().removeExtra("groupsSignIn");
@@ -466,6 +645,7 @@ public final class AccountActivity extends Activity {
   }
 
   private void manage() {
+    managing = true;
     ui.page(AccountStore.prefs(this).getString("name", ""), false);
     ui.label(
         text(
@@ -481,6 +661,7 @@ public final class AccountActivity extends Activity {
         () -> {
           clearPending();
           AccountStore.logout(this);
+          email = "";
           login();
         });
     action(text("Otevřít deník", "Open journal"), AccountLayout.Action.PRIMARY, this::enter);
@@ -511,18 +692,39 @@ public final class AccountActivity extends Activity {
                 () -> {
                   if (isFinishing() || isDestroyed()) return;
                   busy = false;
-                  ui.message(
-                      error instanceof IdentityService.EmailRateLimit
-                          ? text(
-                              "Další odkaz zatím nelze odeslat. Zkus to později.",
-                              "Please wait before requesting another link.")
-                          : text(
-                              "Akci se nepodařilo dokončit. Zkontroluj připojení nebo údaje a"
-                                  + " opakuj pokus.",
-                              "Could not complete this step. Check your connection or details, then"
-                                  + " retry."));
+                  ui.message(errorMessage(error));
                 });
           }
         });
+  }
+
+  private String errorMessage(Exception error) {
+    if (error instanceof IdentityService.EmailRateLimit)
+      return text(
+          "Příliš mnoho pokusů. Zkus to za chvíli znovu.",
+          "Too many attempts. Please try again later.");
+    if (error instanceof IdentityService.HttpFailure) {
+      String code = ((IdentityService.HttpFailure) error).code;
+      if ("invalid_credentials".equals(code))
+        return text(
+            "E-mail nebo heslo nesouhlasí. Pokud jsi dříve používal/a odkaz, zvol Nastavit nebo"
+                + " obnovit heslo.",
+            "Incorrect email or password. If you previously signed in by link, select Set or reset"
+                + " password.");
+      if ("email_not_confirmed".equals(code))
+        return text(
+            "Nejdřív potvrď e-mail na tomto telefonu.", "Confirm your email on this phone first.");
+      if ("weak_password".equals(code))
+        return text("Zvol silnější heslo.", "Choose a stronger password.");
+      if ("same_password".equals(code))
+        return text("Zvol jiné heslo než dosud.", "Choose a different password.");
+    }
+    if (error instanceof java.security.GeneralSecurityException)
+      return text(
+          "Odemknutí se nezdařilo. Přihlas se heslem.",
+          "Device unlock failed. Sign in with your password.");
+    return text(
+        "Akci se nepodařilo dokončit. Zkontroluj připojení nebo údaje a opakuj pokus.",
+        "Could not complete this step. Check your connection or details, then retry.");
   }
 }
