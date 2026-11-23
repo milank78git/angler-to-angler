@@ -1221,3 +1221,16 @@ textarea {
   color: var(--primary);
   font-weight: 650;
 }
+#message-items {
+  display: grid;
+  gap: .65rem;
+  margin-block: .75rem;
+}
+#message-items > button {
+  justify-content: flex-start;
+  text-align: start;
+}
+#peer-name,
+#message-items {
+  overflow-wrap: anywhere;
+}

@@ -185,6 +185,11 @@ public final class FishingActivity extends Activity {
         case "discussion_withdraw":
         case "discussion_helpful":
         case "discussion_report":
+        case "message_inbox":
+        case "message_history":
+        case "message_send":
+        case "message_block":
+        case "message_report":
         case "groups":
         case "group_tip_post":
         case "save_card":

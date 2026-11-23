@@ -94,6 +94,7 @@ export async function profileScreen({ view, nav }) {
     (own
       ? '<div class="actions">' +
         button('edit-card', t('Upravit profil', 'Edit profile'), 'primary') +
+        button('private-inbox', t('Soukromé zprávy', 'Private messages'), 'secondary') +
         button('directory', t('Profily rybářů', 'Angler directory'), 'secondary') +
         button('evidence', t('Moje odeslané fotky', 'My submitted catch photos'), 'secondary') +
         button('account-settings', t('Účet a správa part', 'Account and group settings'), 'secondary') +
@@ -102,6 +103,7 @@ export async function profileScreen({ view, nav }) {
   bindBack(nav);
   if (own) {
     bind('edit-card', () => nav.open('editProfile'));
+    bind('private-inbox', () => nav.open('messageInbox'));
     bind('directory', () => nav.open('directory'));
     bind('evidence', () => nav.open('evidence'));
     bind('account-settings', () => window.Device.profile());

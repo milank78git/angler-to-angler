@@ -29,7 +29,12 @@ final class DiscussionChecks {
       case "water_discussion":
         boolean thread = !body.isNull("question_id");
         JSONArray items = new JSONArray();
-        if (thread) {
+        JSONObject foreign =
+            card(MessageChecks.TOPIC, MessageChecks.TITLE, false).put("replyCount", 0);
+        JSONObject root = question;
+        if (thread && MessageChecks.TOPIC.equals(body.getString("question_id"))) {
+          root = foreign;
+        } else if (thread) {
           if (!question.getString("id").equals(body.getString("question_id")))
             throw new IOException("Wrong thread");
           if (answer != null) items.put(answer);
@@ -38,9 +43,12 @@ final class DiscussionChecks {
                   .put("tripDay", "2026-05-10")
                   .put("helpful", helpful)
                   .put("reported", reported));
-        } else if (question != null) items.put(question);
+        } else {
+          if (question != null) items.put(question);
+          items.put(foreign);
+        }
         return new JSONObject()
-            .put("question", thread ? question : JSONObject.NULL)
+            .put("question", thread ? root : JSONObject.NULL)
             .put("items", items)
             .put("next", JSONObject.NULL);
       case "discussion_post":
@@ -143,8 +151,7 @@ final class DiscussionChecks {
     click(app, "#confirmation-accept");
     app.waitFor(
         "document.querySelector('#discussion-tools')?.hidden===false &&"
-            + " document.querySelector('#discussion-items').childElementCount===0");
-    click(app, "#back");
-    app.waitFor("!!document.querySelector('#open-rules')");
+            + " document.querySelector('#discussion-items').childElementCount===1");
+    MessageChecks.run(app);
   }
 }

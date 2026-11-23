@@ -165,6 +165,12 @@ export async function waterDiscussion({ view, nav, pack }) {
         'danger',
       );
     } else {
+      if (isRoot) {
+        const privateReply = action(card, t('Odpovědět soukromě', 'Reply privately'), () =>
+          nav.open('messageThread', { questionId: item.id }),
+        );
+        privateReply.id = 'private-reply';
+      }
       const flag = action(card, report(), async () => {
         const accepted = await confirmAction({
           title: report() + '?',
