@@ -5,7 +5,7 @@ create table auth.users(id uuid primary key);
 create role anon; create role authenticated;
 create function auth.uid() returns uuid language sql as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
 create function auth.jwt() returns jsonb language sql as $$select coalesce(nullif(current_setting('request.jwt.claims',true),''),'{}')::jsonb$$;
-\ir ../supabase/migrations/202611230001_profiles.sql
+\ir ../supabase/migrations/20261123070056_profiles.sql
 insert into auth.users values ('11111111-1111-4111-8111-111111111111'),('22222222-2222-4222-8222-222222222222');
 do $$begin
  if has_function_privilege('anon','public.angler_profile()','execute') or has_table_privilege('authenticated','angler_private.profiles','select') then raise exception 'excess privilege';end if;

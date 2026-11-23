@@ -88,8 +88,22 @@ final class AccountChecks {
                                   ? 200
                                   : 400;
                             case "/auth/v1/verify":
-                              response = "{\"access_token\":\"fixture-session\"}";
-                              return body.getString("token").equals("123456") ? 200 : 403;
+                              if (!"email".equals(body.optString("type"))) return 400;
+                              String address = "test@example.invalid";
+                              if (body.has("token_hash")) {
+                                if (body.has("email") || body.has("token") || body.length() != 2)
+                                  return 400;
+                                String emailHash = body.getString("token_hash");
+                                if ("other-owner".equals(emailHash)) address = "other@example.invalid";
+                                else if (!"fixture-hash".equals(emailHash)) return 403;
+                              } else if (!address.equals(body.optString("email"))
+                                  || !"123456".equals(body.optString("token"))) return 403;
+                              response =
+                                  new JSONObject()
+                                      .put("access_token", "fixture-session")
+                                      .put("user", new JSONObject().put("email", address))
+                                      .toString();
+                              return 200;
                             case "/rest/v1/rpc/angler_profile":
                               response = "null";
                               break;
@@ -134,9 +148,22 @@ final class AccountChecks {
     checkSocialLogin("Google");
     checkSocialLogin("Facebook");
     type(tr("E-mail", "Email"), "test@example.invalid");
-    click(tr("Poslat přihlašovací kód", "Send sign-in code"));
-    type(tr("Kód z e-mailu", "Email code"), "123456");
-    click(tr("Ověřit kód", "Verify code"));
+    click(tr("Poslat přihlašovací e-mail", "Send sign-in email"));
+    String field = tr("Odkaz nebo kód z e-mailu", "Email link or code");
+    String verify = tr("Ověřit e-mail", "Verify email address");
+    String base = "https://identity.angler.invalid/auth/v1/verify?type=";
+    if (cs) {
+      type(field, base + "signup&token=other-owner");
+      click(verify);
+      find(
+          tr(
+              "Akci se nepodařilo dokončit. Zkontroluj připojení nebo údaje a opakuj pokus.",
+              "Could not complete this step. Check your connection or details, then retry."));
+    }
+    type(
+        field,
+        cs ? base + "signup&token=fixture-hash&redirect_to=https://example.invalid" : "123456");
+    click(verify);
     type(tr("Přezdívka (2–60 znaků)", "Display name (2–60 characters)"), "River");
     String save = tr("Uložit profil", "Save profile");
     assertDisabled(save);

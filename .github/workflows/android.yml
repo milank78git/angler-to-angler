@@ -16,7 +16,7 @@ jobs:
           fixture=$(mktemp -d)
           chmod 755 "$fixture"
           install -Dm644 tests/profile-db.sql "$fixture/tests/profile-db.sql"
-          migration=supabase/migrations/202611230001_profiles.sql
+          migration=supabase/migrations/20261123070056_profiles.sql
           install -Dm644 "$migration" "$fixture/$migration"
           sudo -u postgres psql -X -v ON_ERROR_STOP=1 -f "$fixture/tests/profile-db.sql"
   build:

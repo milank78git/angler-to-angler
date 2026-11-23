@@ -97,16 +97,34 @@ final class IdentityService {
     }
   }
 
-  void sendCode(String email) throws Exception {
+  void sendSignInEmail(String email) throws Exception {
     post("/auth/v1/otp", null, new JSONObject().put("email", email).put("create_user", true));
   }
 
-  String verifyCode(String email, String code) throws Exception {
-    return post(
-            "/auth/v1/verify",
-            null,
-            new JSONObject().put("type", "email").put("email", email).put("token", code))
-        .getString("access_token");
+  /** Redeem only email authentication proofs for this issuer and the address the angler entered. */
+  String verifyEmail(String email, String proof) throws Exception {
+    JSONObject request = new JSONObject().put("type", "email");
+    if (proof.matches("[0-9]{6,10}")) {
+      request.put("email", email).put("token", proof);
+    } else {
+      Uri link = Uri.parse(proof);
+      if (!proof.startsWith(origin + "/auth/v1/verify?")
+          || link.getFragment() != null
+          || link.getQueryParameters("token").size() != 1
+          || link.getQueryParameters("type").size() != 1)
+        throw new IllegalArgumentException("Invalid verification link");
+      String type = link.getQueryParameter("type");
+      if (!"signup".equals(type) && !"magiclink".equals(type) && !"email".equals(type))
+        throw new IllegalArgumentException("Unexpected verification type");
+      String hash = link.getQueryParameter("token");
+      if (hash == null || hash.isEmpty() || hash.length() > 256)
+        throw new IllegalArgumentException("Invalid verification token");
+      request.put("token_hash", hash);
+    }
+    JSONObject session = post("/auth/v1/verify", null, request);
+    if (!email.equalsIgnoreCase(session.getJSONObject("user").getString("email")))
+      throw new IOException("Unexpected email identity");
+    return session.getString("access_token");
   }
 
   String exchange(String code, String verifier) throws Exception {

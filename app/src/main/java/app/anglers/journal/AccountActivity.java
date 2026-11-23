@@ -170,7 +170,7 @@ public final class AccountActivity extends Activity {
             InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
     address.setText(email);
     action(
-            text("Poslat přihlašovací kód", "Send sign-in code"),
+            text("Poslat přihlašovací e-mail", "Send sign-in email"),
             () -> {
               String value = address.getText().toString().trim();
               if (!android.util.Patterns.EMAIL_ADDRESS.matcher(value).matches()) {
@@ -179,7 +179,7 @@ public final class AccountActivity extends Activity {
               }
               run(
                   () -> {
-                    service.sendCode(value);
+                    service.sendSignInEmail(value);
                     return value;
                   },
                   sent -> {
@@ -193,16 +193,27 @@ public final class AccountActivity extends Activity {
   private void code() {
     page(text("Ověření e-mailu", "Verify email"));
     label(email);
-    EditText pin = input(text("Kód z e-mailu", "Email code"), InputType.TYPE_CLASS_NUMBER);
+    label(
+        text(
+            "V doručeném e-mailu podrž přihlašovací odkaz, zkopíruj ho a vlož sem. Pokud zpráva"
+                + " obsahuje číselný kód, stačí ho opsat.",
+            "In the email, press and hold the sign-in link, copy it and paste it here. If the"
+                + " message contains a numeric code, enter that instead."));
+    EditText proof =
+        input(
+            text("Odkaz nebo kód z e-mailu", "Email link or code"),
+            InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+    proof.setSaveEnabled(false);
+    proof.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO);
     action(
-        text("Ověřit kód", "Verify code"),
+        text("Ověřit e-mail", "Verify email address"),
         () -> {
-          String value = pin.getText().toString().trim();
+          String value = proof.getText().toString().trim();
           if (value.isEmpty()) return;
-          run(() -> service.verifyCode(email, value), this::verified);
+          run(() -> service.verifyEmail(email, value), this::verified);
         });
     action(
-        text("Změnit adresu nebo poslat nový kód", "Change address or request a new code"),
+        text("Změnit adresu nebo poslat nový e-mail", "Change address or request another email"),
         this::login);
   }
 
