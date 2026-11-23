@@ -234,6 +234,26 @@ public final class Runner extends Instrumentation {
     waitFor("!!document.querySelector('[data-trip]')");
     js("document.querySelector('[data-trip]').click()");
     waitFor("!!document.querySelector('[data-verify-catch]')");
+    if ("compact".equals(scenario)) js("document.querySelector('#theme').click()");
+    js("document.querySelector('#delete').click()");
+    waitFor("document.querySelector('#confirmation-accept').classList.contains('danger')");
+    js("document.querySelector('#confirmation-cancel').click()");
+    js("document.querySelector('#add').click()");
+    waitFor("!!document.querySelector('#fish-name')");
+    js(
+        "const"
+            + " field=document.querySelector('#fish-name');field.value='Draft';field.dispatchEvent(new"
+            + " Event('input',{bubbles:true}))");
+    sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK);
+    waitFor("document.querySelector('#confirmation').open");
+    js("document.querySelector('#confirmation-cancel').click()");
+    waitFor(
+        "!document.querySelector('#confirmation').open &&"
+            + " document.querySelector('#fish-name').value==='Draft'");
+    sendKeyDownUpSync(android.view.KeyEvent.KEYCODE_BACK);
+    waitFor("document.querySelector('#confirmation').open");
+    js("document.querySelector('#confirmation-accept').click()");
+    waitFor("!!document.querySelector('[data-verify-catch]')");
     js("document.querySelector('[data-verify-catch]').click()");
     waitFor(
         "document.querySelector('#confirmation').open &&"
@@ -361,6 +381,10 @@ public final class Runner extends Instrumentation {
       AccountChecks accounts = new AccountChecks(this, !"wide".equals(scenario));
       bindJournal(accounts.register());
       bindJournal(accounts.groups());
+      if ("compact".equals(scenario)) {
+        waitFor("document.documentElement.dataset.theme === 'dark'");
+        js("document.querySelector('#theme').click()");
+      }
       waitFor("document.documentElement.lang==='" + ("wide".equals(scenario) ? "en" : "cs") + "'");
       waitFor(
           "getComputedStyle(document.querySelector('#tabs')).flexDirection==='"

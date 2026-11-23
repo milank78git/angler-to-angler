@@ -501,6 +501,10 @@ final class AccountChecks {
     app.waitFor(
         "!!document.querySelector('.angler-card .no-portrait') &&"
             + " !!document.querySelector('#account-settings')");
+    if (cs) {
+      app.js("document.querySelector('#theme').click()");
+      app.waitFor("document.documentElement.dataset.theme === 'dark'");
+    }
     gate =
         next(
             "AccountActivity", () -> app.js("document.querySelector('#account-settings').click()"));
