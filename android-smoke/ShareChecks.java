@@ -57,7 +57,7 @@ final class ShareChecks {
   }
 
   /** Select the installed test map from the native dialog and inspect its parking destination. */
-  static void parking(Runner app) throws Exception {
+  static void parking(Runner app, String selector, String coordinates) throws Exception {
     String testPackage = app.getContext().getPackageName();
     android.content.pm.PackageManager pm = app.getTargetContext().getPackageManager();
     android.content.pm.ResolveInfo handler = pm.resolveActivity(
@@ -75,7 +75,7 @@ final class ShareChecks {
     };
     app.addMonitor(monitor);
     try {
-      app.clickReady("#drive-0");
+      app.clickReady(selector);
       long deadline = android.os.SystemClock.elapsedRealtime() + 10000;
       boolean tapped = false;
       while (!tapped && android.os.SystemClock.elapsedRealtime() < deadline) {
@@ -98,7 +98,8 @@ final class ShareChecks {
       }
       check(tapped,"Installed map was absent from the parking dialog");
       Intent route = outgoing.poll(10, TimeUnit.SECONDS);
-      check(route != null && "geo:49.8770658,14.4263203?q=49.8770658,14.4263203".equals(route.getDataString()),
+      String destination = "geo:" + coordinates + "?q=" + coordinates;
+      check(route != null && destination.equals(route.getDataString()),
           "Selected map did not receive the car park coordinates");
     } finally {
       app.removeMonitor(monitor);

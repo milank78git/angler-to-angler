@@ -251,6 +251,10 @@
     "topic": "share",
     "message": "field-hints.share-technique"
   },
+  "water-parking": {
+    "topic": "waters",
+    "message": "field-hints.water-parking"
+  },
   "water-country": {
     "topic": "waters",
     "message": "field-hints.water-country"

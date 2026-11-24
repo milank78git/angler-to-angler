@@ -3,6 +3,10 @@
     {"label":"parking.pikovice","point":[14.4263203,49.8770658],"source":"https://coparking.ch/en/Czech/parking/parkoviste-pobrezni-12863","checked":"2026-11-24"}
   ],
   "CZ:CRS:4615686": [
-    {"label":"parking.lipno","point":[14.220378,48.644036],"source":"https://www.kralovstvilesa.cz/en/","checked":"2026-11-24"}
+    {"label":"parking.lipno","point":[14.220378,48.644036],"source":"https://www.kralovstvilesa.cz/en/","checked":"2026-11-24"},
+    {"label":"parking.frymburk","point":[14.1710583,48.6594239],"source":"https://www.mazanevylety.cz/vylety/219-okruh-po-frymburku/","checked":"2026-11-24"}
+  ],
+  "CZ:CRS:4615396": [
+    {"label":"parking.podolsko","point":[14.2760753,49.3592758],"source":"https://akkcr.cz/jizni-cechy-karavanova-stani-a-parkoviste/","checked":"2026-11-24"}
   ]
 }

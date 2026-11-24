@@ -33,11 +33,29 @@ def shell(*args):
     return adb('shell', shlex.join(args))
 
 
+def read_window(key):
+    # A new window can briefly interrupt UiAutomator. Retry only this read, never an input action.
+    dump = ('rm -f /sdcard/field-window.xml && '
+            'uiautomator dump /sdcard/field-window.xml >/dev/null && cat /sdcard/field-window.xml')
+    for attempt in range(1, 4):
+        try:
+            result = subprocess.run(['adb', 'shell', dump], capture_output=True, timeout=15, check=True)
+            hierarchy = ET.fromstring(result.stdout)
+            if hierarchy.tag != 'hierarchy':
+                raise ET.ParseError('Unexpected window root')
+            return hierarchy
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired, ET.ParseError) as error:
+            # UI content and ADB output can include registration credentials.
+            print(f'Android window for {key}: read {attempt}/3 failed ({type(error).__name__})',
+                  file=sys.stderr, flush=True)
+            if attempt < 3:
+                time.sleep(.25)
+    raise RuntimeError('Android window could not be read for ' + key)
+
+
 def control(key, field=None, optional=False):
     for _ in range(2 if optional else 15):
-        shell('uiautomator', 'dump', '/sdcard/field-window.xml')
-        raw = adb('exec-out', 'cat', '/sdcard/field-window.xml')
-        for node in ET.fromstring(raw).iter('node'):
+        for node in read_window(key).iter('node'):
             attrs = node.attrib
             if (LABELS[key] in (attrs.get('text'), attrs.get('hint'), attrs.get('content-desc'))
                     and (field is None or attrs.get('class') == field)):
@@ -176,9 +194,10 @@ def desktop_confirmation():
     print('Desktop: unconfirmed login rejected, original message confirmed, password and profile accepted.', flush=True)
 
 
-address, password = phone_confirmation()
-desktop_confirmation()
-# The restore probe must find the original identity after the second account was created.
-with os.fdopen(os.open(Path(sys.argv[1]) / 'test-identity.json',
-                       os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600), 'w') as out:
-    json.dump({'email': address, 'password': password}, out)
+if __name__ == '__main__':
+    address, password = phone_confirmation()
+    desktop_confirmation()
+    # The restore probe must find the original identity after the second account was created.
+    with os.fdopen(os.open(Path(sys.argv[1]) / 'test-identity.json',
+                           os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600), 'w') as out:
+        json.dump({'email': address, 'password': password}, out)

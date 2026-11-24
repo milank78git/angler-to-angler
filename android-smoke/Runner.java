@@ -124,6 +124,63 @@ public final class Runner extends Instrumentation {
     js(readyControl(selector) + ".click()");
   }
 
+  /** Type into the lookup without opening its select or dismissing the Android keyboard. */
+  private void checkLiveRuleSearch() throws Exception {
+    js("document.querySelector('#rule-water-search').focus()");
+    setControl("#rule-water-search", "Lipno", "input");
+    String lipnoKey = "CZ:CRS:4615686";
+    String lipnoRow = "#rule-water-suggestions [data-key='" + lipnoKey + "']";
+    waitFor("document.querySelector('#rule-water-search').getAttribute('aria-expanded')==='true'"
+        + " && document.querySelector(\"" + lipnoRow + "\")?.textContent.includes('421 200')"
+        + " && !document.querySelector('#section') && !document.querySelector('#watch-toggle')");
+    clickReady(lipnoRow);
+    waitFor("document.querySelector('#rule-water').value==='" + lipnoKey + "'"
+        + " && document.querySelector('#rule-water-suggestions').hidden"
+        + " && document.querySelector('#status a[href*=\"karta-reviru\"]')?.textContent.includes('LIPNO')");
+    js("document.querySelector('#rule-water-search').focus()");
+    setControl("#rule-water-search", "461 024", "input");
+    waitFor("document.querySelector('#rule-water').value==='CZ:MRS:1'"
+        + " && !!document.querySelector('#status a[href=\"https://mrsbrno.cz/reviry/1\"]')"
+        + " && document.activeElement.id==='rule-water-search'");
+    setControl("#rule-water-search", "401", "input");
+    waitFor("document.querySelector('#rule-water').options.length>2 && document.querySelector('#rule-water').value===''"
+        + " && document.querySelector('#status').textContent==='' && !document.querySelector('#watch-toggle')");
+    clickReady("#rule-water-suggestions [data-key='CZ:401009']");
+    waitFor("document.querySelector('#rule-water').value==='CZ:401009' && !!document.querySelector('#section')");
+    setControl("#rule-water-search", "000 000 000", "input");
+    waitFor("!document.querySelector('#rule-water-empty').hidden && document.querySelector('#rule-fields').textContent===''");
+    setControl("#rule-water-search", "401009", "input");
+    waitFor("document.querySelector('#rule-water').value==='CZ:401009' && !!document.querySelector('#section')");
+    setControl("#rule-water-search", "", "input");
+  }
+
+  /** Exercise combined parking filters and route to the second car park on a catalog water. */
+  private void checkParkingFilter() throws Exception {
+    setControl("#search", "", "input");
+    clickReady("#water-parking");
+    waitFor("!!document.querySelector('[data-water=\"CZ:CRS:4615396\"]')"
+        + " && !!document.querySelector('[data-water=\"401009\"]')");
+    setControl("#water-country", "US", "change");
+    waitFor("document.querySelectorAll('[data-water]').length===0");
+    clickReady("#map-toggle");
+    waitFor("document.querySelector('#map-count')?.textContent.includes('0 / 0')");
+    setControl("#water-country", "CZ", "change");
+    setControl("#search", "421 200", "input");
+    waitFor("document.querySelectorAll('#world-map [data-group]').length===1"
+        + " && document.querySelector('#map-count').textContent.includes('1 / 1')"
+        + " && !document.querySelector('#atlas-photo-credits .credits')");
+    js("document.querySelector('#world-map [data-group]').dispatchEvent(new MouseEvent('click',{bubbles:true}))");
+    waitFor("!!document.querySelector('#drive-1')");
+    ShareChecks.parking(this, "#drive-1", "48.6594239,14.1710583");
+    clickReady("#back");
+    waitFor("document.querySelector('#water-parking')?.checked && document.querySelector('#search').value==='421 200'"
+        + " && document.querySelector('#map-toggle').getAttribute('aria-pressed')==='true'");
+    clickReady("#map-toggle");
+    clickReady("#water-parking");
+    setControl("#search", "461 024", "input");
+    waitFor("!!document.querySelector('[data-water=\"CZ:MRS:1\"]')");
+  }
+
   private void setControl(String selector, String value, String event) throws Exception {
     String el = readyControl(selector);
     js("(() => { const field=" + el + "; field.value=" + org.json.JSONObject.quote(value)
@@ -586,6 +643,7 @@ public final class Runner extends Instrumentation {
       clickReady("#back");
       waitFor("document.querySelector('#search').value==='461 024'");
       checkWaterReport();
+      checkParkingFilter();
       setControl("#water-country", "US", "change");
       waitFor("document.querySelectorAll('[data-water]').length===0");
       setControl("#search", "", "input");
@@ -603,6 +661,7 @@ public final class Runner extends Instrumentation {
               + " !document.querySelector('#rule-water').disabled");
       js("document.querySelector('#theme').click()");
       waitFor("document.documentElement.dataset.theme==='dark'");
+      checkLiveRuleSearch();
       js("(() => { const water=document.querySelector('#rule-water'); water.selectedIndex=water.selectedIndex===0?1:0; water.dispatchEvent(new Event('change')); })()");
       waitFor("!!document.querySelector('label[for=rule-water] + .field-hint') && document.activeElement.id==='rule-water'");
       capture("seasons");
@@ -617,7 +676,7 @@ public final class Runner extends Instrumentation {
       waitFor("document.querySelectorAll('#world-map [data-group]').length===1");
       js("document.querySelector('#world-map [data-group]').dispatchEvent(new MouseEvent('click',{bubbles:true}))");
       waitFor("!!document.querySelector('#navigate')");
-      ShareChecks.parking(this);
+      ShareChecks.parking(this, "#drive-0", "49.8770658,14.4263203");
       clickReady("#back");
       waitFor("document.querySelector('#map-toggle')?.getAttribute('aria-pressed')==='true'");
       clickReady("#map-toggle");
