@@ -38,7 +38,7 @@ def buy(number, offer_id):
 
 
 def overlap(first, second, expected):
-    # Hold the first transaction open after its purchase. Start the competing buyer
+    # Hold the first transaction open after its write. Start the competing client
     # only when the server confirms that the first client is sleeping with its locks.
     with concurrent.futures.ThreadPoolExecutor() as pool:
         winner = pool.submit(sql, first + "select pg_sleep(2); commit;", "market-holder")
@@ -69,3 +69,12 @@ assert success(sql(f"select count(*) from angler_market.orders where offer in ('
 for n in (75, 76):
     assert success(sql(f"select balance from angler_market.wallets where holder='00000000-0000-4000-8000-{n:012}'")) == "20"
 print("Last-slot and cross-offer wallet races passed")
+
+# Two devices rate the same purchase concurrently. Only the first set of scores may win.
+def rating(accuracy):
+    return as_user(75) + f"select public.angler_market_rate('{last}',{accuracy},4,3);"
+
+
+overlap(rating(5), rating(1), "PT409")
+assert success(sql(f"select count(*) from angler_market.orders where offer='{last}' and rating_accuracy=5")) == "1"
+print("Concurrent ratings preserved the first receipt")

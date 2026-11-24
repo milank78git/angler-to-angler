@@ -1,6 +1,6 @@
 # Angler to Angler
 
-An offline-first Android field journal for anglers. The Czech launcher name is **Rybáři sobě**. Release 0.13.0 is a privately stored journal and a small, sourced pilot catalog. A verified angler profile and acceptance of the current terms are required. Open **My journal** to log a trip on any named water.
+An offline-first Android field journal for anglers. The Czech launcher name is **Rybáři sobě**. Release 0.14.0 is a privately stored journal and a small, sourced pilot catalog. A verified angler profile and acceptance of the current terms are required. Open **My journal** to log a trip on any named water.
 
 ## Try the pilot
 
@@ -26,6 +26,8 @@ An offline-first Android field journal for anglers. The Czech launcher name is *
 14. From a saved catch choose **Public catch card**. The preview includes the fish species, display name and catch month. Exact day, an enabled catalog water, photo and reviewed length are individual choices. Confirm to create a link. Anyone who has the link can open it in a browser. Under **Profile → My public cards**, share or revoke a link even after deleting the trip from the phone.
 
 15. Open **Profile → Tip market** to browse fishing techniques. Publishing from a journal trip copies only its date into the form. Review the public preview and enter the written instructions separately. An account may claim 100 test credits once. Unlocking requires a separate confirmation at the displayed price. **Purchased tips** keeps the agreed version after a price change or withdrawal. The pilot has no cash payments, top-ups or payouts.
+
+16. In **Purchased tips**, open a technique and choose **Rate purchased tip**. Score its accuracy, technique description and match with the preview from 1 to 5. Review the three scores before confirming. Each purchase contributes once to the author’s average, including after edits or withdrawal. Verified anglers see the average and rating count before buying. The author’s profile also shows the averages by criterion.
 
 ## Structure and data
 

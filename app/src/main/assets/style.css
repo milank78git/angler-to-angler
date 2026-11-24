@@ -1285,3 +1285,12 @@ textarea {
 @media (min-width: 680px) {
   .weekly-list { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
 }
+
+.rating-breakdown { margin: .5rem 0; }
+.rating-breakdown div { display: flex; justify-content: space-between; gap: 1rem; padding: .3rem 0; }
+.rating-breakdown dd { margin: 0; white-space: nowrap; font-weight: 600; }
+.rating-criterion { border: 0; margin: .75rem 0; padding: 0; }
+.rating-criterion legend { font-weight: 600; }
+.rating-criterion > div { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .25rem; }
+.rating-criterion label { display: grid; justify-items: center; align-content: center; gap: .2rem; min-height: 48px; cursor: pointer; }
+.rating-criterion input { margin: 0; width: 1.1rem; height: 1.1rem; }

@@ -207,6 +207,7 @@ public final class FishingActivity extends Activity {
         case "market_publish":
         case "market_withdraw":
         case "market_buy":
+        case "market_rate":
         case "activity_state":
         case "activity_change":
         case "activity_summary":
