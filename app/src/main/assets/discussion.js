@@ -20,7 +20,7 @@ import {
 } from './ui.js';
 
 const postTime = new Intl.DateTimeFormat(languageTag, { dateStyle: 'medium', timeStyle: 'short' });
-const questions = () => t('Dotazy u revíru', 'Water questions');
+const questions = () => t('Poznatky a dotazy', 'Observations and questions');
 const reply = () => t('Odpovědět', 'Reply');
 const withdraw = () => t('Stáhnout příspěvek', 'Withdraw post');
 const removed = () => t('Text příspěvku byl odstraněn.', 'The text of this post was removed.');
@@ -119,10 +119,10 @@ export async function waterDiscussion({ view, nav, waterDirectory }) {
     ' · ' +
     esc(water.number) +
     '</p><h1>' +
-    (questionId ? t('Dotaz u revíru', 'Water question') : questions()) +
+    (questionId ? t('Příspěvek u revíru', 'Water post') : questions()) +
     '</h1></div>' +
     '<div id="discussion-root"></div><div class="actions" id="discussion-tools" hidden>' +
-    button('discussion-compose', questionId ? reply() : t('Položit dotaz', 'Ask a question'), 'primary') +
+    button('discussion-compose', questionId ? reply() : t('Přidat poznatek nebo dotaz', 'Share an observation or question'), 'primary') +
     button('discussion-refresh', t('Obnovit', 'Refresh'), 'secondary') +
     '</div>' +
     '<h2 id="answers-title" hidden>' +
@@ -150,7 +150,7 @@ export async function waterDiscussion({ view, nav, waterDirectory }) {
   function makeCard(item, isRoot) {
     const card = postCard(item);
     if (!questionId) {
-      action(card, t('Otevřít dotaz', 'Open question'), () =>
+      action(card, t('Otevřít příspěvek', 'Open post'), () =>
         nav.open('waterDiscussion', { id, questionId: item.id }),
       );
       return card;
@@ -281,7 +281,7 @@ export async function waterDiscussion({ view, nav, waterDirectory }) {
         ? ''
         : questionId
           ? t('Zatím žádná odpověď.', 'No answers yet.')
-          : t('Zatím se tu nikdo nezeptal.', 'No questions here yet.');
+          : t('Zatím tu nejsou žádné příspěvky.', 'No posts here yet.');
     } catch (err) {
       if (view.active()) {
         status.textContent = errorText(err);
@@ -301,13 +301,13 @@ export function discussionComposer({ view, nav, waterDirectory }) {
   const { id, questionId = null } = view.route;
   const water = waterDirectory.byId.get(id);
   if (!water) return nav.back();
-  const publish = questionId ? t('Zveřejnit odpověď', 'Post answer') : t('Zveřejnit dotaz', 'Post question');
+  const publish = questionId ? t('Zveřejnit odpověď', 'Post answer') : t('Zveřejnit příspěvek', 'Publish post');
   screen.innerHTML =
     back(t('Zpět', 'Back')) +
     '<div class="page-intro"><p class="meta">' +
     esc(water.name) +
     '</p><h1>' +
-    (questionId ? t('Odpověď u revíru', 'Answer at this water') : t('Nový dotaz', 'New question')) +
+    (questionId ? t('Odpověď u revíru', 'Answer at this water') : t('Nový příspěvek', 'New post')) +
     '</h1></div>' +
     (questionId
       ? '<blockquote class="discussion-context">' +
@@ -322,7 +322,7 @@ export function discussionComposer({ view, nav, waterDirectory }) {
       'discussion-text',
       questionId
         ? t('Tvoje odpověď', 'Your answer')
-        : t('Na co se chceš zeptat?', 'What would you like to ask?'),
+        : t('Co jsi u vody zjistil nebo na co se chceš zeptat?', 'What did you observe or what would you like to ask?'),
       '<textarea id="discussion-text" rows="5" maxlength="1600" required></textarea>',
     ) +
     (questionId

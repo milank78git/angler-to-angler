@@ -329,7 +329,7 @@ export async function waterActivity({ view, nav, pack, rivers }) {
       'Voluntary trip summaries are released seven days after month end. At least 10 trips from 5 anglers are required. Small groups stay hidden when filtering.',
     ) +
     '</p>' +
-    button('activity-questions', t('Dotazy u revíru', 'Water questions'), 'secondary');
+    button('activity-questions', t('Poznatky a dotazy', 'Observations and questions'), 'secondary');
   bindBack(nav);
   by('activity-filters').onsubmit = (event) => {
     event.preventDefault();

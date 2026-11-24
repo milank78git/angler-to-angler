@@ -61,7 +61,7 @@ def ris_pages(cache, spatial=False):
     while True:
         url = RIS_API + "?" + urlencode(dict(params, **{"from": offset}))
         page = cached(cache / folder / f"{offset}.json", url)
-        if not page["items"] or (offset and page["total"] != total):
+        if page.get("from") != offset or not page["items"] or (offset and page["total"] != total):
             raise ValueError(f"Incomplete or changing {folder} listing at {offset}")
         total = page["total"]
         rows.extend(page["items"])
@@ -167,7 +167,7 @@ def build(cache, as_of):
         sid = r["sid"]
         key = PILOT.get(sid, "CZ:CRS:" + sid)
         row = {"id": key, "number": r["cislo"], "name": r["oficialniNazev"].strip(), "provider": "CRS",
-               "slug": r["friendlyUrl"], "trout": r["typReviru"]["kod"] == "PSTRUHOVY",
+               "slug": r["friendlyUrl"], "trout": {"PSTRUHOVY": True, "MIMOPSTRUHOVY": False}[r["typReviru"]["kod"]],
                "kind": {"REVIR": "fishery", "VPLU": "water"}[r["typVodniOblasti"]["kod"]],
                "region": r.get("uzemniSvaz", {}).get("nazev", ""), "manager": r.get("organizace", {}).get("nazev", "")}
         feature = mapping.get(sid)
