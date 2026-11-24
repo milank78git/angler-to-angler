@@ -810,7 +810,10 @@ final class AccountChecks {
     app.waitForIdleSync();
     click(tr("common.back"));
     app.waitForIdleSync();
-    if (app.textZoom() < 125) throw new AssertionError("Large text did not reach the journal");
+    app.waitFor("document.hasFocus()");
+    int expectedZoom = Math.round(130 * target.getResources().getConfiguration().fontScale);
+    if (app.textZoom() != expectedZoom)
+      throw new AssertionError("Journal text zoom " + app.textZoom() + ", expected " + expectedZoom);
     app.clickReady("#atlas-settings");
     if (!((CheckBox)find(tr("settings.screen_on"))).isChecked() || !((CheckBox)find(tr("settings.large"))).isChecked())
       throw new AssertionError("Reading preferences were not retained");

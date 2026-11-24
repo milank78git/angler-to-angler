@@ -26,6 +26,18 @@ public final class FishingActivity extends Activity {
     if (WaterCatalogue.REVISION.equals(key) && web != null)
       web.evaluateJavascript("window.waterCatalogueChanged && window.waterCatalogueChanged()", null);
   };
+  private final android.content.SharedPreferences.OnSharedPreferenceChangeListener appearanceListener =
+      (preferences, key) -> applyReadingPreferences();
+
+  private void applyReadingPreferences() {
+    if (web == null) return;
+    float systemScale = getResources().getConfiguration().fontScale;
+    web.getSettings().setTextZoom(Math.round(100 * systemScale * WaterSettingsActivity.textScale(this)));
+    if (getSharedPreferences("appearance", MODE_PRIVATE).getBoolean("screenOn", false))
+      getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    else getWindow().clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+  }
+
   private ValueCallback<Uri[]> picker;
   private PositionRequest position, nearbyPosition;
   private long nearbyStarted;
@@ -52,6 +64,7 @@ public final class FishingActivity extends Activity {
     if (state != null) pendingReminder = state.getString("reminder");
     web = new WebView(this);
     setContentView(web);
+    getSharedPreferences("appearance", MODE_PRIVATE).registerOnSharedPreferenceChangeListener(appearanceListener);
     if (Build.VERSION.SDK_INT >= 35) {
       findViewById(android.R.id.content)
           .setOnApplyWindowInsetsListener(
@@ -588,11 +601,7 @@ public final class FishingActivity extends Activity {
     super.onResume();
     foreground=true;
     if (web!=null) {
-      float base=getResources().getConfiguration().fontScale;
-      web.getSettings().setTextZoom(Math.round(100*base*WaterSettingsActivity.textScale(this)));
-      if (getSharedPreferences("appearance",MODE_PRIVATE).getBoolean("screenOn",false))
-        getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-      else getWindow().clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+      applyReadingPreferences();
       signal("window.refreshFieldSettings?.()");
       if (FieldAlerts.enabled(this,FieldAlerts.POSTS)) FieldAlerts.checkPosts(this,null);
     }
@@ -619,6 +628,7 @@ public final class FishingActivity extends Activity {
   @Override
   protected void onDestroy() {
     WaterCatalogue.prefs(this).unregisterOnSharedPreferenceChangeListener(atlasListener);
+    getSharedPreferences("appearance", MODE_PRIVATE).unregisterOnSharedPreferenceChangeListener(appearanceListener);
     profileIo.shutdownNow();
     discardDeliveredPhoto();
     CameraPhotoProvider.discard(this, cameraUri);
