@@ -201,6 +201,8 @@ public final class FishingActivity extends Activity {
         case "public_card_publish":
         case "public_card_withdraw":
         case "public_cards":
+        case "water_report":
+        case "water_alerts":
         case "market_discover":
         case "market_list":
         case "market_detail":
