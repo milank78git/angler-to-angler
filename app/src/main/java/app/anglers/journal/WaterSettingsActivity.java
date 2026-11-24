@@ -38,11 +38,16 @@ public final class WaterSettingsActivity extends Activity {
     super.onCreate(state);
     ui = new AccountLayout(this);
     pending=state==null ? null : state.getString("alert");
+    renderSettings();
+  }
+
+  private void renderSettings() {
+    boolean checking = check != null && !check.isEnabled();
     ui.page(text("settings.title"), false);
     android.content.SharedPreferences appearance=getSharedPreferences("appearance",MODE_PRIVATE);
     CheckBox large=ui.check(text("settings.large"));
     large.setChecked(appearance.getBoolean("large",false));
-    large.setOnCheckedChangeListener((v,on) -> { appearance.edit().putBoolean("large",on).apply(); recreate(); });
+    large.setOnCheckedChangeListener((v,on) -> { appearance.edit().putBoolean("large",on).apply(); renderSettings(); });
     CheckBox screenOn=ui.check(text("settings.screen_on"));
     screenOn.setChecked(appearance.getBoolean("screenOn",false));
     screenOn.setOnCheckedChangeListener((v,on) -> appearance.edit().putBoolean("screenOn",on).apply());
@@ -70,7 +75,11 @@ public final class WaterSettingsActivity extends Activity {
     ui.label(text("atlas_settings.the_phone_checks_the_atlas_when_online"));
     status = ui.label("");
     check = ui.button(ui.form, text("atlas_settings.check_now"), AccountLayout.Action.PRIMARY, this::refresh);
+    check.setEnabled(!checking);
+    if (checking) ui.message(text("atlas_settings.checking_the_atlas"));
     ui.button(ui.form, text("common.back"), AccountLayout.Action.SECONDARY, this::finish);
+    showStatus();
+    showSubscriptionStatus();
   }
 
   private void enablePending() {

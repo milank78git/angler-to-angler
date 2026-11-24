@@ -810,8 +810,9 @@ final class AccountChecks {
     app.waitForIdleSync();
     click(tr("common.back"));
     app.waitForIdleSync();
-    app.waitFor("document.hasFocus()");
     int expectedZoom = Math.round(130 * target.getResources().getConfiguration().fontScale);
+    long zoomDeadline = android.os.SystemClock.elapsedRealtime() + 6000;
+    while (app.textZoom() != expectedZoom && android.os.SystemClock.elapsedRealtime() < zoomDeadline) Thread.sleep(100);
     if (app.textZoom() != expectedZoom)
       throw new AssertionError("Journal text zoom " + app.textZoom() + ", expected " + expectedZoom);
     app.clickReady("#atlas-settings");

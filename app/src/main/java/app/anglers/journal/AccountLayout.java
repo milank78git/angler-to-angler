@@ -183,6 +183,8 @@ final class AccountLayout {
     WebView web = new WebView(activity);
     web.setBackgroundColor(surface);
     web.getSettings().setJavaScriptEnabled(true);
+    web.getSettings().setTextZoom(Math.round(100 * activity.getResources().getConfiguration().fontScale
+        * WaterSettingsActivity.textScale(activity)));
     web.getSettings().setAllowFileAccess(false);
     web.getSettings().setAllowContentAccess(false);
     web.setWebViewClient(new LocalAssetClient(activity.getAssets(), ignored -> {}));
