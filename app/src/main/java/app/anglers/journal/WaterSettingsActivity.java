@@ -13,6 +13,9 @@ public final class WaterSettingsActivity extends Activity {
   private TextView status;
   private AccountLayout ui;
   private Button check;
+  private final android.content.SharedPreferences.OnSharedPreferenceChangeListener editionListener = (prefs, key) -> {
+    if (WaterCatalogue.CHECKED.equals(key) || WaterCatalogue.REVISION.equals(key)) showStatus();
+  };
 
   private String text(String cs, String en) { return AppLanguage.text(this, cs, en); }
 
@@ -30,7 +33,16 @@ public final class WaterSettingsActivity extends Activity {
     ui.button(ui.form, text("Zpět", "Back"), AccountLayout.Action.SECONDARY, this::finish);
   }
 
-  @Override protected void onResume() { super.onResume(); showStatus(); }
+  @Override protected void onStart() {
+    super.onStart();
+    WaterCatalogue.prefs(this).registerOnSharedPreferenceChangeListener(editionListener);
+    showStatus();
+  }
+
+  @Override protected void onStop() {
+    WaterCatalogue.prefs(this).unregisterOnSharedPreferenceChangeListener(editionListener);
+    super.onStop();
+  }
 
   private void showStatus() {
     long last = WaterCatalogue.prefs(this).getLong(WaterCatalogue.CHECKED, 0);

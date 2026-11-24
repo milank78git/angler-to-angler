@@ -143,7 +143,7 @@ class BookLinks(HTMLParser):
         if tag == "a" and "srz-poriadok-link" in a.get("class", "").split():
             url = a.get("href", "")
             if urlsplit(url).hostname in {"srzrada.sk", "srzrada.xandraone.com"} and url.startswith("https://"):
-                if re.search(r'(?:kaprov|lipnov|zvlastny).*\.pdf$', url, re.I):
+                if re.search(r'(?:kaprov|lipnov|pstruhov|zvlastny).*\.pdf$', url, re.I):
                     self.books.append(url)
 
 
