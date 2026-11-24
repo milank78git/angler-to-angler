@@ -19,6 +19,7 @@ public final class JournalApplication extends Application
   @Override
   public void onCreate() {
     super.onCreate();
+    AccountStore.initializeJournalOwnership(this);
     registerActivityLifecycleCallbacks(this);
     registerReceiver(
         new BroadcastReceiver() {

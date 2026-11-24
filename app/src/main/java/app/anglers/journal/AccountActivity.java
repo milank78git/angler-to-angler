@@ -650,8 +650,7 @@ public final class AccountActivity extends Activity {
       return;
     }
     Runnable fresh = () -> activate(result, false);
-    if (AccountStore.prefs(this).contains("legacyOwner")
-        || !new java.io.File(getApplicationInfo().dataDir, "app_webview").isDirectory()) {
+    if (AccountStore.prefs(this).contains("legacyOwner")) {
       fresh.run();
       return;
     }
