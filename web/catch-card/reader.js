@@ -1,15 +1,16 @@
 import {renderPublicCard} from './public-card-view.js';
 import {apiOrigin, publishableKey} from './reader-config.js';
 
-const cs = navigator.language.toLowerCase().startsWith('cs');
-const t = (cz,en) => cs ? cz : en;
+import { label as t, languageTag, contentLanguage, loadDictionary } from './i18n.js';
+
+await loadDictionary();
 const content = document.querySelector('#content'), retry = document.querySelector('#retry');
-const title = t('Rybáři sobě','Angler to Angler');
-document.documentElement.lang = cs ? 'cs' : 'en';
+const title = t('app.name');
+document.documentElement.lang = contentLanguage;
 document.querySelector('#brand').textContent = title;
-document.querySelector('#heading').textContent = t('Sdílený úlovek','Shared catch');
-retry.textContent = t('Zkusit znovu','Try again');
-const missing = t('Tato karta není dostupná. Autor ji mohl stáhnout.', 'This card is unavailable. Its author may have withdrawn it.');
+document.querySelector('#heading').textContent = t('public_reader.shared_catch');
+retry.textContent = t('common.try_again');
+const missing = t('public_reader.this_card_is_unavailable_its_author_may');
 let request;
 
 function status(text) {
@@ -29,12 +30,11 @@ async function refresh() {
   if (document.hidden) return;
   const id = location.hash.slice(1);
   if (!id) {
-    status(t('Otevři celý odkaz, který ti rybář poslal z aplikace Rybáři sobě.',
-      'Open the full link the angler shared with you from Angler to Angler.'));
+    status(t('public_reader.open_the_full_link_the_angler_shared'));
     return;
   }
   if (!/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/i.test(id)) { status(missing); return; }
-  status(t('Načítám úlovek…','Loading catch…'));
+  status(t('public_reader.loading_catch'));
   try {
     const response = await fetch(apiOrigin + '/rest/v1/rpc/angler_open_catch_card', {
       method:'POST', headers:{apikey:publishableKey,'Content-Type':'application/json'},
@@ -46,16 +46,17 @@ async function refresh() {
     const card = body.trim() ? JSON.parse(body) : null;
     if (current.signal.aborted) return;
     if (!card) { status(missing); return; }
-    renderPublicCard(content,card,cs ? 'cs' : 'en');
+    renderPublicCard(content,card,languageTag,t);
     document.title = card.species + ' · ' + title;
   } catch {
     if (current.signal.aborted) return;
-    status(t('Kartu se nepodařilo načíst. Zkontroluj připojení a zkus to znovu.',
-      'Could not load the card. Check your connection and try again.'));
+    status(t('public_reader.could_not_load_the_card_check_your'));
     retry.hidden = false;
   }
 }
 retry.onclick = refresh;
 window.addEventListener('hashchange',refresh);
-window.addEventListener('pageshow',refresh);
+window.addEventListener('pageshow', event => { if (event.persisted) refresh(); });
 document.addEventListener('visibilitychange',refresh);
+// Dictionary loading can finish after the initial pageshow has already fired.
+refresh();

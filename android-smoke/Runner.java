@@ -22,6 +22,42 @@ public final class Runner extends Instrumentation {
     start();
   }
 
+  private org.json.JSONObject targetAsset(String name) {
+    try (java.io.InputStream in = getTargetContext().getAssets().open(name);
+        java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(
+            in, java.nio.charset.StandardCharsets.UTF_8))) {
+      return new org.json.JSONObject(reader.lines().collect(java.util.stream.Collectors.joining("\n")));
+    } catch (Exception error) {
+      throw new AssertionError("Could not read target asset " + name, error);
+    }
+  }
+
+  private org.json.JSONObject labels;
+
+  String label(String key) {
+    if (labels == null) {
+      labels = targetAsset("strings-" + ("wide".equals(scenario) ? "en" : "cs") + ".json");
+    }
+    try {
+      return labels.getString(key);
+    } catch (org.json.JSONException missing) {
+      throw new AssertionError("Missing expected label " + key, missing);
+    }
+  }
+
+  String waterName(String id) {
+    try {
+      org.json.JSONArray waters = targetAsset("catalog.json").getJSONArray("waters");
+      for (int i = 0; i < waters.length(); i++) {
+        org.json.JSONObject water = waters.getJSONObject(i);
+        if (water.getString("id").equals(id)) return water.getString("name");
+      }
+    } catch (org.json.JSONException invalid) {
+      throw new AssertionError(invalid);
+    }
+    throw new AssertionError("Missing official water " + id);
+  }
+
   /** Read the actual target APK so the UI assertions stay valid across releases. */
   String expectedVersionLabel() throws Exception {
     android.content.Context target = getTargetContext();
@@ -305,14 +341,14 @@ public final class Runner extends Instrumentation {
     waitFor(
         card
             + "?.querySelector('strong')?.textContent === "
-            + org.json.JSONObject.quote(cs ? "Čeká na kontrolu" : "Awaiting review"));
+            + org.json.JSONObject.quote(label("verification.awaiting_review")));
     accounts.setPhotoReview("measured", 635);
     js("document.querySelector('#refresh-evidence').click()");
     waitFor(
         card
             + "?.textContent.includes("
             + org.json.JSONObject.quote(
-                cs ? "Délka odečtená z míry · 63,5 cm" : "Length read from ruler · 63.5 cm")
+                label("verification.length_read_from_ruler") + (cs ? " · 63,5 cm" : " · 63.5 cm"))
             + ")");
     accounts.setPhotoReview("estimated", 650);
     js("document.querySelector('#refresh-evidence').click()");
@@ -320,16 +356,14 @@ public final class Runner extends Instrumentation {
         card
             + "?.textContent.includes("
             + org.json.JSONObject.quote(
-                cs
-                    ? "Délka odhadnutá podle měřítka · 65 cm"
-                    : "Length estimated from a reference · 65 cm")
+                label("verification.length_estimated_from_a_reference") + " · 65 cm")
             + ")");
     accounts.setPhotoReview("unverified", null);
     js("document.querySelector('#refresh-evidence').click()");
     waitFor(
         card
             + "?.querySelector('strong')?.textContent === "
-            + org.json.JSONObject.quote(cs ? "Nedostatečný podklad" : "Insufficient evidence")
+            + org.json.JSONObject.quote(label("verification.insufficient_evidence"))
             + " && !"
             + card
             + ".textContent.includes(' cm')");

@@ -90,7 +90,8 @@ final class MarketChecks {
     app.clickReady("#confirmation-cancel");
     app.clickReady("#submit-rating");
     app.clickReady("#confirmation-accept");
-    app.waitFor("/Odeslání|Could not confirm/.test(document.querySelector('#notice').textContent)");
+    app.waitFor("document.querySelector('#notice').textContent === "
+        + org.json.JSONObject.quote(app.label("tip_ratings.could_not_confirm_submission_please_retry")));
     app.clickReady("#submit-rating");
     app.clickReady("#confirmation-accept");
     app.waitFor("document.querySelector('#my-rating dd')?.textContent==='5 / 5'");

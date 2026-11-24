@@ -41,7 +41,14 @@ for pos in range(0,len(missing),24):
             known[name].setdefault(lang,val)
     cfg.cache.write_text(json.dumps(known,ensure_ascii=False))
     time.sleep(.8)
+curated = json.loads((root / "data/europe/fish-names.json").read_text())
+if set(curated) - set(names):
+    raise ValueError("Curated fish names reference an unknown species")
+observed = json.loads((root / "data/europe/observed-fish-names-cs.json").read_text())
 for lang in langs:
     labels={n:known[n][lang] for n in names if lang in known.get(n,{})}
+    if lang == "cs":
+        labels = {**{n: observed[n] for n in names if n in observed}, **labels}
+    labels.update({n: values[lang] for n, values in curated.items() if lang in values})
     (assets/("fish-names-"+lang+".json")).write_text(json.dumps(labels,ensure_ascii=False,sort_keys=True,separators=(",",":"))+"\n")
 print(len(names),"scientific names processed")

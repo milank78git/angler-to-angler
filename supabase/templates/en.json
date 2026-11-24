@@ -1,0 +1,14 @@
+{
+  "confirmation.title": "Confirm your email",
+  "brand": "Angler to Angler",
+  "confirmation.instruction": "Open this link on the phone where you registered to finish setting up your account. You can then sign in with your password.",
+  "confirmation.action": "Confirm email",
+  "expiry": "This link can be used once. If you didn’t request it, you can delete this message.",
+  "fallback": "If the button does not work, copy this link into the browser on the same phone.",
+  "magic_link.title": "Sign in to your journal",
+  "magic_link.instruction": "Open this link on the phone where you requested access to your journal.",
+  "magic_link.action": "Open journal",
+  "recovery.title": "Set your password",
+  "recovery.instruction": "Open this link on the phone where you requested a password reset and choose a new password for your account.",
+  "recovery.action": "Set password"
+}

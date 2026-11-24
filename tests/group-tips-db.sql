@@ -9,7 +9,7 @@ select pg_temp.check_that(not has_function_privilege('anon','public.angler_group
 set local role authenticated;
 do $$
 declare gid uuid:=gen_random_uuid(); other_group uuid:=gen_random_uuid(); req uuid:=gen_random_uuid();
-  code uuid; msg text:=E'Fish the shade <slowly> & pause.\nRevír · Sázava';
+  code uuid; msg text:=E'Fish the shade <slowly> & pause.\nWater · River Test';
   result jsonb; cursor bigint;
 begin
   perform pg_temp.as_user(2);

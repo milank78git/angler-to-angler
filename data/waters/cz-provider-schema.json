@@ -1,0 +1,29 @@
+{
+  "fields": {
+    "boundaries": "uzemniVymezeni",
+    "number": "cislo",
+    "name": "oficialniNazev",
+    "fisheryType": "typReviru",
+    "code": "kod",
+    "waterType": "typVodniOblasti",
+    "region": "uzemniSvaz",
+    "shortName": "nazev",
+    "manager": "organizace",
+    "longitude": "gpsSouradniceDelka",
+    "latitude": "gpsSouradniceSirka"
+  },
+  "troutTypes": {
+    "PSTRUHOVY": true,
+    "MIMOPSTRUHOVY": false
+  },
+  "waterTypes": {
+    "REVIR": "fishery",
+    "VPLU": "water"
+  },
+  "districtTypes": {
+    "Revír": "fishery",
+    "Rybník": "pond"
+  },
+  "geometryOption": "output.uzemniVymezeni",
+  "directoryUrl": "https://www.rybsvaz.cz/proxy/api/public/reviry"
+}

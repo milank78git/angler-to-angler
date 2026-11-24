@@ -18,22 +18,21 @@ public final class GroupsActivity extends Activity {
   private AccountLayout ui;
   private IdentityService service;
   private String subject;
-  private boolean cs, busy, readingTips;
+  private boolean busy, readingTips;
   private AccountLayout.Prompt dialog;
   private EditText dialogInput;
 
-  private String t(String cz, String en) {
-    return AppLanguage.text(this, cz, en);
+  private String t(String key) {
+    return AppLanguage.text(this, key);
   }
 
   @Override
   public void onCreate(Bundle state) {
     super.onCreate(state);
-    cs = "cs".equals(getResources().getConfiguration().getLocales().get(0).getLanguage());
     ui = new AccountLayout(this);
     subject = AccountStore.active(this);
     try {
-      service = new IdentityService(this, cs);
+      service = new IdentityService(this);
     } catch (Exception ignored) {
       /* Offer retry on reopen. */
     }
@@ -62,7 +61,7 @@ public final class GroupsActivity extends Activity {
   }
 
   private String title() {
-    return t("Rybářské party", "Fishing groups");
+    return t("common.fishing_groups");
   }
 
   private void signIn() {
@@ -70,11 +69,9 @@ public final class GroupsActivity extends Activity {
     closeDialog();
     ui.page(title(), false);
     ui.label(
-        t(
-            "Pro správu party se přihlas online. Svůj deník můžeš dál používat.",
-            "Sign in online to manage groups. You can still use your journal."));
+        t("groups.sign_in_online_to_manage_groups_you"));
     button(
-        t("Přihlásit se", "Sign in"),
+        t("common.sign_in"),
         AccountLayout.Action.PRIMARY,
         () -> {
           startActivity(
@@ -92,53 +89,49 @@ public final class GroupsActivity extends Activity {
       return;
     }
     ui.page(title(), false);
-    button(t("Obnovit seznam", "Refresh groups"), AccountLayout.Action.LINK, this::refresh);
+    button(t("groups.refresh_groups"), AccountLayout.Action.LINK, this::refresh);
     request("groups", new JSONObject(), result -> render(result.getJSONArray("groups")));
   }
 
   private void render(JSONArray groups) throws JSONException {
     ui.page(title(), false);
     ui.label(
-        t(
-            "Na server se ukládá název party, členství a tipy, které do ní odešleš."
-                + " Odchodem se smažou i tvé tipy, soutěžní fotky a hlasy.",
-            "The service stores the group name, membership and the tips you post to it."
-                + " Leaving deletes your tips, competition photos and votes."));
+        t("groups.the_service_stores_the_group_name_membership"));
     if (groups.length() == 0)
-      ui.label(t("Zatím nejsi v žádné partě.", "You haven’t joined any groups yet."));
+      ui.label(t("groups.you_havent_joined_any_groups_yet"));
     for (int i = 0; i < groups.length(); i++) {
       JSONObject group = groups.getJSONObject(i);
       String id = group.getString("id"), name = group.getString("name");
       boolean owner = group.getBoolean("owner");
       button(
-          name + (owner ? t(" · zakladatel", " · owner") : t(" · člen", " · member")),
+          name + (owner ? t("groups.owner") : t("groups.member")),
           AccountLayout.Action.SECONDARY,
           () -> actions(id, name, owner));
-      ui.label(t("Počet členů: ", "Members: ") + group.getInt("memberCount"));
+      ui.label(t("groups.members") + group.getInt("memberCount"));
     }
-    button(t("Založit partu", "Create a group"), AccountLayout.Action.PRIMARY, () -> editor(true));
+    button(t("groups.create_a_group"), AccountLayout.Action.PRIMARY, () -> editor(true));
     button(
-        t("Přijmout pozvánku", "Join with a code"),
+        t("groups.join_with_a_code"),
         AccountLayout.Action.SECONDARY,
         () -> editor(false));
-    button(t("Obnovit seznam", "Refresh groups"), AccountLayout.Action.LINK, this::refresh);
+    button(t("groups.refresh_groups"), AccountLayout.Action.LINK, this::refresh);
   }
 
   /** Keep the draft and request ID through recoverable network failures. */
   private void editor(boolean create) {
     String id = UUID.randomUUID().toString();
     String action =
-        create ? t("Založit partu", "Create a group") : t("Přijmout pozvánku", "Join with a code");
+        create ? t("groups.create_a_group") : t("groups.join_with_a_code");
     dialog = ui.prompt(action);
     EditText input =
         dialog.input(
             create
-                ? t("Název party (2–60 znaků)", "Group name (2–60 characters)")
-                : t("Kód pozvánky", "Invitation code"),
+                ? t("groups.group_name_2_60_characters")
+                : t("groups.invitation_code"),
             InputType.TYPE_CLASS_TEXT);
     ui.explain(input.getHint().toString(), create
-        ? t("Tento název uvidí členové party.", "Group members will see this name.")
-        : t("Zadej kód, který ti předal správce party.", "Enter the code shared by the group administrator."), input);
+        ? t("groups.group_members_will_see_this_name")
+        : t("groups.enter_the_code_shared_by_the_group"), input);
     dialogInput = input;
     dialog.submit(
         action,
@@ -152,7 +145,7 @@ public final class GroupsActivity extends Activity {
             return;
           }
           if (!create && !value.matches("(?i)[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}")) {
-            input.setError(t("Vlož celý kód z pozvánky.", "Paste the complete invitation code."));
+            input.setError(t("groups.paste_the_complete_invitation_code"));
             return;
           }
           JSONObject args =
@@ -165,18 +158,18 @@ public final class GroupsActivity extends Activity {
                 refresh();
               });
         });
-    dialog.action(t("Zrušit", "Cancel"), AccountLayout.Action.SECONDARY, null);
+    dialog.action(t("common.cancel"), AccountLayout.Action.SECONDARY, null);
     dialog.show();
   }
 
   private void actions(String id, String name, boolean owner) {
     String leave =
-        owner ? t("Rozpustit partu", "Dissolve group") : t("Opustit partu", "Leave group");
+        owner ? t("groups.dissolve_group") : t("groups.leave_group");
     dialog = ui.prompt(name);
     dialog.choice(
-        t("Tipy party", "Group tips"), AccountLayout.Action.SECONDARY, () -> tips(id, name, null));
+        t("groups.group_tips"), AccountLayout.Action.SECONDARY, () -> tips(id, name, null));
     dialog.choice(
-        t("Úlovek týdne", "Catch of the week"),
+        t("common.catch_of_the_week"),
         AccountLayout.Action.SECONDARY,
         () ->
             startActivity(
@@ -185,7 +178,7 @@ public final class GroupsActivity extends Activity {
                         "weeklyDestination", args("groupId", id, "groupName", name).toString())));
     if (owner)
       dialog.choice(
-          t("Vystavit pozvánku", "Issue invitation"),
+          t("groups.issue_invitation"),
           AccountLayout.Action.PRIMARY,
           () ->
               request(
@@ -193,24 +186,24 @@ public final class GroupsActivity extends Activity {
                   args("group_id", id),
                   result -> invitation(result.getString("code"))));
     dialog.choice(leave, AccountLayout.Action.DANGER, () -> confirmLeave(id, name, owner, leave));
-    dialog.action(t("Zavřít", "Close"), AccountLayout.Action.SECONDARY, null);
+    dialog.action(t("common.close"), AccountLayout.Action.SECONDARY, null);
     dialog.show();
   }
 
   /** Read a bounded page online. Refresh and Back always work from an empty or failed page. */
   private void tips(String id, String name, String cursor) {
     readingTips = true;
-    ui.page(t("Tipy party · ", "Group tips · ") + name, false);
-    button(t("Zpět na party", "Back to groups"), AccountLayout.Action.LINK, this::refresh);
+    ui.page(t("groups.group_tips_label") + name, false);
+    button(t("groups.back_to_groups"), AccountLayout.Action.LINK, this::refresh);
     button(
-        t("Obnovit tipy", "Refresh tips"),
+        t("groups.refresh_tips"),
         AccountLayout.Action.SECONDARY,
         () -> tips(id, name, null));
     JSONObject query = args("group_id", id);
     if (cursor != null) {
       query = args("group_id", id, "before_position", cursor);
       button(
-          t("Načíst tuto stránku znovu", "Reload this page"),
+          t("groups.reload_this_page"),
           AccountLayout.Action.LINK,
           () -> tips(id, name, cursor));
     }
@@ -219,7 +212,7 @@ public final class GroupsActivity extends Activity {
         query,
         result -> {
           JSONArray items = result.getJSONArray("tips");
-          if (items.length() == 0) ui.label(t("Zatím tu nejsou žádné tipy.", "No tips here yet."));
+          if (items.length() == 0) ui.label(t("common.no_tips_here_yet"));
           java.text.DateFormat dates =
               java.text.DateFormat.getDateTimeInstance(
                   java.text.DateFormat.MEDIUM,
@@ -236,7 +229,7 @@ public final class GroupsActivity extends Activity {
           if (!result.isNull("next")) {
             String next = result.getString("next");
             button(
-                t("Starší tipy", "Older tips"),
+                t("groups.older_tips"),
                 AccountLayout.Action.SECONDARY,
                 () -> tips(id, name, next));
           }
@@ -253,18 +246,8 @@ public final class GroupsActivity extends Activity {
     dialog = ui.prompt(leave + "?");
     dialog.description(
         owner
-            ? t(
-                "Parta „" + name + "“ se smaže včetně tipů, soutěžních fotek, hlasů a pozvánky.",
-                "Dissolving “"
-                    + name
-                    + "” deletes the group tips, competition photos, votes and invitation.")
-            : t(
-                "Tvoje členství v partě „"
-                    + name
-                    + "“ skončí a smažou se tvé tipy, soutěžní fotky i hlasy.",
-                "Your membership in “"
-                    + name
-                    + "” will end and your tips, competition photos and votes will be deleted."));
+            ? t("groups.dissolve.description").replace("{name}", name)
+            : t("groups.leave.description").replace("{name}", name));
     dialog.action(
         leave,
         AccountLayout.Action.DANGER,
@@ -273,19 +256,17 @@ public final class GroupsActivity extends Activity {
                 owner ? "group_dissolve" : "group_leave",
                 args("group_id", id),
                 result -> refresh()));
-    dialog.action(t("Zrušit", "Cancel"), AccountLayout.Action.SECONDARY, null);
+    dialog.action(t("common.cancel"), AccountLayout.Action.SECONDARY, null);
     dialog.show();
   }
 
   private void invitation(String code) {
-    dialog = ui.prompt(t("Pozvánka pro jednoho rybáře", "Invite one angler"));
+    dialog = ui.prompt(t("groups.invite_one_angler"));
     dialog.code(code);
     dialog.description(
-        t(
-            "Kód platí 24 hodin. Nový kód nahradí předchozí.",
-            "The code lasts 24 hours. A new code replaces the previous one."));
+        t("groups.the_code_lasts_24_hours_a_new"));
     dialog.action(
-        t("Sdílet kód", "Share code"),
+        t("groups.share_code"),
         AccountLayout.Action.PRIMARY,
         () ->
             startActivity(
@@ -294,7 +275,7 @@ public final class GroupsActivity extends Activity {
                         .setType("text/plain")
                         .putExtra(Intent.EXTRA_TEXT, code),
                     null)));
-    dialog.action(t("Zavřít", "Close"), AccountLayout.Action.SECONDARY, null);
+    dialog.action(t("common.close"), AccountLayout.Action.SECONDARY, null);
     dialog.show();
   }
 
@@ -326,11 +307,11 @@ public final class GroupsActivity extends Activity {
       return;
     }
     if (service == null) {
-      ui.message(t("Konfigurace účtu není dostupná.", "Account configuration is unavailable."));
+      ui.message(t("groups.account_configuration_is_unavailable"));
       return;
     }
     busy = true;
-    ui.message(t("Připojuji se…", "Connecting…"));
+    ui.message(t("groups.connecting"));
     io.execute(
         () -> {
           JSONObject value = null;
@@ -367,16 +348,10 @@ public final class GroupsActivity extends Activity {
                 }
                 String error =
                     http == 400 && method.equals("group_join")
-                        ? t(
-                            "Pozvánka je neplatná, použitá nebo vypršela.",
-                            "This invitation is invalid, already used or expired.")
+                        ? t("groups.this_invitation_is_invalid_already_used_or")
                         : http == 403
-                            ? t(
-                                "K této akci nemáš oprávnění.",
-                                "You do not have permission for this action.")
-                            : t(
-                                "Akci se nepodařilo ověřit. Zkontroluj připojení a zkus to znovu.",
-                                "Could not confirm the change. Check your connection and retry.");
+                            ? t("groups.you_do_not_have_permission_for_this")
+                            : t("groups.could_not_confirm_the_change_check_your");
                 if (dialog != null
                     && dialog.isShowing()
                     && dialogInput != null

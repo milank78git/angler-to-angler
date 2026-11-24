@@ -45,6 +45,13 @@ jobs:
         with:
           node-version: '22'
       - run: npm ci --ignore-scripts
+      - run: python3 scripts/index-translations.py --check
+      - run: go test tests/email_templates_test.go
+      - run: python3 scripts/build-email-templates.py build/auth-email
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: auth-email-templates
+          path: build/auth-email/
       - run: node --test tests/*.test.cjs
       - run: python3 tests/water-release.py
       - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4

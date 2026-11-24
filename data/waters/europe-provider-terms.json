@@ -1,0 +1,54 @@
+{
+  "LU": {
+    "unassignedStatus": "non adjugé",
+    "water": "Gewaesser"
+  },
+  "SK": {
+    "bookClass": "srz-poriadok-link",
+    "filePattern": "(?:kaprov|lipnov|pstruhov|zvlastny).*\\.pdf$",
+    "sampleMarker": "PRÍKLAD:",
+    "organisationPattern": "\\b(?:MsO|MO|SRZ|OZ|ŠH|ŠP|Rada|Miestna)\\b"
+  },
+  "AT": {
+    "namePrefix": "Fischereirecht ",
+    "areaPrefix": "Oberösterreich · Bezirk ",
+    "number": "RevierNr",
+    "district": "BEZ"
+  },
+  "SE": {
+    "active": "Aktiv",
+    "name": "Namn",
+    "condition": "Status='Aktiv'",
+    "fields": "ID_FVOF,Namn,Status"
+  },
+  "FR": {
+    "name": "Nom",
+    "river": "riviere",
+    "municipality": "COM_2019"
+  },
+  "ES": {
+    "number": "codigo_tramo",
+    "layer": "piscis:visor_tramos",
+    "condition": "title ILIKE 'COTO-%'"
+  },
+  "CH": {
+    "layers": [
+      "stillgewaesser_f",
+      "gewaessernetz_l"
+    ],
+    "layerPrefix": "ms:ogd-0314_giszhpub_fischrevier_",
+    "number": "reviernummer",
+    "name": "fischrevier"
+  },
+  "DE": {
+    "layer": "angelgewaesser:c_angel_gew"
+  },
+  "DK": {
+    "tableFilter": " from fkg.t_5800_fac_pkt where facil_ty_k in (2031,2171,4411,4422) and statuskode=3 and off_kode=1",
+    "columns": "objekt_id,navn,facil_ty,cvr_navn,geometri",
+    "order": "objekt_id",
+    "name": "navn",
+    "category": "facil_ty",
+    "manager": "cvr_navn"
+  }
+}

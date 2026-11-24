@@ -22,7 +22,7 @@ final class AccountChecks {
   private static final String ID = "11111111-1111-4111-8111-111111111111";
   private final AtlasFixture atlas = new AtlasFixture();
   private final MarketChecks market = new MarketChecks();
-  private final PublicCardChecks publicCards = new PublicCardChecks();
+  private final PublicCardChecks publicCards;
   private final ActivityChecks activityChecks = new ActivityChecks();
   private final WeeklyChecks weekly = new WeeklyChecks();
   private final MessageChecks messages = new MessageChecks();
@@ -57,11 +57,12 @@ final class AccountChecks {
 
   AccountChecks(Runner app, boolean cs) {
     this.app = app;
+    publicCards = new PublicCardChecks(app.waterName("401009"));
     this.cs = cs;
   }
 
-  private String tr(String cz, String en) {
-    return cs ? cz : en;
+  private String tr(String key) {
+    return app.label(key);
   }
 
   Activity register() throws Exception {
@@ -164,7 +165,7 @@ final class AccountChecks {
                               return 200;
                             case "/auth/v1/signup":
                               if (!PASSWORD.equals(body.getString("password"))
-                                  || !(cs ? "cs" : "en")
+                                  || !(cs ? "cs-cz" : "en-gb")
                                       .equals(body.getJSONObject("data").getString("locale")))
                                 return 400;
                             // Signup and recovery both bind their email link to the requesting
@@ -426,71 +427,63 @@ final class AccountChecks {
             disabledGoogle[0] =
                 match(
                     gate.findViewById(android.R.id.content),
-                    tr("Pokračovat přes Google", "Continue with Google")));
+                    tr("account.continue_with") + "Google"));
     if (disabledGoogle[0] != null) throw new AssertionError("Disabled provider offered");
     app.captureAccount(gate, "login");
-    click(tr("Vysvětlit · E-mail", "Explain · Email"));
-    find(tr("Použij e-mail svého účtu.", "Enter the email address for your account."));
-    click(tr("Zavřít", "Close"));
-    click(tr("Nápověda", "Help"));
-    find(tr("Zavřít", "Close"));
-    click(tr("Zavřít", "Close"));
-    click(tr("Podmínky a soukromí", "Terms and privacy"));
-    click(tr("Ochrana osobních údajů", "Privacy notice"));
-    TextView close = find(tr("Zavřít", "Close"));
+    click(tr("common.explain") + " · " + tr("account.email"));
+    find(tr("account.enter_the_email_address_for_your_account"));
+    click(tr("common.close"));
+    click(tr("common.help"));
+    find(tr("common.close"));
+    click(tr("common.close"));
+    click(tr("account.terms_and_privacy"));
+    click(tr("account.privacy_notice"));
+    TextView close = find(tr("common.close"));
     app.captureWindow(close.getRootView(), "privacy-dialog");
-    click(tr("Zavřít", "Close"));
+    click(tr("common.close"));
     requestRegistration();
     socialEnabled = true;
-    click(tr("Zpět k přihlášení", "Back to sign-in"));
-    find(tr("Pokračovat přes Google", "Continue with Google"));
+    click(tr("account.back_to_sign_in"));
+    find(tr("account.continue_with") + "Google");
     app.waitForIdleSync();
     app.captureAccount(gate, "login-social");
     checkSocialLogin("Facebook");
     checkSocialLogin("Google");
-    click(tr("Nastavit nebo obnovit heslo", "Set or reset password"));
-    type(tr("E-mail", "Email"), "test@example.invalid");
-    click(tr("Poslat odkaz pro nastavení hesla", "Send password setup link"));
-    find(tr("Otevřít poštu", "Open inbox"));
+    click(tr("account.set_or_reset_password"));
+    type(tr("account.email"), "test@example.invalid");
+    click(tr("account.send_password_setup_link"));
+    find(tr("account.open_inbox"));
     requestAnotherLink();
     deliverCallback(Uri.parse(gate.getPackageName() + "://account/callback?code=fixture-code"));
-    type(tr("Nové heslo", "New password"), PASSWORD);
-    click(tr("Uložit heslo", "Save password"));
-    find(tr("Přezdívka (2–60 znaků)", "Display name (2–60 characters)"));
-    click(tr("Zpět k přihlášení", "Back to sign-in"));
+    type(tr("account.new_password"), PASSWORD);
+    click(tr("account.save_password"));
+    find(tr("account.display_name_2_60_characters"));
+    click(tr("account.back_to_sign_in"));
     requestRegistration();
     app.captureAccount(gate, "inbox");
     Uri redirect = Uri.parse(gate.getPackageName() + "://account/callback");
     deliverCallback(redirect.buildUpon().appendQueryParameter("error_code", "otp_expired").build());
     find(
-        tr(
-            "Odkaz už byl použitý nebo vypršel. Nech si poslat nový.",
-            "This link was already used or has expired. Request a new one."));
+        tr("account.this_link_was_already_used_or_has"));
     limitNextResend = true;
-    click(tr("Vyžádat nový odkaz", "Request another link"));
+    click(tr("account.request_another_link"));
     find(
-        tr(
-            "Příliš mnoho pokusů. Zkus to za chvíli znovu.",
-            "Too many attempts. Please try again later."));
+        tr("account.too_many_attempts_please_try_again_later"));
     requestAnotherLink();
     wrongEmail = true;
     Uri success = redirect.buildUpon().appendQueryParameter("code", "fixture-code").build();
     deliverCallback(success);
     find(
-        tr(
-            "Akci se nepodařilo dokončit. Zkontroluj připojení nebo údaje a opakuj pokus.",
-            "Could not complete this step. Check your connection or details, then retry."));
+        tr("account.could_not_complete_this_step_check_your"));
     wrongEmail = false;
     checkMailboxReturn();
-    type(tr("Přezdívka (2–60 znaků)", "Display name (2–60 characters)"), "River");
-    String save = tr("Uložit profil", "Save profile");
+    type(tr("account.display_name_2_60_characters"), "River");
+    String save = tr("common.save_profile");
     assertDisabled(save);
-    click(tr("Přijímám podmínky používání.", "I accept the terms of use."));
+    click(tr("account.i_accept_the_terms_of_use"));
     assertDisabled(save);
     click(
-        tr(
-            "Seznámil/a jsem se s informacemi o zpracování údajů.",
-            "I acknowledge the privacy notice."));
+        tr("account.i_acknowledge_the_privacy_notice"));
     Instrumentation.ActivityMonitor monitor =
         app.addMonitor("app.anglers.journal.FishingActivity", null, false);
     try {
@@ -516,17 +509,15 @@ final class AccountChecks {
 
   private void requestAnotherLink() throws Exception {
     int before = sentEmails;
-    click(tr("Vyžádat nový odkaz", "Request another link"));
+    click(tr("account.request_another_link"));
     find(
-        tr(
-            "O nový odkaz bylo požádáno. Zkontroluj poštu.",
-            "New link requested. Check your inbox."));
+        tr("account.new_link_requested_check_your_inbox"));
     if (sentEmails != before + 1) throw new AssertionError("Expected exactly one new email");
   }
 
   /** Use a real second task for mail. Return via the launcher, then via a link from that task. */
   private void checkMailboxReturn() throws Exception {
-    String open = tr("Otevřít poštu", "Open inbox");
+    String open = tr("account.open_inbox");
     Instrumentation.ActivityMonitor mailbox =
         new Instrumentation.ActivityMonitor() {
           @Override
@@ -612,7 +603,7 @@ final class AccountChecks {
             + " !!document.querySelector('.portrait-x9.portrait-y4')");
     app.waitFor(
         "document.querySelector('.profile-count h2')?.textContent === "
-            + JSONObject.quote(tr("Úlovky doložené fotkou", "Photo-documented catches")));
+            + JSONObject.quote(tr("profiles.photo_documented_catches")));
     app.capture("profile-card");
     app.js("document.querySelector('#edit-card').click()");
     app.waitFor("!!document.querySelector('#profile-photo')");
@@ -636,44 +627,44 @@ final class AccountChecks {
     gate =
         next(
             "AccountActivity", () -> app.js("document.querySelector('#account-settings').click()"));
-    gate = next("GroupsActivity", () -> click(tr("Rybářské party", "Fishing groups")));
-    String create = tr("Založit partu", "Create a group");
+    gate = next("GroupsActivity", () -> click(tr("common.fishing_groups")));
+    String create = tr("groups.create_a_group");
     click(create);
-    type(tr("Název party (2–60 znaků)", "Group name (2–60 characters)"), "River crew");
+    type(tr("groups.group_name_2_60_characters"), "River crew");
     dialogButton(android.R.id.button1);
-    find(tr("Počet členů: 1", "Members: 1"));
+    find(tr("groups.members") + "1");
     app.captureAccount(gate, "groups");
-    click("River crew" + tr(" · zakladatel", " · owner"));
-    click(tr("Vystavit pozvánku", "Issue invitation"));
-    TextView invitation = find(tr("Pozvánka pro jednoho rybáře", "Invite one angler"));
+    click("River crew" + tr("groups.owner"));
+    click(tr("groups.issue_invitation"));
+    TextView invitation = find(tr("groups.invite_one_angler"));
     app.captureWindow(invitation.getRootView(), "group-invitation");
     dialogButton(android.R.id.button2);
-    click("River crew" + tr(" · zakladatel", " · owner"));
-    click(tr("Rozpustit partu", "Dissolve group"));
-    click(tr("Zrušit", "Cancel"));
-    find(tr("Počet členů: 1", "Members: 1"));
+    click("River crew" + tr("groups.owner"));
+    click(tr("groups.dissolve_group"));
+    click(tr("common.cancel"));
+    find(tr("groups.members") + "1");
     retryGroup = true;
-    click(tr("Obnovit seznam", "Refresh groups"));
-    find("River crew" + tr(" · zakladatel", " · owner"));
+    click(tr("groups.refresh_groups"));
+    find("River crew" + tr("groups.owner"));
     if (refreshes != 1) throw new AssertionError("Expired access token was not refreshed");
     expireGroupSession = true;
-    click(tr("Obnovit seznam", "Refresh groups"));
-    find(tr("Přihlásit se", "Sign in"));
+    click(tr("groups.refresh_groups"));
+    find(tr("common.sign_in"));
     // Reauthentication returns to the requested screen and the journal remains accessible.
     expireGroupSession = false;
-    click(tr("Přihlásit se", "Sign in"));
+    click(tr("common.sign_in"));
     // CLEAR_TOP reuses the original profile activity.
     gate = profileGate;
     int emailsBefore = sentEmails;
-    type(tr("E-mail", "Email"), "test@example.invalid");
-    type(tr("Heslo", "Password"), PASSWORD);
-    gate = next("GroupsActivity", () -> click(tr("Přihlásit se", "Sign in")));
+    type(tr("account.email"), "test@example.invalid");
+    type(tr("account.password"), PASSWORD);
+    gate = next("GroupsActivity", () -> click(tr("common.sign_in")));
     if (passwordSignIns != 1 || sentEmails != emailsBefore)
       throw new AssertionError("Routine sign-in sent email");
-    find("River crew" + tr(" · zakladatel", " · owner"));
+    find("River crew" + tr("groups.owner"));
     app.runOnMainSync(gate::finish);
     gate = profileGate;
-    return next("FishingActivity", () -> click(tr("Otevřít deník", "Open journal")));
+    return next("FishingActivity", () -> click(tr("account.open_journal")));
   }
 
   /** Read the exact posted preview through the member's normal group screen. */
@@ -686,13 +677,13 @@ final class AccountChecks {
     gate =
         next(
             "AccountActivity", () -> app.js("document.querySelector('#account-settings').click()"));
-    gate = next("GroupsActivity", () -> click(tr("Rybářské party", "Fishing groups")));
-    click("River crew" + tr(" · zakladatel", " · owner"));
-    click(tr("Tipy party", "Group tips"));
+    gate = next("GroupsActivity", () -> click(tr("common.fishing_groups")));
+    click("River crew" + tr("groups.owner"));
+    click(tr("groups.group_tips"));
     find(expected);
     app.captureAccount(gate, "group-tips");
-    click(tr("Zpět na party", "Back to groups"));
-    find("River crew" + tr(" · zakladatel", " · owner"));
+    click(tr("groups.back_to_groups"));
+    find("River crew" + tr("groups.owner"));
   }
 
   private Activity profileGate;
@@ -730,11 +721,11 @@ final class AccountChecks {
   }
 
   private void requestRegistration() throws Exception {
-    click(tr("Vytvořit účet", "Create account"));
-    type(tr("E-mail", "Email"), "test@example.invalid");
-    type(tr("Nové heslo", "New password"), PASSWORD);
-    click(tr("Zaregistrovat se", "Register"));
-    find(tr("Otevřít poštu", "Open inbox"));
+    click(tr("account.create_account"));
+    type(tr("account.email"), "test@example.invalid");
+    type(tr("account.new_password"), PASSWORD);
+    click(tr("account.register"));
+    find(tr("account.open_inbox"));
   }
 
   /**
@@ -757,7 +748,7 @@ final class AccountChecks {
     app.addMonitor(browser);
     Uri target;
     try {
-      click(tr("Pokračovat přes ", "Continue with ") + provider);
+      click(tr("account.continue_with") + provider);
       target = outgoing.poll(5, TimeUnit.SECONDS);
     } finally {
       app.removeMonitor(browser);
@@ -777,7 +768,7 @@ final class AccountChecks {
     if (expectedChallenge == null || !expectedChallenge.matches("[A-Za-z0-9_-]{43}"))
       throw new AssertionError("Missing S256 challenge");
     deliverCallback(Uri.parse(redirect + "?code=fixture-code"));
-    click(tr("Zpět k přihlášení", "Back to sign-in"));
+    click(tr("account.back_to_sign_in"));
     expectedChallenge = null;
   }
 
@@ -788,8 +779,8 @@ final class AccountChecks {
 
   void atlasSettings() throws Exception {
     app.clickReady("#atlas-settings");
-    String daily = tr("Automaticky kontrolovat každý den", "Check automatically every day");
-    String manual = tr("Zkontrolovat nyní", "Check now");
+    String daily = tr("atlas_settings.check_automatically_every_day");
+    String manual = tr("atlas_settings.check_now");
     CheckBox automatic = (CheckBox)find(daily);
     if (!automatic.isChecked()) throw new AssertionError("Daily atlas updates disabled by default");
     assertAtlasSchedule(true);
@@ -797,14 +788,14 @@ final class AccountChecks {
     assertAtlasSchedule(false);
     atlas.enable(app.getTargetContext());
     click(manual);
-    find(tr("Nový atlas je k dispozici offline.", "The updated atlas is available offline."));
+    find(tr("atlas_settings.the_updated_atlas_is_available_offline"));
     click(manual);
-    find(tr("Máš aktuální atlas.", "Your atlas is up to date."));
+    find(tr("atlas_settings.your_atlas_is_up_to_date"));
     String goodManifest = atlas.manifest;
     atlas.damage();
     click(manual);
-    find(tr("Aktualizace se nezdařila. Dosavadní atlas můžeš dál používat.", "The update failed. Your previous atlas is still available."));
-    click(tr("Zpět", "Back"));
+    find(tr("atlas_settings.the_update_failed_your_previous_atlas_is"));
+    click(tr("common.back"));
     app.clickReady("#atlas-settings");
     if (((CheckBox)find(daily)).isChecked()) throw new AssertionError("Manual preference was lost");
     // Make yesterday's successful check due, then enable automatic updates without pressing Check now.
@@ -817,7 +808,7 @@ final class AccountChecks {
     while (prefs.getLong("checked", 0) == 0 && android.os.SystemClock.elapsedRealtime() < deadline)
       Thread.sleep(100);
     if (prefs.getLong("checked", 0) == 0) throw new AssertionError("Automatic atlas check did not catch up");
-    click(tr("Zpět", "Back"));
+    click(tr("common.back"));
   }
 
   private void assertAtlasSchedule(boolean enabled) {

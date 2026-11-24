@@ -18,21 +18,18 @@ import {
   trackEdits,
 } from './ui.js';
 
-const inboxTitle = () => t('Soukromé zprávy', 'Private messages');
-const sendLabel = () => t('Odeslat soukromě', 'Send privately');
+const inboxTitle = () => t('common.private_messages');
+const sendLabel = () => t('messages.send_privately');
 const stamp = new Intl.DateTimeFormat(languageTag, { dateStyle: 'medium', timeStyle: 'short' });
 function errorText(err) {
   if (err.status === 403)
-    return t(
-      'Zprávy nejsou pro tento účet nebo rozhovor dostupné.',
-      'Messaging is unavailable for this account or conversation.',
-    );
-  if (err.status === 401) return t('Pro zprávy se znovu přihlas.', 'Sign in again to use messages.');
+    return t('messages.messaging_is_unavailable_for_this_account_or');
+  if (err.status === 401) return t('messages.sign_in_again_to_use_messages');
   if (err.status === 404)
-    return t('Dotaz nebo rozhovor už není dostupný.', 'The question or conversation is no longer available.');
+    return t('messages.the_question_or_conversation_is_no_longer');
   if (err.status === 409)
-    return t('Obsah opakovaného požadavku se změnil.', 'The contents of the retried request have changed.');
-  return t('Připojení se nezdařilo. Zkus to znovu.', 'Could not connect. Please retry.');
+    return t('messages.the_contents_of_the_retried_request_have');
+  return t('common.could_not_connect_please_retry');
 }
 
 // Both lists use a server cursor. A failed page keeps the entries already rendered.
@@ -47,7 +44,7 @@ async function listPages(view, read, render, empty) {
     if (loading || view.saving || !view.active()) return;
     loading = true;
     retry.hidden = more.hidden = true;
-    status.textContent = t('Načítám…', 'Loading…');
+    status.textContent = t('messages.loading');
     try {
       const data = await read(next);
       if (!view.active()) return;
@@ -71,18 +68,18 @@ async function listPages(view, read, render, empty) {
 function listShell() {
   return (
     '<div id="message-items"></div><p id="message-status" role="status"></p>' +
-    button('message-more', t('Načíst starší', 'Load older'), 'secondary') +
-    button('message-retry', t('Zkusit znovu', 'Retry'), 'secondary')
+    button('message-more', t('messages.load_older'), 'secondary') +
+    button('message-retry', t('common.retry'), 'secondary')
   );
 }
 
 export async function messageInbox({ view, nav }) {
   screen.innerHTML =
-    back(t('Zpět', 'Back')) +
+    back(t('common.back')) +
     '<h1>' +
     inboxTitle() +
     '</h1>' +
-    button('inbox-refresh', t('Obnovit', 'Refresh'), 'secondary') +
+    button('inbox-refresh', t('common.refresh'), 'secondary') +
     listShell();
   bindBack(nav);
   bind('inbox-refresh', () => nav.show());
@@ -99,25 +96,22 @@ export async function messageInbox({ view, nav }) {
         by('message-items').append(row);
       }
     },
-    t(
-      'Zatím nemáš žádné soukromé zprávy. Rozhovor můžeš začít u dotazu jiného rybáře.',
-      'No private messages yet. Start a conversation from another angler’s question.',
-    ),
+    t('messages.no_private_messages_yet_start_a_conversation'),
   );
 }
 
 export async function messageThread({ view, nav }) {
   const { threadId = null, questionId = null } = view.route;
   screen.innerHTML =
-    back(t('Zpět', 'Back')) +
+    back(t('common.back')) +
     '<p class="meta">' +
     inboxTitle() +
     '</p><h1 id="peer-name">' +
-    t('Rozhovor', 'Conversation') +
+    t('messages.conversation') +
     '</h1><div id="message-context"></div><div id="message-tools" hidden><div class="actions">' +
-    button('write-message', t('Napsat zprávu', 'Write a message'), 'primary') +
+    button('write-message', t('messages.write_a_message'), 'primary') +
     button('block-peer', '', 'secondary') +
-    button('thread-refresh', t('Obnovit', 'Refresh'), 'secondary') +
+    button('thread-refresh', t('common.refresh'), 'secondary') +
     '</div><p id="block-status" role="status"></p></div>' +
     listShell();
   bindBack(nav);
@@ -147,17 +141,14 @@ export async function messageThread({ view, nav }) {
           blocked = data.blockedByMe;
         block.hidden = !data.threadId;
         const label = blocked
-          ? t('Odblokovat rybáře', 'Unblock angler')
-          : t('Zablokovat rybáře', 'Block angler');
+          ? t('messages.unblock_angler')
+          : t('messages.block_angler');
         block.textContent = label;
         by('block-status').textContent = data.canSend
           ? ''
           : blocked
-            ? t('Tento účet máš zablokovaný.', 'You have blocked this account.')
-            : t(
-                'Další zprávy v tomto rozhovoru nelze posílat.',
-                'New messages cannot be sent in this conversation.',
-              );
+            ? t('messages.you_have_blocked_this_account')
+            : t('messages.new_messages_cannot_be_sent_in_this');
         block.onclick = async () => {
           const accepted = await confirmAction({
             title: label + '?',
@@ -167,11 +158,8 @@ export async function messageThread({ view, nav }) {
               data.peerName +
               '\n\n' +
               (blocked
-                ? t('Zrušíš svoji blokaci tohoto účtu.', 'Remove your block on this account.')
-                : t(
-                    'Ani jeden z vás nebude moct posílat další zprávy ani přidávat reakce. Dosavadní rozhovor vám zůstane.',
-                    'Neither of you will be able to send new messages or add reactions. Your existing history stays available.',
-                  )),
+                ? t('messages.remove_your_block_on_this_account')
+                : t('messages.neither_of_you_will_be_able_to')),
           });
           if (accepted && view.active())
             await submitChange(
@@ -187,7 +175,7 @@ export async function messageThread({ view, nav }) {
         card.className = 'surface discussion-post';
         card.innerHTML =
           '<p class="meta">' +
-          esc(item.mine ? t('Ty', 'You') : data.peerName) +
+          esc(item.mine ? t('common.you') : data.peerName) +
           ' · ' +
           esc(stamp.format(new Date(item.postedAt))) +
           '</p>' +
@@ -201,8 +189,8 @@ export async function messageThread({ view, nav }) {
           const flag = document.createElement('button');
           flag.type = 'button';
           flag.className = 'secondary';
-          const label = t('Nahlásit zprávu', 'Report message'),
-            flagged = t('Nahlášeno', 'Reported');
+          const label = t('messages.report_message'),
+            flagged = t('common.reported');
           flag.textContent = item.reported ? flagged : label;
           flag.disabled = item.reported;
           flag.onclick = async () => {
@@ -210,10 +198,7 @@ export async function messageThread({ view, nav }) {
               title: label + '?',
               accept: label,
               message:
-                t(
-                  'Správci předáš ke kontrole tuto zprávu.',
-                  'Send this message to the pilot operator for review.',
-                ) +
+                t('messages.send_this_message_to_the_pilot_operator') +
                 '\n\n' +
                 item.body,
             });
@@ -235,18 +220,18 @@ export async function messageThread({ view, nav }) {
         by('message-items').append(card);
       }
     },
-    t('Zatím žádné zprávy.', 'No messages yet.'),
+    t('messages.no_messages_yet'),
   );
 }
 
 export function messageComposer({ view, nav }) {
   const { threadId, questionId, peerName, questionText } = view.route;
   screen.innerHTML =
-    back(t('Zpět', 'Back')) +
+    back(t('common.back')) +
     '<h1>' +
-    t('Soukromá zpráva', 'Private message') +
+    t('messages.private_message') +
     '</h1><p>' +
-    t('Příjemce', 'Recipient') +
+    t('common.recipient') +
     ' · ' +
     esc(peerName) +
     '</p>' +
@@ -254,17 +239,14 @@ export function messageComposer({ view, nav }) {
     '<form class="entry-form" id="message-form"><section class="surface">' +
     field(
       'message-text',
-      t('Tvoje zpráva', 'Your message'),
+      t('messages.your_message'),
       '<textarea id="message-text" rows="5" required maxlength="1600"></textarea>',
     ) +
     '<details id="inline-emoji"><summary>' +
-    t('Vložit emoji', 'Insert emoji') +
+    t('messages.insert_emoji') +
     '</summary></details>' +
     '<p class="meta">' +
-    t(
-      'Zprávu uvidíte jen vy dva. Příjemce ji může nahlásit správci.',
-      'Only you and the recipient see the message. The recipient can report it to the pilot operator.',
-    ) +
+    t('messages.only_you_and_the_recipient_see_the') +
     '</p><p role="alert" id="send-error"></p></section><div class="savebar"><button class="primary">' +
     sendLabel() +
     '</button></div></form>';
@@ -279,7 +261,7 @@ export function messageComposer({ view, nav }) {
     const message = by('message-text').value.trim(),
       error = by('send-error');
     if (!message) {
-      error.textContent = t('Napiš zprávu.', 'Enter a message.');
+      error.textContent = t('messages.enter_a_message');
       return;
     }
     const accepted = await confirmAction({

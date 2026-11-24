@@ -1,7 +1,5 @@
 /** Render the same allowlisted document in the journal preview and the anonymous reader. */
-export function renderPublicCard(host, card, locale, translate) {
-  const cz = locale.toLowerCase().startsWith('cs');
-  const words = translate || ((cs, en) => cz ? cs : en);
+export function renderPublicCard(host, card, locale, words) {
   const make = (tag, text) => {
     const el = document.createElement(tag);
     if (text !== undefined) el.textContent = text;
@@ -32,11 +30,11 @@ export function renderPublicCard(host, card, locale, translate) {
   const time = make('time', new Intl.DateTimeFormat(locale,
     {year:'numeric',month:'long',day:monthOnly ? undefined : 'numeric',timeZone:'UTC'}).format(date));
   time.dateTime = card.date;
-  row(monthOnly ? words('Měsíc úlovku','Catch month') : words('Datum úlovku','Catch date'), time);
-  if (card.water) row(words('Revír','Water'),card.water);
+  row(monthOnly ? words('public_card.catch_month') : words('public_card.catch_date'), time);
+  if (card.water) row(words('common.water'),card.water);
   if (card.length) {
     const measured = card.length.kind === 'measured';
-    row(measured ? words('Délka podle měřidla','Length from ruler') : words('Odhad podle reference','Reference-based estimate'),
+    row(measured ? words('public_card.length_from_ruler') : words('public_card.reference_based_estimate'),
       new Intl.NumberFormat(locale).format(card.length.mm / 10) + ' cm');
   }
   body.append(details);

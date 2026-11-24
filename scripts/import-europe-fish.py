@@ -85,6 +85,7 @@ def main():
         raise ValueError("RivFISH release changed; review its version and checksum")
     archive=zipfile.ZipFile(io.BytesIO(raw))
     records={}
+    place_aliases = json.loads((ROOT / "data/europe/place-aliases.json").read_text())
     def row(name):
         return records.setdefault(name,{"latin":name,"countries":[]})
     def table(filename):
@@ -134,7 +135,7 @@ def main():
         if code not in places:
             found=api("places/autocomplete",dict(q=countries[code],per_page=12),cfg.cache)["results"]
             candidates=[p for p in found if p.get("admin_level")==0 and
-                        p["name"].casefold() in {countries[code].casefold(), {"TR":"türkiye","CZ":"czech republic","VA":"vatican"}.get(code)}]
+                        p["name"].casefold() in {countries[code].casefold(), place_aliases.get(code)}]
             if len(candidates)!=1: raise ValueError(f"Review country identifier for {code}: {[(p['id'],p['name']) for p in found[:6]]}")
             places[code]=candidates[0]["id"]
             (ROOT/"data/europe/places.json").write_text(json.dumps(places,sort_keys=True,indent=2)+"\n")
@@ -168,10 +169,9 @@ def main():
         fish["countries"] = sorted(set(fish["countries"] + alternate.pop("countries", [])))
         for key, value in alternate.items():
             if key != "latin": fish.setdefault(key, value)
-    aliases=json.loads((ROOT/"data/europe/fish-names.json").read_text())
-    for name,labels in aliases.items():
-        if name not in records: raise ValueError("Unmatched species "+name)
-        row(name).update(labels)
+    observed = {name: fish.pop("name") for name, fish in records.items() if "name" in fish}
+    (ROOT / "data/europe/observed-fish-names-cs.json").write_text(
+        json.dumps(observed, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n")
     apply_checklists(records.values(), json.loads((ASSETS/"europe-checklists.json").read_text()))
     write("europe-fish.json",{"countries":COUNTRIES,"species":sorted(records.values(),key=lambda x:x["latin"])})
 

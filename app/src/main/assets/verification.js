@@ -5,14 +5,14 @@ import { showError } from './profiles.js';
 import { rpc, failure, photoPayload } from './profile-api.js';
 
 const outcomes = {
-  pending: t('Čeká na kontrolu', 'Awaiting review'),
-  measured: t('Délka odečtená z míry', 'Length read from ruler'),
-  estimated: t('Délka odhadnutá podle měřítka', 'Length estimated from a reference'),
-  unverified: t('Nedostatečný podklad', 'Insufficient evidence'),
+  pending: t('verification.awaiting_review'),
+  measured: t('verification.length_read_from_ruler'),
+  estimated: t('verification.length_estimated_from_a_reference'),
+  unverified: t('verification.insufficient_evidence'),
 };
 const labels = {
-  submit: t('Doložení úlovku fotkou', 'Catch photo review'),
-  withdraw: t('Odstranit záznam kontroly', 'Remove review record'),
+  submit: t('verification.catch.photo.review'),
+  withdraw: t('verification.remove_review_record'),
 };
 
 export function addVerificationAction(article, record, trip, view, nav) {
@@ -25,7 +25,7 @@ export function addVerificationAction(article, record, trip, view, nav) {
   ) {
     const label = document.createElement('p');
     label.className = 'meta';
-    label.textContent = t('Bez kontroly snímku', 'Photo not reviewed');
+    label.textContent = t('verification.photo_not_reviewed');
     article.append(label);
     return;
   }
@@ -41,12 +41,9 @@ export function addVerificationAction(article, record, trip, view, nav) {
         return;
       }
       const consent = await confirmAction({
-        title: t('Odeslat fotku ke kontrole?', 'Send photo for review?'),
-        message: t(
-          'Kontrolor uvidí fotku úlovku, druh ryby, čas pořízení, název vody a polohu telefonu zaokrouhlenou na 0,01°.\n\nPo kontrole se odeslaná fotka a poloha z fronty smažou. Fotka ve tvém deníku zůstane.',
-          'The reviewer will see the catch photo, species, capture time, water name and phone location rounded to 0.01°.\n\nAfter the review, the submitted photo and location are removed from the queue. Your journal keeps its photo.',
-        ),
-        accept: t('Odeslat ke kontrole', 'Send for review'),
+        title: t('verification.send_photo_for_review'),
+        message: t('verification.the_reviewer_will_see_the_catch_photo'),
+        accept: t('verification.send_for_review'),
         catchPreview: {
           species: record.speciesName,
           water: trip.waterName,
@@ -97,7 +94,7 @@ function reviewResult({ outcome, mm }) {
   );
   return (
     '<strong>' +
-    t('Doloženo fotkou', 'Photo documented') +
+    t('verification.photo_documented') +
     '</strong><p>' +
     outcomes[outcome] +
     ' · ' +
@@ -123,19 +120,16 @@ export async function evidenceScreen({ view, nav }) {
   }
   if (!view.active()) return;
   screen.innerHTML =
-    back(t('Zpět', 'Back')) +
+    back(t('common.back')) +
     '<h1>' +
     (view.route.onlyId
-      ? t('Kontrola fotky úlovku', 'Catch photo review')
-      : t('Moje odeslané fotky', 'My submitted catch photos')) +
+      ? t('verification.catch_photo_review')
+      : t('common.my_submitted_catch_photos')) +
     '</h1>' +
     '<p>' +
-    t(
-      'V profilu přibude jeden úlovek, když kontrolor rozezná rybu a z fotky odečte nebo odhadne její délku. Poloha udává, kde byl telefon při focení.',
-      'A catch counts once a reviewer can see the fish and read or estimate its length from the photo. The location shows where the phone was at capture.',
-    ) +
+    t('verification.a_catch_counts_once_a_reviewer_can') +
     '</p>' +
-    (page.reviewer ? button('review', t('Zkontrolovat snímky', 'Review submitted photos'), 'primary') : '') +
+    (page.reviewer ? button('review', t('verification.review_submitted_photos'), 'primary') : '') +
     '<div class="profile-directory">' +
     (page.items
       .map(
@@ -155,15 +149,12 @@ export async function evidenceScreen({ view, nav }) {
       .join('') ||
       '<p>' +
         (view.route.onlyId
-          ? t('K tomuto úlovku tu žádný snímek není.', 'There is no submission for this catch.')
-          : t(
-              'Žádné odeslané fotky. Fotku pořízenou u vody můžeš odeslat z výpravy v deníku.',
-              'No submitted photos. You can send a photo taken at the water from the trip in your journal.',
-            )) +
+          ? t('verification.there_is_no_submission_for_this_catch')
+          : t('verification.no_submitted_photos_you_can_send_a')) +
         '</p>') +
     '</div>' +
-    (page.more ? button('more', t('Starší záznamy', 'Older records'), 'secondary') : '') +
-    button('refresh-evidence', t('Obnovit', 'Refresh'), 'secondary');
+    (page.more ? button('more', t('verification.older_records'), 'secondary') : '') +
+    button('refresh-evidence', t('common.refresh'), 'secondary');
   bindBack(nav);
   bind('refresh-evidence', () => nav.show());
   if (page.reviewer) bind('review', () => nav.open('review'));
@@ -176,12 +167,9 @@ export async function evidenceScreen({ view, nav }) {
     (b) =>
       (b.onclick = async () => {
         const confirmed = await confirmAction({
-          title: t('Odstranit záznam kontroly?', 'Remove review record?'),
-          message: t(
-            'Úlovek zůstane v deníku. Pokud byl započítaný do profilu, počet se sníží o jeden.',
-            'The catch stays in your journal. If it counted towards your profile total, the total will decrease by one.',
-          ),
-          accept: t('Odstranit záznam', 'Remove record'),
+          title: t('verification.remove_review_record_label'),
+          message: t('verification.the_catch_stays_in_your_journal_if'),
+          accept: t('verification.remove_record'),
           destructive: true,
         });
         if (!view.active() || !confirmed) return;
@@ -206,9 +194,9 @@ export async function reviewScreen({ view, nav }) {
   }
   if (!view.active()) return;
   screen.innerHTML =
-    back(t('Zpět', 'Back')) +
+    back(t('common.back')) +
     '<h1>' +
-    t('Kontrola snímků', 'Photo review') +
+    t('verification.photo.review') +
     '</h1>' +
     (item
       ? '<article class="surface"><h2>' +
@@ -222,12 +210,12 @@ export async function reviewScreen({ view, nav }) {
         ', ' +
         esc(item.lon100 / 100) +
         '</p><img class="review-image" alt="' +
-        t('Snímek úlovku', 'Catch photograph') +
+        t('verification.catch_photograph') +
         '" src="data:image/jpeg;base64,' +
         esc(item.photo) +
         '"></article>' +
         '<form id="decision" class="entry-form"><section class="surface"><label for="outcome">' +
-        t('Výsledek kontroly', 'Review outcome') +
+        t('verification.review_outcome') +
         '</label><select id="outcome" required><option value="">—</option><option value="measured">' +
         outcomes.measured +
         '</option><option value="estimated">' +
@@ -236,19 +224,16 @@ export async function reviewScreen({ view, nav }) {
         outcomes.unverified +
         '</option></select>' +
         '<small>' +
-        t(
-          'Porovnej místo focení s uvedenou vodou. Délku odečti z čitelné míry, nebo ji odhadni podle předmětu známé velikosti ve stejné rovině jako celá ryba. Pokud poloha nesedí, měřítko chybí nebo jde o přefocený snímek, zvol Nedostatečný podklad.',
-          'Compare the capture location with the reported water. Read the length from a legible ruler, or estimate it using a known-size object in the same plane as the whole fish. If the location is inconsistent, the scale is unclear or the image shows another photograph, select Insufficient evidence.',
-        ) +
+        t('verification.compare_the_capture_location_with_the_reported') +
         '</small>' +
         '<label for="review-length">' +
-        t('Délka podle snímku (cm)', 'Length from photo (cm)') +
+        t('verification.length_from_photo_cm') +
         '</label><input id="review-length" type="number" min="0.1" max="2000" step="0.1" required></section>' +
         '<button class="primary">' +
-        t('Uložit rozhodnutí', 'Save decision') +
+        t('verification.save_decision') +
         '</button></form>'
       : '<p>' +
-        t('Žádné cizí snímky nečekají na kontrolu.', 'No other anglers’ photos are awaiting review.') +
+        t('verification.no_other_anglers_photos_are_awaiting_review') +
         '</p>');
   bindBack(nav);
   if (!item) return;

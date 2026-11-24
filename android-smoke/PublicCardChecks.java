@@ -13,7 +13,11 @@ import org.json.JSONObject;
 final class PublicCardChecks {
   private final String token = UUID.randomUUID().toString();
   private JSONObject request, active;
-  private final String water = "Sázava 1 · 401 009";
+  private final String water;
+
+  PublicCardChecks(String waterName) {
+    water = waterName + " · 401 009";
+  }
 
   JSONObject response(String op, JSONObject args) throws Exception {
     switch (op) {

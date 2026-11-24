@@ -85,7 +85,7 @@ final class WaterCatalogue {
       } else {
         prefs.edit().putLong("attempt", now).apply();
         try {
-          JSONObject manifest = new IdentityService(c, false).waterManifest();
+          JSONObject manifest = new IdentityService(c).waterManifest();
           String commit = manifest.getString("commit"), hash = manifest.getString("sha256");
           int packed = manifest.getInt("bytes"), unpacked = manifest.getInt("unpacked");
           String edition = LocalDate.parse(manifest.getString("asOf")).toString();

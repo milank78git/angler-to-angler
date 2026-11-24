@@ -21,23 +21,22 @@ public final class AccountActivity extends Activity {
   private IdentityService service;
   private AccountLayout ui;
   private Button submit;
-  private boolean cs, busy, groupLogin, profileLogin;
+  private boolean busy, groupLogin, profileLogin;
   private String email = "";
   private IdentityService.Session signing;
   private android.os.CancellationSignal prompt;
   private boolean managing;
   private JSONObject profile;
 
-  private String text(String cz, String en) {
-    return AppLanguage.text(this, cz, en);
+  private String text(String key) {
+    return AppLanguage.text(this, key);
   }
 
   @Override
   public void onCreate(Bundle state) {
     super.onCreate(state);
-    cs = "cs".equals(getResources().getConfiguration().getLocales().get(0).getLanguage());
     try {
-      service = new IdentityService(this, cs);
+      service = new IdentityService(this);
     } catch (Exception ignored) {
       /* Show the unavailable state. */
     }
@@ -107,12 +106,12 @@ public final class AccountActivity extends Activity {
 
   private void documents() {
     String[] names = {
-      text("Podmínky používání", "Terms of use"),
-      text("Ochrana osobních údajů", "Privacy notice"),
-      text("Licence a autoři", "Licenses and credits")
+      text("account.terms_of_use"),
+      text("account.privacy_notice"),
+      text("account.licenses_and_credits")
     };
     String[] pages = {"terms", "privacy", "license"};
-    String title = text("Podmínky a soukromí", "Terms and privacy");
+    String title = text("account.terms_and_privacy");
     action(
         title,
         AccountLayout.Action.LINK,
@@ -122,7 +121,7 @@ public final class AccountActivity extends Activity {
             String kind = pages[i], name = names[i];
             menu.choice(name, AccountLayout.Action.SECONDARY, () -> document(kind, name));
           }
-          menu.action(text("Zavřít", "Close"), AccountLayout.Action.SECONDARY, null);
+          menu.action(text("common.close"), AccountLayout.Action.SECONDARY, null);
           menu.show();
         });
   }
@@ -138,19 +137,19 @@ public final class AccountActivity extends Activity {
                 + "\n\n"
                 + IdentityService.asset(this, "icon-license.txt");
       } else {
-        contents = IdentityService.asset(this, kind + "-" + (cs ? "cs" : "en") + ".txt");
+        contents = AppLanguage.document(this, kind);
       }
       if (kind.equals("privacy"))
         contents +=
-            "\n\n" + IdentityService.asset(this, "optional-profile-" + (cs ? "cs" : "en") + ".txt");
+            "\n\n" + AppLanguage.document(this, "optional-profile");
       if (kind.equals("privacy") && service != null && !service.notice.isEmpty())
         contents += "\n\n" + service.notice;
       AccountLayout.Prompt reader = ui.prompt(title);
       reader.description(contents);
-      reader.action(text("Zavřít", "Close"), AccountLayout.Action.PRIMARY, null);
+      reader.action(text("common.close"), AccountLayout.Action.PRIMARY, null);
       reader.show();
     } catch (Exception e) {
-      ui.message(text("Dokument nelze načíst.", "Could not load the document."));
+      ui.message(text("account.could_not_load_the_document"));
     }
   }
 
@@ -158,18 +157,18 @@ public final class AccountActivity extends Activity {
     signing = null;
     managing = false;
     profile = null;
-    ui.page(text("Přihlášení", "Account sign-in"), true);
+    ui.page(text("account.account_sign_in"), true);
     boolean ready = service != null && service.configured();
     if (DeviceVault.enrolled(this))
       action(
-          text("Odemknout telefonem", "Unlock with device"),
+          text("account.unlock_with_device"),
           AccountLayout.Action.PRIMARY,
           this::unlock);
-    EditText address = addressField(text("Použij e-mail svého účtu.", "Enter the email address for your account."));
+    EditText address = addressField(text("account.enter_the_email_address_for_your_account"));
     EditText password = passwordField(false);
     Button send =
         action(
-            text("Přihlásit se", "Sign in"),
+            text("common.sign_in"),
             AccountLayout.Action.PRIMARY,
             () -> {
               if (!readAddress(address) || !validPassword(password, false)) return;
@@ -182,7 +181,7 @@ public final class AccountActivity extends Activity {
         (v, id, e) ->
             id == android.view.inputmethod.EditorInfo.IME_ACTION_GO && send.performClick());
     action(
-            text("Vytvořit účet", "Create account"),
+            text("account.create_account"),
             AccountLayout.Action.SECONDARY,
             () -> {
               email = address.getText().toString().trim();
@@ -190,7 +189,7 @@ public final class AccountActivity extends Activity {
             })
         .setEnabled(ready);
     action(
-            text("Nastavit nebo obnovit heslo", "Set or reset password"),
+            text("account.set_or_reset_password"),
             AccountLayout.Action.LINK,
             () -> {
               email = address.getText().toString().trim();
@@ -202,7 +201,7 @@ public final class AccountActivity extends Activity {
     ui.form.addView(social);
     if (ready) loadProviders(social, send);
     else
-      ui.message(text("Přihlášení zatím není k dispozici.", "Sign-in is currently unavailable."));
+      ui.message(text("account.sign_in_is_currently_unavailable"));
     documents();
   }
 
@@ -224,7 +223,7 @@ public final class AccountActivity extends Activity {
                     Button button =
                         ui.button(
                             social,
-                            text("Pokračovat přes ", "Continue with ") + name,
+                            text("account.continue_with") + name,
                             AccountLayout.Action.SECONDARY,
                             () -> {
                               if (!busy) oauth(provider);
@@ -247,7 +246,7 @@ public final class AccountActivity extends Activity {
   private EditText addressField(String explanation) {
     EditText field =
         ui.field(
-            text("E-mail", "Email"),
+            text("account.email"),
             InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
     ui.explain(field.getHint().toString(), explanation, field);
     field.setAutofillHints(View.AUTOFILL_HINT_USERNAME, View.AUTOFILL_HINT_EMAIL_ADDRESS);
@@ -258,7 +257,7 @@ public final class AccountActivity extends Activity {
   private boolean readAddress(EditText field) {
     String value = field.getText().toString().trim();
     if (!android.util.Patterns.EMAIL_ADDRESS.matcher(value).matches()) {
-      field.setError(text("Zkontroluj adresu.", "Check the address."));
+      field.setError(text("account.check_the_address"));
       return false;
     }
     email = value;
@@ -268,12 +267,11 @@ public final class AccountActivity extends Activity {
   private EditText passwordField(boolean fresh) {
     EditText field =
         ui.field(
-            fresh ? text("Nové heslo", "New password") : text("Heslo", "Password"),
+            fresh ? text("account.new_password") : text("account.password"),
             InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
     ui.explain(field.getHint().toString(), fresh
-        ? text("Zvol heslo s alespoň 8 znaky. Použiješ ho při dalším přihlášení.", "Choose a password of at least 8 characters for future sign-ins.")
-        : text("Zadej heslo nastavené při registraci. Zapomenuté heslo obnovíš odkazem z přihlašovací obrazovky.",
-            "Enter the password set at registration. Use password recovery on the sign-in screen if you have forgotten it."), field);
+        ? text("account.choose_a_password_of_at_least_8")
+        : text("account.enter_the_password_set_at_registration_use"), field);
     field.setSaveEnabled(false);
     field.setAutofillHints(fresh ? "newPassword" : View.AUTOFILL_HINT_PASSWORD);
     return field;
@@ -284,36 +282,27 @@ public final class AccountActivity extends Activity {
     if (!value.isEmpty() && (!fresh || value.codePointCount(0, value.length()) >= 8)) return true;
     field.setError(
         fresh
-            ? text("Zadej alespoň 8 znaků.", "Use at least 8 characters.")
-            : text("Zadej heslo.", "Enter your password."));
+            ? text("account.use_at_least_8_characters")
+            : text("account.enter_your_password"));
     return false;
   }
 
   private void emailForm(boolean recovery) {
     ui.page(
-        recovery ? text("Nastavení hesla", "Password setup") : text("Registrace", "Registration"),
+        recovery ? text("account.password_setup") : text("account.registration"),
         false);
     ui.label(
         recovery
-            ? text(
-                "Pokud už máš účet, pošleme ti odkaz pro nastavení hesla. Použij stejný e-mail jako"
-                    + " při registraci.",
-                "If you already have an account, we’ll send a link to set your password. Use the"
-                    + " email you registered with.")
-            : text(
-                "Zvol si heslo s alespoň 8 znaky. E-mail ověříš jednou na tomto telefonu.",
-                "Choose a password with at least 8 characters. Confirm your email once on this"
-                    + " phone."));
+            ? text("account.if_you_already_have_an_account_well")
+            : text("account.choose_a_password_with_at_least_8"));
     EditText address = addressField(recovery
-        ? text("Na ověřenou adresu účtu přijde odkaz pro nastavení nového hesla.",
-            "The password reset link will go to the verified email address for your account.")
-        : text("Zadej adresu, na kterou ti můžeme poslat potvrzení registrace.",
-            "Enter an email address where you can receive the registration confirmation."));
+        ? text("account.the_password_reset_link_will_go_to")
+        : text("account.enter_an_email_address_where_you_can"));
     EditText password = recovery ? null : passwordField(true);
     action(
         recovery
-            ? text("Poslat odkaz pro nastavení hesla", "Send password setup link")
-            : text("Zaregistrovat se", "Register"),
+            ? text("account.send_password_setup_link")
+            : text("account.register"),
         AccountLayout.Action.PRIMARY,
         () -> {
           if (!readAddress(address) || (!recovery && !validPassword(password, true))) return;
@@ -344,15 +333,15 @@ public final class AccountActivity extends Activity {
                 }
               });
         });
-    action(text("Zpět k přihlášení", "Back to sign-in"), AccountLayout.Action.LINK, this::login);
+    action(text("account.back_to_sign_in"), AccountLayout.Action.LINK, this::login);
   }
 
   private void choosePassword(IdentityService.Session recovery) {
     clearPending();
-    ui.page(text("Nastav nové heslo", "Set a new password"), false);
+    ui.page(text("account.set_a_new_password"), false);
     EditText field = passwordField(true);
     action(
-        text("Uložit heslo", "Save password"),
+        text("account.save_password"),
         AccountLayout.Action.PRIMARY,
         () -> {
           if (!validPassword(field, true)) return;
@@ -364,13 +353,13 @@ public final class AccountActivity extends Activity {
               },
               this::verified);
         });
-    action(text("Zpět k přihlášení", "Back to sign-in"), AccountLayout.Action.LINK, this::login);
+    action(text("account.back_to_sign_in"), AccountLayout.Action.LINK, this::login);
   }
 
   /** Use the OS authentication UI and a Keystore-protected key on the same device. */
   private void unlock() {
     if (busy || prompt != null || !DeviceVault.enrolled(this)) return;
-    String title = text("Odemknout deník", "Unlock journal");
+    String title = text("account.unlock_journal");
     if (android.os.Build.VERSION.SDK_INT >= 29) {
       android.hardware.biometrics.BiometricPrompt.Builder builder =
           new android.hardware.biometrics.BiometricPrompt.Builder(this).setTitle(title);
@@ -423,16 +412,13 @@ public final class AccountActivity extends Activity {
   }
 
   private void inbox() {
-    ui.page(text("Zkontroluj e-mail", "Check your email"), false);
+    ui.page(text("account.check_your_email"), false);
     ui.label(
-        text("Otevři nejnovější zprávu na adrese ", "Open the latest message sent to ")
+        text("account.open_the_latest_message_sent_to")
             + email
-            + text(
-                " a klepni na odkaz na tomto telefonu. Do aplikace se můžeš také vrátit přes její"
-                    + " ikonu.",
-                " and tap the link on this phone. You can also return by tapping the app icon."));
+            + text("account.and_tap_the_link_on_this_phone"));
     action(
-        text("Otevřít poštu", "Open inbox"),
+        text("account.open_inbox"),
         AccountLayout.Action.PRIMARY,
         () -> {
           try {
@@ -441,19 +427,17 @@ public final class AccountActivity extends Activity {
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
           } catch (ActivityNotFoundException missing) {
             ui.message(
-                text(
-                    "Otevři svou schránku v prohlížeči na tomto telefonu.",
-                    "Open your webmail in the browser on this phone."));
+                text("account.open_your_webmail_in_the_browser_on"));
           }
         });
     String purpose = AccountStore.prefs(this).getString("pkcePurpose", "");
     if ("recovery".equals(purpose) || "signup".equals(purpose))
       action(
-          text("Vyžádat nový odkaz", "Request another link"),
+          text("account.request_another_link"),
           AccountLayout.Action.SECONDARY,
           () -> resendEmail(purpose));
     action(
-        text("Zpět k přihlášení", "Back to sign-in"),
+        text("account.back_to_sign_in"),
         AccountLayout.Action.LINK,
         () -> {
           clearPending();
@@ -479,9 +463,7 @@ public final class AccountActivity extends Activity {
         ignored -> {
           pending.edit().putLong("pkceAt", System.currentTimeMillis()).apply();
           ui.message(
-              text(
-                  "O nový odkaz bylo požádáno. Zkontroluj poštu.",
-                  "New link requested. Check your inbox."));
+              text("account.new_link_requested_check_your_inbox"));
           callback(getIntent());
         });
   }
@@ -504,9 +486,7 @@ public final class AccountActivity extends Activity {
             .commit();
     if (!saved)
       ui.message(
-          text(
-              "Přihlášení nelze uložit. Zkus to znovu.",
-              "Could not save the sign-in request. Please retry."));
+          text("account.could_not_save_the_sign_in_request"));
     return saved;
   }
 
@@ -533,9 +513,7 @@ public final class AccountActivity extends Activity {
   }
 
   private String expiredEmailMessage() {
-    return text(
-        "Odkaz už byl použitý nebo vypršel. Nech si poslat nový.",
-        "This link was already used or has expired. Request a new one.");
+    return text("account.this_link_was_already_used_or_has");
   }
 
   private void oauth(String provider) {
@@ -545,7 +523,7 @@ public final class AccountActivity extends Activity {
       if (!savePending(verifier, "", "oauth")) return;
       startActivity(new Intent(Intent.ACTION_VIEW, url).addCategory(Intent.CATEGORY_BROWSABLE));
     } catch (Exception e) {
-      ui.message(text("Prohlížeč nelze otevřít.", "Could not open a browser."));
+      ui.message(text("account.could_not_open_a_browser"));
     }
   }
 
@@ -574,9 +552,7 @@ public final class AccountActivity extends Activity {
         || code == null
         || code.isEmpty()) {
       ui.message(
-          text(
-              "Přihlášení nebylo dokončeno. Zkus to znovu.",
-              "Sign-in was not completed. Please retry."));
+          text("account.sign_in_was_not_completed_please_retry"));
       return;
     }
     boolean recovery = "recovery".equals(p.getString("pkcePurpose", ""));
@@ -601,32 +577,29 @@ public final class AccountActivity extends Activity {
   }
 
   private void registration() {
-    ui.page(text("Rybářský profil", "Angler profile"), false);
+    ui.page(text("account.angler_profile"), false);
     EditText nickname =
         ui.field(
-            text("Přezdívka (2–60 znaků)", "Display name (2–60 characters)"),
+            text("account.display_name_2_60_characters"),
             InputType.TYPE_CLASS_TEXT);
-    ui.explain(nickname.getHint().toString(), text("Tuto přezdívku uvidí ostatní u tvých příspěvků.",
-        "Other anglers will see this display name on your posts."), nickname);
+    ui.explain(nickname.getHint().toString(), text("account.other_anglers_will_see_this_display_name"), nickname);
     if (profile.has("name")) {
       nickname.setText(profile.optString("name"));
       nickname.setEnabled(false);
     }
-    CheckBox terms = ui.check(text("Přijímám podmínky používání.", "I accept the terms of use."));
+    CheckBox terms = ui.check(text("account.i_accept_the_terms_of_use"));
     CheckBox privacy =
         ui.check(
-            text(
-                "Seznámil/a jsem se s informacemi o zpracování údajů.",
-                "I acknowledge the privacy notice."));
+            text("account.i_acknowledge_the_privacy_notice"));
     submit =
         action(
-            text("Uložit profil", "Save profile"),
+            text("common.save_profile"),
             AccountLayout.Action.PRIMARY,
             () -> {
               String name = nickname.getText().toString().trim();
               if (name.codePointCount(0, name.length()) < 2
                   || name.codePointCount(0, name.length()) > 60) {
-                nickname.setError(text("Zadej 2 až 60 znaků.", "Enter 2 to 60 characters."));
+                nickname.setError(text("account.enter_2_to_60_characters"));
                 return;
               }
               if (!terms.isChecked() || !privacy.isChecked()) return;
@@ -638,7 +611,7 @@ public final class AccountActivity extends Activity {
     terms.setOnCheckedChangeListener(update);
     privacy.setOnCheckedChangeListener(update);
     documents();
-    action(text("Zpět k přihlášení", "Back to sign-in"), AccountLayout.Action.LINK, this::login);
+    action(text("account.back_to_sign_in"), AccountLayout.Action.LINK, this::login);
   }
 
   private void finishProfile(JSONObject result) {
@@ -655,19 +628,15 @@ public final class AccountActivity extends Activity {
       return;
     }
     AccountLayout.Prompt journal =
-        ui.prompt(text("Deník ze starší verze", "Journal from an older version"));
+        ui.prompt(text("account.journal_from_an_older_version"));
     journal.description(
-        text(
-            "Patří dřívější místní deník na tomto telefonu tobě? Můžeš ho propojit se svým"
-                + " prvním ověřeným profilem.",
-            "Does the earlier journal on this device belong to you? You can link it to this"
-                + " first verified profile."));
+        text("account.does_the_earlier_journal_on_this_device"));
     journal.setCancelable(false);
     journal.action(
-        text("Připojit můj deník", "Link my journal"),
+        text("account.link_my_journal"),
         AccountLayout.Action.PRIMARY,
         () -> activate(result, true));
-    journal.action(text("Nový deník", "Fresh journal"), AccountLayout.Action.SECONDARY, fresh);
+    journal.action(text("account.fresh_journal"), AccountLayout.Action.SECONDARY, fresh);
     journal.show();
   }
 
@@ -707,17 +676,15 @@ public final class AccountActivity extends Activity {
     managing = true;
     ui.page(AccountStore.prefs(this).getString("name", ""), false);
     ui.label(
-        text(
-            "O opravu, kopii nebo výmaz účtu požádej na milan.kucera78@gmail.com.",
-            "For account correction, access or deletion contact milan.kucera78@gmail.com."));
-    action(text("Aktualizace atlasu revírů", "Water atlas updates"), AccountLayout.Action.SECONDARY,
+        text("account.for_account_correction_access_or_deletion_contact"));
+    action(text("common.water_atlas_updates"), AccountLayout.Action.SECONDARY,
         () -> startActivity(new Intent(this, WaterSettingsActivity.class)));
     action(
-        text("Rybářské party", "Fishing groups"),
+        text("common.fishing_groups"),
         AccountLayout.Action.PRIMARY,
         () -> startActivity(new Intent(this, GroupsActivity.class)));
     action(
-        text("Odhlásit se z telefonu", "Sign out on this phone"),
+        text("account.sign_out_on_this_phone"),
         AccountLayout.Action.SECONDARY,
         () -> {
           clearPending();
@@ -725,7 +692,7 @@ public final class AccountActivity extends Activity {
           email = "";
           login();
         });
-    action(text("Otevřít deník", "Open journal"), AccountLayout.Action.PRIMARY, this::enter);
+    action(text("account.open_journal"), AccountLayout.Action.PRIMARY, this::enter);
     documents();
   }
 
@@ -736,7 +703,7 @@ public final class AccountActivity extends Activity {
   private <T> void run(Work<T> work, java.util.function.Consumer<T> done) {
     if (busy) return;
     busy = true;
-    ui.message(text("Probíhá ověření…", "Contacting account service…"));
+    ui.message(text("account.contacting_account_service"));
     io.execute(
         () -> {
           try {
@@ -763,35 +730,22 @@ public final class AccountActivity extends Activity {
 
   private String errorMessage(Exception error) {
     if (error instanceof IdentityService.EmailRateLimit)
-      return text(
-          "Příliš mnoho pokusů. Zkus to za chvíli znovu.",
-          "Too many attempts. Please try again later.");
+      return text("account.too_many_attempts_please_try_again_later");
     if (error instanceof IdentityService.HttpFailure) {
       String code = ((IdentityService.HttpFailure) error).code;
       if ("invalid_credentials".equals(code))
-        return text(
-            "E-mail nebo heslo nesouhlasí. Pokud jsi dříve používal/a odkaz, zvol Nastavit nebo"
-                + " obnovit heslo.",
-            "Incorrect email or password. If you previously signed in by link, select Set or reset"
-                + " password.");
+        return text("account.incorrect_email_or_password_if_you_previously");
       if ("email_address_not_authorized".equals(code))
-        return text(
-            "Pilot zatím nemůže na tuto adresu poslat zprávu. Obrať se na správce pilotu.",
-            "The pilot cannot send to this address yet. Contact the pilot operator.");
+        return text("account.the_pilot_cannot_send_to_this_address");
       if ("email_not_confirmed".equals(code))
-        return text(
-            "Nejdřív potvrď e-mail na tomto telefonu.", "Confirm your email on this phone first.");
+        return text("account.confirm_your_email_on_this_phone_first");
       if ("weak_password".equals(code))
-        return text("Zvol silnější heslo.", "Choose a stronger password.");
+        return text("account.choose_a_stronger_password");
       if ("same_password".equals(code))
-        return text("Zvol jiné heslo než dosud.", "Choose a different password.");
+        return text("account.choose_a_different_password");
     }
     if (error instanceof java.security.GeneralSecurityException)
-      return text(
-          "Odemknutí se nezdařilo. Přihlas se heslem.",
-          "Device unlock failed. Sign in with your password.");
-    return text(
-        "Akci se nepodařilo dokončit. Zkontroluj připojení nebo údaje a opakuj pokus.",
-        "Could not complete this step. Check your connection or details, then retry.");
+      return text("account.device_unlock_failed_sign_in_with_your");
+    return text("account.could_not_complete_this_step_check_your");
   }
 }

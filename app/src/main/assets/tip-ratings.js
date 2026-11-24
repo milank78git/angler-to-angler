@@ -3,9 +3,9 @@ import { by, esc, t, confirmAction, submitChange, trackEdits, toast } from './ui
 import { rpc } from './profile-api.js';
 
 const criteria = [
-  ['accuracy', t('Přesnost údajů', 'Accuracy of information')],
-  ['technique', t('Popis techniky', 'Technique description')],
-  ['match', t('Odpovídal tip tomu, co autor slíbil?', 'Did the tip deliver what the author promised?')],
+  ['accuracy', t('tip_ratings.accuracy_of_information')],
+  ['technique', t('tip_ratings.technique_description')],
+  ['match', t('tip_ratings.did_the_tip_deliver_what_the_author')],
 ];
 const decimal = new Intl.NumberFormat(languageTag, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
@@ -18,10 +18,10 @@ function breakdown(scores, average = false) {
 /** Show the number of contributing purchases alongside the score, including on offer previews. */
 export function authorRating(summary, detailed = false) {
   if (!summary) return '';
-  const title = t('Hodnocení autora', 'Author rating');
+  const title = t('tip_ratings.author_rating');
   const result = summary.count
-    ? decimal.format(summary.average) + ' / 5 · ' + t('Počet hodnocení', 'Ratings') + ' ' + esc(summary.count)
-    : t('Zatím bez hodnocení', 'No ratings yet');
+    ? decimal.format(summary.average) + ' / 5 · ' + t('common.ratings') + ' ' + esc(summary.count)
+    : t('common.no_ratings_yet');
   if (!detailed) return '<p class="meta author-rating">' + title + ' · ' + result + '</p>';
   return '<section class="author-rating"><h2>' + title + '</h2><p>' + result + '</p>' +
     (summary.count ? breakdown(summary, true) : '') + '</section>';
@@ -30,15 +30,15 @@ export function authorRating(summary, detailed = false) {
 export function purchaseRating(item) {
   if (!item.purchased || !('myRating' in item)) return '';
   if (item.myRating) return '<section id="my-rating" class="surface"><h2>' +
-    t('Tvoje hodnocení', 'Your rating') + '</h2>' + breakdown(item.myRating) + '</section>';
-  return '<details class="surface fold" id="rating-editor"><summary>' + t('Ohodnotit zakoupený tip', 'Rate purchased tip') +
+    t('tip_ratings.your_rating') + '</h2>' + breakdown(item.myRating) + '</section>';
+  return '<details class="surface fold" id="rating-editor"><summary>' + t('tip_ratings.rate_purchased_tip') +
     '</summary><form id="rating-form" class="fold-body"><p>' +
-    t('Každou položku ohodnoť od 1 (nejhorší) do 5 (nejlepší).', 'Score each item from 1 (worst) to 5 (best).') +
+    t('tip_ratings.score_each_item_from_1_worst_to') +
     '</p>' + criteria.map(([key, label]) =>
       '<fieldset class="rating-criterion"><legend>' + esc(label) + '</legend><div>' +
       [1, 2, 3, 4, 5].map(n => '<label><input required type="radio" name="' + key + '" value="' + n + '"><span>' +
         n + '</span></label>').join('') + '</div></fieldset>',
-    ).join('') + '<button class="primary" id="submit-rating">' + t('Odeslat hodnocení', 'Submit rating') + '</button></form></details>';
+    ).join('') + '<button class="primary" id="submit-rating">' + t('tip_ratings.submit_rating') + '</button></form></details>';
 }
 
 export function bindPurchaseRating(view, nav, offerId) {
@@ -50,10 +50,10 @@ export function bindPurchaseRating(view, nav, offerId) {
     const values = new FormData(form);
     const scores = criteria.map(([key]) => Number(values.get(key)));
     const confirmed = await confirmAction({
-      title: t('Potvrdit hodnocení?', 'Confirm your rating?'),
+      title: t('tip_ratings.confirm_your_rating'),
       message: criteria.map(([, label], i) => label + ' ' + scores[i] + '/5').join(' · ') + '. ' +
-        t('Hodnocení lze odeslat jen jednou.', 'You can rate each purchase once.'),
-      accept: t('Potvrdit', 'Confirm'),
+        t('tip_ratings.you_can_rate_each_purchase_once'),
+      accept: t('tip_ratings.confirm'),
     });
     if (!confirmed) return;
     await submitChange(view,
@@ -61,12 +61,12 @@ export function bindPurchaseRating(view, nav, offerId) {
       () => { view.dirty = false; nav.show(); },
       err => {
         if (err.status === 409) {
-          toast(t('Tento nákup už má hodnocení. Načítám uložené známky.', 'This purchase was already rated. Loading the saved scores.'));
+          toast(t('tip_ratings.this_purchase_was_already_rated_loading_the'));
           nav.show();
         } else {
           toast(err.status === 422
-            ? t('Vyber tři známky od 1 do 5.', 'Choose three scores from 1 to 5.')
-            : t('Odeslání se nepodařilo ověřit. Zkus to znovu.', 'Could not confirm submission. Please retry.'));
+            ? t('tip_ratings.choose_three_scores_from_1_to_5')
+            : t('tip_ratings.could_not_confirm_submission_please_retry'));
         }
       });
   };

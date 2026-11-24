@@ -71,14 +71,14 @@ final class ShareChecks {
         && !message.hasExtra(Intent.EXTRA_STREAM), "Trip notes or location leaked into the tip");
     app.js("document.querySelector('#share-water').click();document.querySelector('#share-day').click()");
     String preview = (String) new JSONTokener(app.js("document.querySelector('#card-text').textContent")).nextValue();
-    check(preview.startsWith(tip + "\n") && preview.contains("Sázava 1") && !preview.contains("Offline smoke test"),
+    check(preview.startsWith(tip + "\n") && preview.contains(app.waterName("401009")) && !preview.contains("Offline smoke test"),
         "Incorrect optional trip fields");
     check(preview.equals(outgoing(app).getStringExtra(Intent.EXTRA_TEXT)), "Tip did not match its preview");
     app.js("document.querySelector('#tip-groups').click()");
     app.waitFor("document.querySelector('#tip-group').options.length===2 && document.querySelector('#tip-post').disabled");
     app.js("const select=document.querySelector('#tip-group'); select.selectedIndex=1; select.dispatchEvent(new Event('change')); document.querySelector('#tip-post').click()");
     app.waitFor("!document.querySelector('#tip-post').disabled && document.querySelector('#tip-feedback').textContent.includes("
-        + org.json.JSONObject.quote("cs".equals(app.js("document.documentElement.lang").replace("\"", "")) ? "nezdařilo" : "Could not confirm") + ")");
+        + org.json.JSONObject.quote(app.label("group_tip.could_not_confirm_the_request_check_your")) + ")");
     app.waitFor("document.querySelector('#card-text').textContent===" + org.json.JSONObject.quote(preview));
     app.js("document.querySelector('#tip-post').click()");
     app.waitFor("!!document.querySelector('#share-tip')");
@@ -109,7 +109,7 @@ final class ShareChecks {
         "for(const k of"
             + " ['water','day','bait','technique'])document.querySelector('#share-'+k).click()");
     app.waitFor(
-        "document.querySelector('#card-text').textContent.includes('Sázava 1') &&"
+        "document.querySelector('#card-text').textContent.includes(" + org.json.JSONObject.quote(app.waterName("401009")) + ") &&"
             + " document.querySelector('#card-text').textContent.includes('spinner') &&"
             + " document.querySelector('#card-text').textContent.includes('jigging')");
     app.js(
@@ -135,7 +135,7 @@ final class ShareChecks {
     Intent send = outgoing(app);
     check(
         preview.equals(send.getStringExtra(Intent.EXTRA_TEXT))
-            && preview.matches("Perch\\nSlow retrieve\\.\\n(Délka|Length) · 32[.,]5 cm"),
+            && preview.matches("Perch\\nSlow retrieve\\.\\n" + java.util.regex.Pattern.quote(app.label("share_card.length")) + " · 32[.,]5 cm"),
         "Caption did not match the preview");
     check("image/jpeg".equals(send.getType()), "Wrong attachment type");
     Uri uri = send.getParcelableExtra(Intent.EXTRA_STREAM);

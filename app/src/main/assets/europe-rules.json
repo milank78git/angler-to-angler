@@ -483,204 +483,154 @@
   },
   "scopes": {
     "nontrout": {
-      "cs": "ČR · mimopstruhové revíry",
-      "en": "Czechia · non-trout fishing waters"
+      "message": "europe-rules.scopes.nontrout"
     },
     "czall": {
-      "cs": "ČR · rybářské revíry",
-      "en": "Czechia · fishing waters"
+      "message": "europe-rules.scopes.czall"
     },
     "cztrout": {
-      "cs": "ČR · pstruhové revíry, všechny druhy",
-      "en": "Czechia · trout fishing waters, all species"
+      "message": "europe-rules.scopes.cztrout"
     },
     "vranov": {
-      "cs": "Slovensko · revíry MO SRZ Vranov nad Topľou podle místního řádu",
-      "en": "Slovakia · waters covered by the Vranov nad Topľou permit"
+      "message": "europe-rules.scopes.vranov"
     },
     "frbase": {
-      "cs": "Francie · výchozí míra, ověř vyhlášku prefektury podle R436-19",
-      "en": "France · national baseline, check the prefectural order under R436-19"
+      "message": "europe-rules.scopes.frbase"
     },
     "fr2": {
-      "cs": "Francie · vody druhé kategorie, prefektura může míru zvýšit",
-      "en": "France · second-category waters, the prefect may raise the minimum"
+      "message": "europe-rules.scopes.fr2"
     },
     "ie": {
-      "cs": "Irsko · ponechání štiky podle předpisu č. 809",
-      "en": "Ireland · pike retention under Bye-Law 809"
+      "message": "europe-rules.scopes.ie"
     },
     "ew": {
-      "cs": "Anglie a Wales · říční lov nedravých a dravých ryb kategorie coarse fish",
-      "en": "England and Wales · coarse fishing on rivers"
+      "message": "europe-rules.scopes.ew"
     },
     "fi": {
-      "cs": "Finsko · rekreační rybolov v přírodních vodách na pevnině",
-      "en": "Finland · recreational fishing in mainland natural waters"
+      "message": "europe-rules.scopes.fi"
     },
     "fisea": {
-      "cs": "Finsko · Baltské moře, pevninská jurisdikce",
-      "en": "Finland · Baltic Sea, mainland jurisdiction"
+      "message": "europe-rules.scopes.fisea"
     },
     "dk": {
-      "cs": "Dánsko · sladké vody, ověř místní výjimky",
-      "en": "Denmark · freshwater, check local exceptions"
+      "message": "europe-rules.scopes.dk"
     },
     "no": {
-      "cs": "Norsko · rekreační mořský rybolov",
-      "en": "Norway · recreational sea fishing"
+      "message": "europe-rules.scopes.no"
     },
     "noN": {
-      "cs": "Norsko · moře severně od 62° s. š.",
-      "en": "Norway · sea north of 62° N"
+      "message": "europe-rules.scopes.noN"
     },
     "noS": {
-      "cs": "Norsko · moře jižně od 62° s. š.",
-      "en": "Norway · sea south of 62° N"
+      "message": "europe-rules.scopes.noS"
     },
     "be": {
-      "cs": "Belgie · vlámské veřejné vody. Ponechání vyžaduje velkou povolenku a má časová omezení.",
-      "en": "Belgium · Flemish public waters. Retaining fish requires a large permit and is subject to time restrictions."
+      "message": "europe-rules.scopes.be"
     },
     "si": {
-      "cs": "Slovinsko · sladké vody jadranského povodí",
-      "en": "Slovenia · freshwater in the Adriatic basin"
+      "message": "europe-rules.scopes.si"
     },
     "hu": {
-      "cs": "Maďarsko · celostátní lovná míra, ověř řád konkrétní vody",
-      "en": "Hungary · national size threshold, check the specific water’s regulations"
+      "message": "europe-rules.scopes.hu"
     },
     "pl": {
-      "cs": "Polsko · vnitrozemské povrchové vody, délka musí překročit ochrannou hranici",
-      "en": "Poland · inland surface waters, length must exceed the protected threshold"
+      "message": "europe-rules.scopes.pl"
     },
     "ltbase": {
-      "cs": "Litva · vnitrozemské vody mimo přílohy 2 a 7, ověř kombinovaný limit na výpravu",
-      "en": "Lithuania · inland waters outside Annexes 2 and 7, check the combined trip limit"
+      "message": "europe-rules.scopes.ltbase"
     },
     "lt7": {
-      "cs": "Litva · pouze vody uvedené v příloze 7",
-      "en": "Lithuania · only waters listed in Annex 7"
+      "message": "europe-rules.scopes.lt7"
     },
     "atl26": {
-      "cs": "2026 · rekreační lov ve vodách EU v oblastech ICES 3, 4, 6, 7, 8 a 9 a přilehlých brakických vodách",
-      "en": "2026 · recreational fishing in EU marine and adjacent brackish waters of ICES areas 3, 4, 6, 7, 8 and 9"
+      "message": "europe-rules.scopes.atl26"
     },
     "med26": {
-      "cs": "2026 · rekreační lov úhoře, středomořské podoblasti GFCM 1–27 a související brakické a sladké vody",
-      "en": "2026 · recreational eel fishing in Mediterranean GFCM subareas 1–27 and associated brackish and fresh waters"
+      "message": "europe-rules.scopes.med26"
     },
     "medfish": {
-      "cs": "2026 · Středozemní moře, rekreační lov. V otevřeném období platí limit 10 kg nebo pět ryb na osobu a den.",
-      "en": "2026 · Mediterranean recreational fishing. The open season has a limit of 10 kg or five fish per person per day."
+      "message": "europe-rules.scopes.medfish"
     },
     "bal26": {
-      "cs": "2026 · Baltské moře, podoblasti 22–32. Cílený lov tresky je zakázán. Náhodný úlovek se vrací, výjimka pro ponechání se vztahuje na podoblasti 27–32.",
-      "en": "2026 · Baltic subdivisions 22–32. Directed cod fishing is closed. Release incidental catches, except that bycatch may be kept in subdivisions 27–32."
+      "message": "europe-rules.scopes.bal26"
     },
     "atlocal": {
-      "cs": "Rakousko · Dolní Rakousy, NÖ Fischereiverordnung § 1",
-      "en": "Austria · Lower Austria, NÖ Fischereiverordnung § 1"
+      "message": "europe-rules.scopes.atlocal"
     },
     "adlocal": {
-      "cs": "Andorra · běžné říční úseky 2026, kromě výjimek uvedených v seznamu správce",
-      "en": "Andorra · ordinary river sections in 2026, excluding individually listed exceptions"
+      "message": "europe-rules.scopes.adlocal"
     },
     "balocal": {
-      "cs": "Federace Bosny a Hercegoviny · sportovní sladkovodní rybolov, ověř pravidla správce revíru",
-      "en": "Federation of Bosnia and Herzegovina · freshwater sport fishing, verify the water manager’s rules"
+      "message": "europe-rules.scopes.balocal"
     },
     "bglocal": {
-      "cs": "Bulharsko · minimální velikosti dle přílohy č. 2 zákona o rybolovu",
-      "en": "Bulgaria · minimum sizes under Annex 2 of the Fisheries and Aquaculture Act"
+      "message": "europe-rules.scopes.bglocal"
     },
     "bylocal": {
-      "cs": "Bělorusko · příloha 1 pravidel rekreačního rybolovu",
-      "en": "Belarus · Annex 1 of the recreational fishing rules"
+      "message": "europe-rules.scopes.bylocal"
     },
     "chlocal": {
-      "cs": "Švýcarsko · kanton Glarus, bez jezer Oberblegisee, Obersee a rašelinných jezer v Biltenu",
-      "en": "Switzerland · canton Glarus, excluding Oberblegisee, Obersee and the peat lakes in Bilten"
+      "message": "europe-rules.scopes.chlocal"
     },
     "lilocal": {
-      "cs": "Lichtenštejnsko · Fischereiverordnung čl. 16",
-      "en": "Liechtenstein · Fisheries Ordinance Article 16"
+      "message": "europe-rules.scopes.lilocal"
     },
     "islocal": {
-      "cs": "Island · cílený lov lososa na moři",
-      "en": "Iceland · directed salmon fishing at sea"
+      "message": "europe-rules.scopes.islocal"
     },
     "mclocal": {
-      "cs": "Monako · druhy chráněné čl. O.244-11 odst. 2 mořského zákoníku",
-      "en": "Monaco · protected species under Article O.244-11(2) of the Maritime Code"
+      "message": "europe-rules.scopes.mclocal"
     },
     "mdlocal": {
-      "cs": "Moldavsko · rok 2026, vnitrozemské přítoky Dněstru a Prutu včetně řek Răut, Bîc a Botna",
-      "en": "Moldova · 2026, inland tributaries of the Dniester and Prut including the Răut, Bîc and Botna"
+      "message": "europe-rules.scopes.mdlocal"
     },
     "rolocal": {
-      "cs": "Rumunsko · volně žijící jeseteři v přirozených vodách",
-      "en": "Romania · wild sturgeon in natural fish habitats"
+      "message": "europe-rules.scopes.rolocal"
     },
     "trlocal": {
-      "cs": "Turecko · vnitrozemské vody, rekreační rybolov, tabulka 5",
-      "en": "Türkiye · inland recreational fishing, Table 5"
+      "message": "europe-rules.scopes.trlocal"
     },
     "ualocal": {
-      "cs": "Ukrajina · vnitrozemské vody v metodice Dněpropetrovské oblasti",
-      "en": "Ukraine · inland waters covered by the Dnipropetrovsk regional guidance"
+      "message": "europe-rules.scopes.ualocal"
     },
     "lulocal": {
-      "cs": "Lucembursko · hraniční vody s Německem podle přehledu správy vod",
-      "en": "Luxembourg · German border waters covered by the water administration guide"
+      "message": "europe-rules.scopes.lulocal"
     },
     "xklocal": {
-      "cs": "Kosovo · řeky a jezera, rok 2026. V uvedeném období pouze chyť a pusť, bez přechovávání.",
-      "en": "Kosovo · rivers and lakes in 2026. Catch and release only during the stated period, without holding fish."
+      "message": "europe-rules.scopes.xklocal"
     },
     "rslocal": {
-      "cs": "Srbsko · revír Ludaš, ověř aktuální místní povolení",
-      "en": "Serbia · Ludaš fishing area, check the current local permit"
+      "message": "europe-rules.scopes.rslocal"
     },
     "delocal": {
-      "cs": "Německo · Bavorsko, povodí D/E/R/W v příloze AVBayFiG",
-      "en": "Germany · Bavaria, basins D/E/R/W in the AVBayFiG annex"
+      "message": "europe-rules.scopes.delocal"
     },
     "allocal": {
-      "cs": "Albánská část Ohridského jezera · rekreační lov kapra, sezona 2026",
-      "en": "Albanian waters of Lake Ohrid · recreational carp fishing, 2026 season"
+      "message": "europe-rules.scopes.allocal"
     },
     "mklocal": {
-      "cs": "Severní Makedonie · rekreační revír Crn Drim, sezona 2026",
-      "en": "North Macedonia · Crn Drim recreational fishing area, 2026 season"
+      "message": "europe-rules.scopes.mklocal"
     },
     "melocal": {
-      "cs": "Černá Hora · národní park Skadarské jezero, jarní hájení 2026",
-      "en": "Montenegro · Lake Skadar National Park, spring closure in 2026"
+      "message": "europe-rules.scopes.melocal"
     },
     "kzlocal": {
-      "cs": "Kazachstán · řeka Žajyk (Ural) od ústí po loviště Malaja Dambinskaja, čl. 24 odst. 1",
-      "en": "Kazakhstan · Zhaiyk (Ural) River from its mouth to the Malaya Dambinskaya fishing station, Article 24(1)"
+      "message": "europe-rules.scopes.kzlocal"
     },
     "azlocal": {
-      "cs": "Ázerbájdžán · zákaz lovu vyzy ve vodách státu",
-      "en": "Azerbaijan · beluga fishing prohibition in national waters"
+      "message": "europe-rules.scopes.azlocal"
     },
     "gelocal": {
-      "cs": "Gruzie · přísná přírodní rezervace Lagodekhi, zákaz lovu v této rezervaci",
-      "en": "Georgia · Lagodekhi Strict Nature Reserve, fishing prohibited within this reserve"
+      "message": "europe-rules.scopes.gelocal"
     },
     "smlocal": {
-      "cs": "San Marino · veřejné sladké vody a vody s nimi propojené, čl. 1",
-      "en": "San Marino · public fresh waters and waters connected to them, Article 1"
+      "message": "europe-rules.scopes.smlocal"
     },
     "rulocal": {
-      "cs": "Rusko · Rybinská přehrada v Jaroslavské oblasti. Měří se od špičky rypce k bázi prostředních paprsků ocasní ploutve. Ověř také místní sezonní omezení.",
-      "en": "Russia · Rybinsk Reservoir within Yaroslavl Oblast. Measure from the snout tip to the base of the middle caudal fin rays. Check the local seasonal restrictions as well."
+      "message": "europe-rules.scopes.rulocal"
     },
     "amlocal": {
-      "cs": "Arménie · rekreační lov na smlouvu ve vodách mimo soukromé vlastnictví, únor až prosinec 2026. Pro jezero Sevan ověř místní omezení.",
-      "en": "Armenia · recreational fishing under contract in non-private waters, February–December 2026. Check Lake Sevan restrictions separately."
+      "message": "europe-rules.scopes.amlocal"
     }
   },
   "entries": [

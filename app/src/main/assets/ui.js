@@ -1,9 +1,8 @@
-import { language, languageTag, translate } from './i18n.js';
+import { languageTag, label } from './i18n.js';
 const screen = document.querySelector('#screen');
 let noticeTimer;
 let finishConfirmation;
-const cs = language === 'cs';
-const t = translate, loc = obj => obj[language] || obj.en || obj.cs;
+const t = label, loc = entry => label(entry.message);
 const esc = (s) =>
   String(s ?? '').replace(
     /[&<>"']/g,
@@ -51,7 +50,7 @@ function confirmAction({ title, message, accept, destructive = false, catchPrevi
   by('confirmation-message').textContent = message;
   const cancelButton = by('confirmation-cancel');
   const acceptButton = by('confirmation-accept');
-  cancelButton.textContent = t('Zrušit', 'Cancel');
+  cancelButton.textContent = t('common.cancel');
   cancelButton.onclick = dismissConfirmation;
   acceptButton.textContent = accept;
   acceptButton.className = destructive ? 'danger' : 'primary';
@@ -147,7 +146,6 @@ function trackEdits(form, view) {
 
 export {
   screen,
-  cs,
   t,
   loc,
   esc,

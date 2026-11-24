@@ -19,37 +19,31 @@ import {
   toast,
 } from './ui.js';
 
-const title = () => t('Veřejná karta úlovku', 'Public catch card');
-const mine = () => t('Moje veřejné karty', 'My public cards');
+const title = () => t('common.public_catch_card');
+const mine = () => t('common.my_public_cards');
 const checkbox = (id, label) =>
   '<label class="card-option"><input type="checkbox" id="' + id + '">' + esc(label) + '</label>';
 
 function message(error) {
   if (error.status === 409)
-    return t(
-      'Údaje nebo odkaz se změnily. Obnov náhled.',
-      'The details or link changed. Refresh the preview.',
-    );
+    return t('public_cards.the_details_or_link_changed_refresh_the');
   if (error.status === 401 || error.status === 403)
-    return t('Pro správu karet se znovu přihlas.', 'Sign in again to manage cards.');
+    return t('public_cards.sign_in_again_to_manage_cards');
   if (error.status === 422 || error.status === 400)
-    return t('Zkontroluj datum, druh ryby a vybranou fotku.', 'Check the date, species and selected photo.');
-  return t(
-    'Služba je nedostupná. Zkontroluj připojení a zkus to znovu.',
-    'Service unavailable. Check your connection and retry.',
-  );
+    return t('public_cards.check_the_date_species_and_selected_photo');
+  return t('common.service_unavailable_check_your_connection_and_retry');
 }
 
 function failed(view, nav, error) {
   if (!view.active()) return;
   screen.innerHTML =
-    back(t('Zpět', 'Back')) +
+    back(t('common.back')) +
     '<h1>' +
     title() +
     '</h1><p role="alert">' +
     message(error) +
     '</p>' +
-    button('refresh-public', t('Obnovit', 'Refresh'), 'secondary');
+    button('refresh-public', t('common.refresh'), 'secondary');
   bindBack(nav);
   bind('refresh-public', () => nav.show());
 }
@@ -60,7 +54,7 @@ function linkControls(host, item, view, nav) {
     throw Error('Invalid public link');
   const group = document.createElement('div');
   group.className = 'actions';
-  group.innerHTML = link(url.href, t('Otevřít veřejnou kartu', 'Open public card'));
+  group.innerHTML = link(url.href, t('public_cards.open_public_card'));
   const add = (label, cls, action) => {
     const btn = document.createElement('button');
     btn.type = 'button';
@@ -69,19 +63,16 @@ function linkControls(host, item, view, nav) {
     btn.onclick = action;
     group.append(btn);
   };
-  add(t('Sdílet odkaz', 'Share link'), 'secondary', () => {
+  add(t('public_cards.share_link'), 'secondary', () => {
     if (!window.Device.shareCatch(url.href, ''))
-      toast(t('Sdílení se nepodařilo otevřít.', 'Could not open sharing.'));
+      toast(t('public_cards.could_not_open_sharing'));
   });
-  const remove = t('Zneplatnit odkaz', 'Revoke link');
+  const remove = t('public_cards.revoke_link');
   add(remove, 'danger', async () => {
     if (
       !(await confirmAction({
         title: remove + '?',
-        message: t(
-          'Tato adresa přestane zobrazovat úlovek všem příjemcům.',
-          'This address will stop showing the catch to every recipient.',
-        ),
+        message: t('public_cards.this_address_will_stop_showing_the_catch'),
         accept: remove,
         destructive: true,
       })) ||
@@ -122,7 +113,7 @@ export async function publicCardEditor({ view, nav, pack }) {
     return;
   }
   if (!view.active()) return;
-  screen.innerHTML = back(t('Výprava', 'Trip')) + '<h1>' + title() + '</h1>';
+  screen.innerHTML = back(t('common.trip')) + '<h1>' + title() + '</h1>';
   bindBack(nav);
   if (options.active) {
     const host = document.createElement('section');
@@ -131,7 +122,7 @@ export async function publicCardEditor({ view, nav, pack }) {
       '<h2>' +
       esc(options.active.species) +
       '</h2><p>' +
-      t('Tato karta má aktivní odkaz.', 'This card has an active link.') +
+      t('public_cards.this_card_has_an_active_link') +
       '</p>';
     screen.append(host);
     linkControls(host, options.active, view, nav);
@@ -144,33 +135,27 @@ export async function publicCardEditor({ view, nav, pack }) {
   settings.className = 'surface';
   settings.innerHTML =
     '<p>' +
-    t(
-      'Každý s odkazem uvidí tento náhled. Základem je přezdívka, druh ryby a měsíc úlovku.',
-      'Anyone with the link can see this preview. It includes your display name, species and catch month.',
-    ) +
+    t('public_cards.anyone_with_the_link_can_see_this') +
     '</p>' +
-    checkbox('public-day', t('Přidat přesný den', 'Include exact date')) +
+    checkbox('public-day', t('public_cards.include_exact_date')) +
     (options.water
-      ? checkbox('public-water', t('Přidat revír', 'Include water') + ' · ' + options.water)
+      ? checkbox('public-water', t('public_cards.include_water') + ' · ' + options.water)
       : '') +
-    (entry.hasPhoto ? checkbox('public-photo', t('Přidat fotografii', 'Include photo')) : '') +
+    (entry.hasPhoto ? checkbox('public-photo', t('public_cards.include_photo')) : '') +
     (options.proof
-      ? checkbox('public-length', t('Přidat zkontrolovanou délku', 'Include reviewed length'))
+      ? checkbox('public-length', t('public_cards.include_reviewed_length'))
       : '') +
     '<p class="meta">' +
-    t(
-      'Fotka může prozradit místo podle okolí. GPS a soukromé poznámky zůstávají v deníku.',
-      'The surroundings in a photo may reveal your spot. GPS and private notes stay in your journal.',
-    ) +
+    t('public_cards.the_surroundings_in_a_photo_may_reveal') +
     '</p>';
   screen.append(settings);
   const output = document.createElement('div');
   output.innerHTML =
     '<h2>' +
-    t('Náhled pro příjemce', 'Recipient preview') +
+    t('common.recipient_preview') +
     '</h2><div id="public-preview"></div>' +
     '<p role="status" id="public-status"></p>' +
-    button('public-publish', t('Vytvořit veřejný odkaz', 'Create public link'), 'primary');
+    button('public-publish', t('public_cards.create_public_link'), 'primary');
   screen.append(output);
   let latest,
     photoTask,
@@ -196,17 +181,14 @@ export async function publicCardEditor({ view, nav, pack }) {
     renderPublicCard(host, draft, languageTag, t);
     status.textContent = '';
     if (by('public-photo')?.checked) {
-      status.textContent = t('Připravuji fotku…', 'Preparing photo…');
+      status.textContent = t('public-cards.preparing.photo');
       try {
         photoTask ??= Journal.photo(catchId).then((file) => photoPayload(file, 640, 49152, competitionPhoto));
         photo = await photoTask;
       } catch {
         photoTask = undefined;
         if (view.active() && update === revision)
-          status.textContent = t(
-            'Fotku nelze připravit. Zruš výběr nebo ji vyber znovu.',
-            'Could not prepare the photo. Deselect it or select it again.',
-          );
+          status.textContent = t('public_cards.could_not_prepare_the_photo_deselect_it');
         return;
       }
       if (!view.active() || update !== revision) return;
@@ -222,12 +204,9 @@ export async function publicCardEditor({ view, nav, pack }) {
     if (
       !copy ||
       !(await confirmAction({
-        title: t('Zveřejnit tuto kartu?', 'Publish this card?'),
-        message: t(
-          'Každý, kdo odkaz získá, ji může otevřít a předat dál.',
-          'Anyone who receives the link can open it and pass it on.',
-        ),
-        accept: t('Zveřejnit', 'Publish'),
+        title: t('public_cards.publish_this_card'),
+        message: t('public_cards.anyone_who_receives_the_link_can_open'),
+        accept: t('public_cards.publish'),
       })) ||
       !view.active() ||
       latest !== copy
@@ -263,11 +242,11 @@ export async function myPublicCards({ view, nav }) {
   }
   if (!view.active()) return;
   screen.innerHTML =
-    back(t('Zpět', 'Back')) +
+    back(t('common.back')) +
     '<h1>' +
     mine() +
     '</h1>' +
-    (page.items.length ? '' : '<p>' + t('Žádné další veřejné karty.', 'No more public cards.') + '</p>');
+    (page.items.length ? '' : '<p>' + t('public_cards.no_more_public_cards') + '</p>');
   bindBack(nav);
   for (const item of page.items) {
     const host = document.createElement('article');
@@ -279,7 +258,7 @@ export async function myPublicCards({ view, nav }) {
   if (page.next) {
     screen.insertAdjacentHTML(
       'beforeend',
-      button('older-public', t('Starší karty', 'Older cards'), 'secondary'),
+      button('older-public', t('public_cards.older_cards'), 'secondary'),
     );
     bind('older-public', () => nav.open('myPublicCards', { cursor: page.next }));
   }

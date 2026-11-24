@@ -1,332 +1,266 @@
 {
   "offer-species": {
     "topic": "sell",
-    "cs": "Vyber rybu, které se postup týká. V nabídce se uloží její vědecký název.",
-    "en": "Choose the fish your technique targets. The offer stores its scientific name."
+    "message": "field-hints.offer-species"
   },
   "fish": {
     "topic": "catch",
-    "cs": "Vyber ulovenou rybu. Pokud v seznamu chybí, zvol Vlastní druh a napiš její název.",
-    "en": "Choose the fish you caught. If it is missing, choose Other species and enter its name."
+    "message": "field-hints.fish"
   },
   "species": {
     "topic": "waters",
-    "cs": "Vyber druh, pro který chceš zjistit hájení ve zvoleném úseku a dni.",
-    "en": "Choose the species whose closed season you want to check for the selected section and day."
+    "message": "field-hints.species"
   },
   "offer-water": {
     "topic": "sell",
-    "cs": "Výběr revíru zařadí nabídku do jeho přehledu. Bez revíru zůstane v celém tržišti.",
-    "en": "Choosing a water lists the offer on its page. Omitting it keeps the offer in the general market."
+    "message": "field-hints.offer-water"
   },
   "offer-title": {
     "topic": "sell",
-    "cs": "Napiš krátký popis, podle kterého kupující pozná téma tipu.",
-    "en": "Use a short description that tells the buyer what the tip covers."
+    "message": "field-hints.offer-title"
   },
   "offer-access": {
     "topic": "sell",
-    "cs": "Uveď odkud lze postup použít, například ze břehu nebo z lodě.",
-    "en": "Indicate where the buyer can use the technique, such as from shore or a boat."
+    "message": "field-hints.offer-access"
   },
   "offer-technique": {
     "topic": "sell",
-    "cs": "Sem napiš celý postup. Před nákupem ho vidíš jen ty.",
-    "en": "Write the full instructions here. Before purchase only you can see them."
+    "message": "field-hints.offer-technique"
   },
   "offer-limit": {
     "topic": "sell",
-    "cs": "Tolik kupujících může tip získat celkem od zveřejnění. Prázdné pole ponechá počet bez limitu.",
-    "en": "This caps lifetime purchases across versions. Leave it empty for unlimited sales."
+    "message": "field-hints.offer-limit"
   },
   "offer-price": {
     "topic": "sell",
-    "cs": "Tolik testovacích kreditů zaplatí kupující při odemčení. Jejich zůstatek není částka v korunách.",
-    "en": "This is how many test credits the buyer spends to unlock the tip. Credits have no cash value."
+    "message": "field-hints.offer-price"
   },
   "offer-day": {
     "topic": "sell",
-    "cs": "Zadej den, kdy jsi techniku použil. Kupující ho uvidí už v náhledu nabídky.",
-    "en": "Enter the day you used the technique. Buyers can see this date in the offer preview."
+    "message": "field-hints.offer-day"
   },
   "discussion-day": {
     "topic": "forum",
-    "cs": "K odpovědi můžeš přidat datum výpravy, které ostatním upřesní, kdy zkušenost vznikla.",
-    "en": "You can add the date of your trip to the reply so readers know when your experience took place."
+    "message": "field-hints.discussion-day"
   },
   "day": {
     "topic": "journal",
-    "cs": "Vyber den skutečné výpravy nebo zkušenosti, i když ji zapisuješ později.",
-    "en": "Choose the day you actually fished, even when recording it later."
+    "message": "field-hints.day"
   },
   "accuracy": {
     "topic": "ratings",
-    "cs": "Byly faktické údaje o vodě, rybě a podmínkách podle tvé zkušenosti přesné?",
-    "en": "Were the details about the water, fish and conditions accurate in your experience?"
+    "message": "field-hints.accuracy"
   },
   "technique": {
     "topic": "ratings",
-    "cs": "Šlo podle popisu poznat, jak postup zopakovat?",
-    "en": "Did the description explain how to repeat the technique?"
+    "message": "field-hints.technique"
   },
   "match": {
     "topic": "ratings",
-    "cs": "Porovnej, co autor slíbil před nákupem, s tím, co sis odemkl. Výsledek vlastní výpravy tuto známku neurčuje.",
-    "en": "Compare the promise before purchase with what you unlocked. Whether you caught a fish does not determine this score."
+    "message": "field-hints.match"
   },
   "water": {
     "topic": "journal",
-    "cs": "Pro propojení s atlasem vyber vedený revír. Vlastní název patří do tvého místního deníku.",
-    "en": "Select a listed water to link the trip to the atlas. A custom name belongs to your local journal."
+    "message": "field-hints.water"
   },
   "water-name": {
     "topic": "journal",
-    "cs": "Napiš název vody pro tuto soukromou výpravu. Vlastní název se nepřidá do atlasu.",
-    "en": "Name the water for this private trip. A custom name stays outside the water atlas."
+    "message": "field-hints.water-name"
   },
   "kind": {
     "topic": "catch",
-    "cs": "Urči, zda bod označuje místo, odkud jsi lovil, nebo místo záběru.",
-    "en": "Choose whether this point marks where you stood or where the fish took the bait."
+    "message": "field-hints.kind"
   },
   "lat": {
     "topic": "catch",
-    "cs": "Zadej zeměpisnou šířku v desetinných stupních od −90 do 90. Na jih od rovníku použij znaménko minus.",
-    "en": "Enter latitude in decimal degrees from −90 to 90. Use a minus sign south of the equator."
+    "message": "field-hints.lat"
   },
   "lon": {
     "topic": "catch",
-    "cs": "Zadej zeměpisnou délku v desetinných stupních od −180 do 180. Na západ od Greenwiche použij znaménko minus.",
-    "en": "Enter longitude in decimal degrees from −180 to 180. Use a minus sign west of Greenwich."
+    "message": "field-hints.lon"
   },
   "length": {
     "topic": "catch",
-    "cs": "Zadej naměřenou délku ryby v centimetrech, například 42,5. Pokud jsi rybu neměřil, nech pole prázdné.",
-    "en": "Enter the measured length in centimetres, for example 42.5. Leave it blank if you did not measure the fish."
+    "message": "field-hints.length"
   },
   "review-length": {
     "topic": "evidence",
-    "cs": "Zapiš délku v centimetrech podle zvoleného výsledku kontroly. Při nedostatečném důkazu se délka nevyplňuje.",
-    "en": "Enter the length in centimetres for the review outcome you selected. No length is recorded for insufficient evidence."
+    "message": "field-hints.review-length"
   },
   "bait": {
     "topic": "catch",
-    "cs": "Zaznamenej použitou nástrahu, případně velikost a barvu.",
-    "en": "Record the bait or lure, optionally including size and colour."
+    "message": "field-hints.bait"
   },
   "notes": {
     "topic": "journal",
-    "cs": "Soukromé poznámky k výpravě. Zápis se automaticky nezveřejňuje.",
-    "en": "Private trip notes. Saving does not publish them."
+    "message": "field-hints.notes"
   },
   "fish-name": {
     "topic": "catch",
-    "cs": "Pro nerozpoznanou rybu můžeš do soukromého deníku uvést vlastní popis.",
-    "en": "You can describe an unidentified fish in your private journal."
+    "message": "field-hints.fish-name"
   },
   "outcome": {
     "topic": "evidence",
-    "cs": "Zvol výsledek podle toho, co lze na snímku opravdu ověřit.",
-    "en": "Choose the outcome supported by what the photograph actually shows."
+    "message": "field-hints.outcome"
   },
   "activity-target": {
     "topic": "activity",
-    "cs": "Omez přehled výprav na ty, při kterých rybáři cílili na zvolenou rybu.",
-    "en": "Show trips on which anglers targeted the selected fish."
+    "message": "field-hints.activity-target"
   },
   "activity-method": {
     "topic": "activity",
-    "cs": "Výběrem metody zobrazíš jen výpravy lovené tímto způsobem.",
-    "en": "Choose a method to show only trips fished that way."
+    "message": "field-hints.activity-method"
   },
   "activity-month": {
     "topic": "activity",
-    "cs": "Vyber měsíc, za který chceš zobrazit sdílené výpravy na tomto revíru.",
-    "en": "Choose the calendar month for the contributed trips on this water."
+    "message": "field-hints.activity-month"
   },
   "discussion-text": {
     "topic": "forum",
-    "cs": "Příspěvek uvidí přihlášení rybáři spolu s tvou přezdívkou.",
-    "en": "Signed-in anglers will see this post and your display name."
+    "message": "field-hints.discussion-text"
   },
   "message-text": {
     "topic": "messages",
-    "cs": "Text odešleš příjemci uvedenému v rozhovoru. Emoji můžeš vložit přímo klávesnicí.",
-    "en": "This text goes to the recipient shown in the conversation. Insert emoji using your keyboard."
+    "message": "field-hints.message-text"
   },
   "hometown": {
     "topic": "profile",
-    "cs": "Můžeš uvést obec nebo oblast, kterou chceš ukázat na profilu. Přesnou adresu zadávat nemusíš.",
-    "en": "Enter the town or area you want on your profile. A street address is unnecessary."
+    "message": "field-hints.hometown"
   },
   "biography": {
     "topic": "profile",
-    "cs": "Tady můžeš podrobněji popsat své rybářské zkušenosti nebo oblíbené způsoby lovu.",
-    "en": "Describe your fishing experience or favourite techniques in more detail here."
+    "message": "field-hints.biography"
   },
   "tagline": {
     "topic": "profile",
-    "cs": "Napiš krátkou větu, která tě na rybářském profilu představí.",
-    "en": "Write a short line to introduce yourself on your angler profile."
+    "message": "field-hints.tagline"
   },
   "profile-photo": {
     "topic": "profile",
-    "cs": "Vyber z telefonu obrázek pro svůj profil. Před uložením zkontroluj jeho náhled.",
-    "en": "Choose a profile image from this device and check its preview before saving."
+    "message": "field-hints.profile-photo"
   },
   "section": {
     "topic": "waters",
-    "cs": "Vyber část revíru, na které budeš lovit. Hlavní tok a vedlejší úsek mohou mít odlišný režim.",
-    "en": "Choose the part of the water where you plan to fish. The main channel and side sections can have different rules."
+    "message": "field-hints.section"
   },
   "species-filter": {
     "topic": "sell",
-    "cs": "Zadej část názvu v jazyce telefonu nebo latinsky. Druh poté potvrď v seznamu.",
-    "en": "Type part of a local or scientific name, then choose a species from the list."
+    "message": "field-hints.species-filter"
   },
   "market-water": {
     "topic": "market",
-    "cs": "Vyber revír. Počty nabídek, nákupů a hodnocení se přepočítají pro všechny aktivní nabídky na tomto revíru.",
-    "en": "Choose a water to see counts across all active offers there."
+    "message": "field-hints.market-water"
   },
   "fish-query": {
     "topic": "catalog",
-    "cs": "Vyhledej místní nebo vědecký název. Pokud druh v zemi nenajdeš, přepni na celou Evropu.",
-    "en": "Search a common or scientific name. Switch to All of Europe if the country list misses a species."
+    "message": "field-hints.fish-query"
   },
   "fish-country": {
     "topic": "catalog",
-    "cs": "Výběr omezuje seznam na druhy s doloženým pozorováním. Na hranicích a na moři vyber zemi ručně.",
-    "en": "This filters documented occurrences. Choose the country manually on borders or at sea."
+    "message": "field-hints.fish-country"
   },
   "rule-country": {
     "topic": "catalog",
-    "cs": "Vyber stát, ve kterém budeš lovit. Každé pravidlo má vlastní územní rozsah a zdroj.",
-    "en": "Choose the country where you plan to fish. Each rule has its own territorial scope and source."
+    "message": "field-hints.rule-country"
   },
   "rule-date": {
-    "cs": "Vyber den plánovaného lovu. Hájení se mění během roku a místní podklady mají vlastní platnost.",
-    "en": "Select your fishing date. Closed seasons vary during the year and the water pack has a validity period.",
-    "topic": "waters"
+    "topic": "waters",
+    "message": "field-hints.rule-date"
   },
   "rule-water": {
-    "cs": "Podle revíru se načtou místní míry, úseky a pravidla.",
-    "en": "The selected water determines local size limits, sections and restrictions.",
-    "topic": "waters"
+    "topic": "waters",
+    "message": "field-hints.rule-water"
   },
   "tip-group": {
-    "cs": "Tip uvidí členové vybrané party. Před odesláním zkontroluj její název.",
-    "en": "Members of the selected group can see this tip. Check the group name before sending.",
-    "topic": "groups"
+    "topic": "groups",
+    "message": "field-hints.tip-group"
   },
   "share-tip-text": {
-    "cs": "Napiš vlastní text pro příjemce. Soukromé poznámky se nepřidávají automaticky.",
-    "en": "Write the message for the recipient. Private notes are not included automatically.",
-    "topic": "share"
+    "topic": "share",
+    "message": "field-hints.share-tip-text"
   },
   "photo": {
-    "cs": "Vyber snímek z telefonu. Fotografie z galerie se uloží do deníku.",
-    "en": "Choose a picture on this phone to store with the catch.",
-    "topic": "catch"
+    "topic": "catch",
+    "message": "field-hints.photo"
   },
   "camera-photo": {
-    "cs": "Pořiď snímek při zápisu úlovku. Dostupnost ověření závisí na poloze a údajích snímku.",
-    "en": "Take a picture while logging the catch. Verification depends on its location and capture data.",
-    "topic": "catch"
+    "topic": "catch",
+    "message": "field-hints.camera-photo"
   },
   "offer-country": {
     "topic": "sell",
-    "cs": "Omezí výběr ryb v nabídce i v katalogu. Revír zveřejněný u tipu se vybírá zvlášť.",
-    "en": "Limits species choices here and in the catalogue. Choose the water shown on the offer separately."
+    "message": "field-hints.offer-country"
   },
   "newCatch.technique": {
     "topic": "catch",
-    "cs": "Popiš způsob lovu, například přívlač nebo plavanou. Údaj se uloží k úlovku v deníku.",
-    "en": "Describe how you fished, such as spinning or float fishing. This is saved with the catch in your journal."
+    "message": "field-hints.newCatch.technique"
   },
   "activityContribution.activity-target": {
     "topic": "activity",
-    "cs": "Vyber rybu, na kterou jsi při výpravě cílil. Vyplnit ji můžeš i při výpravě bez úlovku.",
-    "en": "Choose the fish you targeted on this trip. You can record a target even if you caught nothing."
+    "message": "field-hints.activityContribution.activity-target"
   },
   "activityContribution.activity-method": {
     "topic": "activity",
-    "cs": "Vyber způsob, jakým jsi při této výpravě lovil. Podle něj se výprava zařadí do statistiky.",
-    "en": "Choose the method you used on this trip. It determines which method statistics include your trip."
+    "message": "field-hints.activityContribution.activity-method"
   },
   "shared": {
     "topic": "profile",
-    "cs": "Po uložení této volby uvidí zveřejněný profil ostatní přihlášení rybáři.",
-    "en": "Save with this option enabled to show your profile to other signed-in anglers."
+    "message": "field-hints.shared"
   },
   "search": {
     "topic": "start",
-    "cs": "Hledej revír podle názvu, evidenčního čísla nebo obce. Ve výběru Oblíbené prohledáš jen své uložené revíry.",
-    "en": "Search by water name, registry number or town. In Favorites the search covers only your saved waters."
+    "message": "field-hints.search"
   },
   "public-day": {
     "topic": "share",
-    "cs": "Na veřejné kartě se vedle měsíce ukáže také přesný den úlovku.",
-    "en": "Show the exact catch date on the public card in addition to the month."
+    "message": "field-hints.public-day"
   },
   "public-water": {
     "topic": "share",
-    "cs": "Do veřejné karty přidáš revír. Uvidí ho každý, komu se dostane odkaz.",
-    "en": "Include the registered water on the public card for anyone with its link."
+    "message": "field-hints.public-water"
   },
   "public-length": {
     "topic": "share",
-    "cs": "Do veřejné karty přidáš délku posouzenou při kontrole fotografie.",
-    "en": "Include the length from the photo review on the public card."
+    "message": "field-hints.public-length"
   },
   "public-photo": {
     "topic": "share",
-    "cs": "Veřejná karta bude obsahovat fotografii úlovku. Před zveřejněním zkontroluj i její pozadí.",
-    "en": "Include the catch photo on the public card. Check the background before publishing."
+    "message": "field-hints.public-photo"
   },
   "share-photo": {
     "topic": "share",
-    "cs": "Přiloží fotografii úlovku ke sdílené zprávě. Zkontroluj, co je vidět v pozadí.",
-    "en": "Attach the catch photo to the shared message. Check what is visible in the background."
+    "message": "field-hints.share-photo"
   },
   "share-length": {
     "topic": "share",
-    "cs": "Přidá délku z deníku do zprávy pro příjemce.",
-    "en": "Include the catch length from your journal in the message."
+    "message": "field-hints.share-length"
   },
   "share-day": {
     "topic": "share",
-    "cs": "Příjemce ve zprávě uvidí přesné datum výpravy.",
-    "en": "Show the recipient the exact trip date."
+    "message": "field-hints.share-day"
   },
   "share-water": {
     "topic": "share",
-    "cs": "Přidá do zprávy název vody z výpravy.",
-    "en": "Include the water name from the trip in the message."
+    "message": "field-hints.share-water"
   },
   "share-bait": {
     "topic": "share",
-    "cs": "Přidá do zprávy nástrahu, kterou jsi zapsal k úlovku.",
-    "en": "Include the bait you recorded for the catch in the message."
+    "message": "field-hints.share-bait"
   },
   "share-technique": {
     "topic": "share",
-    "cs": "Přidá popis techniky uložený u tohoto úlovku.",
-    "en": "Include the technique you recorded for this catch."
+    "message": "field-hints.share-technique"
   },
   "water-country": {
     "topic": "waters",
-    "cs": "Výběr země omezí výsledky vyhledávání, oblíbené revíry i seznam podle polohy.",
-    "en": "The selected country applies to search results, favorites and nearby waters."
+    "message": "field-hints.water-country"
   },
   "offer-water-search": {
     "topic": "sell",
-    "cs": "Napiš část názvu, čísla nebo organizace. V seznamu pod hledáním pak vyber konkrétní revír pro nabídku.",
-    "en": "Enter part of the name, number or organisation, then choose the specific water for this offer from the list below."
+    "message": "field-hints.offer-water-search"
   },
   "market-water-search": {
     "topic": "market",
-    "cs": "Vyhledej název nebo číslo a vyber revír v nabídce níže. Zobrazí se jeho tipy a statistiky.",
-    "en": "Search by name or number, then select the water below to see its tips and statistics."
+    "message": "field-hints.market-water-search"
   }
 }

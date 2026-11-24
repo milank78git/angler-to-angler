@@ -8,40 +8,36 @@
   "law": "https://mze.gov.cz/public/portal/mze/legislativa/vap57781-6415",
   "species": {
     "pike": {
-      "cs": "Štika obecná",
-      "en": "Northern pike",
       "latin": "Esox lucius",
       "window": [
         "01-01",
         "06-15"
-      ]
+      ],
+      "message": "catalog.species.pike"
     },
     "zander": {
-      "cs": "Candát obecný",
-      "en": "Zander",
       "latin": "Sander lucioperca",
       "window": [
         "01-01",
         "06-15"
-      ]
+      ],
+      "message": "catalog.species.zander"
     },
     "barbel": {
-      "cs": "Parma obecná",
-      "en": "Common barbel",
       "latin": "Barbus barbus",
       "window": [
         "01-01",
         "12-31"
-      ]
+      ],
+      "message": "catalog.species.barbel"
     },
     "roach": {
-      "cs": "Plotice obecná",
-      "en": "Common roach",
       "latin": "Rutilus rutilus",
       "window": [
         "03-16",
         "06-15"
-      ]
+      ],
+      "message": "catalog.species.roach"
     }
   },
   "waters": [
@@ -66,17 +62,14 @@
       ],
       "ends": [
         {
-          "cs": "Soutok s Vltavou",
-          "en": "Vltava confluence"
+          "message": "catalog.waters.401001.ends.1"
         },
         {
-          "cs": "Jez Mokropsy",
-          "en": "Mokropsy weir"
+          "message": "catalog.waters.401001.ends.2"
         }
       ],
       "restriction": {
-        "cs": "Rybí přechod u jezu Černošice",
-        "en": "Fish pass at Černošice weir"
+        "message": "catalog.waters.401001.restriction"
       },
       "danger": [
         14.325173,
@@ -113,30 +106,26 @@
       ],
       "ends": [
         {
-          "cs": "Dolní cíp ostrova v Pikovicích",
-          "en": "Downstream end of Pikovice island"
+          "message": "catalog.waters.401009.ends.1"
         },
         {
-          "cs": "Jez elektrárny v Krhanicích",
-          "en": "Krhanice power station weir"
+          "message": "catalog.waters.401009.ends.2"
         }
       ],
       "restriction": {
-        "cs": "Náhon k MVE Žampach",
-        "en": "Žampach power station millrace"
+        "message": "catalog.waters.401009.restriction"
       },
       "danger": [
         14.501402,
         49.864125
       ],
       "access": {
-        "cs": "Pikovice u lávky · přístup k vodě",
-        "en": "Pikovice footbridge · riverside access",
         "pt": [
           14.42819636,
           49.87831264
         ],
-        "source": "https://tourist.posazavi.com/cz/Service/Service.aspx?Id=1235"
+        "source": "https://tourist.posazavi.com/cz/Service/Service.aspx?Id=1235",
+        "message": "catalog.waters.401009.access"
       },
       "number": "401 009",
       "photo": {
@@ -150,8 +139,7 @@
   ],
   "id": "cz-crs-prague",
   "label": {
-    "cs": "Česko",
-    "en": "Czechia"
+    "message": "catalog.label"
   },
   "coverWater": "401009"
 }

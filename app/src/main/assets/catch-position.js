@@ -37,9 +37,9 @@ export function bindCatchPosition(view) {
   window.addEventListener('angler-position', receive);
   button.onclick = () => {
     if (pending) return cancel();
-    if (!window.Device) return toast(t('GPS je dostupná na Androidu.', 'GPS is available on Android.'));
+    if (!window.Device) return toast(t('common.gps_is_available_on_android'));
     pending = ++sequence;
-    label.textContent = t('Zrušit hledání polohy', 'Cancel location request');
+    label.textContent = t('catch_position.cancel_location_request');
     window.Device.location(pending);
   };
 

@@ -10,11 +10,11 @@ function cardFields(trip, entry) {
     ? new Intl.NumberFormat(languageTag).format(entry.lengthMm / 10) + ' cm'
     : '';
   return [
-    ['length', t('Délka', 'Length'), length],
-    ['day', t('Datum výpravy', 'Trip date'), trip.day && displayDay(trip.day)],
-    ['water', t('Revír', 'Water'), trip.waterName],
-    ['bait', t('Nástraha', 'Bait'), entry?.bait],
-    ['technique', t('Technika', 'Technique'), entry?.technique],
+    ['length', t('share_card.length'), length],
+    ['day', t('common.trip_date'), trip.day && displayDay(trip.day)],
+    ['water', t('common.water'), trip.waterName],
+    ['bait', t('common.bait'), entry?.bait],
+    ['technique', t('common.technique'), entry?.technique],
   ].filter(([, , value]) => value);
 }
 
@@ -43,25 +43,25 @@ export async function shareCard({ view, nav, pack }) {
   }
   const species = pack.species[entry?.speciesId];
   const speciesName = species ? loc(species) : entry?.speciesName || entry?.speciesId;
-  const heading = entry ? t('Sdílet úlovek', 'Share catch') : t('Sdílet zkušenost', 'Share a trip tip');
+  const heading = entry ? t('common.share_catch') : t('common.share_a_trip_tip');
   const fields = cardFields(trip, entry);
   const choices = fields.map(([key, label]) => [key, label]);
-  if (entry?.hasPhoto) choices.push(['photo', t('Fotografie', 'Photo')]);
+  if (entry?.hasPhoto) choices.push(['photo', t('share_card.photo')]);
   screen.innerHTML =
-    back(t('Výprava', 'Trip')) +
+    back(t('common.trip')) +
     `
     <div class="page-intro"><h1>${heading}</h1></div>
     <div class="columns">
-      <section class="surface"><h2>${t('Co chceš sdílet?', 'What would you like to share?')}</h2>
-        ${field('share-tip-text', entry ? t('Tip pro ostatní (nepovinné)', 'Tip for others (optional)') : t('Co bys poradil ostatním?', 'What would you tell other anglers?'), '<textarea id="share-tip-text" rows="3" maxlength="1600"></textarea>')}
-        <p>${entry ? t('Na kartě je vždy druh ryby. Další údaje vyber níže.', 'Your card includes the species. Choose any other details below.') : t('K tipu můžeš přidat datum a revír.', 'You can add the date and water to your tip.')}</p>
+      <section class="surface"><h2>${t('share_card.what_would_you_like_to_share')}</h2>
+        ${field('share-tip-text', entry ? t('share_card.tip_for_others_optional') : t('share_card.what_would_you_tell_other_anglers'), '<textarea id="share-tip-text" rows="3" maxlength="1600"></textarea>')}
+        <p>${entry ? t('share_card.your_card_includes_the_species_choose_any') : t('share_card.you_can_add_the_date_and_water')}</p>
         <div id="card-options">${choices.map(([key, label]) => `<label class="card-option"><input type="checkbox" id="share-${key}">${esc(label)}</label>`).join('')}</div>
-        <p class="meta">${entry ? t('Souřadnice a poznámky zůstanou v deníku. Místo může být poznat z fotky nebo z vybraného textu.', 'Coordinates and journal notes stay private. The photo or selected text may reveal the location.') : t('Soukromé poznámky z deníku se do zprávy nekopírují.', 'Private journal notes are never copied into the message.')}</p>
+        <p class="meta">${entry ? t('share_card.coordinates_and_journal_notes_stay_private_the') : t('share_card.private_journal_notes_are_never_copied_into')}</p>
       </section>
-      <section class="surface"><h2>${t('Náhled pro příjemce', 'Recipient preview')}</h2>
-        <p id="card-text" aria-live="polite"></p><img id="card-image" class="preview" hidden alt="${t('Sdílená fotografie úlovku', 'Catch photo for sharing')}">
+      <section class="surface"><h2>${t('common.recipient_preview')}</h2>
+        <p id="card-text" aria-live="polite"></p><img id="card-image" class="preview" hidden alt="${t('share_card.catch_photo_for_sharing')}">
         <p id="card-status" role="status" hidden></p>
-        <div class="actions">${button('card-send', entry ? t('Vybrat příjemce', 'Choose recipient') : t('Sdílet přes jinou aplikaci', 'Share via another app'), 'primary')}</div>
+        <div class="actions">${button('card-send', entry ? t('share_card.choose_recipient') : t('share_card.share_via_another_app'), 'primary')}</div>
         ${entry ? '' : groupTipControls()}
       </section>
     </div>`;
@@ -100,13 +100,13 @@ export async function shareCard({ view, nav, pack }) {
     if (!entry && !tip) return;
     if (text.length > 4096) {
       status.hidden = false;
-      status.textContent = t('Zkrať text nebo odeber některý údaj.', 'Shorten the text or remove a detail.');
+      status.textContent = t('share_card.shorten_the_text_or_remove_a_detail');
       return;
     }
     let jpeg = '';
     if (includePhoto) {
       status.hidden = false;
-      status.textContent = t('Připravuji fotografii…', 'Preparing photo…');
+      status.textContent = t('share_card.preparing_photo');
       try {
         photoTask ??= photoCopy(catchId);
         const dataUrl = await photoTask;
@@ -118,10 +118,7 @@ export async function shareCard({ view, nav, pack }) {
       } catch {
         if (!view.active() || current !== revision) return;
         photoTask = undefined;
-        status.textContent = t(
-          'Fotku se nepodařilo připravit. Zruš její výběr nebo ji vyber znovu.',
-          'Could not prepare the photo. Deselect it or select it again to retry.',
-        );
+        status.textContent = t('share_card.could_not_prepare_the_photo_deselect_it');
         return;
       }
     }
@@ -138,7 +135,7 @@ export async function shareCard({ view, nav, pack }) {
     if (!payload || !view.active()) return;
     if (window.Device?.shareCatch?.(payload.text, payload.jpeg)) {
       view.dirty = false;
-    } else toast(t('Sdílení se nepodařilo otevřít. Zkus to znovu.', 'Could not open sharing. Please retry.'));
+    } else toast(t('share_card.could_not_open_sharing_please_retry'));
   };
   await preview();
 }

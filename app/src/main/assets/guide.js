@@ -1,10 +1,9 @@
-import { translate as t } from './i18n.js';
+import { label as t } from './i18n.js';
 import { fold } from './domain.js';
 
 let chapters;
 let previousFocus;
 let request = 0;
-const word = pair => t(pair.cs, pair.en);
 const get = id => document.getElementById(id);
 const node = (tag, value) => Object.assign(document.createElement(tag), { textContent: value });
 
@@ -34,19 +33,19 @@ export async function openGuide({ page, topic, field } = {}) {
   const body = get('guide-body');
   const index = get('guide-index');
   if (!standalone) {
-    get('guide-close').textContent = t('Zavřít', 'Close');
+    get('guide-close').textContent = t('common.close');
     get('guide-close').onclick = () => dialog.close();
   }
-  index.textContent = t('Všechny funkce', 'All features');
+  index.textContent = t('guide.all_features');
   index.onclick = () => openGuide();
   index.hidden = !(page || topic || field);
-  title.textContent = field?.name || t('Nápověda', 'Help');
+  title.textContent = field?.name || t('common.help');
   body.replaceChildren();
   dialog.scrollTop = 0;
   title.focus({ preventScroll: true });
   if (field) {
-    body.append(node('p', word(field.hint)),
-      action(t('Otevřít související kapitolu', 'Read related chapter'), () => openGuide({ topic: field.hint.topic })));
+    body.append(node('p', t(field.hint.message)),
+      action(t('guide.read_related_chapter'), () => openGuide({ topic: field.hint.topic })));
     return;
   }
 
@@ -57,30 +56,30 @@ export async function openGuide({ page, topic, field } = {}) {
       chapters = await response.json();
     }
   } catch {
-    if (request === current) body.append(action(t('Zkusit znovu', 'Retry'), () => openGuide({ page, topic })));
+    if (request === current) body.append(action(t('common.retry'), () => openGuide({ page, topic })));
     return;
   }
   if (request !== current || (!standalone && !dialog.open)) return;
   const chapter = topic ? chapters[topic] : Object.values(chapters).find(ch => ch.pages.includes(page));
   index.hidden = !chapter;
   if (chapter) {
-    title.textContent = word(chapter.title);
+    title.textContent = t(chapter.title);
     const steps = document.createElement('ol');
-    for (const step of chapter.steps) steps.append(node('li', word(step)));
+    for (const step of chapter.steps) steps.append(node('li', t(step)));
     body.append(steps);
   } else {
     const input = document.createElement('input');
     input.type = 'search';
-    input.placeholder = input.ariaLabel = t('Hledat v nápovědě', 'Search the guide');
+    input.placeholder = input.ariaLabel = t('guide.search_the_guide');
     const list = document.createElement('div');
     function results() {
       const query = fold(input.value.trim());
       list.replaceChildren();
       for (const [id, ch] of Object.entries(chapters)) {
-        if (fold([word(ch.title), ...ch.steps.map(word)].join(' ')).includes(query))
-          list.append(action(word(ch.title), () => openGuide({ topic: id })));
+        if (fold([t(ch.title), ...ch.steps.map(t)].join(' ')).includes(query))
+          list.append(action(t(ch.title), () => openGuide({ topic: id })));
       }
-      if (!list.childElementCount) list.append(node('p', t('Žádný výsledek. Zkus kratší výraz.', 'No results. Try a shorter search.')));
+      if (!list.childElementCount) list.append(node('p', t('guide.no_results_try_a_shorter_search')));
     }
     input.oninput = results;
     body.append(input, list);
@@ -104,9 +103,9 @@ export function attachHints(root, page, hints) {
     const name = label.textContent.trim();
     const control = action('?', () => openGuide({ field: { name, hint } }));
     control.className = 'field-hint';
-    control.setAttribute('aria-label', t('Vysvětlit', 'Explain') + ' · ' + name);
+    control.setAttribute('aria-label', t('common.explain') + ' · ' + name);
     control.setAttribute('aria-haspopup', 'dialog');
-    control.title = word(hint);
+    control.title = t(hint.message);
     if (label.htmlFor && !label.classList.contains('sr') && label.control?.type !== 'file')
       label.classList.add('label-with-hint');
     label.after(control);

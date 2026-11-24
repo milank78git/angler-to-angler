@@ -29,9 +29,9 @@ export async function listTrips({ view, nav }) {
   trips.sort((a, b) => b.day.localeCompare(a.day) || b.created - a.created);
   const total = trips.reduce((total, trip) => total + trip.catchCount, 0);
   screen.innerHTML = `<section class="journal-head"><div class="journal-art" aria-hidden="true">${icon('book-open')}</div>
-    <h1>${t('Můj deník', 'My journal')}</h1><p>${icon('lock-keyhole')}${t('Soukromě v tomto telefonu', 'Private on this phone')}</p>
-    <div class="metrics"><span><strong>${trips.length}</strong>${t('Výpravy', 'Trips')}</span><span><strong>${total}</strong>${t('Úlovky', 'Catches')}</span></div></section>
-    <div class="list-heading"><h2>${t('Moje výpravy', 'My trips')}</h2>${button('add-trip', t('Nová výprava', 'New trip'), 'primary', 'plus')}</div>
+    <h1>${t('trips.my_journal')}</h1><p>${icon('lock-keyhole')}${t('trips.private_on_this_phone')}</p>
+    <div class="metrics"><span><strong>${trips.length}</strong>${t('common.trips')}</span><span><strong>${total}</strong>${t('trips.catches')}</span></div></section>
+    <div class="list-heading"><h2>${t('trips.my_trips')}</h2>${button('add-trip', t('trips.new_trip'), 'primary', 'plus')}</div>
     <div class="trip-list">${
       trips
         .map((trip) => {
@@ -39,16 +39,13 @@ export async function listTrips({ view, nav }) {
             locale = languageTag,
             count = trip.catchCount;
           return `<button class="trip-row" data-trip="${esc(trip.id)}"><span class="date-stamp" aria-hidden="true"><strong>${d.getUTCDate()}</strong>${esc(d.toLocaleString(locale, { month: 'short', timeZone: 'UTC' }))}</span>
-        <span class="row-main"><span class="number">${esc(displayDay(trip.day))}</span><strong>${esc(trip.waterName)}</strong><span class="sub">${t('Úlovky', 'Catches')} · ${count}${trip.notes ? ' · ' + esc(trip.notes.slice(0, 90)) : ''}</span></span>${icon('chevron-right')}</button>`;
+        <span class="row-main"><span class="number">${esc(displayDay(trip.day))}</span><strong>${esc(trip.waterName)}</strong><span class="sub">${t('trips.catches')} · ${count}${trip.notes ? ' · ' + esc(trip.notes.slice(0, 90)) : ''}</span></span>${icon('chevron-right')}</button>`;
         })
         .join('') ||
       emptyState(
         'notebook-pen',
-        t('Zapiš první výpravu', 'Log your first trip'),
-        t(
-          'Zůstane v deníku, i když tentokrát nic nezabere.',
-          'A day on the water belongs here even without a catch.',
-        ),
+        t('trips.log_your_first_trip'),
+        t('trips.a_day_on_the_water_belongs_here'),
       )
     }</div>`;
   bind('add-trip', () => nav.open('newTrip'));
@@ -59,15 +56,15 @@ export async function listTrips({ view, nav }) {
 export function tripForm({ view, nav, pack }) {
   const { route } = view;
   const selected = route.water || '';
-  const waters = [['', t('Vlastní voda', 'Other water')], ...pack.waters.map((w) => [w.id, w.name])];
+  const waters = [['', t('trips.other_water')], ...pack.waters.map((w) => [w.id, w.name])];
   screen.innerHTML =
-    back(t('Zpět', 'Back')) +
-    `<div class="page-intro"><div class="title-mark">${icon('notebook-pen')}</div><h1>${t('Nová výprava', 'New trip')}</h1></div>
-  <form id="form" class="entry-form"><section class="surface">${selectField('water', t('Revír nebo voda', 'Fishing water'), waters, selected)}
-  <div id="custom">${textInput('water-name', t('Název vody', 'Water name'), '', 'maxlength="100"')}</div>
-  ${textInput('day', t('Datum výpravy', 'Trip date'), Domain.today(selected ? pack.zone : undefined), 'type="date" required')}
-  ${field('notes', t('Poznámky', 'Notes'), '<textarea id="notes" maxlength="4000" rows="3"></textarea>')}</section>
-  <div class="savebar"><button class="primary">${icon('check')}${t('Uložit výpravu', 'Save trip')}</button></div></form>`;
+    back(t('common.back')) +
+    `<div class="page-intro"><div class="title-mark">${icon('notebook-pen')}</div><h1>${t('trips.new_trip')}</h1></div>
+  <form id="form" class="entry-form"><section class="surface">${selectField('water', t('trips.fishing_water'), waters, selected)}
+  <div id="custom">${textInput('water-name', t('trips.water_name'), '', 'maxlength="100"')}</div>
+  ${textInput('day', t('common.trip_date'), Domain.today(selected ? pack.zone : undefined), 'type="date" required')}
+  ${field('notes', t('trips.notes'), '<textarea id="notes" maxlength="4000" rows="3"></textarea>')}</section>
+  <div class="savebar"><button class="primary">${icon('check')}${t('trips.save_trip')}</button></div></form>`;
   bindBack(nav);
   trackEdits(by('form'), view);
   function custom() {
@@ -84,7 +81,7 @@ export function tripForm({ view, nav, pack }) {
       name = w ? w.name : by('water-name').value.trim(),
       day = by('day').value;
     if (!name || !Domain.validDay(day)) {
-      toast(t('Vyplň název vody a datum.', 'Enter a water name and a valid date.'));
+      toast(t('trips.enter_a_water_name_and_a_valid'));
       return;
     }
     await writeEntry(
@@ -103,7 +100,7 @@ export function tripForm({ view, nav, pack }) {
           day,
           notes: by('notes').value.trim(),
         }),
-      () => toast(t('Uložení selhalo. Zápis můžeš zkusit znovu.', 'Saving failed. You can retry.')),
+      () => toast(t('trips.saving_failed_you_can_retry')),
     );
   };
 }
@@ -117,15 +114,15 @@ export async function tripScreen({ view, nav, pack }) {
   }
   const images = [];
   view.dispose = () => images.forEach((url) => URL.revokeObjectURL(url));
-  screen.innerHTML = `${back(t('Můj deník', 'My journal'))}
+  screen.innerHTML = `${back(t('trips.my_journal'))}
     <p class="meta">${displayDay(trip.day)}</p><h1>${esc(trip.waterName)}</h1>
     ${trip.notes ? `<p class="trip-note">${esc(trip.notes)}</p>` : ''}
-    <div class="actions">${button('add', t('Přidat úlovek', 'Add catch'), 'primary', 'plus')}
-      ${button('offer-technique', t('Nabídnout techniku', 'Offer a technique'), 'secondary')}
-      ${button('share-tip', t('Sdílet zkušenost', 'Share a trip tip'), 'secondary')}${trip.country === pack.country && pack.waters.some(w => w.id === trip.waterId)
-        ? button('trip-activity', t('Výprava ve statistice', 'Trip contribution'), 'secondary') : ''}</div>
-    <h2>${t('Úlovky', 'Catches')} · ${catches.length}</h2><div id="catch-list"></div>
-    <div class="actions">${button('delete', t('Smazat výpravu', 'Delete trip'), 'danger')}</div>`;
+    <div class="actions">${button('add', t('trips.add_catch'), 'primary', 'plus')}
+      ${button('offer-technique', t('common.offer_a_technique'), 'secondary')}
+      ${button('share-tip', t('common.share_a_trip_tip'), 'secondary')}${trip.country === pack.country && pack.waters.some(w => w.id === trip.waterId)
+        ? button('trip-activity', t('common.trip_contribution'), 'secondary') : ''}</div>
+    <h2>${t('trips.catches')} · ${catches.length}</h2><div id="catch-list"></div>
+    <div class="actions">${button('delete', t('trips.delete_trip'), 'danger')}</div>`;
   bindBack(nav);
   bind('add', () => nav.open('newCatch', { id }));
   if (by('trip-activity')) bind('trip-activity', () => nav.open('activityContribution', { id }));
@@ -133,12 +130,9 @@ export async function tripScreen({ view, nav, pack }) {
   bind('share-tip', () => nav.open('shareCard', { tripId: id }));
   bind('delete', async () => {
     const confirmed = await confirmAction({
-      title: t('Smazat výpravu?', 'Delete trip?'),
-      message: t(
-        'Z deníku se smažou také všechny úlovky, fotky a souřadnice této výpravy.',
-        'All catches, photos and coordinates for this trip will also be deleted from your journal.',
-      ),
-      accept: t('Smazat výpravu', 'Delete trip'),
+      title: t('trips.delete_trip_label'),
+      message: t('trips.all_catches_photos_and_coordinates_for_this'),
+      accept: t('trips.delete_trip'),
       destructive: true,
     });
     if (!confirmed) return;
@@ -147,12 +141,12 @@ export async function tripScreen({ view, nav, pack }) {
       nav,
       null,
       () => Journal.removeTrip(id),
-      () => toast(t('Smazání selhalo.', 'Deletion failed.')),
+      () => toast(t('trips.deletion_failed')),
     );
   });
   by('catch-list').innerHTML = catches.length
     ? ''
-    : '<p class="empty">' + t('Zapsaná výprava bez úlovku.', 'A trip with no catches recorded.') + '</p>';
+    : '<p class="empty">' + t('trips.a_trip_with_no_catches_recorded') + '</p>';
   for (const c of catches.sort((a, b) => a.created - b.created)) {
     const article = document.createElement('article');
     article.className = 'surface catch-card';
@@ -162,14 +156,14 @@ export async function tripScreen({ view, nav, pack }) {
     share.className = 'secondary';
     share.type = 'button';
     share.dataset.shareCatch = c.id;
-    share.textContent = t('Sdílet úlovek', 'Share catch');
+    share.textContent = t('common.share_catch');
     share.onclick = () => nav.open('shareCard', { tripId: id, catchId: c.id });
     article.append(share);
     const publicCard = document.createElement('button');
     publicCard.type = 'button';
     publicCard.className = 'secondary';
     publicCard.dataset.publicCatch = c.id;
-    publicCard.textContent = t('Veřejná karta úlovku', 'Public catch card');
+    publicCard.textContent = t('common.public_catch_card');
     publicCard.onclick = () => nav.open('publicCardEditor', { tripId: id, catchId: c.id });
     article.append(publicCard);
     addVerificationAction(article, c, trip, view, nav);
@@ -178,7 +172,7 @@ export async function tripScreen({ view, nav, pack }) {
       nominate.type = 'button';
       nominate.className = 'secondary';
       nominate.dataset.weeklyCatch = c.id;
-      nominate.textContent = t('Přihlásit do úlovku týdne', 'Enter catch of the week');
+      nominate.textContent = t('trips.enter_catch_of_the_week');
       nominate.onclick = () => nav.open('weeklyGroups', { tripId: id, catchId: c.id });
       article.append(nominate);
       const blob = await Journal.photo(c.id);
@@ -188,7 +182,7 @@ export async function tripScreen({ view, nav, pack }) {
         images.push(url);
         const img = new Image();
         img.className = 'preview';
-        img.alt = t('Fotografie úlovku', 'Catch photograph');
+        img.alt = t('trips.catch.photograph');
         img.src = url;
         article.prepend(img);
       }
@@ -206,15 +200,15 @@ function catchDetails(record, species) {
     const length = new Intl.NumberFormat(languageTag, { maximumFractionDigits: 1 }).format(
       record.lengthMm / 10,
     );
-    lines.push(`<p>${length} cm · ${t('ruční zápis', 'manually entered')}</p>`);
+    lines.push(`<p>${length} cm · ${t('trips.manually_entered')}</p>`);
   }
-  if (record.bait) lines.push(`<p>${t('Nástraha', 'Bait')} · ${esc(record.bait)}</p>`);
-  if (record.technique) lines.push(`<p>${t('Technika', 'Technique')} · ${esc(record.technique)}</p>`);
+  if (record.bait) lines.push(`<p>${t('common.bait')} · ${esc(record.bait)}</p>`);
+  if (record.technique) lines.push(`<p>${t('common.technique')} · ${esc(record.technique)}</p>`);
   if (record.position) {
     const { kind, lat, lon, source, accuracy } = record.position;
     const label =
-      kind === 'strike' ? t('Místo záběru', 'Strike location') : t('Stanoviště rybáře', 'Angler position');
-    const method = source === 'device' ? 'GPS' : t('ručně', 'manual');
+      kind === 'strike' ? t('common.strike_location') : t('common.angler_position');
+    const method = source === 'device' ? 'GPS' : t('trips.manual');
     const precision = Number.isFinite(accuracy) ? ` ±${Math.round(accuracy)} m` : '';
     lines.push(
       `<p class="meta">${label} · ${lat.toFixed(5)}, ${lon.toFixed(5)} · ${method}${precision}</p>`,

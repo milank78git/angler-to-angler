@@ -8,19 +8,25 @@ import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
+import java.util.Locale;
 import org.json.*;
 
 /** Public-client Auth and profile RPCs. Tokens travel only to the packaged HTTPS origin. */
 final class IdentityService {
   final String origin, key, redirect, notice, language;
 
-  IdentityService(Context c, boolean cs) throws Exception {
-    language = cs ? "cs" : "en";
+  IdentityService(Context c) throws Exception {
+    language = c.getResources().getConfiguration().getLocales().get(0).stripExtensions().toLanguageTag().toLowerCase(Locale.ROOT);
     JSONObject config = new JSONObject(asset(c, "account-config.json"));
     origin = config.optString("url");
     key = config.optString("publishableKey");
     redirect = c.getPackageName() + "://account/callback";
-    notice = config.optString(cs ? "deploymentCs" : "deploymentEn");
+    JSONObject notices = config.optJSONObject("deploymentNotices");
+    String selected = "";
+    if (notices != null) {
+      for (String code : AppLanguage.codes(c)) selected = notices.optString(code, selected);
+    }
+    notice = selected;
   }
 
   boolean configured() {

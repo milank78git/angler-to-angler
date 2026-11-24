@@ -43,7 +43,7 @@ export function waterMap(w, rivers, boundariesOnly = false) {
     return `<g transform="translate(${x} ${y})"><circle r="9" fill="${color}" stroke="white" stroke-width="1.7"/>
       <text y="3.8" text-anchor="middle" fill="white" font-size="11" font-weight="bold">${label}</text></g>`;
   }
-  return `<figure><svg aria-label="${t('Orientační mapa toku a hranic', 'Overview of river and boundary points')}" role="img" viewBox="0 0 340 170">
+  return `<figure><svg aria-label="${t('waters.overview_of_river_and_boundary_points')}" role="img" viewBox="0 0 340 170">
     <defs><pattern id="grid" width="22" height="22" patternUnits="userSpaceOnUse"><path d="M22 0H0V22" fill="none" stroke="#cbd8cd" stroke-width=".8"/></pattern></defs>
     <rect width="340" height="170" fill="url(#grid)"/>${paths.join('')}
     ${marker(w.bounds[0], '1', '#294f43')}${marker(w.bounds[1], '2', '#294f43')}${boundariesOnly ? '' : marker(w.danger, '!', '#9c4736')}
@@ -56,8 +56,8 @@ function isFavorite(pack, w) {
 function favoriteButton(pack, w) {
   const saved = isFavorite(pack, w);
   const label = saved
-    ? t('Odebrat z oblíbených', 'Remove from favorites')
-    : t('Uložit do oblíbených', 'Save to favorites');
+    ? t('waters.remove_from_favorites')
+    : t('waters.save_to_favorites');
   return `<button class="icon-btn favorite" type="button" data-favorite="${esc(w.id)}" aria-label="${esc(label + ' · ' + w.name)}" aria-pressed="${saved}">${icon('bookmark')}</button>`;
 }
 function toggleFavorite(pack, id) {
@@ -76,7 +76,7 @@ function credits(...waters) {
     const p = w.photo;
     return `<p>${esc(w.name)} · ${link(p.source, p.author)} · ${link(p.licenseUrl, p.license)}</p>`;
   });
-  return `<details class="credits"><summary>${icon('image')}${t('Fotografie a licence', 'Photo credits')}</summary>${rows.join('')}<p>${t('Zmenšeno a oříznuto.', 'Resized and cropped.')}</p></details>`;
+  return `<details class="credits"><summary>${icon('image')}${t('waters.photo_credits')}</summary>${rows.join('')}<p>${t('waters.resized_and_cropped')}</p></details>`;
 }
 let locationRequest = 2000000;
 
@@ -84,16 +84,16 @@ let locationRequest = 2000000;
 function coverage(directory, country) {
   if (!country) return '';
   const links = [];
-  if (country === 'CZ') links.push(link('https://ris.rybsvaz.cz/soupisy','ČRS'),link('https://mrsbrno.cz/reviry','MRS'));
+  if (country === 'CZ') links.push(link('https://ris.rybsvaz.cz/soupisy',t('sources.crs.short')),link('https://mrsbrno.cz/reviry','MRS'));
   if (country === 'US') links.push(link('https://fwp.mt.gov/fish/fishing-access','Montana FWP'));
   const providers = Object.values(directory.sources.providers).filter(p => p.country === country);
   links.push(...providers.map(p => link(p.url, p.label + ' · ' + p.scope)));
   const local = directory.sources.directories[country];
   if (local) links.push(link(local[1], local[0]));
   const rules = directory.countries[country];
-  if (rules) links.push(link(rules.authority || rules.url, t('Informace k rybolovu v zemi','National fishing information')));
+  if (rules) links.push(link(rules.authority || rules.url, t('waters.national_fishing_information')));
   const missing = !providers.length && !['CZ','US'].includes(country);
-  return (missing ? '<p>' + t('Offline soupis pro tuto zemi zatím chybí. Otevři zdroj níže.', 'An offline directory is not yet available for this country. Open the source below.') + '</p>' : '')
+  return (missing ? '<p>' + t('waters.an_offline_directory_is_not_yet_available') + '</p>' : '')
     + links.map(l => '<p>' + l + '</p>').join('');
 }
 
@@ -107,31 +107,30 @@ export function listWaters({ view, pack, nav, waterDirectory }) {
   const countries = [...new Set([...Object.keys(waterDirectory.countries),'CZ','US'])]
     .map(code => [code, countryName(code)]).sort((a,b) => a[1].localeCompare(b[1]));
   const cover = pack.waters.find((w) => w.id === pack.coverWater) || pack.waters[0];
-  screen.innerHTML = `<section class="hero">${photo(cover, 'hero-img')}<div class="hero-copy"><div class="hero-meta">${icon('map-pin')}${t('Česko a zahraničí', 'Czechia and abroad')}</div><h1>${t('Atlas revírů', 'Water atlas')}</h1></div>
+  screen.innerHTML = `<section class="hero">${photo(cover, 'hero-img')}<div class="hero-copy"><div class="hero-meta">${icon('map-pin')}${t('waters.czechia_and_abroad')}</div><h1>${t('atlas.title')}</h1></div>
     <span class="photo-place">${esc(cover?.name || '')}</span></section>
-    <div class="quick-actions home-features">${button('home-market', t('Tržiště tipů', 'Tip market'), 'primary')}${button('home-fish', t('Katalog ryb', 'Fish catalogue'), 'secondary', 'fish-symbol')}</div>
-    <div class="actions">${button('nearby',t('Seřadit podle polohy','Sort by location'),'secondary')}</div><p id="nearby-status" role="status"></p>
-    <div class="actions">${button('atlas-settings',t('Aktualizace atlasu revírů','Water atlas updates'),'secondary')}</div>
-    <div class="catalog-tools"><div class="search-box">${icon('search')}<label class="sr" for="search">${t('Název, číslo revíru nebo obec', 'Name, water number or town')}</label><input type="search" id="search" value="${esc(route.query || '')}" placeholder="${t('Hledat název, číslo nebo obec', 'Search waters, numbers or towns')}"></div>
-    ${selectField('water-country', t('Země revíru', 'Fishery country'), [
-      ['', t('Všechny země', 'All countries')], ...countries
+    <div class="quick-actions home-features">${button('home-market', t('market.title'), 'primary')}${button('home-fish', t('fish_catalogue.title'), 'secondary', 'fish-symbol')}</div>
+    <div class="actions">${button('nearby',t('waters.sort_by_location'),'secondary')}</div><p id="nearby-status" role="status"></p>
+    <div class="actions">${button('atlas-settings',t('common.water_atlas_updates'),'secondary')}</div>
+    <div class="catalog-tools"><div class="search-box">${icon('search')}<label class="sr" for="search">${t('waters.name_water_number_or_town')}</label><input type="search" id="search" value="${esc(route.query || '')}" placeholder="${t('waters.search_waters_numbers_or_towns')}"></div>
+    ${selectField('water-country', t('waters.fishery_country'), [
+      ['', t('waters.all_countries')], ...countries
     ], route.country || '')}<div id="water-coverage"></div>
-    <div class="filter-row"><div class="segments">${button('all', t('Všechny', 'All'))}${button('saved', t('Oblíbené', 'Favorites'), '', 'bookmark')}</div><span class="count" id="found" role="status"></span></div></div>
-    <div id="waters" class="water-list"></div>${button('more-waters', t('Zobrazit další revíry', 'Show more waters'), 'secondary')}${credits(...pack.waters)}`;
+    <div class="filter-row"><div class="segments">${button('all', t('common.all'))}${button('saved', t('waters.favorites'), '', 'bookmark')}</div><span class="count" id="found" role="status"></span></div></div>
+    <div id="waters" class="water-list"></div>${button('more-waters', t('waters.show_more_waters'), 'secondary')}${credits(...pack.waters)}`;
   bind('atlas-settings', () => window.Device?.openWaterSettings?.());
   bind('home-market', () => nav.open('marketShelf'));
   bind('home-fish', () => nav.open('fishCatalogue'));
   const pageSize = 40;
   let pending;
-  const distanceNote = t('Orientační vzdálenost k mapované ploše, úseku nebo nejbližšímu zveřejněnému bodu. Revíry bez polohy jsou na konci.',
-    'Approximate distance to the mapped water, section or nearest published point. Waters without a location appear last.');
+  const distanceNote = t('waters.approximate_distance_to_the_mapped_water_section');
   if (route.distances) by('nearby-status').textContent = distanceNote;
   const receive = async ({ detail }) => {
     if (!pending || detail.id !== pending) return;
     pending = null;
     try {
       if (!Number.isFinite(detail.fix?.lat) || !Number.isFinite(detail.fix?.lon)) {
-        by('nearby-status').textContent = t('Poloha není dostupná.', 'Location unavailable.');
+        by('nearby-status').textContent = t('waters.location_unavailable');
         return;
       }
       const shapes = await waterDirectory.geography();
@@ -141,14 +140,14 @@ export function listWaters({ view, pack, nav, waterDirectory }) {
       by('nearby-status').textContent = distanceNote;
       results();
     } catch {
-      if (view.active()) by('nearby-status').textContent = t('Mapové podklady se nepodařilo načíst.', 'Could not load the water outlines.');
+      if (view.active()) by('nearby-status').textContent = t('waters.could_not_load_the_water_outlines');
     } finally {
       if (view.active()) by('nearby').disabled = false;
     }
   };
   window.addEventListener('angler-position',receive);
   bind('nearby', () => {
-    if (!window.Device?.location) return toast(t('Poloha není dostupná.', 'Location unavailable.'));
+    if (!window.Device?.location) return toast(t('waters.location_unavailable'));
     pending = ++locationRequest;
     by('nearby').disabled = true;
     window.Device.location(pending);
@@ -169,7 +168,7 @@ export function listWaters({ view, pack, nav, waterDirectory }) {
     by('more-waters').hidden = matches.length <= limit;
     by('all').setAttribute('aria-pressed', String(!route.favorites));
     by('saved').setAttribute('aria-pressed', String(!!route.favorites));
-    by('found').textContent = t('Počet revírů', 'Waters') + ' · ' + matches.length;
+    by('found').textContent = t('waters.waters') + ' · ' + matches.length;
     by('waters').innerHTML =
       matches.slice(0, limit)
         .map(
@@ -182,11 +181,11 @@ export function listWaters({ view, pack, nav, waterDirectory }) {
       emptyState(
         route.favorites ? 'bookmark' : 'search',
         route.favorites && !q
-          ? t('Zatím žádné oblíbené revíry', 'No favorites yet')
-          : t('Žádný odpovídající revír', 'No matching water'),
+          ? t('waters.no_favorites_yet')
+          : t('waters.no_matching_water'),
         route.favorites && !q
-          ? t('Revír si uložíš záložkou vedle jeho názvu.', 'Use the bookmark beside a water to save it.')
-          : t('Zkus jiné číslo, název nebo obec.', 'Try another number, name or town.'),
+          ? t('waters.use_the_bookmark_beside_a_water_to')
+          : t('waters.try_another_number_name_or_town'),
       );
     by('waters')
       .querySelectorAll('[data-water]')
@@ -242,25 +241,25 @@ export function waterScreen({ view, pack, rivers, nav, waterDirectory }) {
     const site = waterDirectory.byId.get(route.id);
     if (!site) return nav.back();
     const us = site.provider === 'FWP';
-    const publisher = site.publisher || { CRS: 'Český rybářský svaz', MRS: 'Moravský rybářský svaz', FWP: 'Montana Fish, Wildlife & Parks' }[site.provider];
-    const types = { section:t('Rybářský úsek', 'Fishing section'), management:t('Rybářská oblast · orientační bod','Fishery management area · reference point'), access:t('Přístupové místo pro rybolov', 'Fishing access site'), fishery: t('Rybářský revír', 'Fishery'), pond: t('Rybník', 'Pond'), water: t('Vodní plocha', 'Water body') };
-    const facts = us ? [t('Přístupové místo pro rybolov', 'Fishing access site'), site.area, site.access.pt.slice().reverse().join(', ')]
-      : [site.number, types[site.kind], typeof site.trout === 'boolean' && (site.trout ? t('Pstruhový', 'Trout water') : t('Mimopstruhový', 'Non-trout water')),
+    const publisher = site.publisher || { CRS: t('sources.crs.name'), MRS: t('sources.mrs.name'), FWP: 'Montana Fish, Wildlife & Parks' }[site.provider];
+    const types = { section:t('waters.fishing_section'), management:t('waters.fishery_management_area_reference_point'), access:t('waters.fishing_access_site'), fishery: t('waters.fishery'), pond: t('waters.pond'), water: t('waters.water_body') };
+    const facts = us ? [t('waters.fishing_access_site'), site.area, site.access.pt.slice().reverse().join(', ')]
+      : [site.number, types[site.kind], typeof site.trout === 'boolean' && (site.trout ? t('waters.trout_water') : t('waters.non_trout_water')),
         site.scope, site.status, site.area !== site.scope && site.publisher && site.area, site.licence,
-        site.region, site.manager && t('Organizace', 'Organisation') + ' · ' + site.manager,
+        site.region, site.manager && t('waters.organisation') + ' · ' + site.manager,
         site.acreage && site.acreage + ' ha', site.length && site.length + ' km'];
-    screen.innerHTML = back(t('Atlas revírů', 'Water atlas')) + '<h1>' + esc(site.name) + '</h1><section class="surface">' +
-      sectionTitle('map', t('Oficiální údaje', 'Official details')) +
+    screen.innerHTML = back(t('atlas.title')) + '<h1>' + esc(site.name) + '</h1><section class="surface">' +
+      sectionTitle('map', t('waters.official_details')) +
       facts.filter(Boolean).map(value => '<p>' + esc(value) + '</p>').join('') + link(site.source, publisher) +
-      (us ? '' : '<p class="meta">' + t('Datum importu', 'Imported on') + ' · ' + esc(site.asOf || waterDirectory.asOf) + '</p>' +
-        (site.mapped ? '<p>' + t('Pro řazení podle polohy se používá zveřejněný obrys vody.', 'Nearby sorting uses the published water outline.') + '</p>' :
-          site.lines ? '<p>' + t('Pro řazení se používá zveřejněný průběh úseku.', 'Nearby sorting uses the published course of the section.') + '</p>' :
-          site.points ? '<details><summary>' + t('Polohové body', 'Published coordinates') + ' (' + site.points.length + ')</summary>' +
+      (us ? '' : '<p class="meta">' + t('waters.imported_on') + ' · ' + esc(site.asOf || waterDirectory.asOf) + '</p>' +
+        (site.mapped ? '<p>' + t('waters.nearby_sorting_uses_the_published_water_outline') + '</p>' :
+          site.lines ? '<p>' + t('waters.nearby_sorting_uses_the_published_course_of') + '</p>' :
+          site.points ? '<details><summary>' + t('waters.published_coordinates') + ' (' + site.points.length + ')</summary>' +
             site.points.map(([lon, lat]) => '<p>' + esc(lat) + ', ' + esc(lon) + '</p>').join('') + '</details>' :
-            '<p>' + t('Pro tento revír chybí poloha v offline atlasu.', 'This water has no location in the offline atlas.') + '</p>')) +
-      '</section><div class="actions">' + button('open-discussion', t('Informace od rybářů', 'Angler contributions'), 'secondary') +
-      (us ? '' : button('water-market', t('Nabídky na revíru', 'Offers on this water'), 'secondary')) +
-      '</div><section class="surface"><h2>' + t('Hlášení od vody', 'Water reports') + '</h2><div id="water-reports"></div></section>';
+            '<p>' + t('waters.this_water_has_no_location_in_the') + '</p>')) +
+      '</section><div class="actions">' + button('open-discussion', t('waters.angler_contributions'), 'secondary') +
+      (us ? '' : button('water-market', t('waters.offers_on_this_water'), 'secondary')) +
+      '</div><section class="surface"><h2>' + t('waters.water_reports') + '</h2><div id="water-reports"></div></section>';
     bindBack(nav);
     bind('open-discussion', () => nav.open('waterDiscussion', { id: site.id }));
     if (!us) bind('water-market', () => nav.open('marketShelf', { water: site.key }));
@@ -270,23 +269,23 @@ export function waterScreen({ view, pack, rivers, nav, waterDirectory }) {
   const landmark = (mark, text) =>
     `<li><span class="point p${mark === '!' ? 'danger' : mark}">${mark}</span>${esc(text)}</li>`;
   screen.innerHTML =
-    back(t('Atlas revírů', 'Water atlas')) +
+    back(t('atlas.title')) +
     `<section class="hero detail-hero">${photo(w, 'hero-img')}<div class="hero-copy"><div class="hero-meta">${icon('map-pin')}${esc(w.number)} · ${esc(loc(pack.label))}</div><h1>${esc(w.name)}</h1></div>${favoriteButton(pack, w)}</section><p class="area-line">${icon('route')}${esc(w.area)}</p>
-    <div class="quick-actions">${button('water-market',t('Nabídky na revíru','Offers on this water'),'secondary')}${button('new-trip', t('Zapsat výpravu', 'Log a trip'), 'primary', 'plus')}${button('open-rules', t('Hájení a míry', 'Seasons & sizes'), 'secondary', 'calendar-days')}${button('open-discussion', t('Poznatky a dotazy', 'Observations and questions'), 'secondary')}${button('open-activity', t('Aktivita na revíru', 'Water activity'), 'secondary')}</div>
-    <div class="columns"><section class="surface">${sectionTitle('map', t('Mapa revíru', 'Water map'))}${waterMap(w, rivers)}<ul class="legend">${landmark('1', loc(w.ends[0]))}${landmark('2', loc(w.ends[1]))}${landmark('!', loc(w.restriction))}${w.access ? landmark('A', loc(w.access)) : ''}</ul></section>
-    <section class="surface">${sectionTitle('navigation', t('Přístup k vodě', 'Getting to the water'))}${w.access ? `<p>${esc(loc(w.access))}</p><div class="actions">${button('navigate', t('Otevřít navigaci', 'Open directions'), 'secondary', 'navigation')}</div><div class="rulesrc">${link(w.access.source, t('Zdroj přístupového bodu', 'Access point source'))}</div>` : `<p class="muted">${t('Pro tento revír chybí ověřený přístupový bod.', 'This pack has no verified access point for this water.')}</p>`}</section></div>${credits(w)}`;
+    <div class="quick-actions">${button('water-market',t('waters.offers_on_this_water'),'secondary')}${button('new-trip', t('waters.log_a_trip'), 'primary', 'plus')}${button('open-rules', t('common.seasons_sizes'), 'secondary', 'calendar-days')}${button('open-discussion', t('common.observations_and_questions'), 'secondary')}${button('open-activity', t('common.water_activity'), 'secondary')}</div>
+    <div class="columns"><section class="surface">${sectionTitle('map', t('waters.water_map'))}${waterMap(w, rivers)}<ul class="legend">${landmark('1', loc(w.ends[0]))}${landmark('2', loc(w.ends[1]))}${landmark('!', loc(w.restriction))}${w.access ? landmark('A', loc(w.access)) : ''}</ul></section>
+    <section class="surface">${sectionTitle('navigation', t('waters.getting_to_the_water'))}${w.access ? `<p>${esc(loc(w.access))}</p><div class="actions">${button('navigate', t('waters.open_directions'), 'secondary', 'navigation')}</div><div class="rulesrc">${link(w.access.source, t('waters.access_point_source'))}</div>` : `<p class="muted">${t('waters.this_pack_has_no_verified_access_point')}</p>`}</section></div>${credits(w)}`;
   bindBack(nav);
   const waterKey = pack.country + ':' + w.id;
-  screen.insertAdjacentHTML('beforeend','<section class="surface"><h2>'+t('Hlášení od vody','Water reports')+'</h2><div id="water-reports"></div></section>');
+  screen.insertAdjacentHTML('beforeend','<section class="surface"><h2>'+t('waters.water_reports')+'</h2><div id="water-reports"></div></section>');
   waterReports(by('water-reports'),waterKey,view);
-  by('water-reports').parentElement.insertAdjacentHTML('beforebegin',link(w.source,t('Oficiální karta revíru','Official fishery record')));
+  by('water-reports').parentElement.insertAdjacentHTML('beforebegin',link(w.source,t('waters.official_fishery_record')));
   const marketButton = by('water-market');
   bind('water-market', () => nav.open('marketShelf', { water: waterKey }));
   // Availability is online. The atlas and the link remain usable while counts load or fail.
   rpc('market_discover', { water_key: waterKey, before_position: null }).then(result => {
     if (view.active()) marketButton.querySelector('span').textContent += ' (' + result.stats.offers + ')';
   }).catch(() => {
-    if (view.active()) marketButton.querySelector('span').textContent += ' · ' + t('Počet nedostupný','Count unavailable');
+    if (view.active()) marketButton.querySelector('span').textContent += ' · ' + t('waters.count_unavailable');
   });
   bind('new-trip', () => nav.open('newTrip', { water: w.id }));
   bind('open-activity', () => nav.open('waterActivity', { id: w.id }));
@@ -299,8 +298,8 @@ export function waterScreen({ view, pack, rivers, nav, waterDirectory }) {
     fav.setAttribute(
       'aria-label',
       (isFavorite(pack, w)
-        ? t('Odebrat z oblíbených', 'Remove from favorites')
-        : t('Uložit do oblíbených', 'Save to favorites')) +
+        ? t('waters.remove_from_favorites')
+        : t('waters.save_to_favorites')) +
         ' · ' +
         w.name,
     );
@@ -309,6 +308,6 @@ export function waterScreen({ view, pack, rivers, nav, waterDirectory }) {
     bind('navigate', () =>
       window.Device
         ? Device.navigate(w.access.pt[1], w.access.pt[0])
-        : toast(t('Navigace je dostupná v aplikaci pro Android.', 'Directions are available on Android.')),
+        : toast(t('waters.directions_are_available_on_android')),
     );
 }
