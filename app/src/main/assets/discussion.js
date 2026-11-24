@@ -1,4 +1,4 @@
-import { languageTag } from './i18n.js';
+import { languageTag, label } from './i18n.js';
 import { today, validDay } from './domain.js';
 import { newJournalId } from './journal.js';
 import { rpc } from './profile-api.js';
@@ -21,7 +21,6 @@ import {
 
 const postTime = new Intl.DateTimeFormat(languageTag, { dateStyle: 'medium', timeStyle: 'short' });
 const questions = () => t('Poznatky a dotazy', 'Observations and questions');
-const reply = () => t('Odpovědět', 'Reply');
 const withdraw = () => t('Stáhnout příspěvek', 'Withdraw post');
 const removed = () => t('Text příspěvku byl odstraněn.', 'The text of this post was removed.');
 const linked = () =>
@@ -122,7 +121,7 @@ export async function waterDiscussion({ view, nav, waterDirectory }) {
     (questionId ? t('Příspěvek u revíru', 'Water post') : questions()) +
     '</h1></div>' +
     '<div id="discussion-root"></div><div class="actions" id="discussion-tools" hidden>' +
-    button('discussion-compose', questionId ? reply() : t('Přidat poznatek nebo dotaz', 'Share an observation or question'), 'primary') +
+    button('discussion-compose', label(questionId ? 'discussion.reply' : 'discussion.compose'), 'primary') +
     button('discussion-refresh', t('Obnovit', 'Refresh'), 'secondary') +
     '</div>' +
     '<h2 id="answers-title" hidden>' +

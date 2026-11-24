@@ -21,6 +21,7 @@ translator = ctranslate2.Translator(str(cfg.model), device='cpu', intra_threads=
 sp = sentencepiece.SentencePieceProcessor(model_file=str(cfg.tokenizers/'source.spm'))
 target = sentencepiece.SentencePieceProcessor(model_file=str(cfg.tokenizers/'target.spm'))
 vocab = set(json.loads((cfg.model/'shared_vocabulary.json').read_text()))
+english_labels = json.loads((assets/'strings-en.json').read_text())
 for pair in cfg.pairs:
     lang, model_code = pair.split('=')
     token = '>>'+model_code+'<<'
@@ -30,11 +31,12 @@ for pair in cfg.pairs:
     keys = sorted((s for s in source if s not in existing),key=len)
     for i in range(0,len(keys),32):
         chunk = keys[i:i+32]
-        inputs = [[token]+sp.encode(s.strip(), out_type=str) for s in chunk]
+        texts = [english_labels.get(key,key) for key in chunk]
+        inputs = [[token]+sp.encode(s.strip(), out_type=str) for s in texts]
         results = translator.translate_batch(inputs,beam_size=2,max_decoding_length=min(215,max(map(len,inputs))*2+12),repetition_penalty=1.1)
-        for key,res in zip(chunk,results):
+        for key,original,res in zip(chunk,texts,results):
             value = target.decode(res.hypotheses[0]).strip()
-            if not value or any(c in value for c in '<>') or sorted(re.findall(r'\d+',key)) != sorted(re.findall(r'\d+',value)): continue
+            if not value or any(c in value for c in '<>') or sorted(re.findall(r'\d+',original)) != sorted(re.findall(r'\d+',value)): continue
             existing[key] = (' ' if key.startswith(' ') else '')+value+(' ' if key.endswith(' ') else '')
     path.write_text(json.dumps(existing,ensure_ascii=False,sort_keys=True,indent=1)+'\n')
     print(lang,len(existing),flush=True)
