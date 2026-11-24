@@ -1,14 +1,5 @@
 name: Publish account page
-on:
-  push:
-    branches: [main]
-    paths:
-      - 'web/account/**'
-      - 'scripts/*account-pages.py'
-      - 'app/src/main/assets/strings-en.json'
-      - 'app/src/main/assets/strings-cs.json'
-      - '.github/workflows/account-pages.yml'
-  workflow_dispatch:
+on: [workflow_call, workflow_dispatch]
 permissions:
   contents: read
 concurrency:
