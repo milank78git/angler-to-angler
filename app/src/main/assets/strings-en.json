@@ -65,6 +65,7 @@
   "account.unlock_with_device": "Unlock with device",
   "account.use_at_least_8_characters": "Use at least 8 characters.",
   "alerts.added": "New waters in the installed atlas: {count}",
+  "alerts.awaiting_registration": "Discussion alerts are waiting for an online connection to your account. Open the journal when connected to activate them.",
   "alerts.nearby": "Waters within 10 km",
   "alerts.new_post": "A new post is available. Open the water discussion.",
   "alerts.posts": "New discussion posts",

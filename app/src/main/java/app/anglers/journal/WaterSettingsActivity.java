@@ -10,7 +10,7 @@ import java.util.Date;
 
 /** Controls the device-wide atlas. An angler can refresh even with automatic checks disabled. */
 public final class WaterSettingsActivity extends Activity {
-  private TextView status;
+  private TextView status, subscriptionStatus;
   private AccountLayout ui;
   private Button check;
   private String pending;
@@ -23,6 +23,14 @@ public final class WaterSettingsActivity extends Activity {
   private final android.content.SharedPreferences.OnSharedPreferenceChangeListener editionListener = (prefs, key) -> {
     if (WaterCatalogue.CHECKED.equals(key) || WaterCatalogue.REVISION.equals(key)) showStatus();
   };
+
+  private final android.content.SharedPreferences.OnSharedPreferenceChangeListener alertListener =
+      (prefs, key) -> showSubscriptionStatus();
+
+  private void showSubscriptionStatus() {
+    boolean waiting = FieldAlerts.enabled(this, FieldAlerts.POSTS) && !FieldAlerts.prefs(this).contains("cursor");
+    subscriptionStatus.setVisibility(waiting ? android.view.View.VISIBLE : android.view.View.GONE);
+  }
 
   private String text(String key) { return AppLanguage.text(this, key); }
 
@@ -51,6 +59,7 @@ public final class WaterSettingsActivity extends Activity {
       });
     }
     ui.label(text("settings.alert_schedule"));
+    subscriptionStatus = ui.label(text("alerts.awaiting_registration"));
     ui.button(ui.form,text("settings.system_notifications"),AccountLayout.Action.SECONDARY,() ->
       startActivity(new android.content.Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS)
         .putExtra(android.provider.Settings.EXTRA_APP_PACKAGE,getPackageName())));
@@ -96,11 +105,14 @@ public final class WaterSettingsActivity extends Activity {
   @Override protected void onStart() {
     super.onStart();
     WaterCatalogue.prefs(this).registerOnSharedPreferenceChangeListener(editionListener);
+    FieldAlerts.prefs(this).registerOnSharedPreferenceChangeListener(alertListener);
     showStatus();
+    showSubscriptionStatus();
   }
 
   @Override protected void onStop() {
     WaterCatalogue.prefs(this).unregisterOnSharedPreferenceChangeListener(editionListener);
+    FieldAlerts.prefs(this).unregisterOnSharedPreferenceChangeListener(alertListener);
     super.onStop();
   }
 

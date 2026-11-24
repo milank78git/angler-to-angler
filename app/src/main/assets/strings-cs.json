@@ -65,6 +65,7 @@
   "account.unlock_with_device": "Odemknout telefonem",
   "account.use_at_least_8_characters": "Zadej alespoň 8 znaků.",
   "alerts.added": "Nové revíry v atlasu: {count}",
+  "alerts.awaiting_registration": "Upozornění na příspěvky čekají na spojení s účtem. Otevři deník s připojením k internetu, aby se sledování aktivovalo.",
   "alerts.nearby": "Revíry do 10 km",
   "alerts.new_post": "V diskusi u revíru přibyl příspěvek. Klepnutím ho otevřete.",
   "alerts.posts": "Nové příspěvky v diskusích",

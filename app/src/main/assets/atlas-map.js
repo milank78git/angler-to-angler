@@ -37,11 +37,29 @@ async function countryOutline(country) {
 }
 
 /** Draw the published extent or points offline, plus a regional locator for isolated points. */
-function sketch(feature, country) {
+function sketch(feature, country, neighbours) {
   const { points, lines, polygons, target } = feature;
-  const xy = projection([target, ...points, ...lines.flat(), ...polygons.flat(2)], 320, 142, 14);
+  const xy = projection([target, ...points, ...lines.flat(), ...polygons.flat(2), ...neighbours.map(n => n.point)], 320, 142, 20);
   const rings = (polygon, project) => polygon.map(ring => path(ring, project) + 'Z').join('');
   const [x,y] = xy(target);
+  const labelled = [];
+  const surroundings = neighbours.map(({point,name}) => {
+    const [px,py] = xy(point).map(Number);
+    const text = name.length > 18 ? name.slice(0,17) + '…' : name;
+    const anchor = px > 150 ? 'end' : 'start';
+    const labelX = px + (anchor === 'end' ? -5 : 5);
+    const labelY = py < 22 ? py+15 : py-6;
+    const left = anchor === 'end' ? labelX-text.length*6 : labelX;
+    const right = left + text.length*6;
+    const clipped = left < 0 || right > 320 || (country.length && right > 234 && labelY > 72);
+    const overlaps = labelled.some(box => left<box.right && right>box.left && Math.abs(labelY-box.y)<14);
+    let label = '';
+    if (!clipped && !overlaps) {
+      labelled.push({left,right,y:labelY});
+      label = `<text x="${labelX}" y="${labelY}" text-anchor="${anchor}" font-size="10" fill="#334b43">${esc(text)}</text>`;
+    }
+    return `<circle cx="${px}" cy="${py}" r="3" fill="#49848a"/>${label}`;
+  }).join('');
   let inset = '';
   if (country.length) {
     const project = projection([target,...country.flat(2)], 82, 66, 5);
@@ -52,10 +70,25 @@ function sketch(feature, country) {
   }
   return `<svg viewBox="0 0 320 142" aria-hidden="true"><rect width="320" height="142" fill="#e8f0e6"/>
     ${polygons.map(poly=>'<path fill="#8ac6cf" stroke="#337285" fill-rule="evenodd" d="'+rings(poly,xy)+'"/>').join('')}
+    ${surroundings}
     ${lines.map(line=>'<path fill="none" stroke="#337285" stroke-width="3" d="'+path(line,xy)+'"/>').join('')}
     ${points.map(p=>{const [a,b]=xy(p);return `<circle cx="${a}" cy="${b}" r="3" fill="#33668c"/>`;}).join('')}
     <circle cx="${x}" cy="${y}" r="6" fill="#a34a25" stroke="white" stroke-width="2"/>
     <text x="293" y="17" fill="#294237" font-size="13">↑ N</text>${inset}</svg>`;
+}
+
+/** Give a point-only record local context from the same offline edition, without inventing a shoreline. */
+function nearbyLabels(water, directory, target) {
+  const cos = Math.cos(target[1]*Math.PI/180);
+  const nearby = [];
+  for (const other of directory.waters) {
+    if (other.key === water.key) continue;
+    const point = other.access?.pt || other.points?.[0] || other.bounds?.[0] || other.lines?.[0]?.[0];
+    if (!valid(point)) continue;
+    const km = 111.2 * Math.hypot((point[0]-target[0])*cos,point[1]-target[1]);
+    if (km > 0.1 && km < 20) nearby.push({point,name:other.name,km});
+  }
+  return nearby.sort((a,b) => a.km-b.km).slice(0,4);
 }
 
 export async function attachAtlasMap(host, water, directory, view) {
@@ -65,7 +98,10 @@ export async function attachAtlasMap(host, water, directory, view) {
   if (!view.active()) return;
   const action = feature ? t('atlas_map.open') : t('atlas_map.search');
   let preview = '';
-  if (feature) preview = sketch(feature,country);
+  if (feature) {
+    const isolated = !feature.lines.length && !feature.polygons.length && feature.points.length < 2;
+    preview = sketch(feature, country, isolated ? nearbyLabels(water, directory, feature.target) : []);
+  }
   else if (country.length) {
     const xy = projection(country.flat(2),320,142,9);
     const land = country.map(poly => poly.map(ring => path(ring,xy)+'Z').join('')).join('');
