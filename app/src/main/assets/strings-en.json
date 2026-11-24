@@ -374,6 +374,7 @@
   "fish_rules.choose_country": "Select the fishing country to see the available size limits.",
   "fish_rules.contact": "Send corrections to the catalogue editor",
   "fish_rules.describe": "Which detail needs correcting? Please include the source if available.",
+  "fish_rules.for_water": "View species sizes and closures",
   "fish_rules.no_species_conditions": "No species-specific closure or other restriction is recorded here for this selection. Check the local rules.",
   "fish_rules.report": "Report incorrect fish data",
   "fish_rules.size": "Size limits for keeping this fish",

@@ -70,11 +70,12 @@ export function matchingSpecies(data, country, query) {
 }
 
 /** List only current, sourced size limits with their geographic scope. */
-function listedSizes(rules,country) {
+function listedSizes(rules,country,waterClass) {
   const result=new Map(), day=new Date().toISOString().slice(0,10);
   for (const r of rules.entries) {
     if (r.country!==country || (r.validFrom && day<r.validFrom) || (r.validUntil && day>r.validUntil)
         || day>rules.sources[r.source].reviewBy) continue;
+    if (country === 'CZ' && waterClass && r.scope !== 'czall' && r.scope !== waterClass) continue;
     const size=sizeTerms(r).join(' · ');
     if (!size) continue;
     for (const name of r.species) {
@@ -99,7 +100,7 @@ export async function fishCatalogue({view, nav}) {
   const data = await fishDirectory();
   if (!view.active()) return;
   const route = view.route;
-  route.country = preferredCountry(data);
+  route.country ??= preferredCountry(data);
   screen.innerHTML = back(t('common.back')) + '<h1>' + catalogue() + '</h1>' +
     selectField('fish-country',t('fish_catalogue.fishing_country'),countryOptions(data),route.country) +
     button('fish-gps',t('fish_catalogue.find_country_using_location'),'secondary') +
@@ -113,7 +114,8 @@ export async function fishCatalogue({view, nav}) {
     const matched = matchingSpecies(data, route.country, query.value);
     by('fish-count').textContent = t('fish_catalogue.species_count') + ' · ' + matched.length + (route.country ?
       ' · ' + t('fish_catalogue.documented_occurrences_choose_all_of_europe_for') : '');
-    const sizes=listedSizes(data.rules,route.country);
+    if (!route.country) by('fish-count').textContent += ' · ' + t('fish_rules.choose_country');
+    const sizes=listedSizes(data.rules,route.country,route.waterClass);
     const shown = matched.slice(0,route.limit || 50);
     by('fish-results').replaceChildren(...shown.map(fish => {
       const b = document.createElement('button');
@@ -124,12 +126,13 @@ export async function fishCatalogue({view, nav}) {
         b.classList.add('fish-list-item');
         b.append(hint);
       }
-      b.onclick = () => nav.open('fishDetail',{latin:fish.latin,country:route.country});
+      b.onclick = () => nav.open('fishDetail',{latin:fish.latin,country:route.country,siteId:route.siteId,waterClass:route.waterClass});
       return b;
     }));
     by('more-fish').hidden = shown.length >= matched.length;
   }
   function selectCountry(code) {
+    if (route.country !== code) { delete route.siteId; delete route.waterClass; }
     route.country = code; route.limit = 50;
     by('fish-country').value = code;
     localStorage.setItem('fish.country',code);
@@ -211,7 +214,7 @@ export async function fishDetail({view, nav, waterDirectory}) {
     const code = by('rule-country').value;
     const body = [fish.label, latin, code && countryName(code),
       code === 'CZ' && by('fish-water-class').selectedOptions[0].textContent,
-      window.Device?.versionLabel?.(), by('fish-size')?.innerText?.slice(0,350),
+      waterDirectory.byId.get(view.route.siteId)?.name, window.Device?.versionLabel?.(), by('fish-size')?.innerText?.slice(0,350),
       by('fish-size')?.querySelector('article a')?.href, '', t('fish_rules.describe')].filter(v => typeof v === 'string').join('\n');
     const address = by('report-address');
     address.textContent = t('fish_rules.contact') + ' · milan.kucera78@gmail.com';
@@ -222,6 +225,7 @@ export async function fishDetail({view, nav, waterDirectory}) {
     const code = by('rule-country').value, region = data.rules.countries[code];
     by('water-class').hidden = code !== 'CZ';
     if (!region) { by('fish-rules').textContent = t('fish_rules.choose_country'); return; }
+    const site = waterDirectory.byId.get(view.route.siteId);
     const entries = data.rules.entries.filter(rule => rule.country === code);
     const waterClass = by('fish-water-class').value;
     const applies = rule => code !== 'CZ' || rule.scope === 'czall' || rule.scope === waterClass;
@@ -258,11 +262,11 @@ export async function fishDetail({view, nav, waterDirectory}) {
       (waterRules.length ? '<details id="water-wide-rules" class="fold"><summary>' +
         t('fish_rules.water_conditions') + '</summary><div class="fold-body">' +
         waterRules.map(r => article(r)).join('') + '</div></details>' : '') +
-      '<p>' + [region.authority && link(region.authority,t('fish_catalogue.local_rules_and_permits')),link(region.url,'FAOLEX')].filter(Boolean).join(' · ') + '</p>' +
+      '<p>' + [site?.country === code && link(site.source,site.name), region.authority && link(region.authority,t('fish_catalogue.local_rules_and_permits')),link(region.url,'FAOLEX')].filter(Boolean).join(' · ') + '</p>' +
       (waterDirectory.waters.some(water => water.country === code) ? button('fish-local',t('fish_catalogue.rules_by_water'),'secondary') : '');
     if (by('fish-local')) bind('fish-local',() => nav.open('waterRules', { country: code, latin }));
   }
   by('fish-water-class').onchange = () => { view.route.waterClass = by('fish-water-class').value; rules(); };
-  by('rule-country').onchange = () => { view.route.country = by('rule-country').value; rules(); };
+  by('rule-country').onchange = () => { delete view.route.siteId; view.route.country = by('rule-country').value; rules(); };
   rules();
 }

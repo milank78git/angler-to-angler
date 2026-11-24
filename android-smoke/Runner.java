@@ -509,6 +509,9 @@ public final class Runner extends Instrumentation {
       clickReady("#open-rules");
       waitFor("document.querySelector('#rule-water').value==='IE:IFI:1' && !!document.querySelector('.result.unknown a')"
           + " && !document.querySelector('#watch-toggle')");
+      clickReady("#water-fish-rules");
+      waitFor("document.querySelector('#fish-country').value==='IE'");
+      clickReady("#back");
       clickReady("#back");
       clickReady("#back");
       clickReady("#tabtrips");
