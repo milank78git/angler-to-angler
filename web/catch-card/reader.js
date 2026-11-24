@@ -56,5 +56,7 @@ async function refresh() {
 }
 retry.onclick = refresh;
 window.addEventListener('hashchange',refresh);
-window.addEventListener('pageshow',refresh);
+window.addEventListener('pageshow', event => { if (event.persisted) refresh(); });
 document.addEventListener('visibilitychange',refresh);
+// Dictionary loading can finish after the initial pageshow has already fired.
+refresh();
