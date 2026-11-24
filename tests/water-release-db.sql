@@ -24,3 +24,8 @@ end $$;
 set local role anon;
 do $$begin if public.angler_water_manifest() is null then raise exception 'Manifest unreadable'; end if;end$$;
 reset role;
+
+\ir ../supabase/migrations/20261124094000_montana_public_waters.sql
+select pg_temp.check_that((select count(*) = 3 from angler_public_cards.waters
+  where key in ('US-MT:39754243', 'US-MT:39754165', 'US-MT:39754559')),
+  'Montana atlas sites missing from the public card and market registry');

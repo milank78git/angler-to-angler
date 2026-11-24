@@ -1,3 +1,4 @@
+import { tripWater } from './water-directory.js';
 import { languageTag } from './i18n.js';
 import { Journal, newJournalId } from './journal.js';
 import { photoPayload, rpc } from './profile-api.js';
@@ -93,7 +94,7 @@ function linkControls(host, item, view, nav) {
 }
 
 /** Source data stay in the journal until the user confirms the exact preview. */
-export async function publicCardEditor({ view, nav, pack }) {
+export async function publicCardEditor({ view, nav, pack, waterDirectory }) {
   const { tripId, catchId } = view.route;
   let trip, entry, options, waterKey;
   try {
@@ -103,10 +104,7 @@ export async function publicCardEditor({ view, nav, pack }) {
       nav.back();
       return;
     }
-    waterKey =
-      trip.country === pack.country && pack.waters.some((w) => w.id === trip.waterId)
-        ? pack.country + ':' + trip.waterId
-        : null;
+    waterKey = tripWater(waterDirectory, trip)?.key ?? null;
     options = await rpc('public_card_options', { catch_id: catchId, water_key: waterKey });
   } catch (error) {
     failed(view, nav, error);

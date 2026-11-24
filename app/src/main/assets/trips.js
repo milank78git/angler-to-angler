@@ -1,3 +1,5 @@
+import { waterPicker, bindWaterPicker } from './water-picker.js';
+import { localRuleWater, tripWater } from './water-directory.js';
 import { languageTag } from './i18n.js';
 import { addVerificationAction } from './verification.js';
 import { Journal, newJournalId } from './journal.js';
@@ -19,7 +21,6 @@ import {
   displayDay,
   field,
   textInput,
-  selectField,
   trackEdits,
   writeEntry,
 } from './ui.js';
@@ -53,31 +54,36 @@ export async function listTrips({ view, nav }) {
     .querySelectorAll('[data-trip]')
     .forEach((b) => (b.onclick = () => nav.open('trip', { id: b.dataset.trip })));
 }
-export function tripForm({ view, nav, pack }) {
+export function tripForm({ view, nav, pack, waterDirectory }) {
   const { route } = view;
-  const selected = route.water || '';
-  const waters = [['', t('trips.other_water')], ...pack.waters.map((w) => [w.id, w.name])];
+  const initialWater = waterDirectory.byId.get(route.water);
   screen.innerHTML =
     back(t('common.back')) +
     `<div class="page-intro"><div class="title-mark">${icon('notebook-pen')}</div><h1>${t('trips.new_trip')}</h1></div>
-  <form id="form" class="entry-form"><section class="surface">${selectField('water', t('trips.fishing_water'), waters, selected)}
+  <form id="form" class="entry-form"><section class="surface">${waterPicker('water', t('trips.fishing_water'), t('trips.other_water'))}
   <div id="custom">${textInput('water-name', t('trips.water_name'), '', 'maxlength="100"')}</div>
-  ${textInput('day', t('common.trip_date'), Domain.today(selected ? pack.zone : undefined), 'type="date" required')}
+  ${textInput('day', t('common.trip_date'), Domain.today(initialWater?.zone), 'type="date" required')}
   ${field('notes', t('trips.notes'), '<textarea id="notes" maxlength="4000" rows="3"></textarea>')}</section>
   <div class="savebar"><button class="primary">${icon('check')}${t('trips.save_trip')}</button></div></form>`;
   bindBack(nav);
+  const selectedWater = bindWaterPicker('water', view, waterDirectory, initialWater?.key);
   trackEdits(by('form'), view);
   function custom() {
     by('custom').hidden = !!by('water').value;
     by('water-name').required = !by('water').value;
   }
-  by('water').onchange = custom;
+  let autoDay = by('day').value;
+  by('day').oninput = () => { autoDay = null; };
+  by('water').onchange = () => {
+    custom();
+    if (by('day').value === autoDay) by('day').value = autoDay = Domain.today(selectedWater()?.zone);
+  };
   custom();
   const id = newJournalId(),
     created = Date.now();
   by('form').onsubmit = async (e) => {
     e.preventDefault();
-    const w = pack.waters.find((w) => w.id === by('water').value),
+    const w = selectedWater(),
       name = w ? w.name : by('water-name').value.trim(),
       day = by('day').value;
     if (!name || !Domain.validDay(day)) {
@@ -93,9 +99,9 @@ export function tripForm({ view, nav, pack }) {
           id,
           created,
           waterId: w ? w.id : null,
-          packId: w ? pack.id : null,
-          country: w ? pack.country : null,
-          zone: w ? pack.zone : Intl.DateTimeFormat().resolvedOptions().timeZone,
+          packId: localRuleWater(pack, w) ? pack.id : null,
+          country: w?.country ?? null,
+          zone: w?.zone ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
           waterName: name,
           day,
           notes: by('notes').value.trim(),
@@ -104,7 +110,7 @@ export function tripForm({ view, nav, pack }) {
     );
   };
 }
-export async function tripScreen({ view, nav, pack }) {
+export async function tripScreen({ view, nav, pack, waterDirectory }) {
   const { id } = view.route;
   const [trip, catches] = await Promise.all([Journal.trip(id), Journal.catches(id)]);
   if (!view.active()) return;
@@ -119,7 +125,7 @@ export async function tripScreen({ view, nav, pack }) {
     ${trip.notes ? `<p class="trip-note">${esc(trip.notes)}</p>` : ''}
     <div class="actions">${button('add', t('trips.add_catch'), 'primary', 'plus')}
       ${button('offer-technique', t('common.offer_a_technique'), 'secondary')}
-      ${button('share-tip', t('common.share_a_trip_tip'), 'secondary')}${trip.country === pack.country && pack.waters.some(w => w.id === trip.waterId)
+      ${button('share-tip', t('common.share_a_trip_tip'), 'secondary')}${tripWater(waterDirectory, trip)
         ? button('trip-activity', t('common.trip_contribution'), 'secondary') : ''}</div>
     <h2>${t('trips.catches')} · ${catches.length}</h2><div id="catch-list"></div>
     <div class="actions">${button('delete', t('trips.delete_trip'), 'danger')}</div>`;

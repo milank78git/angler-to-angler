@@ -484,7 +484,23 @@ public final class Runner extends Instrumentation {
       setControl("#search", "Atlas fixture water", "input");
       clickReady("[data-water='IE:IFI:1']");
       waitFor("document.querySelector('h1').textContent==='Atlas fixture water'");
+      clickReady("#new-trip");
+      waitFor("document.querySelector('#water').value==='IE:IFI:1' && document.querySelector('#custom').hidden");
       clickReady("#back");
+      clickReady("#open-rules");
+      waitFor("document.querySelector('#rule-water').value==='IE:IFI:1' && !!document.querySelector('.result.unknown a')"
+          + " && !document.querySelector('#watch-toggle')");
+      clickReady("#back");
+      clickReady("#back");
+      clickReady("#tabtrips");
+      clickReady("#add-trip");
+      setControl("#water-search", "Atlas fixture water", "input");
+      setControl("#water", "IE:IFI:1", "change");
+      waitFor("document.querySelector('#water').selectedOptions[0].textContent.includes('Atlas fixture water')"
+          + " && document.querySelector('#custom').hidden");
+      clickReady("#back");
+      clickReady("#confirmation-accept");
+      clickReady("#tabwaters");
       setControl("#search", "", "input");
       setControl("#water-country", "PL", "change");
       waitFor("document.querySelectorAll('[data-water]').length===0 && !!document.querySelector('#water-coverage a')");

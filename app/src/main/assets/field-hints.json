@@ -262,5 +262,13 @@
   "market-water-search": {
     "topic": "market",
     "message": "field-hints.market-water-search"
+  },
+  "water-search": {
+    "topic": "journal",
+    "message": "field-hints.water-search"
+  },
+  "rule-water-search": {
+    "topic": "waters",
+    "message": "field-hints.rule-water-search"
   }
 }

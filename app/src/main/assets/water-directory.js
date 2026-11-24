@@ -1,3 +1,4 @@
+import { fold } from './domain.js';
 import { internationalWaters } from './international-waters.js';
 
 export function createWaterDirectory(pack, snapshot, editions = {}, sources = {providers:{}, directories:{}}, countries = {}, shapes) {
@@ -32,6 +33,23 @@ export function createWaterDirectory(pack, snapshot, editions = {}, sources = {p
   const geography = async () => ({ ...(shapes ?? await loadWaterShapes()), ...outlines });
   return { waters, sources, countries, geography, asOf: snapshot.asOf, byId: new Map(waters.map(w => [w.id, w])),
     byKey: new Map(waters.map(w => [w.key, w])) };
+}
+
+/** Both the atlas and its pickers accept unspaced numbers and names without diacritics. */
+export function matchesWater(water, foldedQuery) {
+  return !foldedQuery || fold([water.name, water.number, water.area, water.manager, water.country, water.code]
+    .filter(Boolean).join(' ')).includes(foldedQuery);
+}
+
+/** Only reviewed pack records carry section rules, dates and size limits. */
+export function localRuleWater(pack, water) {
+  if (water?.country === pack.country) return pack.waters.find(local => local.id === water.id);
+}
+
+/** Older pilot trips store a short local ID. Imported waters already have qualified IDs. */
+export function tripWater(directory, trip) {
+  const water = directory.byId.get(trip?.waterId);
+  return water && water.country === trip.country ? water : undefined;
 }
 
 const rad = Math.PI / 180;
