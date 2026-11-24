@@ -190,7 +190,7 @@ final class AccountLayout {
         .path("/guide.html")
         .appendQueryParameter("lang", activity.getResources().getConfiguration().getLocales().get(0).toLanguageTag())
         .appendQueryParameter("theme", dark ? "dark" : "light")
-        .fragment(activity instanceof GroupsActivity ? "groups" : "accounts")
+        .fragment(activity instanceof WaterSettingsActivity ? "start" : activity instanceof GroupsActivity ? "groups" : "accounts")
         .build();
     Prompt reader = new Prompt(AppLanguage.text(activity, "Nápověda", "Help"), web);
     reader.action(AppLanguage.text(activity, "Zavřít", "Close"), Action.SECONDARY, null);

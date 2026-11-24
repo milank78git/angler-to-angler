@@ -41,4 +41,6 @@ do $$begin if exists(select from angler_private.acceptances) or exists(select fr
 \ir europe-market-db.sql
 \ir water-reports-db.sql
 \ir czech-waters-db.sql
+\ir water-release-db.sql
+\ir water-poll-db.sql
 rollback;

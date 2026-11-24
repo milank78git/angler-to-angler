@@ -1,0 +1,26 @@
+{
+  "providers": {
+    "AGE": {"country":"LU","zone":"Europe/Luxembourg","label":"Administration de la gestion de l’eau","scope":"Luxembourg · Lots de pêche","kind":"section","url":"https://data.public.lu/fr/datasets/sections-de-peche/","licence":"CC0"},
+    "BERLIN": {"country":"DE","zone":"Europe/Berlin","label":"Fischereiamt Berlin","scope":"Berlin","kind":"fishery","url":"https://daten.berlin.de/datensaetze/angelgewasser-in-berlin-wfs-9c14cd96","licence":"dl-de/zero-2-0"},
+    "DAERA": {"country":"GB","zone":"Europe/London","label":"DAERA","scope":"Northern Ireland · Public Angling Estate","kind":"fishery","url":"https://www.daera-ni.gov.uk/articles/interactive-daera-public-angling-estate-map","licence":"Open Government Licence v3.0"},
+    "FVO": {"country":"SE","zone":"Europe/Stockholm","label":"Länsstyrelserna · Fiskekartan","scope":"Sverige · Fiskevårdsområden","kind":"management","url":"https://www.havochvatten.se/e-tjanster/a-o/fiskekartan.html"},
+    "ICNF": {"country":"PT","zone":"Europe/Lisbon","label":"Instituto da Conservação da Natureza e das Florestas","scope":"Portugal continental · Concessões de pesca","kind":"section","url":"https://sigservices.icnf.pt/server/rest/services/BDG/concessoes_pesca/MapServer/0"},
+    "IFI": {"country":"IE","zone":"Europe/Dublin","label":"Inland Fisheries Ireland","scope":"Accessible Angling Sites 2021","kind":"access","url":"https://data.gov.ie/dataset/accessible-angling-sites-2021","licence":"CC BY 4.0"},
+    "SRZ": {"country":"SK","zone":"Europe/Bratislava","label":"Slovenský rybársky zväz","scope":"Zväzové a zvláštne povolenia","kind":"fishery","url":"https://srzrada.sk/rybarske-poriadky/"}
+  },
+  "directories": {
+    "AT":["Land Oberösterreich · Fischereirechte","https://www.data.gv.at/datasets/75548ee1-5369-4a89-8367-69efd0c703e5?locale=de"],
+    "BE":["Maison wallonne de la pêche · Wallonie","https://m.parcoursdepeche.be/"],
+    "DE":["Landesverband Sächsischer Angler · Sachsen","https://angeln-sachsen.de/avs/gastangler/gewaesserverzeichnis/"],
+    "DK":["Naturstyrelsen · Lystfiskeri","https://naturstyrelsen.dk/aktiviteter-i-naturen/ved-vandet/lystfiskeri-og-fisketegn"],
+    "EE":["Keskkonnaamet · Kalaluba","https://kalaluba.ee/fishingCard"],
+    "ES":["Generalitat de Catalunya · Pesca continental","https://agricultura.gencat.cat/ca/ambits/medi-natural/pesca-continental/cartografia/"],
+    "FI":["Metsähallitus · Eräluvat","https://www.eraluvat.fi/en/fishing"],
+    "FR":["Fédérations de pêche · Centre-Val de Loire","https://afpcvl.federationpeche.fr/2741-la-cartographie.htm"],
+    "IT":["Regione Veneto · Carta ittica","https://pescasportiva.regione.veneto.it/w/geoportale-della-carta-ittica-regionale"],
+    "NL":["VISplanner","https://www.visplanner.nl/"],
+    "NO":["Miljødirektoratet · Lakseregisteret","https://kartkatalog.miljodirektoratet.no/MapService/Details/laksekart"],
+    "PL":["Wody Polskie · Wykaz obwodów rybackich","https://www.gov.pl/web/wody-polskie/udostepnianie-danych-z-systemu-informacyjnego-gospodarowania-wodami"],
+    "SI":["Zavod za ribištvo Slovenije · RIBKAT","https://zzrs.si/ribiski-kataster-ribkat/"]
+  }
+}

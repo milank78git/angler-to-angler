@@ -20,6 +20,7 @@ import org.json.JSONObject;
  */
 final class AccountChecks {
   private static final String ID = "11111111-1111-4111-8111-111111111111";
+  private final AtlasFixture atlas = new AtlasFixture();
   private final MarketChecks market = new MarketChecks();
   private final PublicCardChecks publicCards = new PublicCardChecks();
   private final ActivityChecks activityChecks = new ActivityChecks();
@@ -70,6 +71,7 @@ final class AccountChecks {
                 ? new URLStreamHandler() {
                   @Override
                   protected URLConnection openConnection(URL u) throws IOException {
+                    if ("raw.githubusercontent.com".equals(u.getHost())) return atlas.download(u);
                     if (!"identity.angler.invalid".equals(u.getHost()))
                       throw new IOException("Unexpected test endpoint");
                     return new HttpURLConnection(u) {
@@ -110,6 +112,9 @@ final class AccountChecks {
                           }
                           JSONObject body = new JSONObject(request.toString("UTF-8"));
                           switch (u.getPath()) {
+                            case "/rest/v1/rpc/angler_water_manifest":
+                              response = atlas.manifest;
+                              return 200;
                             case "/auth/v1/token":
                               if ("grant_type=password".equals(u.getQuery())) {
                                 if (!PASSWORD.equals(body.getString("password"))
@@ -779,6 +784,27 @@ final class AccountChecks {
   private void deliverCallback(Uri uri) {
     Intent callback = new Intent(Intent.ACTION_VIEW, uri).addCategory(Intent.CATEGORY_BROWSABLE);
     app.runOnMainSync(() -> gate.startActivity(callback));
+  }
+
+  void atlasSettings() throws Exception {
+    app.clickReady("#atlas-settings");
+    String daily = tr("Automaticky kontrolovat každý den", "Check automatically every day");
+    String manual = tr("Zkontrolovat nyní", "Check now");
+    CheckBox automatic = (CheckBox)find(daily);
+    if (!automatic.isChecked()) throw new AssertionError("Daily atlas updates disabled by default");
+    click(daily);
+    atlas.enable(app.getTargetContext());
+    click(manual);
+    find(tr("Nový atlas je k dispozici offline.", "The updated atlas is available offline."));
+    click(manual);
+    find(tr("Máš aktuální atlas.", "Your atlas is up to date."));
+    atlas.damage();
+    click(manual);
+    find(tr("Aktualizace se nezdařila. Dosavadní atlas můžeš dál používat.", "The update failed. Your previous atlas is still available."));
+    click(tr("Zpět", "Back"));
+    app.clickReady("#atlas-settings");
+    if (((CheckBox)find(daily)).isChecked()) throw new AssertionError("Manual preference was lost");
+    click(tr("Zpět", "Back"));
   }
 
   private void assertDisabled(String text) throws Exception {

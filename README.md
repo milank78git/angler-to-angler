@@ -41,11 +41,17 @@ An offline-first Android field journal for anglers. The Czech launcher name is *
 - International expansion should add regional packs, local authorities, languages and corresponding rule tests. The first pilot ships one pack. Unlisted waters work worldwide as user-named journal entries.
 - Paid location tips, payouts, rankings, document verification and automated photo measurement belong to later releases. A future competition, record claim or prize would need a separate evidence standard, such as a continuous in-app clip with a randomized camera movement.
 
-## Czech water directory
+## Daily water directory
 
 The offline atlas includes the published ČRS and MRS directories. The waters come with links to their official cards. A country filter and an on-device location search also cover the Montana pilot. On Czech waters the app measures approximate distance to a generalized RIS outline or the nearest published location. An unlocated water remains searchable by name or number. The original Berounka and Sázava entries retain their journal IDs, local seasons and map details.
 
-A monthly workflow prepares a candidate dataset and additive database migration. Review source coverage before releasing an APK. Run the importer locally with Python 3 and the distribution's GDAL Python bindings. Use a fresh cache directory to fetch a new snapshot, or omit `--download` to reproduce a snapshot from the same inputs.
+The daily workflow checks the upstream sources at 05:15 UTC. It keeps the last good edition of an unavailable register and reports failures in Actions. Changed data is published on the public `water-atlas-v1` branch. A Supabase Cron job checks the small manifest every 30 minutes and registers new keys before announcing that edition to phones. Historical keys remain valid for existing reports, posts and offers. Apply the included migrations in order to the pilot database and enable Actions writes to this branch. The initial publication runs on merge or manual dispatch from main.
+
+Open **Water atlas updates** in the atlas or account settings. Automatic checks default to daily and require connectivity. Android can defer background work. Opening the app catches up, and **Check now** also works with automatic checks disabled. A phone verifies the SHA-256 and size of its download before switching editions. No APK upgrade is needed for later data releases.
+
+The country selector covers all 51 European jurisdictions in the field guide. Offline data includes Czech union waters, Slovak union permit lists, Berlin water polygons, Northern Ireland's Public Angling Estate, Irish accessible angling sites, Swedish fishery management area reference points, Luxembourg fishing sections and Portuguese mainland concessions. Each source retains its identity, scope and edition date. Other countries link to available directories or national fishing information. Always check the publisher for current access and restrictions.
+
+Run the Czech importer locally with Python 3 and GDAL. Use a fresh cache directory to fetch a new snapshot, or omit `--download` to reproduce a snapshot from the same inputs.
 
 ```sh
 /usr/bin/python3 scripts/import-czech-waters.py ./water-cache --download --as-of YYYY-MM-DD --sql ./candidate.sql

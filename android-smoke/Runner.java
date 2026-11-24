@@ -445,6 +445,15 @@ public final class Runner extends Instrumentation {
       clickReady("#guide-close");
       clickReady("#tabwaters");
       // Follow an imported fishery through country filtering, official details and restored atlas state.
+      accounts.atlasSettings();
+      setControl("#water-country", "IE", "change");
+      setControl("#search", "Atlas fixture water", "input");
+      clickReady("[data-water='IE:IFI:1']");
+      waitFor("document.querySelector('h1').textContent==='Atlas fixture water'");
+      clickReady("#back");
+      setControl("#search", "", "input");
+      setControl("#water-country", "PL", "change");
+      waitFor("document.querySelectorAll('[data-water]').length===0 && !!document.querySelector('#water-coverage a')");
       setControl("#water-country", "CZ", "change");
       setControl("#search", "461 024", "input");
       clickReady("[data-water='CZ:MRS:1']");

@@ -20,6 +20,7 @@ public final class JournalApplication extends Application
   public void onCreate() {
     super.onCreate();
     AccountStore.initializeJournalOwnership(this);
+    WaterCatalogue.schedule(this);
     registerActivityLifecycleCallbacks(this);
     registerReceiver(
         new BroadcastReceiver() {
@@ -34,6 +35,7 @@ public final class JournalApplication extends Application
   @Override
   public void onActivityStarted(Activity a) {
     if (visible++ == 0) {
+      WaterCatalogue.check(this, false, null);
       timer.removeCallbacks(lock);
       if (stoppedAt != 0 && SystemClock.elapsedRealtime() - stoppedAt >= 60000) AccountStore.lock();
       stoppedAt = 0;

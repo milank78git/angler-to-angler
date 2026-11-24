@@ -30,9 +30,9 @@ function bindWaterPicker(id, directory, value) {
     const query = fold(search.value);
     const options = [new Option(empty, '')];
     for (const w of directory.waters) {
-      if (w.country !== 'CZ') continue;
+      if (w.provider === 'FWP') continue;
       if (w.key === selected || fold(w.name + ' ' + w.number + ' ' + w.area).includes(query)) {
-        options.push(new Option(w.name + ' · ' + w.number, w.key));
+        options.push(new Option([w.name, w.number, w.country].filter(Boolean).join(' · '), w.key));
       }
     }
     // Retain the identity of offers from an earlier catalogue revision.

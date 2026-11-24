@@ -17,10 +17,16 @@ import java.util.function.Consumer;
 final class LocalAssetClient extends WebViewClient {
   private static final String HOST = "journal.invalid";
   static final String ENTRY = "https://" + HOST + "/index.html";
+  private final android.content.Context context;
   private final AssetManager assets;
   private final Consumer<Uri> openExternal;
 
   LocalAssetClient(AssetManager assets, Consumer<Uri> openExternal) {
+    this(null, assets, openExternal);
+  }
+
+  LocalAssetClient(android.content.Context context, AssetManager assets, Consumer<Uri> openExternal) {
+    this.context = context;
     this.assets = assets;
     this.openExternal = openExternal;
   }
@@ -34,6 +40,11 @@ final class LocalAssetClient extends WebViewClient {
         && path != null
         && path.matches("/[a-z][a-z0-9.-]*")) {
       try {
+        if (context != null && path.equals("/water-update.json")) {
+          return new WebResourceResponse("application/json", "utf-8", 200, "OK",
+              java.util.Collections.singletonMap("Cache-Control", "no-store"),
+              WaterCatalogue.open(context, uri.getQueryParameter("revision")));
+        }
         String mime = contentType(path);
         return new WebResourceResponse(
             mime, "image/webp".equals(mime) ? null : "utf-8", assets.open(path.substring(1)));

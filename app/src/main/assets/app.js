@@ -144,15 +144,41 @@ async function start() {
     setTheme(mode);
   });
   try {
-    const [pack, rivers, hints, snapshot] = await Promise.all(
-      ['catalog.json', 'rivers.json', 'field-hints.json', 'czech-waters.json'].map(async (path) => {
-        const response = await fetch(path);
-        if (!response.ok) throw Error(path);
-        return response.json();
-      }),
-    );
-
-    Object.assign(catalog, { pack, rivers, hints, waterDirectory: createWaterDirectory(pack, snapshot) });
+    const json = async path => {
+      const response = await fetch(path);
+      if (!response.ok) throw Error(path);
+      return response.json();
+    };
+    const [pack, rivers, hints, rules] = await Promise.all(['catalog.json','rivers.json','field-hints.json','europe-rules.json'].map(json));
+    Object.assign(catalog, { pack, rivers, hints });
+    let installed, request = 0;
+    async function readDirectory() {
+      const key = window.Device?.waterCatalogueVersion?.() || '';
+      if (installed === key) return false;
+      const generation = ++request;
+      let directory;
+      if (key) {
+        try {
+          const release = await json('water-update.json?revision=' + encodeURIComponent(key));
+          directory = createWaterDirectory(pack, release.cz, release.europe, release.sources, rules.countries, release.shapes);
+        } catch (error) { console.warn('Cannot open atlas edition', error); }
+      }
+      if (!directory) {
+        if (catalog.waterDirectory) return false;
+        const [cz, europe, sources] = await Promise.all(['czech-waters.json','europe-waters.json','water-sources.json'].map(json));
+        directory = createWaterDirectory(pack, cz, europe, sources, rules.countries);
+      }
+      if (request !== generation) return false;
+      catalog.waterDirectory = directory;
+      installed = key;
+      return true;
+    }
+    // Register after the initial read, then recheck to catch an installation during startup.
+    await readDirectory();
+    window.waterCatalogueChanged = async () => {
+      if (await readDirectory() && ['waters','water'].includes(nav.current?.route.page)) nav.show();
+    };
+    await window.waterCatalogueChanged();
 
     const destinations = [
       ['waters', t('Revíry', 'Waters'), 'map'],

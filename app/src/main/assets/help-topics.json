@@ -17,6 +17,10 @@
         "en": "In the atlas, select a country or choose Sort by location. Your phone measures the distance to the mapped water or its nearest known point. Waters without coordinates stay at the end."
       },
       {
+        "cs": "V Aktualizaci atlasu revírů můžeš vypnout denní automatickou kontrolu nebo spustit kontrolu hned. Stažený atlas můžeš používat i bez signálu.",
+        "en": "Open Water atlas updates to switch off automatic daily checks or check now. Downloaded waters remain available offline."
+      },
+      {
         "cs": "Spodní nabídka přepíná atlas, hájení a osobní deník. Profil otevírá účet, skupiny a soukromé zprávy. Toto tlačítko nápovědy je dostupné i uvnitř formuláře.",
         "en": "Use the bottom bar for the atlas, seasons and your journal. Profile opens your account, groups and messages. Help also works while filling in a form."
       }
@@ -58,7 +62,7 @@
     },
     "steps": [
       {
-        "cs": "Na kartě revíru najdeš odkaz na správce. V českém atlasu otevřeš také nabídky na revíru, příspěvky rybářů a hlášení od vody. Podrobné pilotní karty navíc obsahují mapu a místní hájení.",
+        "cs": "Na kartě revíru najdeš odkaz na správce. U importovaných evropských revírů otevřeš také nabídky na revíru, příspěvky rybářů a hlášení od vody. Podrobné pilotní karty navíc obsahují mapu a místní hájení.",
         "en": "Open a water to find its official source. Czech entries also link to local offers, angler contributions and water reports. The detailed pilot entries include a map and local seasons."
       },
       {

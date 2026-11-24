@@ -51,3 +51,27 @@ test('the official Dyje 5 points and Prague pilot outlines are in WGS84 longitud
     }
   }
 });
+
+test('the European register keeps source scope, geometry and community targets aligned', async () => {
+  const { createWaterDirectory, waterDistances } = await import('../app/src/main/assets/water-directory.js');
+  const editions = json('europe-waters.json'), sources = json('water-sources.json');
+  const countries = json('europe-rules.json').countries;
+  const atlas = createWaterDirectory(json('catalog.json'), snapshot, editions, sources, countries, shapes);
+  assert.equal(Object.keys(atlas.countries).length, 51);
+  assert.equal(atlas.byId.size, atlas.byKey.size);
+  assert.equal(atlas.byId.size, atlas.waters.length);
+  const sql = readFileSync(join(__dirname,'../supabase/migrations/20261124060100_european_water_seed.sql'),'utf8');
+  const keys = [...sql.matchAll(/^\('([A-Z]{2}:[^']+)'/gm)].map(m => m[1]);
+  assert.deepEqual(keys.sort(), atlas.waters.filter(w => w.publisher).map(w => w.key).sort());
+  const selected = ['IFI','SRZ','FVO','ICNF','AGE','BERLIN','DAERA'].map(p => atlas.waters.find(w => w.provider === p));
+  assert.ok(selected.every(w => w.asOf && w.source.startsWith('https://') && w.scope && countries[w.country]));
+  const [irish, slovak, swedish, portuguese] = selected;
+  assert.equal(irish.kind, 'access');
+  assert.equal(swedish.kind, 'management');
+  assert.ok(!waterDistances([slovak], {}, {lon:17,lat:49}).has(slovak.id));
+  assert.equal(waterDistances([irish], {}, {lon:irish.points[0][0],lat:irish.points[0][1]}).get(irish.id),0);
+  const [[a,b]] = portuguese.lines;
+  assert.ok(waterDistances([portuguese], {}, {lon:(a[0]+b[0])/2,lat:(a[1]+b[1])/2}).get(portuguese.id)<0.001);
+  const outlines = await atlas.geography();
+  assert.ok(outlines[selected[5].key].length > 0);
+});
