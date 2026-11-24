@@ -1,3 +1,4 @@
+import { tripWater } from './water-directory.js';
 import { languageTag } from './i18n.js';
 import { waterMap } from './waters.js';
 import { Journal } from './journal.js';
@@ -73,8 +74,8 @@ function failed(view, nav, err) {
   bind('activity-retry', () => nav.show());
 }
 
-function entryText(entry, pack, options) {
-  const water = pack.waters.find((w) => pack.country + ':' + w.id === entry.water);
+function entryText(entry, directory, options) {
+  const water = directory.byKey.get(entry.water);
   const label = (pairs, key) => pairs.find(([id]) => id === key)?.[1] || key;
   return [
     water?.name || entry.water,
@@ -106,7 +107,7 @@ async function withdraw(view, nav, item) {
 }
 
 /** Only the fields displayed in the confirmation are projected out of the local journal. */
-export async function activityContribution({ view, nav, pack }) {
+export async function activityContribution({ view, nav, pack, waterDirectory }) {
   const id = view.route.id;
   let trip, catches, state;
   try {
@@ -120,9 +121,9 @@ export async function activityContribution({ view, nav, pack }) {
     return;
   }
   if (!view.active()) return;
-  const water = pack.waters.find((w) => w.id === trip?.waterId && trip.country === pack.country);
+  const water = tripWater(waterDirectory, trip);
   const options = choices(pack);
-  const allowed = water && trip.day >= '1900-01-01' && trip.day <= today(pack.zone);
+  const allowed = water && trip.day >= '1900-01-01' && trip.day <= today(water.zone);
   screen.innerHTML =
     back(t('common.trip')) +
     '<h1>' +
@@ -132,7 +133,7 @@ export async function activityContribution({ view, nav, pack }) {
       ? '<section class="surface"><h2>' +
         t('water_activity.shared_details') +
         '</h2><p>' +
-        esc(entryText(state.entry, pack, options)) +
+        esc(entryText(state.entry, waterDirectory, options)) +
         '</p>' +
         button('withdraw-activity', t('water_activity.withdraw_from_statistics'), 'danger') +
         '</section>'
@@ -169,7 +170,7 @@ export async function activityContribution({ view, nav, pack }) {
   bind('activity-submit', async () => {
     const entry = {
       month: trip.day.slice(0, 7) + '-01',
-      water: pack.country + ':' + water.id,
+      water: water.key,
       target: by('activity-target').value,
       method: by('activity-method').value,
       fish: catches.length,
@@ -177,7 +178,7 @@ export async function activityContribution({ view, nav, pack }) {
     if (
       !(await confirmAction({
         title: t('water_activity.include_this_completed_trip'),
-        message: entryText(entry, pack, options),
+        message: entryText(entry, waterDirectory, options),
         accept: t('water_activity.confirm_details'),
       })) ||
       !view.active()
@@ -205,7 +206,7 @@ export async function activityContribution({ view, nav, pack }) {
 }
 
 /** Keep withdrawals reachable after a local trip is deleted or on a new phone. */
-export async function myActivity({ view, nav, pack }) {
+export async function myActivity({ view, nav, pack, waterDirectory }) {
   let page;
   try {
     page = await rpc('activity_mine', { before_position: view.route.cursor || null });
@@ -225,7 +226,7 @@ export async function myActivity({ view, nav, pack }) {
           .map(
             (item, i) =>
               '<article class="surface"><p>' +
-              esc(entryText(item.entry, pack, options)) +
+              esc(entryText(item.entry, waterDirectory, options)) +
               '</p>' +
               button('withdraw-' + i, t('water_activity.withdraw_from_statistics'), 'secondary') +
               '</article>',
@@ -239,14 +240,15 @@ export async function myActivity({ view, nav, pack }) {
 }
 
 /** All sample counts and suppression decisions come from the same server-side snapshot. */
-export async function waterActivity({ view, nav, pack, rivers }) {
+export async function waterActivity({ view, nav, pack, rivers, waterDirectory }) {
   const route = view.route;
-  const water = pack.waters.find((w) => w.id === route.id);
+  const water = waterDirectory.byId.get(route.id);
+  if (!water) return nav.back();
   const options = choices(pack);
   let report;
   try {
     report = await rpc('activity_summary', {
-      water_key: pack.country + ':' + water.id,
+      water_key: water.key,
       month_start: route.month || null,
       target_species: route.target || null,
       fishing_method: route.method || null,
@@ -268,11 +270,11 @@ export async function waterActivity({ view, nav, pack, rivers }) {
     ' · ' +
     t('water_activity.entire_water') +
     '</p>' +
-    '<details class="fold"><summary>' +
+    (rivers[water.id] ? '<details class="fold"><summary>' +
     t('water_activity.summary_area_on_the_map') +
     '</summary>' +
     waterMap(water, rivers, true) +
-    '</details>' +
+    '</details>' : '') +
     '<form id="activity-filters" class="surface">' +
     textInput(
       'activity-month',

@@ -148,7 +148,7 @@ function seasonalDay(day) {
 }
 
 /** Keep each sourced restriction with its jurisdiction, water class and review deadline. */
-export async function fishDetail({view, nav, pack}) {
+export async function fishDetail({view, nav, waterDirectory}) {
   const data = await fishDirectory();
   if (!view.active()) return;
   const {latin} = view.route, fish = data.names.get(latin);
@@ -206,8 +206,8 @@ export async function fishDetail({view, nav, pack}) {
       (waterRules.length ? '<section><h3>' + t('fish_catalogue.rules_for_all_species_on_the_listed') +
         '</h3>' + waterRules.map(article).join('') + '</section>' : '') +
       '<p>' + [region.authority && link(region.authority,t('fish_catalogue.local_rules_and_permits')),link(region.url,'FAOLEX')].filter(Boolean).join(' · ') + '</p>' +
-      (code === pack.country.toUpperCase() ? button('fish-local',t('fish_catalogue.rules_by_water'),'secondary') : '');
-    if (by('fish-local')) bind('fish-local',() => nav.open('rules'));
+      (waterDirectory.waters.some(water => water.country === code) ? button('fish-local',t('fish_catalogue.rules_by_water'),'secondary') : '');
+    if (by('fish-local')) bind('fish-local',() => nav.open('waterRules', { country: code, latin }));
   }
   by('rule-country').onchange = () => { view.route.country = by('rule-country').value; rules(); };
   rules();

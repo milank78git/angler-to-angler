@@ -79,8 +79,10 @@ async function render(view, area) {
   screen.dataset.page = page;
   screen.setAttribute('aria-busy', 'true');
   try {
+    const edition = catalog.waterDirectory;
     await views[page]({ view, nav, ...catalog });
     if (!view.active()) return;
+    if (edition !== catalog.waterDirectory) view.refreshWaters?.(catalog.waterDirectory);
     attachHints(screen, page, catalog.hints);
     const title = screen.querySelector('h1');
     if (title) {
@@ -176,7 +178,10 @@ async function start() {
     // Register after the initial read, then recheck to catch an installation during startup.
     await readDirectory();
     window.waterCatalogueChanged = async () => {
-      if (await readDirectory() && ['waters','water'].includes(nav.current?.route.page)) nav.show();
+      if (!await readDirectory() || !nav.current) return;
+      const view = nav.current;
+      if (['waters', 'water', 'rules', 'waterRules', 'trip'].includes(view.route.page)) nav.show();
+      else view.refreshWaters?.(catalog.waterDirectory);
     };
     await window.waterCatalogueChanged();
 

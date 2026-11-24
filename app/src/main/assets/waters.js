@@ -1,5 +1,5 @@
 import { countryName } from './fish-catalogue.js';
-import { waterDistances } from './water-directory.js';
+import { localRuleWater, matchesWater, waterDistances } from './water-directory.js';
 import { waterReports } from './water-reports.js';
 import { rpc } from './profile-api.js';
 import * as Domain from './domain.js';
@@ -162,7 +162,7 @@ export function listWaters({ view, pack, nav, waterDirectory }) {
     const matches = atlas.waters.filter(
       (w) =>
         (!route.country || route.country === w.country) && (!route.favorites || isFavorite(pack, w)) &&
-        Domain.fold([w.name, w.number, w.area, w.manager].filter(Boolean).join(' ')).includes(q),
+        matchesWater(w, q),
     );
     if (distances) matches.sort((a, b) => (distances.get(a.id) ?? Infinity) - (distances.get(b.id) ?? Infinity));
     by('more-waters').hidden = matches.length <= limit;
@@ -234,12 +234,29 @@ export function listWaters({ view, pack, nav, waterDirectory }) {
   by('water-coverage').innerHTML = coverage(waterDirectory, route.country);
   results();
 }
+function waterActions() {
+  return '<div class="quick-actions">' +
+    button('new-trip', t('waters.log_a_trip'), 'primary', 'plus') +
+    button('open-rules', t('common.seasons_sizes'), 'secondary', 'calendar-days') +
+    button('open-activity', t('common.water_activity'), 'secondary') +
+    button('open-discussion', t('common.observations_and_questions'), 'secondary') +
+    button('water-market', t('waters.offers_on_this_water'), 'secondary') + '</div>';
+}
+
+function bindWaterActions(nav, water) {
+  bind('new-trip', () => nav.open('newTrip', { water: water.id }));
+  bind('open-rules', () => nav.open('waterRules', { id: water.id }));
+  bind('open-activity', () => nav.open('waterActivity', { id: water.id }));
+  bind('open-discussion', () => nav.open('waterDiscussion', { id: water.id }));
+  bind('water-market', () => nav.open('marketShelf', { water: water.key }));
+}
+
 export function waterScreen({ view, pack, rivers, nav, waterDirectory }) {
   const { route } = view;
-  const w = pack.waters.find((x) => x.id === route.id);
+  const site = waterDirectory.byId.get(route.id);
+  if (!site) return nav.back();
+  const w = localRuleWater(pack, site);
   if (!w) {
-    const site = waterDirectory.byId.get(route.id);
-    if (!site) return nav.back();
     const us = site.provider === 'FWP';
     const publisher = site.publisher || { CRS: t('sources.crs.name'), MRS: t('sources.mrs.name'), FWP: 'Montana Fish, Wildlife & Parks' }[site.provider];
     const types = { section:t('waters.fishing_section'), management:t('waters.fishery_management_area_reference_point'), access:t('waters.fishing_access_site'), fishery: t('waters.fishery'), pond: t('waters.pond'), water: t('waters.water_body') };
@@ -257,12 +274,10 @@ export function waterScreen({ view, pack, rivers, nav, waterDirectory }) {
           site.points ? '<details><summary>' + t('waters.published_coordinates') + ' (' + site.points.length + ')</summary>' +
             site.points.map(([lon, lat]) => '<p>' + esc(lat) + ', ' + esc(lon) + '</p>').join('') + '</details>' :
             '<p>' + t('waters.this_water_has_no_location_in_the') + '</p>')) +
-      '</section><div class="actions">' + button('open-discussion', t('waters.angler_contributions'), 'secondary') +
-      (us ? '' : button('water-market', t('waters.offers_on_this_water'), 'secondary')) +
-      '</div><section class="surface"><h2>' + t('waters.water_reports') + '</h2><div id="water-reports"></div></section>';
+      '</section>' + waterActions() +
+      '<section class="surface"><h2>' + t('waters.water_reports') + '</h2><div id="water-reports"></div></section>';
     bindBack(nav);
-    bind('open-discussion', () => nav.open('waterDiscussion', { id: site.id }));
-    if (!us) bind('water-market', () => nav.open('marketShelf', { water: site.key }));
+    bindWaterActions(nav, site);
     waterReports(by('water-reports'), site.key, view);
     return;
   }
@@ -271,26 +286,22 @@ export function waterScreen({ view, pack, rivers, nav, waterDirectory }) {
   screen.innerHTML =
     back(t('atlas.title')) +
     `<section class="hero detail-hero">${photo(w, 'hero-img')}<div class="hero-copy"><div class="hero-meta">${icon('map-pin')}${esc(w.number)} · ${esc(loc(pack.label))}</div><h1>${esc(w.name)}</h1></div>${favoriteButton(pack, w)}</section><p class="area-line">${icon('route')}${esc(w.area)}</p>
-    <div class="quick-actions">${button('water-market',t('waters.offers_on_this_water'),'secondary')}${button('new-trip', t('waters.log_a_trip'), 'primary', 'plus')}${button('open-rules', t('common.seasons_sizes'), 'secondary', 'calendar-days')}${button('open-discussion', t('common.observations_and_questions'), 'secondary')}${button('open-activity', t('common.water_activity'), 'secondary')}</div>
+    ${waterActions()}
     <div class="columns"><section class="surface">${sectionTitle('map', t('waters.water_map'))}${waterMap(w, rivers)}<ul class="legend">${landmark('1', loc(w.ends[0]))}${landmark('2', loc(w.ends[1]))}${landmark('!', loc(w.restriction))}${w.access ? landmark('A', loc(w.access)) : ''}</ul></section>
     <section class="surface">${sectionTitle('navigation', t('waters.getting_to_the_water'))}${w.access ? `<p>${esc(loc(w.access))}</p><div class="actions">${button('navigate', t('waters.open_directions'), 'secondary', 'navigation')}</div><div class="rulesrc">${link(w.access.source, t('waters.access_point_source'))}</div>` : `<p class="muted">${t('waters.this_pack_has_no_verified_access_point')}</p>`}</section></div>${credits(w)}`;
   bindBack(nav);
-  const waterKey = pack.country + ':' + w.id;
+  bindWaterActions(nav, site);
+  const waterKey = site.key;
   screen.insertAdjacentHTML('beforeend','<section class="surface"><h2>'+t('waters.water_reports')+'</h2><div id="water-reports"></div></section>');
   waterReports(by('water-reports'),waterKey,view);
   by('water-reports').parentElement.insertAdjacentHTML('beforebegin',link(w.source,t('waters.official_fishery_record')));
   const marketButton = by('water-market');
-  bind('water-market', () => nav.open('marketShelf', { water: waterKey }));
   // Availability is online. The atlas and the link remain usable while counts load or fail.
   rpc('market_discover', { water_key: waterKey, before_position: null }).then(result => {
     if (view.active()) marketButton.querySelector('span').textContent += ' (' + result.stats.offers + ')';
   }).catch(() => {
     if (view.active()) marketButton.querySelector('span').textContent += ' · ' + t('waters.count_unavailable');
   });
-  bind('new-trip', () => nav.open('newTrip', { water: w.id }));
-  bind('open-activity', () => nav.open('waterActivity', { id: w.id }));
-  bind('open-discussion', () => nav.open('waterDiscussion', { id: w.id }));
-  bind('open-rules', () => nav.open('waterRules', { id: w.id }));
   const fav = screen.querySelector('[data-favorite]');
   fav.onclick = () => {
     toggleFavorite(pack, w.id);

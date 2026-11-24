@@ -75,3 +75,22 @@ test('the European register keeps source scope, geometry and community targets a
   const outlines = await atlas.geography();
   assert.ok(outlines[selected[5].key].length > 0);
 });
+
+test('trip identities and local rules follow the selected edition independently', async () => {
+  const { createWaterDirectory, localRuleWater, matchesWater, tripWater } = await import('../app/src/main/assets/water-directory.js');
+  const pack = json('catalog.json');
+  const atlas = createWaterDirectory(pack, snapshot, json('europe-waters.json'), json('water-sources.json'));
+  const pilot = tripWater(atlas, { country: 'CZ', waterId: '401009' });
+  assert.equal(pilot.key, 'CZ:401009');
+  assert.equal(localRuleWater(pack, pilot).id, pilot.id);
+  for (const [country, waterId] of [['CZ','CZ:MRS:1'], ['IE','IE:IFI:1'], ['US','US-MT:39754243']]) {
+    const water = tripWater(atlas, { country, waterId });
+    assert.equal(water.key, waterId);
+    assert.equal(localRuleWater(pack, water), undefined);
+  }
+  assert.ok(matchesWater(atlas.byKey.get('CZ:MRS:1'), '461024'));
+  assert.ok(matchesWater(pilot, 'sazava'));
+  assert.equal(tripWater(atlas, { country:'IE', waterId:'401009' }), undefined);
+  assert.equal(tripWater(atlas, { country:null, waterId:null, waterName:pilot.name }), undefined);
+  assert.equal(tripWater(atlas, { country:'CZ', waterId:'removed', waterName:pilot.name }), undefined);
+});

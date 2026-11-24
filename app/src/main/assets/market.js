@@ -1,10 +1,11 @@
+import { waterPicker, bindWaterPicker } from './water-picker.js';
 import { countryOptions, fishDirectory, fishOption, matchingSpecies, preferredCountry } from './fish-catalogue.js';
 import { by, screen, esc, bind, back, bindBack, button, t, displayDay, field, textInput, selectField,
   confirmAction, trackEdits, submitChange, toast } from './ui.js';
 import { authorRating, purchaseRating, bindPurchaseRating } from './tip-ratings.js';
 import { rpc } from './profile-api.js';
 import { newJournalId } from './journal.js';
-import { fold, today } from './domain.js';
+import { today } from './domain.js';
 
 const market = () => t('market.title');
 const credits = n => t('market.credit_amount').replace('{count}', String(n));
@@ -17,32 +18,6 @@ const shelves = () => ({
 });
 const editLabel = () => t('market.edit_offer');
 const waterName = (directory, key) => directory.byKey.get(key)?.name || '';
-function waterPicker(id, label, emptyLabel) {
-  return textInput(id + '-search', t('market.find_a_water_by_name_or_number'), '', 'type="search"') +
-    selectField(id, label, [['', emptyLabel]], '');
-}
-
-/** Keep a selected water visible while narrowing the choices by name, number or organisation. */
-function bindWaterPicker(id, directory, value) {
-  const search = by(id + '-search'), select = by(id);
-  const empty = select.options[0].text;
-  function populate(selected) {
-    const query = fold(search.value);
-    const options = [new Option(empty, '')];
-    for (const w of directory.waters) {
-      if (w.provider === 'FWP') continue;
-      if (w.key === selected || fold(w.name + ' ' + w.number + ' ' + w.area).includes(query)) {
-        options.push(new Option([w.name, w.number, w.country].filter(Boolean).join(' · '), w.key));
-      }
-    }
-    // Retain the identity of offers from an earlier catalogue revision.
-    if (selected && !directory.byKey.has(selected)) options.push(new Option(selected, selected));
-    select.replaceChildren(...options);
-    select.value = selected || '';
-  }
-  populate(value);
-  search.oninput = () => populate(select.value);
-}
 const heading = title => back(t('common.back')) + '<h1>' + esc(title) + '</h1>';
 
 function errorText(status) {
@@ -109,7 +84,7 @@ export async function marketShelf({ view, nav, waterDirectory }) {
     (data.next ? button('market-more', t('market.more_tips'), 'secondary') : '') +
     button('market-create', t('common.offer_a_technique'), 'primary');
   bindBack(nav);
-  if (shelf === 'browse') bindWaterPicker('market-water', waterDirectory, water);
+  if (shelf === 'browse') bindWaterPicker('market-water', view, waterDirectory, water);
   if (by('market-water')) by('market-water').onchange = e => {
     view.route.water = e.target.value || null; view.route.cursor = null; nav.show();
   };
@@ -194,7 +169,7 @@ export async function marketEditor({ view, nav, waterDirectory }) {
       '<textarea required minlength="10" maxlength="2000" rows="5" id="offer-technique">' + esc(old?.technique) + '</textarea>') +
     '</fieldset><button id="market-preview" class="primary">' + t('market.review_offer') + '</button></form>';
   bindBack(nav);
-  bindWaterPicker('offer-water', waterDirectory, old?.water ?? route.water);
+  const selectedWater = bindWaterPicker('offer-water', view, waterDirectory, old?.water ?? route.water);
   const picker = by('offer-species');
   const country = by('offer-country');
   const search = by('species-filter');
@@ -227,7 +202,7 @@ export async function marketEditor({ view, nav, waterDirectory }) {
     review(draft);
   };
   async function review(draft) {
-    const message = [draft.title, draft.species, displayDay(draft.day), access()[draft.access], waterName(waterDirectory, draft.water),
+    const message = [draft.title, draft.species, displayDay(draft.day), access()[draft.access], selectedWater()?.name || draft.water,
       credits(draft.price), draft.limit == null ? t('market.unlimited') : t('market.sales_limit') + draft.limit]
       .filter(Boolean).join(' · ');
     if (!await confirmAction({ title: t('market.publish_this_preview'), message,
