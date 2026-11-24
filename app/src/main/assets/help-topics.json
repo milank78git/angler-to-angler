@@ -33,8 +33,8 @@
         "en": "Choose a country or tap Find country by location. Coordinates are compared with borders on your phone. Near a border or at sea, select the country yourself."
       },
       {
-        "cs": "Vyhledej místní nebo vědecký název. Seznam pro stát vychází z doložených pozorování. Celý katalog zahrnuje i druhy bez takového záznamu. V detailu najdeš vědecký název, dostupné údaje o výskytu a zdroje.",
-        "en": "Search using a local or scientific name. Country lists use recorded observations. The full catalogue also includes species without such records. Open a species for its scientific name, available distribution and sources."
+        "cs": "Vyhledej místní nebo vědecký název. Seznam pro stát vychází ze záznamů výskytu a odborných soupisů. Stejný výběr země najdeš při vytváření tipu. Celý katalog zahrnuje i druhy bez takového záznamu. V detailu najdeš vědecký název, dostupné údaje o výskytu a zdroje.",
+        "en": "Search using a local or scientific name. Country lists use occurrence records and published checklists. The same country selection is available when creating an offer. The full catalogue also includes species without such records. Open a species for its scientific name, available distribution and sources."
       },
       {
         "cs": "Před lovem zkontroluj pravidla pro konkrétní vodu a datum. Prázdná míra nebo chybějící období znamená, že údaj čeká na ověření.",
@@ -319,8 +319,8 @@
         "en": "Register with email and password. Confirm the message on the same phone and complete your profile. Next time use the password or device unlock if you enabled it."
       },
       {
-        "cs": "Pro zapomenuté heslo použij obnovu a nejnovější odkaz z e-mailu. Z poštovní aplikace se můžeš vrátit systémovým tlačítkem Zpět. Správa účtu obsahuje odhlášení a smazání účtu.",
-        "en": "For a forgotten password request a reset and use the latest email link. Use Android Back to return from your mail app. Account settings include sign-out and account erasure."
+        "cs": "Pro zapomenuté heslo použij obnovu a nejnovější odkaz z e-mailu. Z poštovní aplikace se můžeš vrátit systémovým tlačítkem Zpět. Ve správě účtu se můžeš odhlásit a najdeš tam kontakt pro žádost o výmaz.",
+        "en": "For a forgotten password request a reset and use the latest email link. Use Android Back to return from your mail app. Account settings let you sign out and show the contact for erasure requests."
       }
     ]
   }

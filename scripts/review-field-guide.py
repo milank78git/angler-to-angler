@@ -14,6 +14,8 @@ import sys
 import urllib.request
 from pathlib import Path
 
+from country_evidence import apply_checklists
+
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / 'app/src/main/assets'
 
@@ -58,6 +60,14 @@ def validate():
     if len(names)!=len(data['species']): raise ValueError('Duplicate scientific names')
     for fish in data['species']:
         if set(fish['countries'])-countries: raise ValueError(fish['latin'])
+    checklists = json.loads((ASSETS / 'europe-checklists.json').read_text())
+    if set(checklists) - countries:
+        raise ValueError('Unknown checklist jurisdiction')
+    projected = [dict(fish, countries=list(fish['countries'])) for fish in data['species']]
+    apply_checklists(projected, checklists)
+    for raw, checked in zip(data['species'], projected):
+        if set(raw['countries']) != set(checked['countries']):
+            raise ValueError(f"Country evidence needs reconciliation for {raw['latin']}")
     for rule in rules['entries']:
         if set(rule['species'])-names or rule['country'] not in countries or rule['scope'] not in rules['scopes']:
             raise ValueError(rule)

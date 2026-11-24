@@ -1,5 +1,4 @@
-import { fishDirectory, fishOption } from './fish-catalogue.js';
-import { fold } from './domain.js';
+import { countryOptions, fishDirectory, fishOption, matchingSpecies, preferredCountry } from './fish-catalogue.js';
 import { by, screen, esc, bind, back, bindBack, button, t, displayDay, field, textInput, selectField,
   confirmAction, trackEdits, submitChange, toast } from './ui.js';
 import { authorRating, purchaseRating, bindPurchaseRating } from './tip-ratings.js';
@@ -156,6 +155,7 @@ export async function marketEditor({ view, nav, pack }) {
   screen.innerHTML = heading(old ? editLabel() : t('Nabídnout techniku', 'Offer a technique')) +
     '<form id="market-form" class="entry-form"><fieldset class="surface"><legend>' + t('Veřejný náhled', 'Public preview') + '</legend>' +
     textInput('offer-title', t('Název techniky', 'Technique title'), old?.title, 'required maxlength="80"') +
+    selectField('offer-country', t('Země v katalogu ryb', 'Fish catalogue country'), countryOptions(directory), preferredCountry(directory)) +
     textInput('species-filter',t('Hledat v katalogu ryb','Search the fish catalogue'),'','type="search"') +
     field('offer-species',t('Cílová ryba','Target fish'),'<select id="offer-species" required></select>') +
     textInput('offer-day', t('Datum zkušenosti', 'Date fished'), old?.day ?? route.day ?? currentDay,
@@ -172,17 +172,26 @@ export async function marketEditor({ view, nav, pack }) {
     '</fieldset><button id="market-preview" class="primary">' + t('Zkontrolovat nabídku', 'Review offer') + '</button></form>';
   bindBack(nav);
   const picker = by('offer-species');
-  function choices() {
-    const selected = picker.value || old?.species || '';
-    const query = fold(by('species-filter').value.trim());
-    const items = directory.species.filter(f => f.search.includes(query)).sort((a,b) => a.label.localeCompare(b.label));
+  const country = by('offer-country');
+  const search = by('species-filter');
+  function choices(selected) {
+    const items = matchingSpecies(directory, country.value, search.value);
     picker.replaceChildren(new Option(t('Vyber druh z katalogu','Choose a catalogue species'),''));
-    if (old?.species && !directory.names.has(old.species)) picker.add(new Option(old.species,old.species));
-    items.forEach(f => picker.add(new Option(fishOption(f),f.latin)));
-    if (Array.from(picker.options).some(o => o.value === selected)) picker.value = selected;
+    // An author can keep a historical species while editing other offer details.
+    if (selected && selected === old?.species && !search.value.trim() && !items.some(fish => fish.latin === selected)) {
+      const fish = directory.names.get(selected);
+      picker.add(new Option(t('Uložený druh', 'Saved species') + ' · ' + (fish ? fishOption(fish) : selected), selected));
+    }
+    for (const fish of items) picker.add(new Option(fishOption(fish), fish.latin));
+    picker.value = selected;
+    if (picker.selectedIndex < 0) picker.selectedIndex = 0;
   }
-  choices();
-  by('species-filter').oninput = choices;
+  choices(old?.species || '');
+  search.oninput = () => choices(picker.value);
+  country.onchange = () => {
+    localStorage.setItem('fish.country', country.value);
+    choices(picker.value);
+  };
   const form = by('market-form');
   trackEdits(form, view);
   form.onsubmit = event => {

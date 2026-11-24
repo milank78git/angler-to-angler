@@ -28,6 +28,21 @@ test('catalogue identifies inland coordinates and distinguishes sea from missing
   assert.ok(fish.some(f => !f.countries.length));
 });
 
+test('country and name search preserve marine and migratory fish in the right lists', async () => {
+  global.document = { querySelector: () => null };
+  const { matchingSpecies } = await import('../app/src/main/assets/fish-catalogue.js');
+  const species = json('europe-fish').species.map(fish => ({
+    ...fish, label: fish.latin, search: fish.latin.toLowerCase().replaceAll(' ', ''),
+  }));
+  const matches = (code, query) => matchingSpecies({ species }, code, query).map(fish => fish.latin);
+  const marine = 'Alepocephalus agassizii';
+  assert.deepEqual(matches('CZ', marine), []);
+  assert.deepEqual(matches('IE', marine), [marine]);
+  assert.deepEqual(matches('', marine), [marine]);
+  assert.deepEqual(matches('CZ', 'Anguilla anguilla'), ['Anguilla anguilla']);
+  assert.deepEqual(matches('CZ', 'Hucho hucho'), ['Hucho hucho']);
+});
+
 test('all packaged market species can round-trip through the versioned database catalogue', () => {
   const migration=fs.readFileSync(path.join(__dirname,'../supabase/migrations/20261124004714_european_market_directory.sql'),'utf8');
   const stored=new Set(migration.split('$fish$')[1].split('\n'));

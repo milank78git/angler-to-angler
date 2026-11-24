@@ -1,62 +1,91 @@
 import { translate as t } from './i18n.js';
+import { fold } from './domain.js';
 
 let chapters;
 let previousFocus;
+let request = 0;
 const word = pair => t(pair.cs, pair.en);
 const get = id => document.getElementById(id);
 const node = (tag, value) => Object.assign(document.createElement(tag), { textContent: value });
 
-/** Render a topic in a modal so reading help never discards a draft or changes navigation history. */
-export async function openGuide(page = '', field = '') {
-  if (!chapters) {
-    const response = await fetch('help-topics.json');
-    if (!response.ok) throw Error('Guide unavailable');
-    chapters = await response.json();
-  }
+function action(label, click) {
+  const button = node('button', label);
+  button.type = 'button';
+  button.className = 'secondary';
+  button.onclick = click;
+  return button;
+}
+
+/** Keep field help, page chapters and the searchable index in the current editing session. */
+export async function openGuide({ page, topic, field } = {}) {
+  const current = ++request;
   const dialog = get('guide-dialog');
-  if (!dialog.open) {
+  const standalone = !!document.body.dataset.nativeGuide;
+  if (!standalone && !dialog.open) {
     previousFocus = document.activeElement;
     dialog.showModal();
+    dialog.onclose = () => {
+      if (dialog.open) return;
+      ++request;
+      if (previousFocus?.isConnected) previousFocus.focus({ preventScroll: true });
+    };
   }
-  const host = get('guide-body');
-  const chapter = chapters[page] || Object.values(chapters).find(ch => ch.pages.includes(page));
   const title = get('guide-title');
-  title.textContent = chapter ? word(chapter.title) : t('Nápověda', 'Help');
-  host.replaceChildren();
+  const body = get('guide-body');
   const index = get('guide-index');
-  index.hidden = !chapter;
+  if (!standalone) {
+    get('guide-close').textContent = t('Zavřít', 'Close');
+    get('guide-close').onclick = () => dialog.close();
+  }
   index.textContent = t('Všechny funkce', 'All features');
   index.onclick = () => openGuide();
-  get('guide-close').textContent = t('Zavřít', 'Close');
-  get('guide-close').onclick = () => dialog.close();
-  dialog.onclose = () => previousFocus?.isConnected && previousFocus.focus({ preventScroll: true });
+  index.hidden = !(page || topic || field);
+  title.textContent = field?.name || t('Nápověda', 'Help');
+  body.replaceChildren();
+  dialog.scrollTop = 0;
+  title.focus({ preventScroll: true });
+  if (field) {
+    body.append(node('p', word(field.hint)),
+      action(t('Otevřít související kapitolu', 'Read related chapter'), () => openGuide({ topic: field.hint.topic })));
+    return;
+  }
+
+  try {
+    if (!chapters) {
+      const response = await fetch('help-topics.json');
+      if (!response.ok) throw Error('Guide unavailable');
+      chapters = await response.json();
+    }
+  } catch {
+    if (request === current) body.append(action(t('Zkusit znovu', 'Retry'), () => openGuide({ page, topic })));
+    return;
+  }
+  if (request !== current || (!standalone && !dialog.open)) return;
+  const chapter = topic ? chapters[topic] : Object.values(chapters).find(ch => ch.pages.includes(page));
+  index.hidden = !chapter;
   if (chapter) {
-    if (field) host.append(node('p', field));
+    title.textContent = word(chapter.title);
     const steps = document.createElement('ol');
-    chapter.steps.forEach(p => steps.append(node('li', word(p))));
-    host.append(steps);
+    for (const step of chapter.steps) steps.append(node('li', word(step)));
+    body.append(steps);
   } else {
     const input = document.createElement('input');
     input.type = 'search';
     input.placeholder = input.ariaLabel = t('Hledat v nápovědě', 'Search the guide');
     const list = document.createElement('div');
     function results() {
+      const query = fold(input.value.trim());
       list.replaceChildren();
-      for (const [id,ch] of Object.entries(chapters)) {
-        if (![word(ch.title), ...ch.steps.map(word)].join(' ').toLocaleLowerCase().includes(input.value.trim().toLocaleLowerCase())) continue;
-        const action = node('button', word(ch.title));
-        action.type = 'button'; action.className = 'secondary'; action.onclick = () => openGuide(id);
-        list.append(action);
+      for (const [id, ch] of Object.entries(chapters)) {
+        if (fold([word(ch.title), ...ch.steps.map(word)].join(' ')).includes(query))
+          list.append(action(word(ch.title), () => openGuide({ topic: id })));
       }
       if (!list.childElementCount) list.append(node('p', t('Žádný výsledek. Zkus kratší výraz.', 'No results. Try a shorter search.')));
     }
     input.oninput = results;
-    host.append(input, list);
+    body.append(input, list);
     results();
   }
-  if (document.body.dataset.nativeGuide) get('guide-close').hidden = true;
-  dialog.scrollTop = 0;
-  title.focus();
 }
 
 export function closeGuide() {
@@ -66,18 +95,20 @@ export function closeGuide() {
   return true;
 }
 
-/** Hints have real buttons usable by touch, keyboard and screen readers. */
+/** The hint button is outside the label so opening help never changes a form value. */
 export function attachHints(root, page, hints) {
-  for (const label of root.querySelectorAll('label[for], fieldset.rating-criterion > legend')) {
-    const id = label.htmlFor || label.parentElement.querySelector('input')?.name;
-    const hint = hints[id];
+  for (const label of root.querySelectorAll('label, fieldset.rating-criterion > legend')) {
+    const id = label.tagName === 'LEGEND' ? label.parentElement.querySelector('input')?.name : label.control?.id;
+    const hint = hints[page + '.' + id] || hints[id];
     if (!hint || label.nextElementSibling?.classList.contains('field-hint')) continue;
-    const control = node('button', '?');
-    control.type = 'button'; control.className = 'field-hint';
     const name = label.textContent.trim();
+    const control = action('?', () => openGuide({ field: { name, hint } }));
+    control.className = 'field-hint';
     control.setAttribute('aria-label', t('Vysvětlit', 'Explain') + ' · ' + name);
+    control.setAttribute('aria-haspopup', 'dialog');
     control.title = word(hint);
-    control.onclick = () => openGuide(hint.topic || page, name + ' — ' + word(hint));
+    if (label.htmlFor && !label.classList.contains('sr') && label.control?.type !== 'file')
+      label.classList.add('label-with-hint');
     label.after(control);
   }
 }

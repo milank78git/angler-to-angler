@@ -11,9 +11,11 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.RippleDrawable;
+import android.net.Uri;
 import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
+import android.webkit.WebView;
 import android.widget.*;
 import java.io.IOException;
 import java.io.InputStream;
@@ -169,10 +171,7 @@ final class AccountLayout {
     TextView heading = text(title, 28, ink, Typeface.create("sans-serif-medium", 0));
     if (android.os.Build.VERSION.SDK_INT >= 28) heading.setAccessibilityHeading(true);
     form.addView(heading);
-    Button help = new Button(activity);
-    help.setText(AppLanguage.text(activity, "Nápověda", "Help"));
-    help.setOnClickListener(v -> showGuide());
-    form.addView(help);
+    button(form, AppLanguage.text(activity, "Nápověda", "Help"), Action.LINK, this::showGuide);
     status = text("", 15, muted, Typeface.DEFAULT);
     status.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
     add(form, status, 8);
@@ -181,18 +180,26 @@ final class AccountLayout {
 
   /** Open the same bundled guide during sign-in, without exposing the authenticated bridge. */
   private void showGuide() {
-    android.webkit.WebView web = new android.webkit.WebView(activity);
+    WebView web = new WebView(activity);
+    web.setBackgroundColor(surface);
     web.getSettings().setJavaScriptEnabled(true);
-    web.getSettings().setDomStorageEnabled(true);
     web.getSettings().setAllowFileAccess(false);
     web.getSettings().setAllowContentAccess(false);
     web.setWebViewClient(new LocalAssetClient(activity.getAssets(), ignored -> {}));
-    String topic = activity instanceof GroupsActivity ? "groups" : "accounts";
-    web.loadUrl("https://journal.invalid/guide.html?lang=" + activity.getResources().getConfiguration().getLocales().get(0).toLanguageTag() + "#" + topic);
-    android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(activity)
-        .setView(web).setPositiveButton(android.R.string.ok, null).create();
-    dialog.setOnDismissListener(ignored -> web.destroy());
-    dialog.show();
+    Uri guide = Uri.parse(LocalAssetClient.ENTRY).buildUpon()
+        .path("/guide.html")
+        .appendQueryParameter("lang", activity.getResources().getConfiguration().getLocales().get(0).toLanguageTag())
+        .appendQueryParameter("theme", dark ? "dark" : "light")
+        .fragment(activity instanceof GroupsActivity ? "groups" : "accounts")
+        .build();
+    Prompt reader = new Prompt(AppLanguage.text(activity, "Nápověda", "Help"), web);
+    reader.action(AppLanguage.text(activity, "Zavřít", "Close"), Action.SECONDARY, null);
+    reader.setOnDismissListener(ignored -> {
+      ((LinearLayout) web.getParent()).removeView(web);
+      web.destroy();
+    });
+    reader.show();
+    web.loadUrl(guide.toString());
   }
 
   void message(String message) {
@@ -203,12 +210,13 @@ final class AccountLayout {
   /** Provide the same explanation on a tap, a long press and through accessibility focus. */
   void explain(String fieldName, String explanation, View field) {
     field.setTooltipText(explanation);
-    Button info = new Button(activity);
-    info.setText(AppLanguage.text(activity, "Vysvětlit", "Explain") + " · " + fieldName);
-    info.setAllCaps(false);
-    info.setOnClickListener(v -> new android.app.AlertDialog.Builder(activity).setTitle(fieldName)
-        .setMessage(explanation).setPositiveButton(android.R.string.ok, null).show());
-    ((LinearLayout) field.getParent()).addView(info);
+    String label = AppLanguage.text(activity, "Vysvětlit", "Explain") + " · " + fieldName;
+    button((LinearLayout) field.getParent(), label, Action.LINK, () -> {
+      Prompt hint = prompt(fieldName);
+      hint.description(explanation);
+      hint.action(AppLanguage.text(activity, "Zavřít", "Close"), Action.SECONDARY, null);
+      hint.show();
+    });
   }
 
   TextView label(String s) {
@@ -292,6 +300,10 @@ final class AccountLayout {
     private final LinearLayout actions;
 
     Prompt(String title) {
+      this(title, null);
+    }
+
+    Prompt(String title, WebView reader) {
       super(activity);
       requestWindowFeature(Window.FEATURE_NO_TITLE);
       setTitle(title);
@@ -300,11 +312,18 @@ final class AccountLayout {
       panel.setPadding(dp(20), dp(20), dp(20), dp(16));
       panel.setBackground(shape(surface, colour("#CFDBCE", "#3B5148"), 18));
       panel.setFocusableInTouchMode(true);
-      ScrollView scroll = new ScrollView(activity);
-      panel.addView(scroll, new LinearLayout.LayoutParams(-1, -2, 1));
       body = new LinearLayout(activity);
       body.setOrientation(LinearLayout.VERTICAL);
-      scroll.addView(body);
+      if (reader == null) {
+        ScrollView scroll = new ScrollView(activity);
+        panel.addView(scroll, new LinearLayout.LayoutParams(-1, -2, 1));
+        scroll.addView(body);
+      } else {
+        panel.addView(body);
+        // The guide scrolls in the WebView. The native Close action stays reachable.
+        int preferredHeight = dp(activity.getResources().getConfiguration().screenHeightDp * 0.55f);
+        panel.addView(reader, new LinearLayout.LayoutParams(-1, preferredHeight, 1));
+      }
       LinearLayout header = new LinearLayout(activity);
       header.setGravity(Gravity.CENTER_VERTICAL);
       body.addView(header);

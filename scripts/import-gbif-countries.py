@@ -16,6 +16,8 @@ import urllib.request
 import zipfile
 from pathlib import Path
 
+from country_evidence import apply_checklists
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--cache',type=Path,required=True)
 parser.add_argument('--eea',type=Path,required=True,help='EEA European Red List archive')
@@ -76,5 +78,6 @@ for fish in catalogue['species']:
     if fish.get('gbif'):
         fish['gbif'].sort()
         fish['countries']=sorted(set(fish['countries']+fish['gbif']))
+apply_checklists(catalogue["species"], json.loads((assets/"europe-checklists.json").read_text()))
 path.write_text(json.dumps(catalogue,ensure_ascii=False,separators=(',',':'))+'\n')
 print('Country evidence:',sum(bool(f['countries']) for f in catalogue['species']),'species')

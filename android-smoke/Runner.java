@@ -410,6 +410,16 @@ public final class Runner extends Instrumentation {
       capture("atlas");
       // Exercise the packaged guide and country rules through the same entry points as an angler.
       clickReady("#home-fish");
+      js("(() => { const country=document.querySelector('#fish-country'); country.value='CZ'; country.dispatchEvent(new Event('change')); })()");
+      js("(() => { const input=document.querySelector('#fish-query'); input.value='Alepocephalus agassizii'; input.dispatchEvent(new Event('input')); })()");
+      waitFor("document.querySelector('#fish-results').childElementCount===0");
+      clickReady("label[for=fish-query] + .field-hint");
+      waitFor("document.querySelector('#guide-title').textContent===document.querySelector('label[for=fish-query]').textContent"
+          + " && !!document.querySelector('#guide-body > p') && !document.querySelector('#guide-body ol')");
+      clickReady("#guide-body button");
+      waitFor("!!document.querySelector('#guide-body ol')");
+      clickReady("#guide-close");
+      waitFor("document.querySelector('#fish-query').value==='Alepocephalus agassizii'");
       clickReady("#fish-query");
       js("(() => { const input=document.querySelector('#fish-query'); input.value='Esox lucius'; input.dispatchEvent(new Event('input')); })()");
       clickReady("#fish-results button");

@@ -1,18 +1,18 @@
 {
   "offer-species": {
-    "topic": "catalog",
-    "cs": "Vyber druh podle místního nebo vědeckého názvu. Stejnou rybu různí autoři najdou pod jedním druhem.",
-    "en": "Select a species by its local or scientific name. Different authors are then listed under the same species."
+    "topic": "sell",
+    "cs": "Vyber rybu, které se postup týká. V nabídce se uloží její vědecký název.",
+    "en": "Choose the fish your technique targets. The offer stores its scientific name."
   },
   "fish": {
-    "topic": "catalog",
-    "cs": "Vyber druh podle místního nebo vědeckého názvu. Stejnou rybu různí autoři najdou pod jedním druhem.",
-    "en": "Select a species by its local or scientific name. Different authors are then listed under the same species."
+    "topic": "catch",
+    "cs": "Vyber ulovenou rybu. Pokud v seznamu chybí, zvol Vlastní druh a napiš její název.",
+    "en": "Choose the fish you caught. If it is missing, choose Other species and enter its name."
   },
   "species": {
-    "topic": "catalog",
-    "cs": "Vyber druh podle místního nebo vědeckého názvu. Stejnou rybu různí autoři najdou pod jedním druhem.",
-    "en": "Select a species by its local or scientific name. Different authors are then listed under the same species."
+    "topic": "waters",
+    "cs": "Vyber druh, pro který chceš zjistit hájení ve zvoleném úseku a dni.",
+    "en": "Choose the species whose closed season you want to check for the selected section and day."
   },
   "offer-water": {
     "topic": "sell",
@@ -45,14 +45,14 @@
     "en": "This is how many test credits the buyer spends to unlock the tip. Credits have no cash value."
   },
   "offer-day": {
-    "topic": "journal",
-    "cs": "Vyber den skutečné výpravy nebo zkušenosti, i když ji zapisuješ později.",
-    "en": "Choose the day you actually fished, even when recording it later."
+    "topic": "sell",
+    "cs": "Zadej den, kdy jsi techniku použil. Kupující ho uvidí už v náhledu nabídky.",
+    "en": "Enter the day you used the technique. Buyers can see this date in the offer preview."
   },
   "discussion-day": {
-    "topic": "journal",
-    "cs": "Vyber den skutečné výpravy nebo zkušenosti, i když ji zapisuješ později.",
-    "en": "Choose the day you actually fished, even when recording it later."
+    "topic": "forum",
+    "cs": "K odpovědi můžeš přidat datum výpravy, které ostatním upřesní, kdy zkušenost vznikla.",
+    "en": "You can add the date of your trip to the reply so readers know when your experience took place."
   },
   "day": {
     "topic": "journal",
@@ -81,33 +81,33 @@
   },
   "water-name": {
     "topic": "journal",
-    "cs": "Pro propojení s atlasem vyber vedený revír. Vlastní název patří do tvého místního deníku.",
-    "en": "Select a listed water to link the trip to the atlas. A custom name belongs to your local journal."
+    "cs": "Napiš název vody pro tuto soukromou výpravu. Vlastní název se nepřidá do atlasu.",
+    "en": "Name the water for this private trip. A custom name stays outside the water atlas."
   },
   "kind": {
     "topic": "catch",
-    "cs": "Bod může označovat místo rybáře nebo záběru. Šířku a délku zadávej v desetinných stupních.",
-    "en": "The point can mark the angler or the bite. Enter latitude and longitude in decimal degrees."
+    "cs": "Urči, zda bod označuje místo, odkud jsi lovil, nebo místo záběru.",
+    "en": "Choose whether this point marks where you stood or where the fish took the bait."
   },
   "lat": {
     "topic": "catch",
-    "cs": "Bod může označovat místo rybáře nebo záběru. Šířku a délku zadávej v desetinných stupních.",
-    "en": "The point can mark the angler or the bite. Enter latitude and longitude in decimal degrees."
+    "cs": "Zadej zeměpisnou šířku v desetinných stupních od −90 do 90. Na jih od rovníku použij znaménko minus.",
+    "en": "Enter latitude in decimal degrees from −90 to 90. Use a minus sign south of the equator."
   },
   "lon": {
     "topic": "catch",
-    "cs": "Bod může označovat místo rybáře nebo záběru. Šířku a délku zadávej v desetinných stupních.",
-    "en": "The point can mark the angler or the bite. Enter latitude and longitude in decimal degrees."
+    "cs": "Zadej zeměpisnou délku v desetinných stupních od −180 do 180. Na západ od Greenwiche použij znaménko minus.",
+    "en": "Enter longitude in decimal degrees from −180 to 180. Use a minus sign west of Greenwich."
   },
   "length": {
-    "topic": "evidence",
-    "cs": "Délku zadej v centimetrech. Při kontrole fotografie rozlišujeme měření a odhad.",
-    "en": "Enter centimetres. Photo review distinguishes measurements from estimates."
+    "topic": "catch",
+    "cs": "Zadej naměřenou délku ryby v centimetrech, například 42,5. Pokud jsi rybu neměřil, nech pole prázdné.",
+    "en": "Enter the measured length in centimetres, for example 42.5. Leave it blank if you did not measure the fish."
   },
   "review-length": {
     "topic": "evidence",
-    "cs": "Délku zadej v centimetrech. Při kontrole fotografie rozlišujeme měření a odhad.",
-    "en": "Enter centimetres. Photo review distinguishes measurements from estimates."
+    "cs": "Zapiš délku v centimetrech podle zvoleného výsledku kontroly. Při nedostatečném důkazu se délka nevyplňuje.",
+    "en": "Enter the length in centimetres for the review outcome you selected. No length is recorded for insufficient evidence."
   },
   "bait": {
     "topic": "catch",
@@ -131,18 +131,18 @@
   },
   "activity-target": {
     "topic": "activity",
-    "cs": "Filtr vybere sdílené výpravy pro příslušný druh, metodu nebo měsíc. Nulové výpravy jsou součástí vzorku.",
-    "en": "Filters select contributed trips for the species, method or month. The sample includes blank trips."
+    "cs": "Omez přehled výprav na ty, při kterých rybáři cílili na zvolenou rybu.",
+    "en": "Show trips on which anglers targeted the selected fish."
   },
   "activity-method": {
     "topic": "activity",
-    "cs": "Filtr vybere sdílené výpravy pro příslušný druh, metodu nebo měsíc. Nulové výpravy jsou součástí vzorku.",
-    "en": "Filters select contributed trips for the species, method or month. The sample includes blank trips."
+    "cs": "Výběrem metody zobrazíš jen výpravy lovené tímto způsobem.",
+    "en": "Choose a method to show only trips fished that way."
   },
   "activity-month": {
     "topic": "activity",
-    "cs": "Filtr vybere sdílené výpravy pro příslušný druh, metodu nebo měsíc. Nulové výpravy jsou součástí vzorku.",
-    "en": "Filters select contributed trips for the species, method or month. The sample includes blank trips."
+    "cs": "Vyber měsíc, za který chceš zobrazit sdílené výpravy na tomto revíru.",
+    "en": "Choose the calendar month for the contributed trips on this water."
   },
   "discussion-text": {
     "topic": "forum",
@@ -156,33 +156,28 @@
   },
   "hometown": {
     "topic": "profile",
-    "cs": "Vyber, co chceš zobrazit na profilu. Před uložením zkontroluj volbu zveřejnění.",
-    "en": "Choose what to show on your profile. Check its visibility before saving."
+    "cs": "Můžeš uvést obec nebo oblast, kterou chceš ukázat na profilu. Přesnou adresu zadávat nemusíš.",
+    "en": "Enter the town or area you want on your profile. A street address is unnecessary."
   },
   "biography": {
     "topic": "profile",
-    "cs": "Vyber, co chceš zobrazit na profilu. Před uložením zkontroluj volbu zveřejnění.",
-    "en": "Choose what to show on your profile. Check its visibility before saving."
+    "cs": "Tady můžeš podrobněji popsat své rybářské zkušenosti nebo oblíbené způsoby lovu.",
+    "en": "Describe your fishing experience or favourite techniques in more detail here."
   },
   "tagline": {
     "topic": "profile",
-    "cs": "Vyber, co chceš zobrazit na profilu. Před uložením zkontroluj volbu zveřejnění.",
-    "en": "Choose what to show on your profile. Check its visibility before saving."
+    "cs": "Napiš krátkou větu, která tě na rybářském profilu představí.",
+    "en": "Write a short line to introduce yourself on your angler profile."
   },
   "profile-photo": {
     "topic": "profile",
-    "cs": "Vyber, co chceš zobrazit na profilu. Před uložením zkontroluj volbu zveřejnění.",
-    "en": "Choose what to show on your profile. Check its visibility before saving."
+    "cs": "Vyber z telefonu obrázek pro svůj profil. Před uložením zkontroluj jeho náhled.",
+    "en": "Choose a profile image from this device and check its preview before saving."
   },
   "section": {
     "topic": "waters",
-    "cs": "Pravidlo se vztahuje ke zvolenému úseku a dni lovu. U hranice úseku zkontroluj mapu a správce.",
-    "en": "The rule applies to the chosen section and fishing date. At a boundary check the map and the water manager."
-  },
-  "date": {
-    "topic": "waters",
-    "cs": "Pravidlo se vztahuje ke zvolenému úseku a dni lovu. U hranice úseku zkontroluj mapu a správce.",
-    "en": "The rule applies to the chosen section and fishing date. At a boundary check the map and the water manager."
+    "cs": "Vyber část revíru, na které budeš lovit. Hlavní tok a vedlejší úsek mohou mít odlišný režim.",
+    "en": "Choose the part of the water where you plan to fish. The main channel and side sections can have different rules."
   },
   "species-filter": {
     "topic": "sell",
@@ -238,5 +233,85 @@
     "cs": "Pořiď snímek při zápisu úlovku. Dostupnost ověření závisí na poloze a údajích snímku.",
     "en": "Take a picture while logging the catch. Verification depends on its location and capture data.",
     "topic": "catch"
+  },
+  "offer-country": {
+    "topic": "sell",
+    "cs": "Omezí výběr ryb v nabídce i v katalogu. Revír zveřejněný u tipu se vybírá zvlášť.",
+    "en": "Limits species choices here and in the catalogue. Choose the water shown on the offer separately."
+  },
+  "newCatch.technique": {
+    "topic": "catch",
+    "cs": "Popiš způsob lovu, například přívlač nebo plavanou. Údaj se uloží k úlovku v deníku.",
+    "en": "Describe how you fished, such as spinning or float fishing. This is saved with the catch in your journal."
+  },
+  "activityContribution.activity-target": {
+    "topic": "activity",
+    "cs": "Vyber rybu, na kterou jsi při výpravě cílil. Vyplnit ji můžeš i při výpravě bez úlovku.",
+    "en": "Choose the fish you targeted on this trip. You can record a target even if you caught nothing."
+  },
+  "activityContribution.activity-method": {
+    "topic": "activity",
+    "cs": "Vyber způsob, jakým jsi při této výpravě lovil. Podle něj se výprava zařadí do statistiky.",
+    "en": "Choose the method you used on this trip. It determines which method statistics include your trip."
+  },
+  "shared": {
+    "topic": "profile",
+    "cs": "Po uložení této volby uvidí zveřejněný profil ostatní přihlášení rybáři.",
+    "en": "Save with this option enabled to show your profile to other signed-in anglers."
+  },
+  "search": {
+    "topic": "start",
+    "cs": "Hledej revír podle názvu, evidenčního čísla nebo obce. Ve výběru Oblíbené prohledáš jen své uložené revíry.",
+    "en": "Search by water name, registry number or town. In Favorites the search covers only your saved waters."
+  },
+  "public-day": {
+    "topic": "share",
+    "cs": "Na veřejné kartě se vedle měsíce ukáže také přesný den úlovku.",
+    "en": "Show the exact catch date on the public card in addition to the month."
+  },
+  "public-water": {
+    "topic": "share",
+    "cs": "Do veřejné karty přidáš revír. Uvidí ho každý, komu se dostane odkaz.",
+    "en": "Include the registered water on the public card for anyone with its link."
+  },
+  "public-length": {
+    "topic": "share",
+    "cs": "Do veřejné karty přidáš délku posouzenou při kontrole fotografie.",
+    "en": "Include the length from the photo review on the public card."
+  },
+  "public-photo": {
+    "topic": "share",
+    "cs": "Veřejná karta bude obsahovat fotografii úlovku. Před zveřejněním zkontroluj i její pozadí.",
+    "en": "Include the catch photo on the public card. Check the background before publishing."
+  },
+  "share-photo": {
+    "topic": "share",
+    "cs": "Přiloží fotografii úlovku ke sdílené zprávě. Zkontroluj, co je vidět v pozadí.",
+    "en": "Attach the catch photo to the shared message. Check what is visible in the background."
+  },
+  "share-length": {
+    "topic": "share",
+    "cs": "Přidá délku z deníku do zprávy pro příjemce.",
+    "en": "Include the catch length from your journal in the message."
+  },
+  "share-day": {
+    "topic": "share",
+    "cs": "Příjemce ve zprávě uvidí přesné datum výpravy.",
+    "en": "Show the recipient the exact trip date."
+  },
+  "share-water": {
+    "topic": "share",
+    "cs": "Přidá do zprávy název vody z výpravy.",
+    "en": "Include the water name from the trip in the message."
+  },
+  "share-bait": {
+    "topic": "share",
+    "cs": "Přidá do zprávy nástrahu, kterou jsi zapsal k úlovku.",
+    "en": "Include the bait you recorded for the catch in the message."
+  },
+  "share-technique": {
+    "topic": "share",
+    "cs": "Přidá popis techniky uložený u tohoto úlovku.",
+    "en": "Include the technique you recorded for this catch."
   }
 }

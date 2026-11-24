@@ -115,7 +115,7 @@ function setTheme(mode) {
 async function start() {
   document.documentElement.lang = contentLanguage;
   by('guide-open').ariaLabel = by('guide-open').title = t('Nápověda', 'Help');
-  bind('guide-open', () => openGuide(nav.current?.route.page));
+  bind('guide-open', () => openGuide({ page: nav.current?.route.page }));
   by('profile').textContent = t('Profil', 'Profile');
   bind('profile', () => {
     if (nav.current?.route.page !== 'anglerProfile' || nav.current.route.id) nav.open('anglerProfile');

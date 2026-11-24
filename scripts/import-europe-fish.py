@@ -15,6 +15,8 @@ import urllib.request
 import zipfile
 from pathlib import Path
 
+from country_evidence import apply_checklists
+
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "app/src/main/assets"
 RIV = "https://zenodo.org/records/14509748/files/RivFISH_database_v.1.1.zip?download=1"
@@ -170,10 +172,7 @@ def main():
     for name,labels in aliases.items():
         if name not in records: raise ValueError("Unmatched species "+name)
         row(name).update(labels)
-    for code, checklist in json.loads((ASSETS/"europe-checklists.json").read_text()).items():
-        for name in checklist["species"]:
-            fish = records[name]
-            fish["countries"] = sorted(set(fish["countries"] + [code]))
+    apply_checklists(records.values(), json.loads((ASSETS/"europe-checklists.json").read_text()))
     write("europe-fish.json",{"countries":COUNTRIES,"species":sorted(records.values(),key=lambda x:x["latin"])})
 
 

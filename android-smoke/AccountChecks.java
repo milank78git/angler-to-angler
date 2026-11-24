@@ -421,6 +421,12 @@ final class AccountChecks {
                     tr("Pokračovat přes Google", "Continue with Google")));
     if (disabledGoogle[0] != null) throw new AssertionError("Disabled provider offered");
     app.captureAccount(gate, "login");
+    click(tr("Vysvětlit · E-mail", "Explain · Email"));
+    find(tr("Použij e-mail svého účtu.", "Enter the email address for your account."));
+    click(tr("Zavřít", "Close"));
+    click(tr("Nápověda", "Help"));
+    find(tr("Zavřít", "Close"));
+    click(tr("Zavřít", "Close"));
     click(tr("Podmínky a soukromí", "Terms and privacy"));
     click(tr("Ochrana osobních údajů", "Privacy notice"));
     TextView close = find(tr("Zavřít", "Close"));

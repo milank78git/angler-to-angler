@@ -50,15 +50,33 @@ const words = pair => t(pair.cs,pair.en);
 const fullList = () => t('Celá Evropa', 'All of Europe');
 const catalogue = () => t('Katalog ryb', 'Fish catalogue');
 
+/** Both pickers use one persisted country and the same searchable species list. */
+export function preferredCountry(data) {
+  const code = localStorage.getItem('fish.country');
+  return data.countries.includes(code) ? code : '';
+}
+
+export function countryOptions(data) {
+  const countries = data.countries.map(code => [code, countryName(code)]);
+  countries.sort((a, b) => a[1].localeCompare(b[1], languageTag));
+  return [['', fullList()], ...countries];
+}
+
+export function matchingSpecies(data, country, query) {
+  const term = fold(query.trim());
+  return data.species.filter(fish =>
+    (!country || fish.countries.includes(country)) && fish.search.includes(term))
+    .sort((a, b) => a.label.localeCompare(b.label, languageTag));
+}
+
 /** GPS only suggests a country after a tap. No coordinates leave the phone or enter the catalogue. */
 export async function fishCatalogue({view, nav}) {
   const data = await fishDirectory();
   if (!view.active()) return;
   const route = view.route;
-  route.country ??= localStorage.getItem('fish.country') || '';
-  const options = data.countries.map(code => [code,countryName(code)]).sort((a,b) => a[1].localeCompare(b[1],languageTag));
+  route.country = preferredCountry(data);
   screen.innerHTML = back(t('Zpět','Back')) + '<h1>' + catalogue() + '</h1>' +
-    selectField('fish-country',t('Země lovu','Fishing country'),[['',fullList()],...options],route.country) +
+    selectField('fish-country',t('Země lovu','Fishing country'),countryOptions(data),route.country) +
     button('fish-gps',t('Najít zemi podle polohy','Find country using location'),'secondary') +
     field('fish-query',t('Hledat druh','Find a species'),'<input type="search" id="fish-query">') +
     '<p id="fish-count" role="status"></p><div class="water-list" id="fish-results"></div>' +
@@ -67,9 +85,7 @@ export async function fishCatalogue({view, nav}) {
   const query = by('fish-query');
   query.value = route.query || '';
   function render() {
-    const q = fold(query.value.trim());
-    const matched = data.species.filter(fish => (!route.country || fish.countries.includes(route.country)) && fish.search.includes(q))
-      .sort((a,b) => a.label.localeCompare(b.label,languageTag));
+    const matched = matchingSpecies(data, route.country, query.value);
     by('fish-count').textContent = t('Počet druhů', 'Species count') + ' · ' + matched.length + (route.country ?
       ' · ' + t('Doložený výskyt. Celý seznam zobrazíš volbou Celá Evropa.', 'Documented occurrences. Choose All of Europe for the full list.') : '');
     const shown = matched.slice(0,route.limit || 50);
@@ -87,20 +103,33 @@ export async function fishCatalogue({view, nav}) {
     localStorage.setItem('fish.country',code);
     render();
   }
-  by('fish-country').onchange = e => selectCountry(e.target.value);
+  let pending = 0;
+  function cancelLookup() {
+    if (pending) window.Device.cancelLocation(pending);
+    pending = 0;
+  }
+  by('fish-country').onchange = e => {
+    cancelLookup();
+    by('fish-gps').disabled = false;
+    selectCountry(e.target.value);
+  };
   query.oninput = () => { route.query = query.value; route.limit = 50; render(); };
   bind('more-fish', () => { route.limit = (route.limit || 50) + 50; render(); });
-  let pending = 0;
   const receive = async ({detail}) => {
     if (!pending || detail.id !== pending) return;
-    pending = 0;
-    by('fish-gps').disabled = false;
     try {
-      const code = detail.fix && countryAt(await json('europe-borders'),detail.fix);
-      if (!view.active()) return;
+      const code = detail.fix && countryAt(await json('europe-borders'), detail.fix);
+      if (!view.active() || detail.id !== pending) return;
       if (code) selectCountry(code);
       else toast(t('Zemi se nepodařilo určit. Vyber ji ze seznamu.', 'Country unavailable. Choose it from the list.'));
-    } catch { if (view.active()) toast(t('Vyber zemi ze seznamu.', 'Select a country from the list.')); }
+    } catch {
+      if (view.active() && detail.id === pending) toast(t('Vyber zemi ze seznamu.', 'Select a country from the list.'));
+    } finally {
+      if (view.active() && detail.id === pending) {
+        pending = 0;
+        by('fish-gps').disabled = false;
+      }
+    }
   };
   window.addEventListener('angler-position',receive);
   bind('fish-gps', () => {
@@ -109,7 +138,7 @@ export async function fishCatalogue({view, nav}) {
   });
   view.dispose = () => {
     window.removeEventListener('angler-position',receive);
-    if (pending) window.Device.cancelLocation(pending);
+    cancelLookup();
   };
   render();
 }
