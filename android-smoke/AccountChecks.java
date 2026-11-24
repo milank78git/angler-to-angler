@@ -27,6 +27,8 @@ final class AccountChecks {
   private final WeeklyChecks weekly = new WeeklyChecks();
   private final MessageChecks messages = new MessageChecks();
   private final DiscussionChecks discussions = new DiscussionChecks();
+  private static final String REPORT_WATER = "CZ:CRS:4615417";
+  private boolean ownWaterReport, failNextReportRead;
   private final Runner app;
   private final boolean cs;
   private Activity gate;
@@ -269,8 +271,25 @@ final class AccountChecks {
                                           body)
                                       .toString();
                               break;
+                            case "/rest/v1/rpc/angler_water_report":
+                              if (!REPORT_WATER.equals(body.getString("water_key"))
+                                  || !"low_water".equals(body.getString("kind"))
+                                  || ownWaterReport != body.getBoolean("withdraw")) return 422;
+                              ownWaterReport = !ownWaterReport;
+                              failNextReportRead = ownWaterReport;
+                              response = "";
+                              break;
                             case "/rest/v1/rpc/angler_water_alerts":
                               response = "{}";
+                              if (REPORT_WATER.equals(body.getString("water_key"))) {
+                                if (failNextReportRead) {
+                                  failNextReportRead = false;
+                                  return 503;
+                                }
+                                if (ownWaterReport) response = new JSONObject()
+                                    .put("low_water", new JSONObject().put("count", 1).put("mine", true))
+                                    .toString();
+                              }
                               break;
                             case "/rest/v1/rpc/angler_market_discover":
                             case "/rest/v1/rpc/angler_market_list":

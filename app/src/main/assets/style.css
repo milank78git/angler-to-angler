@@ -114,6 +114,10 @@ button:active,
 summary:active {
   filter: brightness(0.91);
 }
+button:enabled:active {
+  outline: 2px solid currentColor;
+  outline-offset: -4px;
+}
 button:disabled {
   opacity: 0.65;
 }
@@ -1311,6 +1315,23 @@ body[data-native-guide] #guide-dialog { width: 100%; max-height: none; border: 0
 
 label.label-with-hint { display: inline-block; margin-inline-end: .45rem; }
 
+.water-report-row {
+  margin-top: .75rem;
+}
+
+.water-report-row > span {
+  display: block;
+  margin-bottom: .35rem;
+}
+
+#water-reports [role="status"]:not(:empty) {
+  margin-block: .5rem;
+  padding: .6rem .8rem;
+  border-inline-start: 3px solid var(--primary);
+  background: var(--tint);
+  font-weight: 600;
+}
+
 .water-alert {
   border: 2px solid var(--focus);
   border-inline-start-width: 6px;
@@ -1318,7 +1339,6 @@ label.label-with-hint { display: inline-block; margin-inline-end: .45rem; }
   padding: 12px;
 }
 
-.water-alert strong {
-  display: block;
-  margin-bottom: 8px;
+.water-alert > span {
+  font-weight: 700;
 }
