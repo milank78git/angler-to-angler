@@ -10,8 +10,8 @@ android {
         manifestPlaceholders = [appLinkHost: appLinkHost]
         resValue 'string', 'app_link_host', appLinkHost
         resValue 'bool', 'use_verified_links', (System.getenv('ANGLER_APP_LINK_HOST')?.trim() ? 'true' : 'false')
-        versionCode 29
-        versionName '0.19.0'
+        versionCode 30
+        versionName '0.19.1'
     }
 }
 

@@ -176,6 +176,15 @@ public final class AccountActivity extends Activity {
               String secret = password.getText().toString();
               run(() -> service.signIn(email, secret), this::verified);
             });
+    // Keep the original confirmation usable if password sign-in happens before verification.
+    SharedPreferences pending = AccountStore.prefs(this);
+    if (pendingIsFresh(pending) && "signup".equals(pending.getString("pkcePurpose", ""))
+        && pending.getBoolean("pkceMailAccepted", true)) {
+      action(text("account.return_to_confirmation"), AccountLayout.Action.LINK, () -> {
+        email = pending.getString("pkceEmail", "");
+        inbox();
+      });
+    }
     send.setEnabled(ready);
     password.setImeOptions(android.view.inputmethod.EditorInfo.IME_ACTION_GO);
     password.setOnEditorActionListener(
@@ -432,18 +441,21 @@ public final class AccountActivity extends Activity {
           }
         });
     String purpose = AccountStore.prefs(this).getString("pkcePurpose", "");
+    if ("signup".equals(purpose))
+      action(text("account.confirmed_sign_in"), AccountLayout.Action.SECONDARY, this::login);
     if ("recovery".equals(purpose) || "signup".equals(purpose))
       action(
           text("account.request_another_link"),
           AccountLayout.Action.SECONDARY,
           () -> resendEmail(purpose));
-    action(
-        text("account.back_to_sign_in"),
-        AccountLayout.Action.LINK,
-        () -> {
-          clearPending();
-          login();
-        });
+    if (!"signup".equals(purpose))
+      action(
+          text("account.back_to_sign_in"),
+          AccountLayout.Action.LINK,
+          () -> {
+            clearPending();
+            login();
+          });
   }
 
   /** Reissue the pending link with the same address, callback and device verifier. */

@@ -1,7 +1,7 @@
 {
   "confirmation.title": "Confirm your email",
   "brand": "Angler to Angler",
-  "confirmation.instruction": "Open this link on the phone where you registered to finish setting up your account. You can then sign in with your password.",
+  "confirmation.instruction": "Confirm your email using this link. If you open it on another device, return to the app and sign in with the password you chose at registration.",
   "confirmation.action": "Confirm email",
   "expiry": "This link can be used once. If you didn’t request it, you can delete this message.",
   "fallback": "If the button does not work, copy this link into the browser on the same phone.",

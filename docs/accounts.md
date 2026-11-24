@@ -130,5 +130,14 @@ custom scheme during rollout. Verify against the signed release using adb shell
 pm verify-app-links --re-verify app.anglers.journal and adb shell pm get-app-links
 app.anglers.journal. Then set the release build environment ANGLER_APP_LINK_HOST
 to horistum.com. Keep preview builds on their independent custom scheme unless
-their own package, certificate and path are deployed. An email opened on another
-device provides instructions for continuing on the device holding the PKCE verifier.
+their own package, certificate and path are deployed. After confirming a new account on another device, open the app, choose **I confirmed
+my email · Sign in**, then enter the original password. The address is prefilled.
+Password recovery still requires opening the link on the phone that requested it.
+
+Before enabling release HTTPS links, generate the hosting bundle and run
+`python3 scripts/check-account-links.py horistum.com build/account-links`.
+The check follows neither redirects nor links containing real account codes. The
+release workflow runs the same check whenever the HTTPS host is enabled.
+The emulator independently tests Android link resolution with an explicit
+test-device domain preference and tests desktop confirmation without delivering
+a link to the phone.

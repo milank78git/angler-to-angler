@@ -471,7 +471,10 @@ final class AccountChecks {
     click(tr("common.close"));
     requestRegistration();
     socialEnabled = true;
-    click(tr("account.back_to_sign_in"));
+    click(tr("account.confirmed_sign_in"));
+    click(tr("account.return_to_confirmation"));
+    find(tr("account.open_inbox"));
+    click(tr("account.confirmed_sign_in"));
     find(tr("account.continue_with") + "Google");
     app.waitForIdleSync();
     app.captureAccount(gate, "login-social");
