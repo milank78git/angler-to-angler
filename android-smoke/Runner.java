@@ -408,10 +408,10 @@ public final class Runner extends Instrumentation {
       // Exercise the packaged guide and country rules through the same entry points as an angler.
       clickReady("#home-fish");
       clickReady("#fish-query");
-      js("const input=document.querySelector('#fish-query');input.value='Esox lucius';input.dispatchEvent(new Event('input'))");
+      js("(() => { const input=document.querySelector('#fish-query'); input.value='Esox lucius'; input.dispatchEvent(new Event('input')); })()");
       clickReady("#fish-results button");
       waitFor("!!document.querySelector('#rule-country')");
-      js("const select=document.querySelector('#rule-country');select.value='IE';select.dispatchEvent(new Event('change'))");
+      js("(() => { const select=document.querySelector('#rule-country'); select.value='IE'; select.dispatchEvent(new Event('change')); })()");
       waitFor("!!document.querySelector('#fish-rules article a')");
       clickReady("#guide-open");
       waitFor("document.querySelector('#guide-dialog').open");
