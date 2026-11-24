@@ -13,7 +13,7 @@ const json = async name => {
 /** Scientific names are the shared market keys. Translated labels are presentation only. */
 export function fishDirectory() {
   if (!cache) cache = Promise.all([json('europe-fish'), json('fish-names-en'),
-    language === 'en' ? {} : json('fish-names-' + language).catch(() => ({})), json('europe-rules'),json('europe-checklists')])
+    language === 'en' ? {} : json('fish-names-' + (language === 'no' ? 'nb' : language)).catch(() => ({})), json('europe-rules'),json('europe-checklists')])
     .then(([data, english, local, rules, checklists]) => {
       const names = new Map();
       for (const fish of data.species) {
@@ -175,29 +175,36 @@ export async function fishDetail({view, nav, pack}) {
   function rules() {
     const code = by('rule-country').value, region = data.rules.countries[code];
     if (!region) { by('fish-rules').replaceChildren(); return; }
-    const relevant = data.rules.entries.filter(r => r.country === code && (r.species.includes(latin) || (r.allFreshwater && fish.river)));
+    const entries = data.rules.entries.filter(rule => rule.country === code);
+    const specific = entries.filter(rule => rule.species.includes(latin));
+    // Water-wide restrictions apply on the named waters regardless of the taxonomic inventory.
+    const waterRules = entries.filter(rule => rule.allFreshwater);
     const today = new Date().toISOString().slice(0,10);
+    function article(r) {
+      const source = data.rules.sources[r.source];
+      const terms = [
+        r.overCm != null && t('Délka musí být větší než','Length must exceed') + ' ' + r.overCm + ' cm',
+        r.minCm != null && t('Nejmenší míra','Minimum size') + ' · ' + r.minCm + ' cm',
+        r.maxCm != null && t('Největší ponechaná ryba','Maximum retained size') + ' · ' + r.maxCm + ' cm',
+        r.daily != null && t('Denní limit','Daily limit') + ' · ' + r.daily,
+        r.dailyKg != null && t('Denní limit','Daily limit') + ' · ' + r.dailyKg + ' kg',
+        r.permitRequired && t('Vyžaduje se rybářská licence','Fishing licence required'),
+        r.retentionClosed && t('Zákaz ponechání úlovku','No retention') + ' · ' + r.retentionClosed.map(seasonalDay).join(' – '),
+        r.closed && t('Doba hájení','Closed season') + ' · ' + r.closed.map(seasonalDay).join(' – '),
+      ].filter(Boolean);
+      // A fixed-season regulation must never be presented as current in a later season.
+      const inForce = (!r.validFrom || today >= r.validFrom) && (!r.validUntil || today <= r.validUntil);
+      const status = !inForce ? t('Mimo období platnosti. Ověř aktuální předpis.', 'Outside the period of validity. Check the current regulation.') :
+        today > source.reviewBy ? t('Uplynul termín kontroly. Ověř aktuální znění přímo u zdroje.', 'Review overdue. Check the current source.') : terms.join(' · ');
+      return '<article class="surface"><strong>' + esc(words(data.rules.scopes[r.scope])) + '</strong><p>' +
+        esc(status) +
+        '</p>' + link(source.url,source.title) + ' · ' + t('Kontrola zdroje','Source checked') + ' ' + esc(source.checked) + '</article>';
+    }
     by('fish-rules').innerHTML = '<p>' + t('Před lovem ověř povolenku a místní podmínky včetně výjimek.', 'Check your permit, local rules and exceptions before fishing.') + '</p>' +
-      relevant.map(r => {
-        const source = data.rules.sources[r.source];
-        const terms = [
-          r.overCm != null && t('Délka musí být větší než','Length must exceed') + ' ' + r.overCm + ' cm',
-          r.minCm != null && t('Nejmenší míra','Minimum size') + ' · ' + r.minCm + ' cm',
-          r.maxCm != null && t('Největší ponechaná ryba','Maximum retained size') + ' · ' + r.maxCm + ' cm',
-          r.daily != null && t('Denní limit','Daily limit') + ' · ' + r.daily,
-          r.dailyKg != null && t('Denní limit','Daily limit') + ' · ' + r.dailyKg + ' kg',
-          r.permitRequired && t('Vyžaduje se rybářská licence','Fishing licence required'),
-          r.retentionClosed && t('Zákaz ponechání úlovku','No retention') + ' · ' + r.retentionClosed.map(seasonalDay).join(' – '),
-          r.closed && t('Doba hájení','Closed season') + ' · ' + r.closed.map(seasonalDay).join(' – '),
-        ].filter(Boolean);
-        // A fixed-season regulation must never be presented as current in a later season.
-        const inForce = (!r.validFrom || today >= r.validFrom) && (!r.validUntil || today <= r.validUntil);
-        const status = !inForce ? t('Mimo období platnosti. Ověř aktuální předpis.', 'Outside the period of validity. Check the current regulation.') :
-          today > source.reviewBy ? t('Uplynul termín kontroly. Ověř aktuální znění přímo u zdroje.', 'Review overdue. Check the current source.') : terms.join(' · ');
-        return '<article class="surface"><strong>' + esc(words(data.rules.scopes[r.scope])) + '</strong><p>' +
-          esc(status) +
-          '</p>' + link(source.url,source.title) + ' · ' + t('Kontrola zdroje','Source checked') + ' ' + esc(source.checked) + '</article>';
-      }).join('') + (!relevant.length ? '<p>' + t('Pro tento druh a stát zatím chybí ověřené pravidlo.', 'No reviewed rule for this species and country yet.') + '</p>' : '') +
+      (specific.length ? specific.map(article).join('') :
+        '<p>' + t('Pro tento druh a stát zatím chybí ověřené pravidlo.', 'No reviewed rule for this species and country yet.') + '</p>') +
+      (waterRules.length ? '<section><h3>' + t('Společná pravidla pro uvedené vody', 'Rules for all species on the listed waters') +
+        '</h3>' + waterRules.map(article).join('') + '</section>' : '') +
       '<p>' + [region.authority && link(region.authority,t('Místní zdroj pravidel','Local rules and permits')),link(region.url,'FAOLEX')].filter(Boolean).join(' · ') + '</p>' +
       (code === pack.country.toUpperCase() ? button('fish-local',t('Pravidla konkrétních revírů','Rules by water'),'secondary') : '');
     if (by('fish-local')) bind('fish-local',() => nav.open('rules'));

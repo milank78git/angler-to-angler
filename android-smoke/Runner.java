@@ -420,6 +420,10 @@ public final class Runner extends Instrumentation {
       waitFor("!!document.querySelector('#guide-body ol')");
       clickReady("#guide-close");
       waitFor("document.querySelector('#fish-query').value==='Alepocephalus agassizii'");
+      js("(() => { const input=document.querySelector('#fish-query'); input.value='Oncorhynchus mykiss'; input.dispatchEvent(new Event('input')); })()");
+      clickReady("#fish-results button");
+      waitFor("!!document.querySelector('#fish-rules > section article a')");
+      clickReady("#back");
       clickReady("#fish-query");
       js("(() => { const input=document.querySelector('#fish-query'); input.value='Esox lucius'; input.dispatchEvent(new Event('input')); })()");
       clickReady("#fish-results button");
@@ -442,6 +446,8 @@ public final class Runner extends Instrumentation {
               + " !document.querySelector('#rule-water').disabled");
       js("document.querySelector('#theme').click()");
       waitFor("document.documentElement.dataset.theme==='dark'");
+      js("(() => { const water=document.querySelector('#rule-water'); water.selectedIndex=water.selectedIndex===0?1:0; water.dispatchEvent(new Event('change')); })()");
+      waitFor("!!document.querySelector('label[for=rule-water] + .field-hint') && document.activeElement.id==='rule-water'");
       capture("seasons");
       js("document.querySelector('#theme').click();document.querySelector('#tabwaters').click()");
       waitFor("document.querySelector('#saved').getAttribute('aria-pressed')==='true'");
