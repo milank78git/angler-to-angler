@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# All services bind to the disposable CI environment. No hosted project credentials are used.
+set -euo pipefail
+repo=$(pwd)
+stage=${RUNNER_TEMP:?}/angler-integration
+mkdir -p "$stage"
+cd "$stage"
+supabase init
+python3 - <<'PY'
+from pathlib import Path
+p=Path('supabase/config.toml')
+s=p.read_text().replace('enable_confirmations = false','enable_confirmations = true')
+start=s.index('[auth]'); end=s.index('\n[',start+1)
+import re
+section=re.sub(r'^additional_redirect_urls\s*=.*$', 'additional_redirect_urls = ["https://horistum.com/account/app.anglers.journal.preview/callback"]',s[start:end],flags=re.M)
+assert 'horistum.com/account' in section
+p.write_text(s[:start]+section+s[end:])
+PY
+supabase start -x studio,storage-api,imgproxy,realtime,edge-runtime,postgres-meta,logflare,vector,supavisor >/dev/null
+supabase status -o json > "$stage/local.json"
+chmod 600 "$stage/local.json"
+cd "$repo"
+# Enforce one history and exercise both a first install and an upgrade from the existing pilot.
+url=$(jq -er .DB_URL "$stage/local.json")
+psql "$url" -Xq -v ON_ERROR_STOP=1 -c 'create schema if not exists liquibase'
+lb() {
+  docker run --rm --network host -v "$repo:/liquibase/changelog:ro" -w /liquibase/changelog liquibase/liquibase:4.33.0 \
+    --url=jdbc:postgresql://127.0.0.1:54322/postgres --username=postgres --password=postgres \
+    --liquibase-schema-name=liquibase --changelog-file=db/changelog.xml "$@"
+}
+lb validate
+lb update-to-tag --tag=pilot-0.18
+lb update
+before=$(psql "$url" -XAtc 'select count(*) from liquibase.databasechangelog')
+lb update
+after=$(psql "$url" -XAtc 'select count(*) from liquibase.databasechangelog')
+[[ "$before" -eq "$after" && "$after" -eq $(($(find supabase/migrations -name '*.sql' | wc -l)+1)) ]]
+psql "$url" -XAtc "select count(*) from cron.job where jobname='angler-water-directory' and active" | grep -qx 1
+psql "$url" -Xq -c "notify pgrst, 'reload schema'"
+echo "Database install, upgrade, repeat update and atlas schedule verified."

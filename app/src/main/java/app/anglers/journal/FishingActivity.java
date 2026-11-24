@@ -233,6 +233,9 @@ public final class FishingActivity extends Activity {
         case "public_card_publish":
         case "public_card_withdraw":
         case "public_cards":
+        case "water_rating":
+        case "water_rate":
+        case "top_waters":
         case "water_report":
         case "water_alerts":
         case "market_discover":
@@ -364,6 +367,11 @@ public final class FishingActivity extends Activity {
     }
 
     @JavascriptInterface
+    public void driveToParking(double lat, double lon) {
+      runOnUiThread(() -> ParkingNavigation.open(FishingActivity.this,lat,lon));
+    }
+
+    @JavascriptInterface
     public void navigate(double lat, double lon) {
       if (!Double.isFinite(lat)
           || !Double.isFinite(lon)
@@ -382,7 +390,7 @@ public final class FishingActivity extends Activity {
     @JavascriptInterface
     public void reportFish(String title,String body) {
       if (title==null || body==null || title.length()>300 || body.length()>2000) return;
-      chooseExternal(Intent.ACTION_SENDTO, Uri.parse("mailto:milan.kucera78@gmail.com?subject="+Uri.encode(title)
+      chooseExternal(Intent.ACTION_SENDTO, Uri.parse("mailto:info@horistum.com?subject="+Uri.encode(title)
           +"&body="+Uri.encode(body)), "fish_rules.report");
     }
 

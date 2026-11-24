@@ -118,6 +118,14 @@ export function createJournal(factory = globalThis.indexedDB, name = 'angler-fie
   }
   return {
     listTrips,
+    statEntries: () => transaction(['trips','catches'], 'readonly', (tx, result) => {
+      const snapshot = {};
+      for (const name of ['trips','catches']) {
+        const request = tx.objectStore(name).getAll();
+        request.onsuccess = () => { snapshot[name] = request.result; };
+      }
+      result(snapshot);
+    }),
     saveCatch,
     removeTrip,
     trip: (id) => read('trips', (s) => s.get(id)),

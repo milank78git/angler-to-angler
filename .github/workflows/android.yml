@@ -46,6 +46,12 @@ jobs:
           node-version: '22'
       - run: npm ci --ignore-scripts
       - run: python3 scripts/index-translations.py --check
+      - run: python3 scripts/build-account-links.py build/account-links
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: horistum-account-links
+          path: build/account-links/
+          include-hidden-files: true
       - run: go test tests/email_templates_test.go
       - run: python3 scripts/build-email-templates.py build/auth-email
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
@@ -61,6 +67,7 @@ jobs:
         run: echo "ANGLER_VERSION_CODE=$((10000 + GITHUB_RUN_NUMBER))" >> "$GITHUB_ENV"
       - run: bash scripts/build-debug.sh
         env:
+          ANGLER_APP_LINK_HOST: ${{ vars.ANGLER_APP_LINK_HOST }}
           ANGLER_ACCOUNT_CONFIG: ${{ vars.ANGLER_ACCOUNT_CONFIG }}
       - run: bash scripts/build-debug.sh --preview
         env:

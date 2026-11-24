@@ -1,6 +1,6 @@
 Privacy notice · revision 2026-11-23
 
-Controller: Milan Kucera, milan.kucera78@gmail.com. Contact the controller to request access, correction of your display name, erasure, portability, restriction or to object. You may complain to the Czech Office for Personal Data Protection (uoou.gov.cz) or your local supervisory authority.
+Controller: Milan Kucera, info@horistum.com. Contact the controller to request access, correction of your display name, erasure, portability, restriction or to object. You may complain to the Czech Office for Personal Data Protection (uoou.gov.cz) or your local supervisory authority.
 
 To provide your account under the contract (GDPR Article 6(1)(b)), we use a verified identifier, email supplied by you or your provider, display name, sign-in method and timestamped document acknowledgements. These data are required for an account. The profile and acceptance records are retained while the account is active. The controller handles verified closure requests by deleting the identity and linked records. The app carries out no profiling or automated decisions with legal effects.
 

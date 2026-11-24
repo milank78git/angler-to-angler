@@ -1,4 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="app.anglers.journal" android:versionCode="28" android:versionName="0.18.0">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="app.anglers.journal" android:versionCode="29" android:versionName="0.19.0">
   <uses-permission android:name="android.permission.INTERNET"/>
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
   <uses-sdk android:minSdkVersion="26" android:targetSdkVersion="35"/>
@@ -11,6 +11,9 @@
   <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
   <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
   <queries>
+    <package android:name="com.google.android.apps.maps"/>
+    <package android:name="com.waze"/>
+    <package android:name="cz.seznam.mapy"/>
     <intent><action android:name="android.intent.action.VIEW"/><data android:scheme="geo"/></intent>
     <intent><action android:name="android.intent.action.SENDTO"/><data android:scheme="mailto"/></intent>
   </queries>
@@ -19,6 +22,12 @@
       <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
     </activity>
     <activity android:name=".AccountCallbackActivity" android:exported="true" android:taskAffinity="" android:noHistory="true" android:theme="@android:style/Theme.NoDisplay">
+      <intent-filter android:autoVerify="true">
+        <action android:name="android.intent.action.VIEW"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+        <category android:name="android.intent.category.BROWSABLE"/>
+        <data android:scheme="https" android:host="${appLinkHost}" android:path="/account/${applicationId}/callback"/>
+      </intent-filter>
       <intent-filter><action android:name="android.intent.action.VIEW"/><category android:name="android.intent.category.DEFAULT"/><category android:name="android.intent.category.BROWSABLE"/><data android:scheme="${applicationId}" android:host="account" android:path="/callback"/></intent-filter>
     </activity>
     <service android:name=".FieldAlertJob" android:permission="android.permission.BIND_JOB_SERVICE" android:exported="true"/>

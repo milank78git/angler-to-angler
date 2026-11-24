@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.33.xsd"
+    logicalFilePath="db/changelog.xml">
+  <changeSet id="20261123070056" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261123070056_profiles.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
+  <changeSet id="20261123110524" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261123110524_private_fishing_groups.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
+  <changeSet id="20261123112814" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261123112814_angler_profile_cards.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
+  <changeSet id="20261123142819" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261123142819_private_group_tips.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
+  <changeSet id="20261123153421" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261123153421_water_discussions.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
+  <changeSet id="20261123155308" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261123155308_private_messages.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
+  <changeSet id="20261123160129" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261123160129_message_reactions.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
+  <changeSet id="20261123161727" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261123161727_forum_reply_context.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
+  <changeSet id="20261123163226" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261123163226_group_catch_week.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
+  <changeSet id="20261123171108" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261123171108_water_activity.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
+  <changeSet id="20261123180057" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261123180057_public_catch_cards.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
+  <changeSet id="20261123232227" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261123232227_test_tip_market.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
+  <changeSet id="20261124000054" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261124000054_purchased_tip_ratings.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
+  <changeSet id="20261124004714" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261124004714_european_market_directory.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
+  <changeSet id="20261124041826" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261124041826_water_reports.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
+  <changeSet id="20261124050000" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261124050000_czech_waters.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
+  <changeSet id="20261124060000" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261124060000_water_directory.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
+  <changeSet id="20261124060100" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261124060100_european_water_seed.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
+  <changeSet id="20261124060300" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261124060300_water_directory_schedule.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
+  <changeSet id="20261124094000" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261124094000_montana_public_waters.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
+  <changeSet id="20261124101500" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261124101500_post_notifications.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
+  <changeSet id="pilot-0.18" author="angler"><tagDatabase tag="pilot-0.18"/></changeSet>
+  <changeSet id="20261124115256" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261124115256_water_reviews_and_visit_statistics.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
+</databaseChangeLog>

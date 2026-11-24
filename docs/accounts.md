@@ -29,7 +29,7 @@ On an existing email-link account, choose **Set or reset password** once and use
 
 ## Controller procedures
 
-Milan Kucera handles requests at milan.kucera78@gmail.com. Verify the requester's identity proportionately and never request their password or OTP. For access or portability provide their Auth identity, profile and acceptance history. Correct the verified user's display name on request. Delete the corresponding Auth user for closure. Foreign keys cascade deletion to profile and receipts. Explain local deletion and the actual backup retirement period. Document and answer rights requests within the applicable GDPR deadlines. Keep provider agreements, incident response and actual retention settings under operational review.
+Milan Kucera handles requests at info@horistum.com. Verify the requester's identity proportionately and never request their password or OTP. For access or portability provide their Auth identity, profile and acceptance history. Correct the verified user's display name on request. Delete the corresponding Auth user for closure. Foreign keys cascade deletion to profile and receipts. Explain local deletion and the actual backup retirement period. Document and answer rights requests within the applicable GDPR deadlines. Keep provider agreements, incident response and actual retention settings under operational review.
 
 ## Acceptance before release
 
@@ -109,3 +109,26 @@ A period covers one entire catalog water for one Prague calendar month, first av
 The APK and static reader render the same allowlisted snapshot using `public-card-view.js`. The reader requests one random UUID from the anonymous `angler_open_catch_card` RPC. The fragment stays out of static-host request paths. Owner IDs, journal IDs, original photo files and evidence records are never served by this endpoint. Published length reflects the measured or estimated outcome at publication. Account deletion or link withdrawal removes the public copy. Staff can immediately retire an abusive link with a privileged update of its row setting `details=null,pixels=null`.
 
 The pilot reader is at https://rybari-sobe-ulovky.richpopcorn17.chatgpt.site/. To rebuild it, run `python3 scripts/build-public-reader.py /path/to/public-account-config.json /path/to/dist` and deploy that directory to the same HTTPS origin. It requires only the project's public URL and publishable key. An independent deployment must also change the origin returned by `angler_public_cards.owner_item` in its database. The normal Android build does not publish the website.
+
+## Verified mobile email return
+
+The release callback is https://horistum.com/account/app.anglers.journal/callback.
+Each installation accepts its exact callback path and existing custom-scheme links.
+Until HTTPS delivery is enabled in the build, registration continues to issue the
+existing callback. The account and parking support address is info@horistum.com.
+
+Build the hosting files with python3 scripts/build-account-links.py build/account-links
+or download the horistum-account-links CI artifact. The default fingerprint is the
+public certificate checked by scripts/sign-pilot.sh. Serve .well-known/assetlinks.json
+as application/json directly on horistum.com over HTTPS (no redirect to www).
+Serve account/app.anglers.journal/callback.html at the exact extensionless callback
+URL as text/html. Send Cache-Control: no-store and Referrer-Policy: no-referrer;
+disable query-string logging on this path. The fallback does not consume codes.
+
+Add the exact release URL to the Supabase Auth redirect allowlist and keep the
+custom scheme during rollout. Verify against the signed release using adb shell
+pm verify-app-links --re-verify app.anglers.journal and adb shell pm get-app-links
+app.anglers.journal. Then set the release build environment ANGLER_APP_LINK_HOST
+to horistum.com. Keep preview builds on their independent custom scheme unless
+their own package, certificate and path are deployed. An email opened on another
+device provides instructions for continuing on the device holding the PKCE verifier.
