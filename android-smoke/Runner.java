@@ -236,7 +236,10 @@ public final class Runner extends Instrumentation {
    * UI.
    */
   private void checkEvidenceSubmission(AccountChecks accounts) throws Exception {
-    js("document.querySelector('#tabtrips').click()");
+    // Returning from the home market restores the journal's public-card screen. Reselect its tab for the trip list.
+    clickReady("#tabtrips");
+    waitFor("document.querySelector('#screen').dataset.page==='myPublicCards'");
+    clickReady("#tabtrips");
     waitFor("!!document.querySelector('[data-trip]')");
     js("document.querySelector('[data-trip]').click()");
     waitFor("!!document.querySelector('[data-share-catch]')");
