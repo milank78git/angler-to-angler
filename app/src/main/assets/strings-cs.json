@@ -350,7 +350,7 @@
   "field-hints.rule-country": "Vyber stát, ve kterém budeš lovit. Každé pravidlo má vlastní územní rozsah a zdroj.",
   "field-hints.rule-date": "Vyber den plánovaného lovu. Hájení se mění během roku a místní podklady mají vlastní platnost.",
   "field-hints.rule-water": "Podle revíru se načtou místní míry, úseky a pravidla.",
-  "field-hints.rule-water-search": "Zadej název nebo číslo revíru. Při jediné shodě se pravidla zobrazí hned. Pokud odpovídá více revírů, vyber jeden z nabídky.",
+  "field-hints.rule-water-search": "Zadej název nebo číslo revíru. Při jediné shodě se pravidla zobrazí hned. Pokud odpovídá více revírů, klepni na vybraný revír v nabídce pod hledacím polem.",
   "field-hints.search": "Hledej revír podle názvu, evidenčního čísla nebo obce. Ve výběru Oblíbené prohledáš jen své uložené revíry.",
   "field-hints.section": "Vyber část revíru, na které budeš lovit. Hlavní tok a vedlejší úsek mohou mít odlišný režim.",
   "field-hints.share-bait": "Přidá do zprávy nástrahu, kterou jsi zapsal k úlovku.",

@@ -127,6 +127,17 @@ public final class Runner extends Instrumentation {
   /** Type into the lookup without opening its select or dismissing the Android keyboard. */
   private void checkLiveRuleSearch() throws Exception {
     js("document.querySelector('#rule-water-search').focus()");
+    setControl("#rule-water-search", "Lipno", "input");
+    String lipnoKey = "CZ:CRS:4615686";
+    String lipnoRow = "#rule-water-suggestions [data-key='" + lipnoKey + "']";
+    waitFor("document.querySelector('#rule-water-search').getAttribute('aria-expanded')==='true'"
+        + " && document.querySelector(\"" + lipnoRow + "\")?.textContent.includes('421 200')"
+        + " && !document.querySelector('#section') && !document.querySelector('#watch-toggle')");
+    clickReady(lipnoRow);
+    waitFor("document.querySelector('#rule-water').value==='" + lipnoKey + "'"
+        + " && document.querySelector('#rule-water-suggestions').hidden"
+        + " && document.querySelector('#status a[href*=\"karta-reviru\"]')?.textContent.includes('LIPNO')");
+    js("document.querySelector('#rule-water-search').focus()");
     setControl("#rule-water-search", "461 024", "input");
     waitFor("document.querySelector('#rule-water').value==='CZ:MRS:1'"
         + " && !!document.querySelector('#status a[href=\"https://mrsbrno.cz/reviry/1\"]')"
@@ -134,6 +145,8 @@ public final class Runner extends Instrumentation {
     setControl("#rule-water-search", "401", "input");
     waitFor("document.querySelector('#rule-water').options.length>2 && document.querySelector('#rule-water').value===''"
         + " && document.querySelector('#status').textContent==='' && !document.querySelector('#watch-toggle')");
+    clickReady("#rule-water-suggestions [data-key='CZ:401009']");
+    waitFor("document.querySelector('#rule-water').value==='CZ:401009' && !!document.querySelector('#section')");
     setControl("#rule-water-search", "000 000 000", "input");
     waitFor("!document.querySelector('#rule-water-empty').hidden && document.querySelector('#rule-fields').textContent===''");
     setControl("#rule-water-search", "401009", "input");

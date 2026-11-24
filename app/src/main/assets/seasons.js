@@ -77,7 +77,7 @@ export async function rulesScreen({ view, pack, nav, waterDirectory, hints }) {
   const site = route.id === undefined && !route.country ? waterDirectory.waters[0] : waterDirectory.byId.get(route.id);
   const fixed = contextual && !route.country && site;
   const picker = fixed ? selectField('rule-water', t('common.water'), [[site.key, waterOption(site)]], site.key)
-    : waterPicker('rule-water', t('common.water'), t('seasons.choose_water'));
+    : waterPicker('rule-water', t('common.water'), t('seasons.choose_water'), { suggestions: true });
   screen.innerHTML = (contextual ? back(route.country ? t('common.back') : site?.name || t('atlas.title')) : '') +
     `<div class="page-intro"><div class="title-mark">${icon('calendar-days')}</div><h1>${t('common.seasons_sizes')}</h1></div>
     <div class="columns"><section class="surface">${picker}<div id="rule-fields"></div></section>
