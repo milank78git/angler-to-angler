@@ -19,3 +19,5 @@ Do souhrnné statistiky můžeš samostatně zařadit nebo aktualizovat dokonče
 Veřejná karta vznikne až po potvrzení náhledu. Kdokoli s odkazem uvidí přezdívku, druh a měsíc úlovku a případně zvolený den, revír, zkontrolovanou délku či fotografii zbavenou metadat. Karta uchovává potvrzenou kopii. Odkaz můžeš kdykoli zneplatnit v Profil → Moje veřejné karty. Smazání účtu zneplatní všechny odkazy. Příjemci si mohou obsah uložit před zneplatněním.
 
 Tržiště zobrazuje ověřeným účtům jméno autora, název, cílovou rybu, datum zkušenosti, způsob lovu, volitelný revír, cenu a dostupnost. Textový postup uvidí autor a kupující. Zakoupená verze zůstává dostupná po úpravě nebo stažení nabídky. Smazání účtu autora odstraní jeho nabídky včetně zakoupených postupů. Smazání účtu kupujícího odstraní jeho přístup a zůstatek. Testovací kredity nemají peněžní hodnotu.
+
+Po odemčení můžeš jednou ohodnotit přesnost údajů, popis techniky a soulad s náhledem. Jednotlivé známky svého nákupu uvidíš v zakoupeném tipu. Ostatní vidí průměr a počet hodnocení autora. Smazáním účtu se tvoje hodnocení odstraní.

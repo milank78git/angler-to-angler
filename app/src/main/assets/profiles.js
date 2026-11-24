@@ -13,6 +13,7 @@ import {
   trackEdits,
   toast,
 } from './ui.js';
+import { authorRating } from './tip-ratings.js';
 import { rpc, failure, photoPayload } from './profile-api.js';
 
 function portrait(avatar, photo) {
@@ -72,6 +73,7 @@ export async function profileScreen({ view, nav }) {
     '</h2><strong>' +
     esc(card.verifiedCount) +
     '</strong></section>' +
+    authorRating(card.authorRating, true) +
     '<section><h2>' +
     (own ? t('Moje party', 'My groups') : t('Společné party', 'Groups in common')) +
     '</h2>' +

@@ -267,6 +267,7 @@ final class AccountChecks {
                             case "/rest/v1/rpc/angler_market_detail":
                             case "/rest/v1/rpc/angler_market_activate":
                             case "/rest/v1/rpc/angler_market_buy":
+                            case "/rest/v1/rpc/angler_market_rate":
                               response = market.response(u.getPath().substring("/rest/v1/rpc/angler_".length()), body).toString();
                               break;
                             case "/rest/v1/rpc/angler_public_card_options":

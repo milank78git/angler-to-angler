@@ -1,5 +1,6 @@
 import { by, screen, esc, bind, back, bindBack, button, t, displayDay, field, textInput, selectField,
   confirmAction, trackEdits, submitChange, toast } from './ui.js';
+import { authorRating, purchaseRating, bindPurchaseRating } from './tip-ratings.js';
 import { rpc } from './profile-api.js';
 import { newJournalId } from './journal.js';
 import { today } from './domain.js';
@@ -41,7 +42,7 @@ function offerFacts(item, pack) {
   return '<p>' + [item.species, access()[item.access], displayDay(item.day), waterName(pack, item.water)]
     .filter(Boolean).map(esc).join(' · ') + '</p><p class="meta">' +
     [item.author, t('Prodáno ', 'Sold ') + item.sold, item.withdrawn ? t('Staženo', 'Withdrawn') : remaining]
-      .filter(Boolean).map(esc).join(' · ') + '</p><strong>' + credits(item.price) + '</strong>';
+      .filter(Boolean).map(esc).join(' · ') + '</p><strong>' + credits(item.price) + '</strong>' + authorRating(item.authorRating);
 }
 
 function claim(view, nav) {
@@ -92,6 +93,7 @@ export async function marketDetail({ view, nav, pack }) {
       (item.mine ? t('Obsah tvého tipu', 'Your technique') : t('Zakoupená technika', 'Purchased technique')) +
       '</h2><p class="discussion-body" id="market-technique">' + esc(item.technique) + '</p></section>' :
       '<p>' + t('Odemkneš textový postup autora.', 'Unlock the author’s written technique.') + '</p>') +
+    purchaseRating(item) +
     '<div class="actions">' + (item.mine && !item.withdrawn ?
       button('market-edit', editLabel(), 'secondary') + button('market-withdraw', t('Stáhnout nabídku', 'Withdraw offer'), 'danger') :
       !item.mine && !item.purchased && available ? (item.balance == null ? button('market-activate', activate(), 'secondary') :
@@ -99,6 +101,7 @@ export async function marketDetail({ view, nav, pack }) {
         (item.balance >= item.price ? button('market-buy', t('Odemknout tip', 'Unlock tip'), 'primary') :
           '<p>' + errorText(402) + '</p>')) : '') + '</div>';
   bindBack(nav);
+  bindPurchaseRating(view, nav, id);
   if (by('market-activate')) claim(view, nav);
   if (by('market-edit')) bind('market-edit', () => nav.open('marketEditor', { id }));
   if (by('market-withdraw')) bind('market-withdraw', async () => {
