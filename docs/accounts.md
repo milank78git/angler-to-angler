@@ -17,13 +17,13 @@ The phone keeps a verified profile identifier and timestamp for up to seven days
 
 ## Transactional email
 
-Generate the Supabase email bodies and subjects from the shared HTML layout and the English and Czech dictionaries.
+Download the `auth-email-templates` artifact from the Android build, or generate its bodies and subjects locally from the shared HTML layout and email dictionaries.
 
 ```sh
 python3 scripts/build-email-templates.py build/auth-email
 ```
 
-With an authenticated SMTP sender, open **Authentication → Email Templates**. For **Confirm signup**, use the generated `confirmation.html` and `confirmation.subject.txt`. For **Reset password** use the `recovery` files, and for **Magic link** use the `magic_link` files. Paste the HTML into the body and the corresponding subject into the subject field. New accounts receive the language recorded at registration. Existing accounts without a recorded locale retain the Czech default. Disable link tracking at the mail provider so the verification URL reaches the requesting device intact.
+With an authenticated SMTP sender, open **Authentication → Email Templates**. For **Confirm signup**, use the generated `confirmation.html` and `confirmation.subject.txt`. For **Reset password** use the `recovery` files, and for **Magic link** use the `magic_link` files. Paste the HTML into the body and the corresponding subject into the subject field. New accounts use the region or base language recorded at registration, with English as the fallback. Existing accounts without a recorded locale retain the Czech default. Disable link tracking at the mail provider so the verification URL reaches the requesting device intact.
 
 On an existing email-link account, choose **Set or reset password** once and use the email already registered. Recovery updates the same Auth user. Profile, groups and local journal retain the same identifier. A new device still needs online sign-in before it can use its own system screen lock. Local journal files are specific to each installation.
 

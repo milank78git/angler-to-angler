@@ -1,3 +1,4 @@
+import { languageTag } from './i18n.js';
 import { fishDirectory, fishOption } from './fish-catalogue.js';
 import { pixelJpeg } from './photo.js';
 import { Journal, newJournalId } from './journal.js';
@@ -18,6 +19,9 @@ import {
   trackEdits,
   writeEntry,
 } from './ui.js';
+const exampleNumber = new Intl.NumberFormat(languageTag, {
+  maximumFractionDigits: 4, useGrouping: false, numberingSystem: 'latn',
+});
 function bindPhotoPreview() {
   let preview, file, capture;
   function choose(input, camera) {
@@ -165,13 +169,13 @@ function catchFields(pack) {
     `<div class="page-intro"><div class="title-mark">${icon('fish')}</div><h1>${t('catch_form.new_catch')}</h1></div>
   <form id="form" class="entry-form"><section class="surface">${selectField('fish', t('common.fish_species'), fish, '')}
     <div id="custom-fish">${textInput('fish-name', t('catch_form.species_name'), '', 'maxlength="100"')}</div>
-    ${textInput('length', t('catch_form.measured_length_cm'), '', 'inputmode="decimal" placeholder="64,5"')}
+    ${textInput('length', t('catch_form.measured_length_cm'), '', 'inputmode="decimal" placeholder="' + exampleNumber.format(64.5) + '"')}
     <div class="photo-field"><input type="file" id="camera-photo" accept="image/*" capture="environment"><label for="camera-photo">${icon('camera')}${t('catch_form.photograph_catch_at_the_water')}</label>
     <small>${t('catch_form.photograph_the_whole_fish_with_a_ruler')}</small>
     <input type="file" id="photo" accept="image/*"><label for="photo">${icon('camera')}<span id="photo-label">${t('catch_form.add_photo')}</span></label><small id="capture-state" role="status"></small><img id="photo-preview" class="preview" hidden alt=""></div></section>
   <details class="fold"><summary>${icon('fish-symbol')}${t('catch_form.bait_and_technique')}</summary><div class="fold-body">${textInput('bait', t('catch_form.bait_or_lure'), '', 'maxlength="300"')}${textInput('technique', t('catch-form.fishing.technique'), '', 'maxlength="500"')}</div></details>
   <details id="position-fields" class="fold"><summary>${icon('lock-keyhole')}${t('catch_form.private_location')}</summary><div class="fold-body">${selectField('kind', t('catch_form.point_represents'), kinds, 'stand')}
-  <div class="pair"><div>${textInput('lat', t('catch_form.latitude'), '', 'placeholder="49.8783"')}</div><div>${textInput('lon', t('catch_form.longitude'), '', 'placeholder="14.4282"')}</div></div>
+  <div class="pair"><div>${textInput('lat', t('catch_form.latitude'), '', 'placeholder="' + exampleNumber.format(49.8783) + '"')}</div><div>${textInput('lon', t('catch_form.longitude'), '', 'placeholder="' + exampleNumber.format(14.4282) + '"')}</div></div>
   <div class="actions">${button('gps', t('catch_form.use_current_location'), 'secondary', 'locate-fixed')}</div><small>${t('catch_form.for_older_photos_enter_the_location_manually')}</small></div></details>
   <p class="field-error" id="form-error" role="alert" hidden></p><div class="savebar"><button class="primary">${icon('check')}${t('catch_form.save_catch')}</button></div></form>`
   );

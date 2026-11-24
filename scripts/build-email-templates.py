@@ -1,4 +1,4 @@
-"""Render the Supabase Auth template bodies and subjects for the deployment dashboard."""
+"""Build paste-ready Supabase Auth bodies and subjects from the email language packs."""
 import argparse
 import html
 import json
@@ -7,29 +7,45 @@ from pathlib import Path
 
 SOURCE = Path(__file__).resolve().parents[1] / "supabase/templates"
 TOKEN = re.compile(r"\[\[(\w+)\]\]")
-# Accounts created before locale metadata was recorded received Czech mail.
-CZECH = '{{ if or (not .Data.locale) (eq .Data.locale "cs") }}'
+# Preserve the language of messages for accounts registered before locale metadata existed.
+LOCALE = '{{ $locale := or .Data.locale "cs" }}'
+
+
+def select(versions):
+    """Go templates select the most specific published language, with English as the fallback."""
+    result = LOCALE
+    codes = sorted(versions.keys() - {"en"}, key=len, reverse=True)
+    for i, code in enumerate(codes):
+        branch = "if" if i == 0 else "else if"
+        prefix = f'(eq (printf "%.{len(code) + 1}s" $locale) "{code}-")'
+        result += "{{ " + branch + f' or (eq $locale "{code}") {prefix}' + " }}" + versions[code]
+    return result + ("{{ else }}" if codes else "") + versions["en"] + ("{{ end }}" if codes else "")
 
 
 def generate(output):
     layout = (SOURCE / "message.html").read_text()
-    languages = {code: json.loads((SOURCE / f"{code}.json").read_text()) for code in ("en", "cs")}
+    packs = {p.stem: json.loads(p.read_text()) for p in SOURCE.glob("*.json")}
     output.mkdir(parents=True, exist_ok=True)
     for template in ("confirmation", "recovery", "magic_link"):
-        def localized(key, markup=True):
-            values = []
-            for code in ("cs", "en"):
-                terms = languages[code]
-                value = code if key == "locale" else terms[key if key in terms else template + "." + key]
+        bodies, subjects = {}, {}
+        for code in packs:
+            if not re.fullmatch(r"[a-z]{2,3}(?:-[a-z0-9]{2,8})*", code):
+                raise ValueError(f"Invalid email locale {code}")
+            parts = code.split("-")
+            labels = packs["en"].copy()
+            for n in range(1, len(parts) + 1):
+                labels.update(packs.get("-".join(parts[:n]), {}))
+
+            def message(key):
+                value = code if key == "locale" else labels[key if key in labels else template + "." + key]
                 if not value.strip() or "{{" in value or "}}" in value:
                     raise ValueError(f"Invalid {code} email message {key}")
-                values.append(html.escape(value) if markup else value)
-            return CZECH + values[0] + "{{ else }}" + values[1] + "{{ end }}"
+                return value
 
-        body = TOKEN.sub(lambda match: localized(match[1]), layout)
-        subject = localized("title", False) + " · " + localized("brand", False)
-        (output / f"{template}.html").write_text(body)
-        (output / f"{template}.subject.txt").write_text(subject + "\n")
+            bodies[code] = TOKEN.sub(lambda match: html.escape(message(match[1])), layout)
+            subjects[code] = message("title") + " · " + message("brand")
+        (output / f"{template}.html").write_text(select(bodies))
+        (output / f"{template}.subject.txt").write_text(select(subjects) + "\n")
 
 
 if __name__ == "__main__":

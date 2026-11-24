@@ -165,7 +165,7 @@ final class AccountChecks {
                               return 200;
                             case "/auth/v1/signup":
                               if (!PASSWORD.equals(body.getString("password"))
-                                  || !(cs ? "cs" : "en")
+                                  || !(cs ? "cs-cz" : "en-gb")
                                       .equals(body.getJSONObject("data").getString("locale")))
                                 return 400;
                             // Signup and recovery both bind their email link to the requesting

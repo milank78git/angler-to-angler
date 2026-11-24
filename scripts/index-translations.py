@@ -14,7 +14,7 @@ CZECH_LETTERS = re.compile(r"[\u00e1\u010d\u010f\u00e9\u011b\u00ed\u0148\u00f3\u
 LITERAL = r"""('(?:\\.|[^'\\\n])*'|"(?:\\.|[^"\\\n])*")"""
 BILINGUAL = re.compile(r"\b(?:t|tr|translate|words|text)\(\s*" + LITERAL + r"\s*,\s*" + LITERAL)
 CODE_TYPES = {".js", ".cjs", ".mjs", ".ts", ".tsx", ".jsx", ".java", ".kt", ".kts", ".py",
-              ".css", ".html", ".xml", ".gradle", ".sh", ".sql", ".yml", ".yaml"}
+              ".css", ".html", ".xml", ".go", ".gradle", ".sh", ".sql", ".yml", ".yaml"}
 # Applied database seeds include official water names and historic species search aliases.
 DATA_MIGRATIONS = {"20261123180057_public_catch_cards.sql", "20261124004714_european_market_directory.sql",
                    "20261124050000_czech_waters.sql", "20261124060100_european_water_seed.sql"}

@@ -35,6 +35,8 @@ public final class JournalApplication extends Application
   @Override
   public void onActivityStarted(Activity a) {
     if (visible++ == 0) {
+      // Android can clear pending work while the application is stopped. Reconcile on foreground entry.
+      WaterCatalogue.schedule(this);
       WaterCatalogue.check(this, false, null);
       timer.removeCallbacks(lock);
       if (stoppedAt != 0 && SystemClock.elapsedRealtime() - stoppedAt >= 60000) AccountStore.lock();
