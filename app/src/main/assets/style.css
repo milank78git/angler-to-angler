@@ -1322,3 +1322,28 @@ label.label-with-hint { display: inline-block; margin-inline-end: .45rem; }
   display: block;
   margin-bottom: 8px;
 }
+
+.map-open { display: block; width: 100%; padding: 0; overflow: hidden; }
+.map-open svg { display: block; width: 100%; background: #e8f0e6; }
+.map-open span { display: block; padding: .55rem; }
+.atlas-actions { display: flex; flex-wrap: wrap; gap: .45rem; }
+#nearby-status:empty { display: none; }
+#atlas-sources { margin: .4rem 0; }
+@media (max-width: 599px) {
+  .atlas-hero { min-height: 0; }
+  .atlas-hero .hero-copy { padding: .65rem 1rem; }
+  .topinner .offline { display: none; }
+  .topinner .brand-text { min-width: 0; flex: 1; }
+  .topinner .icon-btn { flex: 0 0 44px; }
+  .atlas-hero h1 { font-size: 1.65rem; }
+  .atlas-hero .photo-place, .atlas-hero .hero-meta { display: none; }
+  .home-features, .atlas-actions { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .home-features button, .atlas-actions button { padding: .45rem; }
+  .topinner { flex-wrap: wrap; gap: .25rem; }
+}
+
+#atlas-filters { padding: .7rem 0; }
+.atlas-actions { margin-top: .35rem; }
+
+.fish-list-item { flex-direction: column; align-items: flex-start; text-align: start; }
+.fish-list-item small { font-weight: 400; color: var(--muted); }

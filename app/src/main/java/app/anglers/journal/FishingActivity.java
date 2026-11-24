@@ -27,7 +27,9 @@ public final class FishingActivity extends Activity {
       web.evaluateJavascript("window.waterCatalogueChanged && window.waterCatalogueChanged()", null);
   };
   private ValueCallback<Uri[]> picker;
-  private PositionRequest position;
+  private PositionRequest position, nearbyPosition;
+  private long nearbyStarted;
+  private boolean foreground;
   private CatchShare shares;
   private final Handler sessionTimer = new Handler(Looper.getMainLooper());
   private final Runnable sessionCheck = this::checkSession;
@@ -76,6 +78,10 @@ public final class FishingActivity extends Activity {
     web.addJavascriptInterface(new Device(), "Device");
     shares = new CatchShare(this);
     position = new PositionRequest(this, this::positionResult);
+    nearbyPosition = new PositionRequest(this, (id,fix) -> {
+      if (foreground && fix != null && FieldAlerts.enabled(this,FieldAlerts.NEARBY))
+        signal("window.fieldNearby?.("+fix.getLatitude()+","+fix.getLongitude()+")");
+    });
     web.setWebViewClient(new LocalAssetClient(this, getAssets(), this::openExternal));
     web.setWebChromeClient(
         new WebChromeClient() {
@@ -351,7 +357,53 @@ public final class FishingActivity extends Activity {
           || Math.abs(lat) > 90
           || Math.abs(lon) > 180) return;
       String xy = Double.toString(lat) + "," + Double.toString(lon);
-      runOnUiThread(() -> openExternal(Uri.parse("geo:0,0?q=" + xy)));
+      chooseExternal(Intent.ACTION_VIEW, Uri.parse("geo:"+xy+"?q="+xy),"atlas_map.open");
+    }
+
+    @JavascriptInterface
+    public void findWater(String name) {
+      if (name!=null && !name.trim().isEmpty() && name.length()<1000)
+        chooseExternal(Intent.ACTION_VIEW,Uri.parse("geo:0,0?q="+Uri.encode(name)),"atlas_map.search");
+    }
+
+    @JavascriptInterface
+    public void reportFish(String title,String body) {
+      if (title==null || body==null || title.length()>300 || body.length()>2000) return;
+      chooseExternal(Intent.ACTION_SENDTO, Uri.parse("mailto:milan.kucera78@gmail.com?subject="+Uri.encode(title)
+          +"&body="+Uri.encode(body)), "fish_rules.report");
+    }
+
+    @JavascriptInterface
+    public String fieldKind() { return getIntent().getStringExtra("fieldAlert"); }
+
+    @JavascriptInterface
+    public String fieldWater() { return getIntent().getStringExtra("fieldWater"); }
+
+    @JavascriptInterface
+    public String addedWaters() {
+      return new org.json.JSONArray(FieldAlerts.prefs(FishingActivity.this)
+          .getStringSet("additions", java.util.Collections.emptySet())).toString();
+    }
+
+    @JavascriptInterface
+    public void checkNearby() {
+      runOnUiThread(() -> {
+        if (!foreground || !FieldAlerts.enabled(FishingActivity.this,FieldAlerts.NEARBY)
+            || checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)!=PackageManager.PERMISSION_GRANTED) return;
+        long now=android.os.SystemClock.elapsedRealtime();
+        if (nearbyStarted!=0 && now-nearbyStarted<600000) return;
+        nearbyStarted=now;
+        nearbyPosition.request(1);
+      });
+    }
+
+    @JavascriptInterface
+    public void nearbyWater(String id,String description) {
+      if (id==null || id.length()>200 || description==null || description.length()>500) return;
+      runOnUiThread(() -> {
+        if (foreground && subject.equals(AccountStore.active(FishingActivity.this)))
+          FieldAlerts.nearby(FishingActivity.this,id,description);
+      });
     }
 
     @JavascriptInterface
@@ -398,6 +450,15 @@ public final class FishingActivity extends Activity {
     if (!SeasonReminder.notificationsEnabled(this)) show(R.string.notify_error);
     else SeasonReminder.toggle(this, key, true);
     signal("window.reminderChanged?.()");
+  }
+
+  private void chooseExternal(String action,Uri uri,String label) {
+    runOnUiThread(() -> {
+      Intent target=new Intent(action,uri);
+      if (target.resolveActivity(getPackageManager())==null) { show(R.string.open_error); return; }
+      try { startActivity(Intent.createChooser(target,AppLanguage.text(this,label))); }
+      catch (ActivityNotFoundException unavailable) { show(R.string.open_error); }
+    });
   }
 
   private void openExternal(Uri target) {
@@ -525,6 +586,16 @@ public final class FishingActivity extends Activity {
   @Override
   protected void onResume() {
     super.onResume();
+    foreground=true;
+    if (web!=null) {
+      float base=getResources().getConfiguration().fontScale;
+      web.getSettings().setTextZoom(Math.round(100*base*WaterSettingsActivity.textScale(this)));
+      if (getSharedPreferences("appearance",MODE_PRIVATE).getBoolean("screenOn",false))
+        getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+      else getWindow().clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+      signal("window.refreshFieldSettings?.()");
+      if (FieldAlerts.enabled(this,FieldAlerts.POSTS)) FieldAlerts.checkPosts(this,null);
+    }
     checkSession();
   }
 
@@ -539,6 +610,8 @@ public final class FishingActivity extends Activity {
 
   @Override
   protected void onPause() {
+    foreground=false;
+    if (nearbyPosition!=null) nearbyPosition.cancel(1);
     sessionTimer.removeCallbacks(sessionCheck);
     super.onPause();
   }

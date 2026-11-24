@@ -89,6 +89,12 @@ public final class Runner extends Instrumentation {
             + org.json.JSONObject.quote(expectedVersionLabel()));
   }
 
+  int textZoom() {
+    int[] scale = new int[1];
+    runOnMainSync(() -> scale[0] = web.getSettings().getTextZoom());
+    return scale[0];
+  }
+
   String js(String code) throws Exception {
     ArrayBlockingQueue<String> answer = new ArrayBlockingQueue<>(1);
     runOnMainSync(
@@ -467,7 +473,15 @@ public final class Runner extends Instrumentation {
       waitFor("document.querySelector('#fish-query').value==='Alepocephalus agassizii'");
       setControl("#fish-query", "Oncorhynchus mykiss", "input");
       clickReady("#fish-results button");
-      waitFor("!!document.querySelector('#fish-rules > section article a')");
+      waitFor("!!document.querySelector('#fish-size article a') && !document.querySelector('#water-wide-rules')");
+      setControl("#fish-water-class","cztrout","change");
+      waitFor("!!document.querySelector('#water-wide-rules') && !document.querySelector('#species-restrictions article')"
+          + " && document.querySelector('#fish-size').textContent.includes('25 cm') && !!document.querySelector('#report-fish')");
+      android.content.Intent report = ShareChecks.outgoing(this,"#report-fish");
+      String draft = android.net.Uri.decode(report.getDataString());
+      if (!android.content.Intent.ACTION_SENDTO.equals(report.getAction()) || !draft.startsWith("mailto:milan.kucera78@gmail.com?")
+          || !draft.contains("Oncorhynchus mykiss") || !draft.contains("25 cm")) throw new AssertionError("Incomplete fish report");
+      capture("trout-rules");
       clickReady("#back");
       setControl("#fish-query", "Esox lucius", "input");
       clickReady("#fish-results button");
@@ -480,10 +494,15 @@ public final class Runner extends Instrumentation {
       clickReady("#tabwaters");
       // Follow an imported fishery through country filtering, official details and restored atlas state.
       accounts.atlasSettings();
+      js("if(document.querySelector('#atlas-filters').hidden)document.querySelector('#atlas-filter-toggle').click()");
       setControl("#water-country", "IE", "change");
       setControl("#search", "Atlas fixture water", "input");
       clickReady("[data-water='IE:IFI:1']");
       waitFor("document.querySelector('h1').textContent==='Atlas fixture water'");
+      waitFor("!!document.querySelector('#atlas-map-open svg')");
+      android.content.Intent map = ShareChecks.outgoing(this,"#atlas-map-open");
+      if (!android.content.Intent.ACTION_VIEW.equals(map.getAction()) || !"geo".equals(map.getData().getScheme()))
+        throw new AssertionError("Water map did not open an Android map target");
       clickReady("#new-trip");
       waitFor("document.querySelector('#water').value==='IE:IFI:1' && document.querySelector('#custom').hidden");
       clickReady("#back");

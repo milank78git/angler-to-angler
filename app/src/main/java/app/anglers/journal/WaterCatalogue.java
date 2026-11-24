@@ -106,6 +106,7 @@ final class WaterCatalogue {
           }
           if (!prefs.edit().putString(REVISION, hash).putString(DATE, edition)
               .putLong(CHECKED, System.currentTimeMillis()).commit()) throw new IOException("Atlas preferences unavailable");
+          if (!previous.equals(hash)) AtlasAdditions.notify(c, previous, hash);
           File[] files = file(c, hash).getParentFile().listFiles();
           if (files != null) for (File old : files)
             if (!old.equals(file(c, hash)) && !old.equals(file(c, previous))) old.delete();

@@ -780,6 +780,21 @@ final class AccountChecks {
   void atlasSettings() throws Exception {
     app.clickReady("#atlas-settings");
     String daily = tr("atlas_settings.check_automatically_every_day");
+    for (String option : new String[]{"alerts.posts","alerts.waters","alerts.nearby","settings.large","settings.screen_on"}) {
+      if (((CheckBox)find(tr(option))).isChecked()) throw new AssertionError("Unexpected default for " + option);
+    }
+    click(tr("settings.screen_on"));
+    click(tr("settings.large"));
+    app.waitForIdleSync();
+    click(tr("common.back"));
+    app.waitForIdleSync();
+    if (app.textZoom() < 125) throw new AssertionError("Large text did not reach the journal");
+    app.clickReady("#atlas-settings");
+    if (!((CheckBox)find(tr("settings.screen_on"))).isChecked() || !((CheckBox)find(tr("settings.large"))).isChecked())
+      throw new AssertionError("Reading preferences were not retained");
+    click(tr("settings.screen_on"));
+    click(tr("settings.large"));
+    app.waitForIdleSync();
     String manual = tr("atlas_settings.check_now");
     CheckBox automatic = (CheckBox)find(daily);
     if (!automatic.isChecked()) throw new AssertionError("Daily atlas updates disabled by default");
