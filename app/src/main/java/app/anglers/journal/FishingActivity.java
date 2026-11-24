@@ -236,6 +236,8 @@ public final class FishingActivity extends Activity {
         case "water_rating":
         case "water_rate":
         case "top_waters":
+        case "trip_species":
+        case "top_species":
         case "water_report":
         case "water_alerts":
         case "market_discover":
@@ -252,6 +254,7 @@ public final class FishingActivity extends Activity {
         case "activity_mine":
         case "weekly_enter":
         case "weekly_board":
+        case "group_monthly":
         case "weekly_vote":
         case "weekly_report":
         case "weekly_withdraw":

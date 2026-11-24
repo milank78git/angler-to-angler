@@ -1,3 +1,4 @@
+import { bindSharedSpecies } from './shared-species.js';
 import { tripWater } from './water-directory.js';
 import { languageTag } from './i18n.js';
 import { waterMap } from './waters.js';
@@ -165,6 +166,10 @@ export async function activityContribution({ view, nav, pack, waterDirectory }) 
         t('water_activity.only_completed_trips_on_a_catalog_water') +
         '</p>');
   bindBack(nav);
+  if(state.entry && water) {
+    screen.insertAdjacentHTML('beforeend','<details id="species-share" class="fold"><summary>'+t('stats.publish_species')+'</summary><div class="fold-body"></div></details>');
+    bindSharedSpecies(by('species-share'),pack,trip,catches,state);
+  }
   if (state.entry) bind('withdraw-activity', () => withdraw(view, nav, state));
   if (!allowed) return;
   bind('activity-submit', async () => {

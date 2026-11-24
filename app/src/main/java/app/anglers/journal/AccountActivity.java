@@ -543,6 +543,7 @@ public final class AccountActivity extends Activity {
               .getQueryParameter("error_code");
     }
     if ("otp_expired".equals(errorCode)) {
+      android.util.Log.i("AnglerAuth", "Email callback expired or already used");
       ui.message(expiredEmailMessage());
       return;
     }
@@ -556,6 +557,7 @@ public final class AccountActivity extends Activity {
           text("account.sign_in_was_not_completed_please_retry"));
       return;
     }
+    android.util.Log.i("AnglerAuth", "Exchanging pending email or provider callback");
     boolean recovery = "recovery".equals(p.getString("pkcePurpose", ""));
     run(
         () -> service.exchange(code, verifier, expectedEmail),

@@ -70,4 +70,10 @@
   <changeSet id="20261124115256" author="angler" dbms="postgresql">
     <sqlFile path="../supabase/migrations/20261124115256_water_reviews_and_visit_statistics.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
   </changeSet>
+  <changeSet id="20261124120626" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261124120626_optional_group_monthly_challenge.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
+  <changeSet id="20261124120754" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261124120754_volunteered_species_counts.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
 </databaseChangeLog>

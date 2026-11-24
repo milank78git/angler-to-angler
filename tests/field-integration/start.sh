@@ -21,13 +21,7 @@ supabase status -o json > "$stage/local.json"
 chmod 600 "$stage/local.json"
 cd "$repo"
 # Enforce one history and exercise both a first install and an upgrade from the existing pilot.
-url=$(jq -er .DB_URL "$stage/local.json")
-psql "$url" -Xq -v ON_ERROR_STOP=1 -c 'create schema if not exists liquibase'
-lb() {
-  docker run --rm --network host -v "$repo:/liquibase/changelog:ro" -w /liquibase/changelog liquibase/liquibase:4.33.0 \
-    --url=jdbc:postgresql://127.0.0.1:54322/postgres --username=postgres --password=postgres \
-    --liquibase-schema-name=liquibase --changelog-file=db/changelog.xml "$@"
-}
+source tests/field-integration/liquibase.sh
 lb validate
 lb update-to-tag --tag=pilot-0.18
 lb update

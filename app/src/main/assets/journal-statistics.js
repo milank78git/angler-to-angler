@@ -42,10 +42,10 @@ export async function journalStatistics({view,nav,pack,waterDirectory}) {
     if(loading || loaded)return;
     loading=true;body.textContent=t('messages.loading');
     try{
-      const result=await rpc('top_waters');
+      const [result,actual]=await Promise.all([rpc('top_waters'),rpc('top_species')]);
       if(!view.active())return;
       const rows=result.waters.map(r=>({label:waterDirectory.byKey.get(r.water)?.name || r.water,count:r.visits}));
-      body.innerHTML='<p>'+esc(result.month.slice(0,7))+' · '+t('stats.shared_sample')+'</p>'+list(rows);loaded=true;
+      body.innerHTML='<h3>'+t('stats.shared_visits')+'</h3><p>'+esc(result.month.slice(0,7))+' · '+t('stats.shared_sample')+'</p>'+list(rows)+'<h3>'+t('stats.shared_species')+'</h3>'+list(actual.species.map(r=>({label:fish?.names.get(r.latin)?.label || r.latin,count:r.fish})));loaded=true;
     }catch(err){if(view.active()){body.innerHTML='<p>'+esc(failure(err))+'</p>'+button('retry-stats',t('common.retry'),'secondary');by('retry-stats').onclick=refresh;}}
     finally{loading=false;}
   }

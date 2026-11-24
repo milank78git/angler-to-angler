@@ -105,9 +105,13 @@ jobs:
           path: build/smoke/screens
           if-no-files-found: warn
 
+  field-integration:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/field-integration.yml
+
   release:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [build, profiles]
+    needs: [build, profiles, field-integration]
     runs-on: ubuntu-24.04
     permissions:
       contents: write

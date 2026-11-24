@@ -1,6 +1,8 @@
 """Register using the installed APK, the real email, PKCE and the deployed profile RPC."""
 import html
 import json
+import os
+import sys
 import re
 import secrets
 import subprocess
@@ -14,6 +16,7 @@ from pathlib import Path
 package = 'app.anglers.journal.preview'
 callback = 'https://horistum.com/account/' + package + '/callback'
 labels = json.loads(Path('app/src/main/assets/strings-en.json').read_text())
+password = secrets.token_hex(12)+'Aa1'
 address = 'field-' + secrets.token_hex(5) + '@example.test'
 def adb(*args):
     result=subprocess.run(['adb',*args],stdout=subprocess.PIPE,stderr=subprocess.DEVNULL)
@@ -22,8 +25,8 @@ def adb(*args):
     return result.stdout.decode()
 def shell(*args):
     return adb('shell',*args)
-def tap(label=None, field=None):
-    for attempt in range(15):
+def tap(label=None, field=None, optional=False):
+    for attempt in range(2 if optional else 15):
         shell('uiautomator','dump','/sdcard/field-window.xml')
         raw=adb('exec-out','cat','/sdcard/field-window.xml')
         for node in ET.fromstring(raw).iter('node'):
@@ -34,7 +37,8 @@ def tap(label=None, field=None):
             shell('input','tap',str((x+right)//2),str((y+bottom)//2))
             return
         time.sleep(.25)
-    raise RuntimeError('Android control unavailable: '+label)
+    if not optional:
+        raise RuntimeError('Android control unavailable: '+label)
 def enter(label,value):
     tap(label,'android.widget.EditText')
     shell('input','text',value)
@@ -49,7 +53,7 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
 shell('am','start','-n',package+'/app.anglers.journal.AccountActivity')
 tap('account.create_account')
 enter('account.email',address)
-enter('account.new_password',secrets.token_hex(12)+'Aa1')
+enter('account.new_password',password)
 tap('account.register')
 print('Signup submitted; waiting for the test mailbox.',flush=True)
 for attempt in range(30):
@@ -80,6 +84,7 @@ enter('account.display_name_2_60_characters','FieldAngler')
 tap('account.i_accept_the_terms_of_use')
 tap('account.i_acknowledge_the_privacy_notice')
 tap('common.save_profile')
+tap('account.fresh_journal',optional=True)
 for attempt in range(25):
     if any('FishingActivity' in line for line in shell('dumpsys','activity','activities').splitlines() if 'topResumedActivity' in line or 'mResumedActivity' in line):
         break
@@ -87,3 +92,7 @@ for attempt in range(25):
 else:
     raise RuntimeError('Profile saved but journal activity did not open')
 print('APK signup, SMTP delivery, cold-start HTTPS callback, PKCE and profile creation passed.')
+
+stage=Path(sys.argv[1])
+with os.fdopen(os.open(stage/'test-identity.json',os.O_WRONLY|os.O_CREAT|os.O_TRUNC,0o600),'w') as out:
+    json.dump({'email':address,'password':password},out)

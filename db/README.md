@@ -44,3 +44,10 @@ the tagged schema, upgrades it, runs update again, checks the scheduler and then
 registers a user through the installed APK. This is a clean installation and
 upgrade rehearsal. A backup containing real operator data requires its own
 recovery rehearsal.
+
+The field-integration workflow additionally dumps Auth and application data
+from the disposable stack, creates a fresh local target, installs its schema
+with Liquibase and restores the rows. Its acceptance probe signs in with the
+original password and checks the same user ID, accepted profile and water
+rating. The release job requires this workflow on main. This rehearsal uses
+synthetic data and does not touch the pilot database.

@@ -1,11 +1,11 @@
 name: Field integration
-on: [pull_request, workflow_dispatch]
+on: [pull_request, workflow_dispatch, workflow_call]
 permissions:
   contents: read
 jobs:
   register-and-restore:
     runs-on: ubuntu-24.04
-    timeout-minutes: 35
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - uses: supabase/setup-cli@b60b5899c73b63a2d2d651b1e90db8d4c9392f51
@@ -27,3 +27,5 @@ jobs:
           arch: x86_64
           target: google_apis
           script: bash tests/field-integration/android.sh
+      - name: Restore voluntary ratings and the registered identity on a new local stack
+        run: bash tests/field-integration/restore.sh
