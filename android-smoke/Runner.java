@@ -613,8 +613,15 @@ public final class Runner extends Instrumentation {
           "document.getElementById('search').value='401 009';"
               + " document.getElementById('search').dispatchEvent(new Event('input'))");
       waitFor("document.querySelectorAll('[data-water]').length===1");
-      js("document.querySelector('[data-water]').click()");
+      clickReady("#map-toggle");
+      waitFor("document.querySelectorAll('#world-map [data-group]').length===1");
+      js("document.querySelector('#world-map [data-group]').dispatchEvent(new MouseEvent('click',{bubbles:true}))");
       waitFor("!!document.querySelector('#navigate')");
+      ShareChecks.parking(this);
+      clickReady("#back");
+      waitFor("document.querySelector('#map-toggle')?.getAttribute('aria-pressed')==='true'");
+      clickReady("#map-toggle");
+      clickReady("[data-water='CZ:401009']");
       waitFor("!!document.querySelector('#drive-0') && !!document.querySelector('#water-rating')");
       capture("water");
       DiscussionChecks.run(this);

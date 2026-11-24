@@ -3,13 +3,18 @@
 set -euo pipefail
 repo=$(pwd)
 stage=${RUNNER_TEMP:?}/angler-integration
+umask 077
 mkdir -p "$stage"
 cd "$stage"
 supabase init
 python3 - <<'PY'
 from pathlib import Path
 p=Path('supabase/config.toml')
-s=p.read_text().replace('enable_confirmations = false','enable_confirmations = true')
+s=p.read_text()
+a=s.index('[auth.email]'); b=s.index('\n[',a+1)
+email=s[a:b].replace('enable_confirmations = false','enable_confirmations = true')
+assert 'enable_confirmations = true' in email
+s=s[:a]+email+s[b:]
 start=s.index('[auth]'); end=s.index('\n[',start+1)
 import re
 section=re.sub(r'^additional_redirect_urls\s*=.*$', 'additional_redirect_urls = ["https://horistum.com/account/app.anglers.journal.preview/callback"]',s[start:end],flags=re.M)

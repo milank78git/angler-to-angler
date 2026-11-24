@@ -56,6 +56,55 @@ final class ShareChecks {
     }
   }
 
+  /** Select the installed test map from the native dialog and inspect its parking destination. */
+  static void parking(Runner app) throws Exception {
+    String testPackage = app.getContext().getPackageName();
+    android.content.pm.PackageManager pm = app.getTargetContext().getPackageManager();
+    android.content.pm.ResolveInfo handler = pm.resolveActivity(
+        new Intent(Intent.ACTION_VIEW, Uri.parse("geo:0,0")).setPackage(testPackage),
+        android.content.pm.PackageManager.MATCH_DEFAULT_ONLY);
+    check(handler != null, "Test map must resolve on the installed device");
+    String label = handler.loadLabel(pm).toString();
+    ArrayBlockingQueue<Intent> outgoing = new ArrayBlockingQueue<>(1);
+    ActivityMonitor monitor = new ActivityMonitor() {
+      @Override public ActivityResult onStartActivity(Intent intent) {
+        if (!Intent.ACTION_VIEW.equals(intent.getAction()) || !testPackage.equals(intent.getPackage())) return null;
+        outgoing.offer(intent);
+        return new ActivityResult(Activity.RESULT_CANCELED, null);
+      }
+    };
+    app.addMonitor(monitor);
+    try {
+      app.clickReady("#drive-0");
+      long deadline = android.os.SystemClock.elapsedRealtime() + 10000;
+      boolean tapped = false;
+      while (!tapped && android.os.SystemClock.elapsedRealtime() < deadline) {
+        android.view.accessibility.AccessibilityNodeInfo root = app.getUiAutomation().getRootInActiveWindow();
+        if (root != null && !root.findAccessibilityNodeInfosByText(app.label("parking.copy")).isEmpty()) {
+          for (android.view.accessibility.AccessibilityNodeInfo node : root.findAccessibilityNodeInfosByText(label)) {
+            if (!label.equals(String.valueOf(node.getText()))) continue;
+            android.graphics.Rect bounds = new android.graphics.Rect();
+            node.getBoundsInScreen(bounds);
+            long now = android.os.SystemClock.uptimeMillis();
+            app.sendPointerSync(android.view.MotionEvent.obtain(now,now,android.view.MotionEvent.ACTION_DOWN,
+                bounds.centerX(),bounds.centerY(),0));
+            app.sendPointerSync(android.view.MotionEvent.obtain(now,android.os.SystemClock.uptimeMillis(),android.view.MotionEvent.ACTION_UP,
+                bounds.centerX(),bounds.centerY(),0));
+            tapped = true;
+            break;
+          }
+        }
+        if (!tapped) Thread.sleep(100);
+      }
+      check(tapped,"Installed map was absent from the parking dialog");
+      Intent route = outgoing.poll(10, TimeUnit.SECONDS);
+      check(route != null && "geo:49.8770658,14.4263203?q=49.8770658,14.4263203".equals(route.getDataString()),
+          "Selected map did not receive the car park coordinates");
+    } finally {
+      app.removeMonitor(monitor);
+    }
+  }
+
   private static void typeTip(Runner app, String text) throws Exception {
     app.js("(() => {const field=document.querySelector('#share-tip-text');field.value="
         + org.json.JSONObject.quote(text) + ";field.dispatchEvent(new Event('input'));})()");

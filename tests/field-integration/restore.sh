@@ -18,14 +18,14 @@ supabase status -o json > local.json
 cd "$repo"
 source tests/field-integration/liquibase.sh
 lb update
-# Seed catalogues are already in the database dump. Empty the target's data tables together.
+# Drop freshly seeded rows together, including empty dependent tables owned by the local stack.
 docker exec -i "$container" psql -Xq -U supabase_admin -d postgres -v ON_ERROR_STOP=1 <<'SQL'
 do $$
 declare targets text;
 begin
   select string_agg(format('%I.%I',schemaname,tablename),',') into targets from pg_tables
     where (schemaname='auth' and tablename<>'schema_migrations') or left(schemaname,7)='angler_';
-  execute 'truncate table '||targets;
+  execute 'truncate table '||targets||' cascade';
 end $$;
 SQL
 docker exec -i "$container" pg_restore -U supabase_admin -d postgres --single-transaction --exit-on-error --no-owner \

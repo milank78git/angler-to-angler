@@ -41,13 +41,28 @@ export async function journalStatistics({view,nav,pack,waterDirectory}) {
   async function refresh() {
     if(loading || loaded)return;
     loading=true;body.textContent=t('messages.loading');
-    try{
-      const [result,actual]=await Promise.all([rpc('top_waters'),rpc('top_species')]);
-      if(!view.active())return;
-      const rows=result.waters.map(r=>({label:waterDirectory.byKey.get(r.water)?.name || r.water,count:r.visits}));
-      body.innerHTML='<h3>'+t('stats.shared_visits')+'</h3><p>'+esc(result.month.slice(0,7))+' · '+t('stats.shared_sample')+'</p>'+list(rows)+'<h3>'+t('stats.shared_species')+'</h3>'+list(actual.species.map(r=>({label:fish?.names.get(r.latin)?.label || r.latin,count:r.fish})));loaded=true;
-    }catch(err){if(view.active()){body.innerHTML='<p>'+esc(failure(err))+'</p>'+button('retry-stats',t('common.retry'),'secondary');by('retry-stats').onclick=refresh;}}
-    finally{loading=false;}
+    const [visits, catches] = await Promise.allSettled([rpc('top_waters'), rpc('top_species')]);
+    if (!view.active()) return;
+    const period = result => '<p>' + esc(result.month.slice(0,7)) + ' · ' + t('stats.shared_sample') + '</p>';
+    const unavailable = result => '<p>' + esc(failure(result.reason)) + '</p>';
+    const visitsHtml = visits.status === 'fulfilled'
+      ? period(visits.value) + list(visits.value.waters.map(row => ({
+          label: waterDirectory.byKey.get(row.water)?.name || row.water, count: row.visits
+        })))
+      : unavailable(visits);
+    const speciesHtml = catches.status === 'fulfilled'
+      ? period(catches.value) + list(catches.value.species.map(row => ({
+          label: fish?.names.get(row.latin)?.label || row.latin, count: row.fish
+        })))
+      : unavailable(catches);
+    body.innerHTML = '<h3>' + t('stats.shared_visits') + '</h3>' + visitsHtml +
+      '<h3>' + t('stats.shared_species') + '</h3>' + speciesHtml;
+    loaded = visits.status === 'fulfilled' && catches.status === 'fulfilled';
+    loading = false;
+    if (!loaded) {
+      body.insertAdjacentHTML('beforeend', button('retry-stats', t('common.retry'), 'secondary'));
+      by('retry-stats').onclick = refresh;
+    }
   }
   panel.ontoggle=()=>{if(panel.open)refresh();};
 }
