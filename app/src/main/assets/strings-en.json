@@ -350,7 +350,7 @@
   "field-hints.rule-country": "Choose the country where you plan to fish. Each rule has its own territorial scope and source.",
   "field-hints.rule-date": "Select your fishing date. Closed seasons vary during the year and the water pack has a validity period.",
   "field-hints.rule-water": "The selected water determines local size limits, sections and restrictions.",
-  "field-hints.rule-water-search": "Search the installed atlas by name or water number. Select a water to see its reviewed local rules or open its official source.",
+  "field-hints.rule-water-search": "Search by name or water number. One match shows its rules immediately. If several waters match, select one.",
   "field-hints.search": "Search by water name, registry number or town. In Favorites the search covers only your saved waters.",
   "field-hints.section": "Choose the part of the water where you plan to fish. The main channel and side sections can have different rules.",
   "field-hints.share-bait": "Include the bait you recorded for the catch in the message.",

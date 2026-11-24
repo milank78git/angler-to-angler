@@ -1,3 +1,4 @@
+import { attachHints } from './guide.js';
 import { waterFishRules } from './water-fish-rules.js';
 import { bindWaterPicker, waterOption, waterPicker } from './water-picker.js';
 import { localRuleWater } from './water-directory.js';
@@ -70,36 +71,67 @@ function ruleResult(pack, w) {
     '</p>';
   bind('watch-toggle', () => Device.reminder(key, !watching));
 }
-export function rulesScreen({ view, pack, nav, waterDirectory }) {
+export async function rulesScreen({ view, pack, nav, waterDirectory, hints }) {
   const { route } = view;
   const contextual = route.page === 'waterRules';
-  const site = route.id ? waterDirectory.byId.get(route.id) : (route.country ? undefined : waterDirectory.waters[0]);
-  const w = localRuleWater(pack, site);
-  if (site) route.id = site.id;
+  const site = route.id === undefined && !route.country ? waterDirectory.waters[0] : waterDirectory.byId.get(route.id);
   const fixed = contextual && !route.country && site;
-  const fishId = route.latin && Object.keys(pack.species).find(key => pack.species[key].latin === route.latin);
   const picker = fixed ? selectField('rule-water', t('common.water'), [[site.key, waterOption(site)]], site.key)
-    : waterPicker('rule-water', t('common.water'), site ? null : t('seasons.choose_water'));
+    : waterPicker('rule-water', t('common.water'), t('seasons.choose_water'));
   screen.innerHTML = (contextual ? back(route.country ? t('common.back') : site?.name || t('atlas.title')) : '') +
     `<div class="page-intro"><div class="title-mark">${icon('calendar-days')}</div><h1>${t('common.seasons_sizes')}</h1></div>
     <div class="columns"><section class="surface">${picker}<div id="rule-fields"></div></section>
-    <div><div id="status" aria-live="polite"></div><div id="watch"></div></div></div>`;
+    <div><div id="status" aria-live="polite"></div><div id="watch"></div></div></div><div id="rule-sources"></div>`;
   if (contextual) bindBack(nav);
-  if (fixed) by('rule-water').disabled = true;
-  else {
-    const selectedWater = bindWaterPicker('rule-water', view, waterDirectory, site?.key, route.country);
-    by('rule-water').onchange = async () => {
-      const selected = selectedWater();
-      if (!selected) return;
-      if (selected.id !== route.id) delete route.lookupClass;
-      route.id = selected.id;
+  let current;
+  view.dispose = () => current?.dispose();
+  async function showWater(water) {
+    if (current && route.id === (water?.id ?? null)) return;
+    current?.dispose();
+    if (route.id !== water?.id) {
+      delete route.lookupClass;
       route.section = 'main';
-      await nav.show();
-      if (nav.current.route === route) by('rule-water')?.focus();
-    };
+    }
+    route.id = water?.id ?? null;
+    for (const id of ['rule-fields', 'status', 'watch', 'rule-sources']) by(id).replaceChildren();
+    // A slow species catalog response must never repopulate the rules for an earlier search.
+    const result = { route, active: () => view.active() && current === result, dispose: () => {} };
+    current = result;
+    if (!water) return;
+    try {
+      await showWaterRules(result, pack, nav, waterDirectory, water);
+      if (result.active()) attachHints(by('rule-fields'), route.page, hints);
+    } catch (error) {
+      if (!result.active()) return;
+      console.error('Could not load water rules', error);
+      by('status').innerHTML = '<p role="alert">' + esc(t('journal.could_not_open_this_screen')) +
+        '</p>' + button('retry-rules', t('common.retry'));
+      bind('retry-rules', () => nav.show());
+    }
   }
+  if (fixed) {
+    by('rule-water').disabled = true;
+    await showWater(site);
+  } else {
+    by('rule-water-search').value = route.waterQuery || '';
+    const selection = bindWaterPicker('rule-water', view, waterDirectory, site?.key, route.country, (water, query) => {
+      route.waterQuery = query;
+      showWater(water);
+    });
+    by('rule-water').onchange = event => {
+      event.target.focus({ preventScroll: true });
+      showWater(selection());
+    };
+    await showWater(selection());
+  }
+}
+
+/** Render details for the current lookup while leaving the search input and its caret in place. */
+async function showWaterRules(view, pack, nav, waterDirectory, site) {
+  const { route } = view;
+  const w = localRuleWater(pack, site);
+  const fishId = route.latin && Object.keys(pack.species).find(key => pack.species[key].latin === route.latin);
   // Directory membership alone supplies no local size limit, closed season or reminder.
-  if (!site) return;
   if (!w || (route.latin && !fishId)) {
     if (site.country === 'CZ') return waterFishRules(view, nav, site);
     const authority = waterDirectory.countries[site.country]?.authority;
@@ -126,7 +158,7 @@ export function rulesScreen({ view, pack, nav, waterDirectory }) {
       route.section || 'main',
     )}
     <div class="pair"><div>${selectField('species', t('common.fish_species'), species, route.species || fishId || species[0][0])}</div><div><label for="rule-date">${t('seasons.fishing_date')}</label><input id="rule-date" type="date" value="${esc(route.day ?? Domain.today(pack.zone))}"></div></div>`;
-  screen.insertAdjacentHTML('beforeend', `<details class="fold"><summary>${icon('info')}${t('seasons.coverage_and_sources')}</summary><div class="fold-body"><p>${t('seasons.the_selected_rule_covers_this_species_and')}</p><p class="sub">${t('seasons.checked')} ${esc(displayDay(pack.revision))} · ${t('seasons.valid_through')} ${esc(displayDay(pack.until))}</p><div class="rulesrc">${link(w.source, t('seasons.fishery_authority'))}${link(pack.law, t('seasons.national_closed_seasons'))}</div></div></details>`);
+  by('rule-sources').innerHTML = `<details class="fold"><summary>${icon('info')}${t('seasons.coverage_and_sources')}</summary><div class="fold-body"><p>${t('seasons.the_selected_rule_covers_this_species_and')}</p><p class="sub">${t('seasons.checked')} ${esc(displayDay(pack.revision))} · ${t('seasons.valid_through')} ${esc(displayDay(pack.until))}</p><div class="rulesrc">${link(w.source, t('seasons.fishery_authority'))}${link(pack.law, t('seasons.national_closed_seasons'))}</div></div></details>`;
   for (const key of ['section', 'species', 'rule-date'])
     by(key).onchange = () => {
       route.section = by('section').value;

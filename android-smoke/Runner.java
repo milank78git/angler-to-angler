@@ -124,6 +124,23 @@ public final class Runner extends Instrumentation {
     js(readyControl(selector) + ".click()");
   }
 
+  /** Type into the lookup without opening its select or dismissing the Android keyboard. */
+  private void checkLiveRuleSearch() throws Exception {
+    js("document.querySelector('#rule-water-search').focus()");
+    setControl("#rule-water-search", "461 024", "input");
+    waitFor("document.querySelector('#rule-water').value==='CZ:MRS:1'"
+        + " && !!document.querySelector('#status a[href=\"https://mrsbrno.cz/reviry/1\"]')"
+        + " && document.activeElement.id==='rule-water-search'");
+    setControl("#rule-water-search", "401", "input");
+    waitFor("document.querySelector('#rule-water').options.length>2 && document.querySelector('#rule-water').value===''"
+        + " && document.querySelector('#status').textContent==='' && !document.querySelector('#watch-toggle')");
+    setControl("#rule-water-search", "000 000 000", "input");
+    waitFor("!document.querySelector('#rule-water-empty').hidden && document.querySelector('#rule-fields').textContent===''");
+    setControl("#rule-water-search", "401009", "input");
+    waitFor("document.querySelector('#rule-water').value==='CZ:401009' && !!document.querySelector('#section')");
+    setControl("#rule-water-search", "", "input");
+  }
+
   /** Exercise combined parking filters and route to the second car park on a catalog water. */
   private void checkParkingFilter() throws Exception {
     setControl("#search", "", "input");
@@ -137,7 +154,8 @@ public final class Runner extends Instrumentation {
     setControl("#water-country", "CZ", "change");
     setControl("#search", "421 200", "input");
     waitFor("document.querySelectorAll('#world-map [data-group]').length===1"
-        + " && document.querySelector('#map-count').textContent.includes('1 / 1')");
+        + " && document.querySelector('#map-count').textContent.includes('1 / 1')"
+        + " && !document.querySelector('#atlas-photo-credits .credits')");
     js("document.querySelector('#world-map [data-group]').dispatchEvent(new MouseEvent('click',{bubbles:true}))");
     waitFor("!!document.querySelector('#drive-1')");
     ShareChecks.parking(this, "#drive-1", "48.6594239,14.1710583");
@@ -630,6 +648,7 @@ public final class Runner extends Instrumentation {
               + " !document.querySelector('#rule-water').disabled");
       js("document.querySelector('#theme').click()");
       waitFor("document.documentElement.dataset.theme==='dark'");
+      checkLiveRuleSearch();
       js("(() => { const water=document.querySelector('#rule-water'); water.selectedIndex=water.selectedIndex===0?1:0; water.dispatchEvent(new Event('change')); })()");
       waitFor("!!document.querySelector('label[for=rule-water] + .field-hint') && document.activeElement.id==='rule-water'");
       capture("seasons");

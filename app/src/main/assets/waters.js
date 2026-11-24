@@ -116,9 +116,8 @@ export async function listWaters({ view, pack, nav, waterDirectory }) {
   }
   const countries = [...new Set([...Object.keys(waterDirectory.countries),'CZ','US'])]
     .map(code => [code, countryName(code)]).sort((a,b) => a[1].localeCompare(b[1]));
-  const cover = pack.waters.find((w) => w.id === pack.coverWater) || pack.waters[0];
-  screen.innerHTML = `<section class="hero atlas-hero">${photo(cover, 'hero-img')}<div class="hero-copy"><div class="hero-meta">${icon('map-pin')}${t('waters.czechia_and_abroad')}</div><h1>${t('atlas.title')}</h1></div>
-    <span class="photo-place">${esc(cover?.name || '')}</span></section>
+  const cover = waterDirectory.byId.get(pack.coverWater) || pack.waters[0];
+  screen.innerHTML = `<section id="atlas-heading"></section>
     <div class="quick-actions home-features">${button('home-market', t('market.title'), 'primary')}${button('home-fish', t('fish_catalogue.title'), 'secondary', 'fish-symbol')}</div>
     <div class="catalog-tools"><div class="search-box">${icon('search')}<label class="sr" for="search">${t('waters.name_water_number_or_town')}</label><input type="search" id="search" value="${esc(route.query || '')}" placeholder="${t('waters.search_waters_numbers_or_towns')}"></div>
     <div class="atlas-actions">${button('atlas-filter-toggle',t('settings.filters'),'secondary','sliders-horizontal')}${button('atlas-settings',t('settings.title'),'secondary')}${button('map-toggle',t('atlas.map'),'secondary','map')}</div>
@@ -131,7 +130,7 @@ export async function listWaters({ view, pack, nav, waterDirectory }) {
     ${parking ? '' : '<p role="status">' + esc(t('parking.unavailable')) + '</p>' + button('retry-parking',t('common.retry'),'secondary')}
     <details id="atlas-sources"><summary>${t('seasons.coverage_and_sources')}</summary><div id="water-coverage"></div></details></div>
     <div class="filter-row"><div class="segments">${button('all', t('common.all'))}${button('saved', t('waters.favorites'), '', 'bookmark')}</div><span class="count" id="found" role="status"></span></div></div>
-    ${route.additions ? '<p class="meta">'+t('alerts.waters')+' · '+button('clear-additions',t('common.all'),'secondary')+'</p>' : ''}<section id="atlas-world" class="surface" hidden></section><div id="waters" class="water-list"></div>${button('more-waters', t('waters.show_more_waters'), 'secondary')}${credits(...pack.waters)}`;
+    ${route.additions ? '<p class="meta">'+t('alerts.waters')+' · '+button('clear-additions',t('common.all'),'secondary')+'</p>' : ''}<section id="atlas-world" class="surface" hidden></section><div id="waters" class="water-list"></div>${button('more-waters', t('waters.show_more_waters'), 'secondary')}<div id="atlas-photo-credits"></div>`;
   if (route.additions) bind('clear-additions', () => { delete route.additions; nav.show(); });
   const filters=by('atlas-filters'), toggle=by('atlas-filter-toggle');
   function syncFilters() {
@@ -203,6 +202,20 @@ export async function listWaters({ view, pack, nav, waterDirectory }) {
         (!route.parkingOnly || parking[w.key]?.length > 0) && matchesWater(w, q),
     );
     if (distances) matches.sort((a, b) => (distances.get(a.id) ?? Infinity) - (distances.get(b.id) ?? Infinity));
+    const shown = matches.slice(0, limit);
+    const filtered = q || route.country || route.favorites || route.parkingOnly || route.additions;
+    const picture = filtered ? shown.find(water => water.photo) : cover;
+    const heading = by('atlas-heading');
+    if (heading.dataset.picture !== (picture?.id || '')) {
+      heading.dataset.picture = picture?.id || '';
+      heading.className = picture ? 'hero atlas-hero' : 'page-intro';
+      heading.innerHTML = picture ?
+        `${photo(picture, 'hero-img')}<div class="hero-copy"><div class="hero-meta">${icon('map-pin')}${t('waters.czechia_and_abroad')}</div><h1>${t('atlas.title')}</h1></div><span class="photo-place">${esc(picture.name)}</span>` :
+        '<h1>' + esc(t('atlas.title')) + '</h1>';
+    }
+    const picturedWaters = new Set(route.mapOpen ? [] : shown.filter(water => water.photo));
+    if (picture?.photo) picturedWaters.add(picture);
+    by('atlas-photo-credits').innerHTML = credits(...picturedWaters);
     const generation=++mapGeneration;
     mapHost.hidden=!route.mapOpen;
     by('waters').hidden=!!route.mapOpen;
@@ -221,14 +234,8 @@ export async function listWaters({ view, pack, nav, waterDirectory }) {
     by('saved').setAttribute('aria-pressed', String(!!route.favorites));
     by('found').textContent = t('waters.waters') + ' · ' + matches.length;
     by('waters').innerHTML =
-      matches.slice(0, limit)
-        .map(
-          (
-            w,
-          ) => `<article class="water-card"><button type="button" class="water-open" data-water="${esc(w.id)}">
-      ${photo(w, 'thumb')}<span class="water-copy"><span class="number">${esc(w.number)}</span><strong>${esc(w.name)}</strong><span class="sub">${esc(w.area)}${distances?.has(w.id) ? ' · ' + distances.get(w.id).toFixed(1) + ' km' : ''}</span></span></button>${favoriteButton(pack, w)}</article>`,
-        )
-        .join('') ||
+      shown.map(w => `<article class="water-card"><button type="button" class="water-open" data-water="${esc(w.id)}">
+      ${photo(w, 'thumb')}<span class="water-copy"><span class="number">${esc(w.number)}</span><strong>${esc(w.name)}</strong><span class="sub">${esc(w.area)}${distances?.has(w.id) ? ' · ' + distances.get(w.id).toFixed(1) + ' km' : ''}</span></span></button>${favoriteButton(pack, w)}</article>`).join('') ||
       emptyState(
         route.favorites ? 'bookmark' : 'search',
         route.favorites && !q && !route.parkingOnly

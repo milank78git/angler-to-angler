@@ -14,12 +14,12 @@ export function waterOption(water) {
 }
 
 /** Search the whole edition, while keeping the native list small and the selected identity visible. */
-export function bindWaterPicker(id, view, directory, selectedKey, country) {
+export function bindWaterPicker(id, view, directory, selectedKey, country, onSearch) {
   const search = by(id + '-search'), select = by(id), more = by(id + '-more');
   const empty = select.options[0]?.text;
   const pageSize = 60;
   let limit = pageSize, retained;
-  function populate(key) {
+  function populate(key, typing = false) {
     const query = fold(search.value);
     const selected = directory.byKey.get(key) || (retained?.key === key ? retained : undefined);
     const options = empty ? [new Option(empty, '')] : [];
@@ -30,8 +30,13 @@ export function bindWaterPicker(id, view, directory, selectedKey, country) {
       options.push(new Option(waterOption(water), water.key));
       if (water.key === key) visible = true;
     }
-    // Historical offers can retain an identity from a previous edition.
-    if (key && !visible) options.push(new Option(selected ? waterOption(selected) : key, key));
+    if (onSearch && typing) {
+      key = query && matches === 1 ? options[options.length - 1].value : '';
+    } else if (key && !visible) {
+      // Editors can retain historical identities. A live lookup only displays matching waters.
+      if (onSearch && query && (!selected || !matchesWater(selected, query))) key = '';
+      else options.push(new Option(selected ? waterOption(selected) : key, key));
+    }
     select.replaceChildren(...options);
     select.value = key || '';
     more.hidden = matches <= limit;
@@ -39,7 +44,11 @@ export function bindWaterPicker(id, view, directory, selectedKey, country) {
     retained = selected;
   }
   populate(selectedKey);
-  search.oninput = () => { limit = pageSize; populate(select.value); };
+  search.oninput = () => {
+    limit = pageSize;
+    populate(select.value, true);
+    if (onSearch) onSearch(directory.byKey.get(select.value), search.value);
+  };
   more.onclick = () => { limit += pageSize; populate(select.value); };
   view.refreshWaters = updated => {
     retained = directory.byKey.get(select.value) || retained;
