@@ -4,7 +4,7 @@ import { by, screen, esc, bind, back, bindBack, button, t, displayDay, field, te
 import { authorRating, purchaseRating, bindPurchaseRating } from './tip-ratings.js';
 import { rpc } from './profile-api.js';
 import { newJournalId } from './journal.js';
-import { today } from './domain.js';
+import { fold, today } from './domain.js';
 
 const market = () => t('Tržiště tipů', 'Tip market');
 const credits = n => t(n + ' test. kr.', n + ' test credits');
@@ -16,7 +16,33 @@ const shelves = () => ({
   browse: t('K dispozici', 'Available'), purchased: t('Zakoupené tipy', 'Purchased tips'), mine: t('Moje nabídky', 'My offers'),
 });
 const editLabel = () => t('Upravit nabídku', 'Edit offer');
-const waterName = (pack, key) => pack.waters.find(w => pack.country + ':' + w.id === key)?.name || '';
+const waterName = (directory, key) => directory.byKey.get(key)?.name || '';
+function waterPicker(id, label, emptyLabel) {
+  return textInput(id + '-search', t('Hledat revír podle názvu nebo čísla', 'Find a water by name or number'), '', 'type="search"') +
+    selectField(id, label, [['', emptyLabel]], '');
+}
+
+/** Keep a selected water visible while narrowing the choices by name, number or organisation. */
+function bindWaterPicker(id, directory, value) {
+  const search = by(id + '-search'), select = by(id);
+  const empty = select.options[0].text;
+  function populate(selected) {
+    const query = fold(search.value);
+    const options = [new Option(empty, '')];
+    for (const w of directory.waters) {
+      if (w.provider === 'FWP') continue;
+      if (w.key === selected || fold(w.name + ' ' + w.number + ' ' + w.area).includes(query)) {
+        options.push(new Option([w.name, w.number, w.country].filter(Boolean).join(' · '), w.key));
+      }
+    }
+    // Retain the identity of offers from an earlier catalogue revision.
+    if (selected && !directory.byKey.has(selected)) options.push(new Option(selected, selected));
+    select.replaceChildren(...options);
+    select.value = selected || '';
+  }
+  populate(value);
+  search.oninput = () => populate(select.value);
+}
 const heading = title => back(t('Zpět', 'Back')) + '<h1>' + esc(title) + '</h1>';
 
 function errorText(status) {
@@ -38,7 +64,7 @@ function loadError(view, nav, err) {
 }
 
 /** Ratings describe buyers' experiences with this tip and all of its author's tips separately. */
-function offerFacts(item, pack, directory) {
+function offerFacts(item, waterDirectory, directory) {
   const fish = directory.names.get(item.species);
   const score = item.offerRating;
   const tipRating = !score ? '' : '<p class="meta">' + t('Hodnocení tohoto tipu','This tip’s rating') + ' · ' +
@@ -46,7 +72,7 @@ function offerFacts(item, pack, directory) {
       t('Zatím bez hodnocení','No ratings yet')) + '</p>';
   const remaining = item.limit == null ? t('Bez limitu', 'Unlimited') :
     t('Zbývá ', 'Remaining ') + Math.max(0, item.limit - item.sold);
-  return '<p>' + [fish?.label || item.species, access()[item.access], displayDay(item.day), waterName(pack, item.water)]
+  return '<p>' + [fish?.label || item.species, access()[item.access], displayDay(item.day), waterName(waterDirectory, item.water)]
     .filter(Boolean).map(esc).join(' · ') + '</p><p class="meta">' +
     [item.author, t('Prodáno ', 'Sold ') + item.sold, item.withdrawn ? t('Staženo', 'Withdrawn') : remaining]
       .filter(Boolean).map(esc).join(' · ') + '</p><strong>' + credits(item.price) + '</strong>' + tipRating + authorRating(item.authorRating);
@@ -57,7 +83,7 @@ function claim(view, nav) {
     err => toast(errorText(err.status))));
 }
 
-export async function marketShelf({ view, nav, pack }) {
+export async function marketShelf({ view, nav, waterDirectory }) {
   const { shelf = 'browse', cursor = null, water = null } = view.route;
   let data, directory;
   try {
@@ -74,18 +100,18 @@ export async function marketShelf({ view, nav, pack }) {
       '<p>' + t('Zůstatek', 'Balance') + ' · ' + credits(data.balance) + '</p>') +
     '<div class="actions">' + Object.entries(shelves()).map(([key, label]) =>
       button('shelf-' + key, label, shelf === key ? 'primary' : 'secondary')).join('') + '</div>' +
-    (shelf === 'browse' ? selectField('market-water',t('Revír','Water'),
-      [['',t('Všechny revíry','All waters')],...pack.waters.map(w => [pack.country+':'+w.id,w.name])],water || '') +
+    (shelf === 'browse' ? waterPicker('market-water', t('Revír', 'Water'), t('Všechny revíry', 'All waters')) +
       '<p id="market-stats">' + [[t('Aktivní nabídky','Active offers'),data.stats.offers],
         [t('Autoři tipů','Tip authors'),data.stats.authors],[t('Nákupy aktivních tipů','Purchases of active tips'),data.stats.sales],
         [t('Hodnocení kupujících','Buyer ratings'),data.stats.ratings]].map(([label,n]) => esc(label)+' · '+esc(n)).join(' / ') + '</p>' : '') +
     '<h2>' + shelves()[shelf] + '</h2>' + (data.items.map((item, i) =>
-      '<article class="surface"><h3>' + esc(item.title) + '</h3>' + offerFacts(item, pack, directory) +
+      '<article class="surface"><h3>' + esc(item.title) + '</h3>' + offerFacts(item, waterDirectory, directory) +
       button('offer-' + i, t('Otevřít tip', 'Open tip'), 'secondary') + '</article>').join('') ||
       '<p class="empty">' + t('Zatím tu nejsou žádné tipy.', 'No tips here yet.') + '</p>') +
     (data.next ? button('market-more', t('Další tipy', 'More tips'), 'secondary') : '') +
     button('market-create', t('Nabídnout techniku', 'Offer a technique'), 'primary');
   bindBack(nav);
+  if (shelf === 'browse') bindWaterPicker('market-water', waterDirectory, water);
   if (by('market-water')) by('market-water').onchange = e => {
     view.route.water = e.target.value || null; view.route.cursor = null; nav.show();
   };
@@ -99,7 +125,7 @@ export async function marketShelf({ view, nav, pack }) {
   bind('market-create', () => nav.open('marketEditor', { water }));
 }
 
-export async function marketDetail({ view, nav, pack }) {
+export async function marketDetail({ view, nav, waterDirectory }) {
   const { id } = view.route;
   let item, directory;
   try { [item,directory] = await Promise.all([rpc('market_detail', { offer_id: id }),fishDirectory()]); }
@@ -107,7 +133,7 @@ export async function marketDetail({ view, nav, pack }) {
   if (!view.active()) return;
   const available = !item.withdrawn && (item.limit == null || item.limit > item.sold);
   screen.innerHTML = heading(item.title) + '<article class="surface"><h2>' + t('Rybářská technika', 'Fishing technique') +
-    '</h2>' + offerFacts(item, pack, directory) + '</article>' +
+    '</h2>' + offerFacts(item, waterDirectory, directory) + '</article>' +
     (item.mine || item.purchased ? '<section class="surface"><h2>' +
       (item.mine ? t('Obsah tvého tipu', 'Your technique') : t('Zakoupená technika', 'Purchased technique')) +
       '</h2><p class="discussion-body" id="market-technique">' + esc(item.technique) + '</p></section>' :
@@ -141,7 +167,7 @@ export async function marketDetail({ view, nav, pack }) {
 }
 
 /** An author explicitly writes the unlocked text. No notes, photos or coordinates are copied from a trip. */
-export async function marketEditor({ view, nav, pack }) {
+export async function marketEditor({ view, nav, waterDirectory }) {
   const route = view.route;
   let old, directory;
   try {
@@ -160,8 +186,7 @@ export async function marketEditor({ view, nav, pack }) {
     field('offer-species',t('Cílová ryba','Target fish'),'<select id="offer-species" required></select>') +
     textInput('offer-day', t('Datum zkušenosti', 'Date fished'), old?.day ?? route.day ?? currentDay,
       'required type="date" min="1900-01-01" max="' + currentDay + '"') +
-    selectField('offer-water', t('Revír v náhledu', 'Water shown in preview'),
-      [['', t('Neuvádět', 'Omit')], ...pack.waters.map(w => [pack.country + ':' + w.id, w.name])], old?.water ?? route.water ?? '') +
+    waterPicker('offer-water', t('Revír v náhledu', 'Water shown in preview'), t('Neuvádět', 'Omit')) +
     selectField('offer-access', t('Způsob lovu', 'Where to fish'), Object.entries(access()), old?.access ?? 'shore') +
     textInput('offer-price', t('Cena v testovacích kreditech', 'Price in test credits'), old?.price ?? 10, 'required type="number" min="1" max="100"') +
     textInput('offer-limit', t('Celkový limit prodejů (volitelný)', 'Total sales limit (optional)'), old?.limit ?? '',
@@ -171,6 +196,7 @@ export async function marketEditor({ view, nav, pack }) {
       '<textarea required minlength="10" maxlength="2000" rows="5" id="offer-technique">' + esc(old?.technique) + '</textarea>') +
     '</fieldset><button id="market-preview" class="primary">' + t('Zkontrolovat nabídku', 'Review offer') + '</button></form>';
   bindBack(nav);
+  bindWaterPicker('offer-water', waterDirectory, old?.water ?? route.water);
   const picker = by('offer-species');
   const country = by('offer-country');
   const search = by('species-filter');
@@ -203,7 +229,7 @@ export async function marketEditor({ view, nav, pack }) {
     review(draft);
   };
   async function review(draft) {
-    const message = [draft.title, draft.species, displayDay(draft.day), access()[draft.access], waterName(pack, draft.water),
+    const message = [draft.title, draft.species, displayDay(draft.day), access()[draft.access], waterName(waterDirectory, draft.water),
       credits(draft.price), draft.limit == null ? t('Bez limitu', 'Unlimited') : t('Limit prodejů: ', 'Sales limit: ') + draft.limit]
       .filter(Boolean).join(' · ');
     if (!await confirmAction({ title: t('Zveřejnit tento náhled?', 'Publish this preview?'), message,

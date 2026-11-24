@@ -26,7 +26,7 @@ export function fishDirectory() {
   return cache;
 }
 
-function countryName(code) {
+export function countryName(code) {
   try { return new Intl.DisplayNames([languageTag], { type: 'region' }).of(code); }
   catch { return code; }
 }

@@ -1,0 +1,8 @@
+{
+  "CYL": {"country":"ES","zone":"Europe/Madrid","label":"Junta de Castilla y León · Cesefor","scope":"Castilla y León · Cotos de pesca","kind":"section","url":"https://pescacastillayleon.es/visor/"},
+  "DDT49": {"country":"FR","zone":"Europe/Paris","label":"DDT de Maine-et-Loire","scope":"Maine-et-Loire · Parcours carpe de nuit","kind":"section","url":"https://www.data.gouv.fr/datasets/parcours-de-peche-de-la-carpe-dans-le-departement-de-maine-et-loire-1","licence":"Licence Ouverte 2.0"},
+  "DORIS": {"country":"AT","zone":"Europe/Vienna","label":"Land Oberösterreich · DORIS","scope":"Oberösterreich · Fischereirechte","kind":"section","url":"https://www.data.gv.at/datasets/75548ee1-5369-4a89-8367-69efd0c703e5?locale=de","licence":"CC BY 4.0"},
+  "GEOFA": {"country":"DK","zone":"Europe/Copenhagen","label":"GeoDanmark · GeoFA","scope":"Danmark · Fiskesøer, fiskepladser og platforme","kind":"access","url":"https://www.geodanmark.dk/home/vejledninger/geofa/hent-geofa/"},
+  "PZW": {"country":"PL","zone":"Europe/Warsaw","label":"Polski Związek Wędkarski","scope":"Polska · Łowiska i wody PZW","kind":"fishery","url":"https://pzw.pl/strefa-wedkarza/lowiska-i-wody-pzw"},
+  "ZH": {"country":"CH","zone":"Europe/Zurich","label":"Kanton Zürich · Fischerei- und Jagdverwaltung","scope":"Kanton Zürich · Fischereireviere","kind":"fishery","url":"https://www.zh.ch/de/umwelt-tiere/tiere/fischerei/fischereireviere.html","licence":"CC0"}
+}

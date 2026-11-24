@@ -18,6 +18,7 @@ cfg=args.parse_args()
 translator=ctranslate2.Translator(str(cfg.model),device="cpu",compute_type="int8",intra_threads=7)
 sp=sentencepiece.SentencePieceProcessor(model_file=str(cfg.model/"sentencepiece.bpe.model"))
 vocabulary=set(json.loads((cfg.model/"shared_vocabulary.json").read_text()))
+english_labels = json.loads((assets/'strings-en.json').read_text())
 for language in cfg.languages:
     token=f"__{language}__"
     if token not in vocabulary: raise ValueError("Unsupported target "+language)
@@ -27,12 +28,13 @@ for language in cfg.languages:
     keys=sorted((k for k in source if k not in existing and k.strip()),key=len)
     for i in range(0,len(keys),48):
         chunk=keys[i:i+48]
-        encoded=[["__en__"]+sp.encode(k.strip(),out_type=str)+["</s>"] for k in chunk]
+        texts=[english_labels.get(key,key) for key in chunk]
+        encoded=[["__en__"]+sp.encode(k.strip(),out_type=str)+["</s>"] for k in texts]
         results=translator.translate_batch(encoded,target_prefix=[[token] for _ in chunk],beam_size=1,
                 max_decoding_length=min(250,max(len(s) for s in encoded)*2+12),repetition_penalty=1.08)
-        for key,res in zip(chunk,results):
+        for key,original,res in zip(chunk,texts,results):
             value=sp.decode(res.hypotheses[0][1:]).strip()
-            if not value or any(c in value for c in "<>") or sorted(re.findall(r"\d+",key))!=sorted(re.findall(r"\d+",value)): continue
+            if not value or any(c in value for c in "<>") or sorted(re.findall(r"\d+",original))!=sorted(re.findall(r"\d+",value)): continue
             existing[key]=(" " if key.startswith(" ") else "")+value+(" " if key.endswith(" ") else "")
     tmp=path.with_suffix(".tmp")
     tmp.write_text(json.dumps(existing,ensure_ascii=False,sort_keys=True,indent=1)+"\n")

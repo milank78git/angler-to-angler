@@ -18,8 +18,10 @@ export async function waterReports(host, water, view) {
     for (const [kind,label] of Object.entries(labels)) {
       const {count=0,mine=false} = alerts[kind] || {};
       const row = document.createElement('p');
-      const text = document.createElement(count >= 3 ? 'strong' : 'span');
-      text.textContent = label + ' · ' + (count >= 3 ? t('Opakovaně hlášeno','Multiple reports') : count ? t('Nepotvrzeno','Unconfirmed') : t('Bez hlášení','No reports')) + ' (' + count + ') ';
+      const corroborated = count >= 3;
+      if (corroborated) row.className = 'water-alert';
+      const text = document.createElement(corroborated ? 'strong' : 'span');
+      text.textContent = label + ' · ' + (corroborated ? t('Opakovaně hlášeno','Multiple reports') : count ? t('Nepotvrzeno','Unconfirmed') : t('Bez hlášení','No reports')) + ' (' + count + ') ';
       const button = document.createElement('button');
       button.type = 'button';
       button.textContent = mine ? t('Stáhnout hlášení','Withdraw report') : t('Hlásím vlastní pozorování','Report my observation');

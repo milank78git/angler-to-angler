@@ -29,6 +29,12 @@ for file in ("help-topics.json","field-hints.json"):
             else:
                 for value in node.values(): add(value)
     if path.exists(): add(json.loads(path.read_text()))
+# Named messages are authored directly in the locale files, independent of English wording.
+named=json.loads((assets/"strings-en.json").read_text())
+czech=json.loads((assets/"strings-cs.json").read_text())
+for key in named:
+    if not czech.get(key): sys.exit("Missing Czech label: "+key)
+    messages[key]=czech[key]
 result=json.dumps(messages,ensure_ascii=False,sort_keys=True,indent=2)+"\n"
 target=assets/"strings-cs.json"
 if "--check" in sys.argv:

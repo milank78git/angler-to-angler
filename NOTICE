@@ -13,3 +13,8 @@ select, normalize and combine their fields. Natural Earth boundaries are
 public domain. Wikimedia Wikidata labels and the selected GBIF/iNaturalist
 occurrence records are CC0. See docs/europe-field-guide.md for source links,
 release identifiers, transformations, additional sources and coverage.
+
+Czech fishery names, identifiers and locations are sourced from the Czech Fishing Union
+(https://www.rybsvaz.cz/seznam-reviru) and the Moravian Fishing Union
+(https://mrsbrno.cz/reviry). The offline atlas generalizes ČRS map outlines
+and associates MRS locations with their individual directory records.

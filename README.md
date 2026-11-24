@@ -15,7 +15,7 @@ An offline-first Android field journal for anglers. The Czech launcher name is *
 8. Under **Profile → Edit profile**, choose one of 50 bundled portraits or a personal picture, enter your hometown, tagline and biography, and optionally publish to signed-in anglers. The card shows your groups and the number of photo-documented catches.
 9. To document a catch, use **Photograph catch at the water** while at the water, then submit the saved catch from its trip. Check the outcome or withdraw the record under **Profile → My submitted catch photos**. The result distinguishes a length read from a ruler from an estimate based on a known-size reference. Only reviewed catches with either outcome count. Gallery photos and manually entered lengths can be kept in the journal.
 
-10. In the atlas, open a water and choose **Water questions**. Ask a question or open one to post a free answer. You can include the date you fished. The question author can mark another angler’s answer as helpful. Use **Reply to this post** for a follow-up. It shows the author and an excerpt of the original answer. You can withdraw your own text until it receives a text reply. Participants can report a post for moderation.
+10. In the atlas, open a water and choose **Observations and questions**. Share a local observation, ask a question or open one to post a free answer. You can include the date you fished. The question author can mark another angler’s answer as helpful. Use **Reply to this post** for a follow-up. It shows the author and an excerpt of the original answer. You can withdraw your own text until it receives a text reply. Participants can report a post for moderation.
 
 11. Open another angler’s question and choose **Reply privately**. Confirm the recipient and text. Both anglers can continue under **Profile → Private messages**. Use **Insert emoji** in a draft or type with your Android keyboard. Under a sent or received message, choose **React** to add a quick or keyboard emoji. You can replace or remove your reaction. Either can block further messages across waters or report an individual received message.
 
@@ -40,6 +40,24 @@ An offline-first Android field journal for anglers. The Czech launcher name is *
 - The APK includes the complete pilot pack. Updates currently ship with a new APK. The map shows generalized river geometry, boundaries, selected restrictions and documented accesses. Check public access locally. A boundary point does not imply an access point.
 - International expansion should add regional packs, local authorities, languages and corresponding rule tests. The first pilot ships one pack. Unlisted waters work worldwide as user-named journal entries.
 - Paid location tips, payouts, rankings, document verification and automated photo measurement belong to later releases. A future competition, record claim or prize would need a separate evidence standard, such as a continuous in-app clip with a randomized camera movement.
+
+## Daily water directory
+
+The offline atlas includes the published ČRS and MRS directories. The waters come with links to their official cards. A country filter and an on-device location search also cover the Montana pilot. On Czech waters the app measures approximate distance to a generalized RIS outline or the nearest published location. An unlocated water remains searchable by name or number. The original Berounka and Sázava entries retain their journal IDs, local seasons and map details.
+
+The daily workflow checks the upstream sources at 05:15 UTC. It keeps the last good edition of an unavailable register and reports failures in Actions. Changed data is published on the public `water-atlas-v1` branch. A Supabase Cron job checks the small manifest every 30 minutes and registers new keys before announcing that edition to phones. Historical keys remain valid for existing reports, posts and offers. Apply the included migrations in order to the pilot database and enable Actions writes to this branch. The initial publication runs on merge or manual dispatch from main.
+
+Open **Water atlas updates** in the atlas or account settings. Automatic checks default to daily and require connectivity. Android can defer background work. Opening the app catches up, and **Check now** also works with automatic checks disabled. A phone verifies the SHA-256 and size of its download before switching editions. No APK upgrade is needed for later data releases.
+
+The country selector covers all 51 European jurisdictions in the field guide. Offline data includes Czech union waters, Slovak union permit lists, Berlin water polygons, Northern Ireland's Public Angling Estate, Irish accessible angling sites, Swedish fishery management area reference points, Luxembourg fishing sections and Portuguese mainland concessions. The daily download also checks the PZW directory in Poland, Upper Austrian fishing rights, the Canton of Zürich's fishery waters, Danish GeoFA fishing sites, the COTO reaches of Castilla y León and Maine-et-Loire night carp fishing sections. A new provider appears in the atlas only after a successful import. Each source retains its identity, scope and edition date. Other countries link to available directories or national fishing information. Always check the publisher for current access and restrictions.
+
+Run the Czech importer locally with Python 3 and GDAL. Use a fresh cache directory to fetch a new snapshot, or omit `--download` to reproduce a snapshot from the same inputs.
+
+```sh
+/usr/bin/python3 scripts/import-czech-waters.py ./water-cache --download --as-of YYYY-MM-DD --sql ./candidate.sql
+```
+
+The importer matches source record IDs, keeps distinct waters that share a number and preserves past discussion targets. ČRS outlines use S-JTSK (EPSG:5514), simplified at 35 metres before conversion to WGS84. MRS points come from named locations and active parts of the fishery. Source pages provide current access and fishing conditions.
 
 ## Sources
 

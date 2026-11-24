@@ -313,5 +313,20 @@
     "topic": "share",
     "cs": "Přidá popis techniky uložený u tohoto úlovku.",
     "en": "Include the technique you recorded for this catch."
+  },
+  "water-country": {
+    "topic": "waters",
+    "cs": "Výběr země omezí výsledky vyhledávání, oblíbené revíry i seznam podle polohy.",
+    "en": "The selected country applies to search results, favorites and nearby waters."
+  },
+  "offer-water-search": {
+    "topic": "sell",
+    "cs": "Napiš část názvu, čísla nebo organizace. V seznamu pod hledáním pak vyber konkrétní revír pro nabídku.",
+    "en": "Enter part of the name, number or organisation, then choose the specific water for this offer from the list below."
+  },
+  "market-water-search": {
+    "topic": "market",
+    "cs": "Vyhledej název nebo číslo a vyber revír v nabídce níže. Zobrazí se jeho tipy a statistiky.",
+    "en": "Search by name or number, then select the water below to see its tips and statistics."
   }
 }

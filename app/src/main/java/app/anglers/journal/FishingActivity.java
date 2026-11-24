@@ -22,6 +22,10 @@ import android.widget.Toast;
 public final class FishingActivity extends Activity {
   private static final int PHOTO = 51, NOTIFY = 53, CAMERA = 54, CAMERA_FIX = Integer.MAX_VALUE;
   private WebView web;
+  private final android.content.SharedPreferences.OnSharedPreferenceChangeListener atlasListener = (prefs, key) -> {
+    if (WaterCatalogue.REVISION.equals(key) && web != null)
+      web.evaluateJavascript("window.waterCatalogueChanged && window.waterCatalogueChanged()", null);
+  };
   private ValueCallback<Uri[]> picker;
   private PositionRequest position;
   private CatchShare shares;
@@ -72,7 +76,7 @@ public final class FishingActivity extends Activity {
     web.addJavascriptInterface(new Device(), "Device");
     shares = new CatchShare(this);
     position = new PositionRequest(this, this::positionResult);
-    web.setWebViewClient(new LocalAssetClient(getAssets(), this::openExternal));
+    web.setWebViewClient(new LocalAssetClient(this, getAssets(), this::openExternal));
     web.setWebChromeClient(
         new WebChromeClient() {
           @Override
@@ -118,11 +122,20 @@ public final class FishingActivity extends Activity {
           .registerOnBackInvokedCallback(
               android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT, this::onBackPressed);
     }
+    WaterCatalogue.prefs(this).registerOnSharedPreferenceChangeListener(atlasListener);
     web.loadUrl(LocalAssetClient.ENTRY);
   }
 
   /** Methods are accessible only to packaged scripts. Android UI calls run on the main thread. */
   public final class Device {
+    @JavascriptInterface
+    public String waterCatalogueVersion() { return WaterCatalogue.revision(FishingActivity.this); }
+
+    @JavascriptInterface
+    public void openWaterSettings() {
+      runOnUiThread(() -> startActivity(new Intent(FishingActivity.this, WaterSettingsActivity.class)));
+    }
+
     @JavascriptInterface
     public String versionLabel() {
       return AppVersion.label(FishingActivity.this);
@@ -532,6 +545,7 @@ public final class FishingActivity extends Activity {
 
   @Override
   protected void onDestroy() {
+    WaterCatalogue.prefs(this).unregisterOnSharedPreferenceChangeListener(atlasListener);
     profileIo.shutdownNow();
     discardDeliveredPhoto();
     CameraPhotoProvider.discard(this, cameraUri);

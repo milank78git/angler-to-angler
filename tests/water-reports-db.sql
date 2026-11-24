@@ -1,4 +1,4 @@
-\ir ../supabase/migrations/20261124030000_water_reports.sql
+\ir ../supabase/migrations/20261124041826_water_reports.sql
 set local role authenticated;
 do $$
 declare result jsonb;

@@ -710,6 +710,8 @@ public final class AccountActivity extends Activity {
         text(
             "O opravu, kopii nebo výmaz účtu požádej na milan.kucera78@gmail.com.",
             "For account correction, access or deletion contact milan.kucera78@gmail.com."));
+    action(text("Aktualizace atlasu revírů", "Water atlas updates"), AccountLayout.Action.SECONDARY,
+        () -> startActivity(new Intent(this, WaterSettingsActivity.class)));
     action(
         text("Rybářské party", "Fishing groups"),
         AccountLayout.Action.PRIMARY,

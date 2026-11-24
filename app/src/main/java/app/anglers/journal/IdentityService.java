@@ -63,6 +63,10 @@ final class IdentityService {
         Base64.URL_SAFE | Base64.NO_WRAP | Base64.NO_PADDING);
   }
 
+  JSONObject waterManifest() throws Exception {
+    return request("/rest/v1/rpc/angler_water_manifest", null, new JSONObject());
+  }
+
   JSONObject providers() throws Exception {
     return request("/auth/v1/settings", null, null).getJSONObject("external");
   }

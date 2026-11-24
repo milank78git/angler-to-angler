@@ -1310,3 +1310,15 @@ body[data-native-guide] #guide-dialog { width: 100%; max-height: none; border: 0
 #guide-body > p + button { margin-top: .8rem; }
 
 label.label-with-hint { display: inline-block; margin-inline-end: .45rem; }
+
+.water-alert {
+  border: 2px solid var(--focus);
+  border-inline-start-width: 6px;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.water-alert strong {
+  display: block;
+  margin-bottom: 8px;
+}

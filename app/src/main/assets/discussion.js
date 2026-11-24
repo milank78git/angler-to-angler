@@ -1,5 +1,4 @@
-import { internationalWaters } from './international-waters.js';
-import { languageTag } from './i18n.js';
+import { languageTag, label } from './i18n.js';
 import { today, validDay } from './domain.js';
 import { newJournalId } from './journal.js';
 import { rpc } from './profile-api.js';
@@ -21,8 +20,7 @@ import {
 } from './ui.js';
 
 const postTime = new Intl.DateTimeFormat(languageTag, { dateStyle: 'medium', timeStyle: 'short' });
-const questions = () => t('Dotazy u revíru', 'Water questions');
-const reply = () => t('Odpovědět', 'Reply');
+const questions = () => t('Poznatky a dotazy', 'Observations and questions');
 const withdraw = () => t('Stáhnout příspěvek', 'Withdraw post');
 const removed = () => t('Text příspěvku byl odstraněn.', 'The text of this post was removed.');
 const linked = () =>
@@ -108,10 +106,11 @@ function action(card, label, callback, style = 'secondary') {
 }
 
 /** Read a water feed or a single question. The atlas itself remains usable without a connection. */
-export async function waterDiscussion({ view, nav, pack }) {
+export async function waterDiscussion({ view, nav, waterDirectory }) {
   const { id, questionId = null } = view.route;
-  const water = pack.waters.find((w) => w.id === id) || internationalWaters.find(w => w.id === id);
-  const key = water.zone ? water.id : pack.country + ':' + id;
+  const water = waterDirectory.byId.get(id);
+  if (!water) return nav.back();
+  const key = water.key;
   screen.innerHTML =
     back(t('Zpět', 'Back')) +
     '<div class="page-intro"><p class="meta">' +
@@ -119,10 +118,10 @@ export async function waterDiscussion({ view, nav, pack }) {
     ' · ' +
     esc(water.number) +
     '</p><h1>' +
-    (questionId ? t('Dotaz u revíru', 'Water question') : questions()) +
+    (questionId ? t('Příspěvek u revíru', 'Water post') : questions()) +
     '</h1></div>' +
     '<div id="discussion-root"></div><div class="actions" id="discussion-tools" hidden>' +
-    button('discussion-compose', questionId ? reply() : t('Položit dotaz', 'Ask a question'), 'primary') +
+    button('discussion-compose', label(questionId ? 'discussion.reply' : 'discussion.compose'), 'primary') +
     button('discussion-refresh', t('Obnovit', 'Refresh'), 'secondary') +
     '</div>' +
     '<h2 id="answers-title" hidden>' +
@@ -150,7 +149,7 @@ export async function waterDiscussion({ view, nav, pack }) {
   function makeCard(item, isRoot) {
     const card = postCard(item);
     if (!questionId) {
-      action(card, t('Otevřít dotaz', 'Open question'), () =>
+      action(card, t('Otevřít příspěvek', 'Open post'), () =>
         nav.open('waterDiscussion', { id, questionId: item.id }),
       );
       return card;
@@ -281,7 +280,7 @@ export async function waterDiscussion({ view, nav, pack }) {
         ? ''
         : questionId
           ? t('Zatím žádná odpověď.', 'No answers yet.')
-          : t('Zatím se tu nikdo nezeptal.', 'No questions here yet.');
+          : t('Zatím tu nejsou žádné příspěvky.', 'No posts here yet.');
     } catch (err) {
       if (view.active()) {
         status.textContent = errorText(err);
@@ -297,16 +296,17 @@ export async function waterDiscussion({ view, nav, pack }) {
 }
 
 /** The composer contains only newly authored text and an optional, explicit trip date. */
-export function discussionComposer({ view, nav, pack }) {
+export function discussionComposer({ view, nav, waterDirectory }) {
   const { id, questionId = null } = view.route;
-  const water = pack.waters.find((w) => w.id === id) || internationalWaters.find(w => w.id === id);
-  const publish = questionId ? t('Zveřejnit odpověď', 'Post answer') : t('Zveřejnit dotaz', 'Post question');
+  const water = waterDirectory.byId.get(id);
+  if (!water) return nav.back();
+  const publish = questionId ? t('Zveřejnit odpověď', 'Post answer') : t('Zveřejnit příspěvek', 'Publish post');
   screen.innerHTML =
     back(t('Zpět', 'Back')) +
     '<div class="page-intro"><p class="meta">' +
     esc(water.name) +
     '</p><h1>' +
-    (questionId ? t('Odpověď u revíru', 'Answer at this water') : t('Nový dotaz', 'New question')) +
+    (questionId ? t('Odpověď u revíru', 'Answer at this water') : t('Nový příspěvek', 'New post')) +
     '</h1></div>' +
     (questionId
       ? '<blockquote class="discussion-context">' +
@@ -321,14 +321,14 @@ export function discussionComposer({ view, nav, pack }) {
       'discussion-text',
       questionId
         ? t('Tvoje odpověď', 'Your answer')
-        : t('Na co se chceš zeptat?', 'What would you like to ask?'),
+        : t('Co jsi u vody zjistil nebo na co se chceš zeptat?', 'What did you observe or what would you like to ask?'),
       '<textarea id="discussion-text" rows="5" maxlength="1600" required></textarea>',
     ) +
     (questionId
       ? field(
           'discussion-day',
           t('Datum výpravy (nepovinné)', 'Trip date (optional)'),
-          '<input id="discussion-day" type="date" max="' + esc(today(water.zone || pack.zone)) + '">',
+          '<input id="discussion-day" type="date" max="' + esc(today(water.zone)) + '">',
         )
       : '') +
     '<p class="meta">' +
@@ -349,7 +349,7 @@ export function discussionComposer({ view, nav, pack }) {
     const message = by('discussion-text').value.trim(),
       day = by('discussion-day')?.value || null;
     const error = by('discussion-error');
-    if (!message || (day && (!validDay(day) || day > today(water.zone || pack.zone)))) {
+    if (!message || (day && (!validDay(day) || day > today(water.zone)))) {
       error.textContent = t('Zkontroluj text a datum výpravy.', 'Check your text and trip date.');
       return;
     }
@@ -365,7 +365,7 @@ export function discussionComposer({ view, nav, pack }) {
     if (!confirmed || !view.active()) return;
     if (!attempt || attempt.message !== message || attempt.trip_day !== day)
       attempt = {
-        water_key: water.zone ? water.id : pack.country + ':' + id,
+        water_key: water.key,
         question_id: questionId,
         ...(view.route.replyToId ? { reply_to_id: view.route.replyToId } : {}),
         request_id: newJournalId(),
