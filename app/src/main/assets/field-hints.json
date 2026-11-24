@@ -146,8 +146,8 @@
   },
   "discussion-text": {
     "topic": "forum",
-    "cs": "Odpověď uvidí čtenáři vlákna. Soukromou domluvu otevři přes soukromou zprávu.",
-    "en": "Readers of the thread see this reply. Use a private message for a private conversation."
+    "cs": "Příspěvek uvidí přihlášení rybáři spolu s tvou přezdívkou.",
+    "en": "Signed-in anglers will see this post and your display name."
   },
   "message-text": {
     "topic": "messages",

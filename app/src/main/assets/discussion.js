@@ -335,7 +335,7 @@ export function discussionComposer({ view, nav, pack }) {
       'Příspěvek uvidí přihlášení rybáři spolu s tvou přezdívkou.',
       'Signed-in anglers will see this post and your display name.',
     ) +
-    '</p><p id="discussion-error" role="alert"></p></section><div class="savebar"><button class="primary">' +
+    '</p><p id="discussion-error" role="alert"></p></section><div class="savebar"><button type="submit" class="primary">' +
     publish +
     '</button></div></form>';
   bindBack(nav);
