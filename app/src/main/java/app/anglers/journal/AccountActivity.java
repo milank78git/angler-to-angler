@@ -29,7 +29,7 @@ public final class AccountActivity extends Activity {
   private JSONObject profile;
 
   private String text(String cz, String en) {
-    return cs ? cz : en;
+    return AppLanguage.text(this, cz, en);
   }
 
   @Override
@@ -165,7 +165,7 @@ public final class AccountActivity extends Activity {
           text("Odemknout telefonem", "Unlock with device"),
           AccountLayout.Action.PRIMARY,
           this::unlock);
-    EditText address = addressField();
+    EditText address = addressField(text("Použij e-mail svého účtu.", "Enter the email address for your account."));
     EditText password = passwordField(false);
     Button send =
         action(
@@ -244,11 +244,12 @@ public final class AccountActivity extends Activity {
         });
   }
 
-  private EditText addressField() {
+  private EditText addressField(String explanation) {
     EditText field =
         ui.field(
             text("E-mail", "Email"),
             InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+    ui.explain(field.getHint().toString(), explanation, field);
     field.setAutofillHints(View.AUTOFILL_HINT_USERNAME, View.AUTOFILL_HINT_EMAIL_ADDRESS);
     field.setText(email);
     return field;
@@ -269,6 +270,10 @@ public final class AccountActivity extends Activity {
         ui.field(
             fresh ? text("Nové heslo", "New password") : text("Heslo", "Password"),
             InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+    ui.explain(field.getHint().toString(), fresh
+        ? text("Zvol heslo s alespoň 8 znaky. Použiješ ho při dalším přihlášení.", "Choose a password of at least 8 characters for future sign-ins.")
+        : text("Zadej heslo nastavené při registraci. Zapomenuté heslo obnovíš odkazem z přihlašovací obrazovky.",
+            "Enter the password set at registration. Use password recovery on the sign-in screen if you have forgotten it."), field);
     field.setSaveEnabled(false);
     field.setAutofillHints(fresh ? "newPassword" : View.AUTOFILL_HINT_PASSWORD);
     return field;
@@ -299,7 +304,11 @@ public final class AccountActivity extends Activity {
                 "Zvol si heslo s alespoň 8 znaky. E-mail ověříš jednou na tomto telefonu.",
                 "Choose a password with at least 8 characters. Confirm your email once on this"
                     + " phone."));
-    EditText address = addressField();
+    EditText address = addressField(recovery
+        ? text("Na ověřenou adresu účtu přijde odkaz pro nastavení nového hesla.",
+            "The password reset link will go to the verified email address for your account.")
+        : text("Zadej adresu, na kterou ti můžeme poslat potvrzení registrace.",
+            "Enter an email address where you can receive the registration confirmation."));
     EditText password = recovery ? null : passwordField(true);
     action(
         recovery
@@ -597,6 +606,8 @@ public final class AccountActivity extends Activity {
         ui.field(
             text("Přezdívka (2–60 znaků)", "Display name (2–60 characters)"),
             InputType.TYPE_CLASS_TEXT);
+    ui.explain(nickname.getHint().toString(), text("Tuto přezdívku uvidí ostatní u tvých příspěvků.",
+        "Other anglers will see this display name on your posts."), nickname);
     if (profile.has("name")) {
       nickname.setText(profile.optString("name"));
       nickname.setEnabled(false);
@@ -639,8 +650,7 @@ public final class AccountActivity extends Activity {
       return;
     }
     Runnable fresh = () -> activate(result, false);
-    if (AccountStore.prefs(this).contains("legacyOwner")
-        || !new java.io.File(getApplicationInfo().dataDir, "app_webview").isDirectory()) {
+    if (AccountStore.prefs(this).contains("legacyOwner")) {
       fresh.run();
       return;
     }

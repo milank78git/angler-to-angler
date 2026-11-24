@@ -1,12 +1,13 @@
+import { languageTag } from './i18n.js';
 import { bindGroupTip, groupTipControls } from './group-tip.js';
 import { Journal } from './journal.js';
 import { pixelJpeg } from './photo.js';
-import { back, bindBack, button, by, cs, displayDay, esc, field, loc, screen, t, toast } from './ui.js';
+import { back, bindBack, button, by, displayDay, esc, field, loc, screen, t, toast } from './ui.js';
 
 /** A card is an allowlist of display values. Private journal records never cross the Android bridge. */
 function cardFields(trip, entry) {
   const length = entry?.lengthMm
-    ? new Intl.NumberFormat(cs ? 'cs-CZ' : 'en-GB').format(entry.lengthMm / 10) + ' cm'
+    ? new Intl.NumberFormat(languageTag).format(entry.lengthMm / 10) + ' cm'
     : '';
   return [
     ['length', t('Délka', 'Length'), length],

@@ -201,6 +201,7 @@ public final class FishingActivity extends Activity {
         case "public_card_publish":
         case "public_card_withdraw":
         case "public_cards":
+        case "market_discover":
         case "market_list":
         case "market_detail":
         case "market_activate":
@@ -295,6 +296,12 @@ public final class FishingActivity extends Activity {
             int flags = decor.getSystemUiVisibility();
             decor.setSystemUiVisibility(dark ? flags & ~light : flags | light);
           });
+    }
+
+    /** Preserve the region and script used by localized dictionaries and number formatting. */
+    @JavascriptInterface
+    public String localeTag() {
+      return getResources().getConfiguration().getLocales().get(0).toLanguageTag();
     }
 
     @JavascriptInterface

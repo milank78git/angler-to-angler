@@ -1,3 +1,6 @@
+import { fishCatalogue, fishDetail } from './fish-catalogue.js';
+import { openGuide, closeGuide, attachHints } from './guide.js';
+import { contentLanguage } from './i18n.js';
 import { by, screen, t, cs, bind, button, icon, confirmAction, dismissConfirmation } from './ui.js';
 import { marketShelf, marketDetail, marketEditor } from './market.js';
 import { Navigation } from './navigation.js';
@@ -16,7 +19,7 @@ import { evidenceScreen, reviewScreen } from './verification.js';
 const tabs = by('tabs'),
   catalog = {};
 const views = {
-  marketShelf, marketDetail, marketEditor,
+  marketShelf, marketDetail, marketEditor, fishCatalogue, fishDetail,
   waters: listWaters,
   water: waterScreen,
   rules: rulesScreen,
@@ -57,7 +60,7 @@ const nav = new Navigation(
 );
 
 /** Forward native navigation and device events to the current screen. */
-window.handleBack = () => dismissConfirmation() || nav.back();
+window.handleBack = () => closeGuide() || dismissConfirmation() || nav.back();
 window.reminderChanged = () => window.dispatchEvent(new Event('reminderchange'));
 window.positionResult = (id, fix) =>
   window.dispatchEvent(new CustomEvent('angler-position', { detail: { id, fix } }));
@@ -77,6 +80,7 @@ async function render(view, area) {
   try {
     await views[page]({ view, nav, ...catalog });
     if (!view.active()) return;
+    attachHints(screen, page, catalog.hints);
     const title = screen.querySelector('h1');
     if (title) {
       title.tabIndex = -1;
@@ -109,7 +113,9 @@ function setTheme(mode) {
     Device.systemBars(dark, !!localStorage.getItem('ui.theme'));
 }
 async function start() {
-  document.documentElement.lang = cs ? 'cs' : 'en';
+  document.documentElement.lang = contentLanguage;
+  by('guide-open').ariaLabel = by('guide-open').title = t('Nápověda', 'Help');
+  bind('guide-open', () => openGuide({ page: nav.current?.route.page }));
   by('profile').textContent = t('Profil', 'Profile');
   bind('profile', () => {
     if (nav.current?.route.page !== 'anglerProfile' || nav.current.route.id) nav.open('anglerProfile');
@@ -137,8 +143,8 @@ async function start() {
     setTheme(mode);
   });
   try {
-    [catalog.pack, catalog.rivers] = await Promise.all(
-      ['catalog.json', 'rivers.json'].map(async (path) => {
+    [catalog.pack, catalog.rivers, catalog.hints] = await Promise.all(
+      ['catalog.json', 'rivers.json', 'field-hints.json'].map(async (path) => {
         const response = await fetch(path);
         if (!response.ok) throw Error(path);
         return response.json();
@@ -166,4 +172,5 @@ async function start() {
     );
   }
 }
-window.addEventListener('DOMContentLoaded', start);
+if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', start, { once: true });
+else start();

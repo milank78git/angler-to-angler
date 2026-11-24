@@ -2,6 +2,7 @@ package app.anglers.journal;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 import org.json.JSONObject;
 
@@ -15,6 +16,17 @@ final class AccountStore {
 
   static SharedPreferences prefs(Context c) {
     return c.getSharedPreferences("angler-account", Context.MODE_PRIVATE);
+  }
+
+  /**
+   * Record an empty installation before sign-in help can initialize WebView storage. Existing
+   * installations with possible pre-account journals still ask the first verified user to claim it.
+   */
+  static void initializeJournalOwnership(Context c) {
+    SharedPreferences account = prefs(c);
+    if (!account.contains("legacyOwner") && !new File(c.getApplicationInfo().dataDir, "app_webview").exists()) {
+      account.edit().putString("legacyOwner", "").apply();
+    }
   }
 
   static synchronized void lock() {

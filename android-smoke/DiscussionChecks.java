@@ -117,7 +117,8 @@ final class DiscussionChecks {
   }
 
   private static void postPreview(Runner app) throws Exception {
-    click(app, "#discussion-form button");
+    // Field help contains its own buttons. Exercise the explicit publishing action.
+    click(app, "#discussion-form button[type=submit]");
     app.waitFor("document.querySelector('#confirmation').open");
   }
 

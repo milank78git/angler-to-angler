@@ -1,3 +1,4 @@
+import { fishDirectory, fishOption } from './fish-catalogue.js';
 import { pixelJpeg } from './photo.js';
 import { Journal, newJournalId } from './journal.js';
 import { bindCatchPosition } from './catch-position.js';
@@ -76,6 +77,16 @@ export function catchForm({ view, nav, pack }) {
   };
   bindBack(nav);
   trackEdits(by('form'), view);
+  const fishSelect = by('fish');
+  const known = new Set(Object.values(pack.species).map(s => s.latin));
+  fishDirectory().then(directory => {
+    if (!view.active()) return;
+    const group = document.createElement('optgroup');
+    group.label = t('Katalog ryb','Fish catalogue');
+    directory.species.filter(f => !known.has(f.latin)).sort((a,b) => a.label.localeCompare(b.label))
+      .forEach(f => group.append(new Option(fishOption(f), f.latin)));
+    fishSelect.append(group);
+  }).catch(() => { /* A private catch can always use a locally entered name. */ });
   by('fish-name').required = true;
   by('fish').onchange = () => {
     by('custom-fish').hidden = !!by('fish').value;
@@ -125,7 +136,7 @@ export function catchForm({ view, nav, pack }) {
       tripId: id,
       created,
       speciesId: speciesId || null,
-      speciesName: speciesId ? loc(pack.species[speciesId]) : speciesName,
+      speciesName: speciesId ? (pack.species[speciesId] ? loc(pack.species[speciesId]) : fishSelect.selectedOptions[0].textContent) : speciesName,
       lengthMm,
       position,
       capture: photoInput.capture() || null,

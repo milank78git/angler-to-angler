@@ -79,6 +79,6 @@ export class Navigation {
       active: () => this.current === view,
     };
     this.current = view;
-    this.render(view, this.area);
+    return this.render(view, this.area);
   }
 }

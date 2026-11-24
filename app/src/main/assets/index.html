@@ -10,7 +10,7 @@
     <title>Angler to Angler</title>
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="public-card-view.css" />
-    <script type="module" src="app.js"></script>
+    <script type="module" src="boot.js"></script>
   </head>
   <body>
     <header class="topbar">
@@ -22,11 +22,16 @@
         </div>
         <span class="offline" id="offline"></span>
         <button type="button" id="profile"></button>
+        <button type="button" id="guide-open" class="icon-btn">?</button>
         <button type="button" id="theme" class="icon-btn"></button>
       </div>
     </header>
     <main id="screen" tabindex="-1"></main>
     <nav id="tabs" hidden></nav>
+    <dialog id="guide-dialog" aria-labelledby="guide-title">
+      <div class="guide-tools"><button id="guide-index" type="button"></button><button id="guide-close" type="button"></button></div>
+      <h2 id="guide-title" tabindex="-1"></h2><div id="guide-body"></div>
+    </dialog>
     <dialog id="confirmation" aria-labelledby="confirmation-title" aria-describedby="confirmation-message">
       <div class="confirmation-heading">
         <span id="confirmation-icon" aria-hidden="true"></span>

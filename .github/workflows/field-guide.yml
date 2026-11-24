@@ -1,0 +1,49 @@
+name: Field guide review
+on:
+  pull_request:
+    paths:
+      - 'app/src/main/assets/**'
+      - 'data/europe/**'
+      - 'scripts/*'
+      - '.github/workflows/field-guide.yml'
+  schedule:
+    - cron: '25 5 * * 1'
+    - cron: '35 4 1 * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - run: python3 scripts/review-field-guide.py
+      - run: python3 scripts/index-translations.py --check
+      - if: github.event_name != 'pull_request'
+        run: python3 scripts/review-field-guide.py --check-sources
+  refresh-candidates:
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && github.event.schedule == '35 4 1 * *')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Rebuild evidence from current upstream records
+        run: |
+          cache="$RUNNER_TEMP/fish-data"
+          mkdir -p "$cache"
+          python3 scripts/import-europe-fish.py --cache "$cache"
+          eea_url='https://sdi.eea.europa.eu/datashare/s/FQMerS9EFXsm4RP/download'
+          eea_key=$(echo -n "$eea_url" | sha256sum | cut -d' ' -f1)
+          python3 scripts/import-gbif-countries.py --eea "$cache/$eea_key" --cache "$cache/gbif"
+          python3 scripts/import-fish-names.py --cache "$cache/labels.json"
+          python3 scripts/review-field-guide.py
+          git diff --stat >> "$GITHUB_STEP_SUMMARY"
+          git diff --binary > "$RUNNER_TEMP/catalogue-candidate.patch"
+          python3 scripts/market-species-seed.py > "$RUNNER_TEMP/catalogue-species.sql"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: catalogue-review
+          path: |
+            ${{ runner.temp }}/catalogue-candidate.patch
+            ${{ runner.temp }}/catalogue-species.sql
+          retention-days: 30

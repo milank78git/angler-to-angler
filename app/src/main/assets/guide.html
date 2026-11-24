@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'">
+    <link rel="stylesheet" href="style.css">
+    <script type="module" src="native-guide.js"></script>
+    <title>Help</title>
+  </head>
+  <body data-native-guide="true">
+    <main id="guide-dialog" aria-labelledby="guide-title">
+      <div class="guide-tools"><button id="guide-index" type="button" hidden></button></div>
+      <h2 id="guide-title" tabindex="-1"></h2>
+      <div id="guide-body"></div>
+    </main>
+  </body>
+</html>

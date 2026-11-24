@@ -1,3 +1,4 @@
+import { languageTag } from './i18n.js';
 import { bindInlineEmoji, messageReactions } from './message-emoji.js';
 import { newJournalId } from './journal.js';
 import { rpc } from './profile-api.js';
@@ -8,7 +9,6 @@ import {
   button,
   by,
   confirmAction,
-  cs,
   esc,
   field,
   screen,
@@ -20,7 +20,7 @@ import {
 
 const inboxTitle = () => t('Soukromé zprávy', 'Private messages');
 const sendLabel = () => t('Odeslat soukromě', 'Send privately');
-const stamp = new Intl.DateTimeFormat(cs ? 'cs-CZ' : 'en-GB', { dateStyle: 'medium', timeStyle: 'short' });
+const stamp = new Intl.DateTimeFormat(languageTag, { dateStyle: 'medium', timeStyle: 'short' });
 function errorText(err) {
   if (err.status === 403)
     return t(

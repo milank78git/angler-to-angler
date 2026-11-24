@@ -1,0 +1,118 @@
+{
+  "AD": {
+    "source": "https://www.govern.ad/ca/tematiques/medi-ambient-i-sostenibilitat/pesca",
+    "species": [
+      "Salmo trutta",
+      "Salvelinus fontinalis"
+    ]
+  },
+  "CZ": {
+    "source": "https://mzp.gov.cz/system/files/2024-11/OOV_hodnoceni_ryby_20191231.pdf#page=13",
+    "species": [
+      "Abramis brama",
+      "Acipenser ruthenus",
+      "Alburnoides bipunctatus",
+      "Alburnus alburnus",
+      "Anguilla anguilla",
+      "Ballerus ballerus",
+      "Ballerus sapa",
+      "Barbatula barbatula",
+      "Barbus barbus",
+      "Blicca bjoerkna",
+      "Carassius carassius",
+      "Carassius gibelio",
+      "Chondrostoma nasus",
+      "Ctenopharyngodon idella",
+      "Cyprinus carpio",
+      "Esox lucius",
+      "Gasterosteus aculeatus",
+      "Gymnocephalus baloni",
+      "Gymnocephalus cernua",
+      "Gymnocephalus schraetser",
+      "Hucho hucho",
+      "Hypophthalmichthys molitrix",
+      "Hypophthalmichthys nobilis",
+      "Lepomis gibbosus",
+      "Leucaspius delineatus",
+      "Leuciscus aspius",
+      "Leuciscus idus",
+      "Leuciscus leuciscus",
+      "Lota lota",
+      "Misgurnus fossilis",
+      "Neogobius melanostomus",
+      "Oncorhynchus mykiss",
+      "Pelecus cultratus",
+      "Perca fluviatilis",
+      "Phoxinus phoxinus",
+      "Proterorhinus semilunaris",
+      "Pseudorasbora parva",
+      "Rhodeus amarus",
+      "Rutilus rutilus",
+      "Sabanejewia balcanica",
+      "Salmo trutta",
+      "Salvelinus fontinalis",
+      "Sander lucioperca",
+      "Sander volgensis",
+      "Scardinius erythrophthalmus",
+      "Silurus glanis",
+      "Squalius cephalus",
+      "Thymallus thymallus",
+      "Tinca tinca",
+      "Umbra krameri",
+      "Vimba vimba",
+      "Zingel streber",
+      "Zingel zingel"
+    ]
+  },
+  "GE": {
+    "source": "https://www.biodiversitylibrary.org/part/422202",
+    "species": [
+      "Pseudorasbora parva",
+      "Carassius gibelio",
+      "Rutilus rutilus",
+      "Squalius cephalus"
+    ]
+  },
+  "LI": {
+    "source": "https://www.fischen.li/CFDOCS/cms/cmsout/index.cfm?GroupID=210&meID=99",
+    "species": [
+      "Salmo trutta",
+      "Oncorhynchus mykiss",
+      "Thymallus thymallus",
+      "Squalius cephalus",
+      "Abramis brama",
+      "Chondrostoma nasus",
+      "Barbus barbus",
+      "Perca fluviatilis",
+      "Lota lota",
+      "Anguilla anguilla",
+      "Esox lucius"
+    ]
+  },
+  "MD": {
+    "source": "https://zoology.usm.md/sites/default/files/2021-04/Culegere%20cu%20coperta%20Conferinta%202016.pdf",
+    "species": [
+      "Perca fluviatilis",
+      "Rutilus rutilus",
+      "Esox lucius",
+      "Abramis brama",
+      "Sander lucioperca",
+      "Pseudorasbora parva",
+      "Lepomis gibbosus"
+    ]
+  },
+  "SM": {
+    "source": "https://www.consigliograndeegenerale.sm/contents/instance18/files/document/17124046MaterialeVNR%5BVer.pdf",
+    "species": [
+      "Barbus plebejus",
+      "Squalius cephalus"
+    ]
+  },
+  "XK": {
+    "source": "https://ammk-rks.net/assets/cms/uploads/files/Publikime-raporte/Raporti_Natyra_Shqip.pdf",
+    "species": [
+      "Barbus barbus",
+      "Squalius cephalus"
+    ]
+  }
+}

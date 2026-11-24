@@ -1,10 +1,10 @@
+import { languageTag } from './i18n.js';
 import { today, validDay } from './domain.js';
 import { newJournalId } from './journal.js';
 import { rpc } from './profile-api.js';
 import {
   screen,
   t,
-  cs,
   esc,
   by,
   bind,
@@ -19,7 +19,7 @@ import {
   trackEdits,
 } from './ui.js';
 
-const postTime = new Intl.DateTimeFormat(cs ? 'cs-CZ' : 'en-GB', { dateStyle: 'medium', timeStyle: 'short' });
+const postTime = new Intl.DateTimeFormat(languageTag, { dateStyle: 'medium', timeStyle: 'short' });
 const questions = () => t('Dotazy u revíru', 'Water questions');
 const reply = () => t('Odpovědět', 'Reply');
 const withdraw = () => t('Stáhnout příspěvek', 'Withdraw post');
@@ -335,7 +335,7 @@ export function discussionComposer({ view, nav, pack }) {
       'Příspěvek uvidí přihlášení rybáři spolu s tvou přezdívkou.',
       'Signed-in anglers will see this post and your display name.',
     ) +
-    '</p><p id="discussion-error" role="alert"></p></section><div class="savebar"><button class="primary">' +
+    '</p><p id="discussion-error" role="alert"></p></section><div class="savebar"><button type="submit" class="primary">' +
     publish +
     '</button></div></form>';
   bindBack(nav);

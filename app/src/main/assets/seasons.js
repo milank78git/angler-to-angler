@@ -1,8 +1,8 @@
+import { languageTag } from './i18n.js';
 import * as Domain from './domain.js';
 import {
   by,
   screen,
-  cs,
   t,
   loc,
   esc,
@@ -29,7 +29,7 @@ function ruleResult(pack, w) {
   const valid = status === 'closed' || status === 'outside';
   const windowLabel = pack.species[speciesId].window
     .map((d) =>
-      new Intl.DateTimeFormat(cs ? 'cs-CZ' : 'en-GB', {
+      new Intl.DateTimeFormat(languageTag, {
         day: 'numeric',
         month: 'short',
         timeZone: 'UTC',
@@ -102,12 +102,11 @@ export function rulesScreen(context) {
     bindBack(nav);
     by('rule-water').disabled = true;
   }
-  by('rule-water').onchange = () => {
+  by('rule-water').onchange = async () => {
     route.id = by('rule-water').value;
     route.section = 'main';
-    view.dispose();
-    rulesScreen(context);
-    by('rule-water').focus();
+    await nav.show();
+    if (nav.current.route === route) by('rule-water')?.focus();
   };
   for (const key of ['section', 'species', 'rule-date'])
     by(key).onchange = () => {
