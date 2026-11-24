@@ -7,10 +7,15 @@ cd "$stage"
 [[ "${GITHUB_ACTIONS:-}" == true && -f test-identity.json ]]
 container=supabase_db_angler-integration
 docker inspect "$container" >/dev/null
+# The local database also requires password authentication over its Unix socket.
+# Resolve the password inside the container to keep it out of command arguments and logs.
+container_db() {
+  docker exec -i "$container" sh -c 'export PGPASSWORD="$POSTGRES_PASSWORD"; exec "$@"' sh "$@"
+}
 umask 077
 trap 'rm -f "$stage/test-identity.json" "$stage/rehearsal.dump" "$stage/expected-id"' EXIT
 python3 "$repo/tests/field-integration/probe.py" seed "$stage"
-docker exec "$container" pg_dump -U supabase_admin -d postgres -Fc --data-only --schema=auth --schema='angler_*' \
+container_db pg_dump -U supabase_admin -d postgres -Fc --data-only --schema=auth --schema='angler_*' \
   --exclude-table-data=auth.schema_migrations > rehearsal.dump
 supabase stop --no-backup >/dev/null
 supabase start -x studio,storage-api,imgproxy,realtime,edge-runtime,postgres-meta,logflare,vector,supavisor >/dev/null
@@ -19,7 +24,7 @@ cd "$repo"
 source tests/field-integration/liquibase.sh
 lb update
 # Drop freshly seeded rows together, including empty dependent tables owned by the local stack.
-docker exec -i "$container" psql -Xq -U supabase_admin -d postgres -v ON_ERROR_STOP=1 <<'SQL'
+container_db psql -Xq -U supabase_admin -d postgres -v ON_ERROR_STOP=1 <<'SQL'
 do $$
 declare targets text;
 begin
@@ -28,7 +33,7 @@ begin
   execute 'truncate table '||targets||' cascade';
 end $$;
 SQL
-docker exec -i "$container" pg_restore -U supabase_admin -d postgres --single-transaction --exit-on-error --no-owner \
+container_db pg_restore -U supabase_admin -d postgres --single-transaction --exit-on-error --no-owner \
   --disable-triggers < "$stage/rehearsal.dump"
 psql "$url" -Xq -c "notify pgrst, 'reload schema'"
 python3 tests/field-integration/probe.py verify "$stage"
