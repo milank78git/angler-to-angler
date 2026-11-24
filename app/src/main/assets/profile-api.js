@@ -28,34 +28,19 @@ export function rpc(operation, args = {}) {
 export function failure(error) {
   switch (error.status) {
     case 401:
-      return t('Pro online profil se znovu přihlas.', 'Sign in again to use the online profile.');
+      return t('profile_api.sign_in_again_to_use_the_online');
     case 403:
-      return t('K této akci nemáš přístup.', 'You do not have access to this action.');
+      return t('profile_api.you_do_not_have_access_to_this');
     case 404:
-      return t(
-        'Profil není zveřejněný nebo už není dostupný.',
-        'This profile is private or no longer available.',
-      );
+      return t('profile_api.this_profile_is_private_or_no_longer');
     case 409:
-      return t(
-        'Záznam se změnil nebo snímek již byl odeslán. Obnov zobrazení.',
-        'The record changed or the photo was already submitted. Refresh the screen.',
-      );
+      return t('profile_api.the_record_changed_or_the_photo_was');
     case 429:
-      return t(
-        'Čeká už deset tvých snímků. Vyčkej na kontrolu.',
-        'Ten of your photos are awaiting review. Wait for a decision.',
-      );
+      return t('profile_api.ten_of_your_photos_are_awaiting_review');
     case 400:
-      return t(
-        'Údaje nelze přijmout. Zkontroluj čas, polohu a fotografii.',
-        'The details could not be accepted. Check the time, location and photo.',
-      );
+      return t('profile_api.the_details_could_not_be_accepted_check');
     default:
-      return t(
-        'Služba není dostupná. Zkontroluj připojení a zkus to znovu.',
-        'Service unavailable. Check your connection and retry.',
-      );
+      return t('profile-api.service.unavailable.check.your.connection.and.retry');
   }
 }
 

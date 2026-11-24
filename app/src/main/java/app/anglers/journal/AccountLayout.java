@@ -171,7 +171,7 @@ final class AccountLayout {
     TextView heading = text(title, 28, ink, Typeface.create("sans-serif-medium", 0));
     if (android.os.Build.VERSION.SDK_INT >= 28) heading.setAccessibilityHeading(true);
     form.addView(heading);
-    button(form, AppLanguage.text(activity, "Nápověda", "Help"), Action.LINK, this::showGuide);
+    button(form, AppLanguage.text(activity, "common.help"), Action.LINK, this::showGuide);
     status = text("", 15, muted, Typeface.DEFAULT);
     status.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
     add(form, status, 8);
@@ -192,8 +192,8 @@ final class AccountLayout {
         .appendQueryParameter("theme", dark ? "dark" : "light")
         .fragment(activity instanceof WaterSettingsActivity ? "start" : activity instanceof GroupsActivity ? "groups" : "accounts")
         .build();
-    Prompt reader = new Prompt(AppLanguage.text(activity, "Nápověda", "Help"), web);
-    reader.action(AppLanguage.text(activity, "Zavřít", "Close"), Action.SECONDARY, null);
+    Prompt reader = new Prompt(AppLanguage.text(activity, "common.help"), web);
+    reader.action(AppLanguage.text(activity, "common.close"), Action.SECONDARY, null);
     reader.setOnDismissListener(ignored -> {
       ((LinearLayout) web.getParent()).removeView(web);
       web.destroy();
@@ -210,11 +210,11 @@ final class AccountLayout {
   /** Provide the same explanation on a tap, a long press and through accessibility focus. */
   void explain(String fieldName, String explanation, View field) {
     field.setTooltipText(explanation);
-    String label = AppLanguage.text(activity, "Vysvětlit", "Explain") + " · " + fieldName;
+    String label = AppLanguage.text(activity, "common.explain") + " · " + fieldName;
     button((LinearLayout) field.getParent(), label, Action.LINK, () -> {
       Prompt hint = prompt(fieldName);
       hint.description(explanation);
-      hint.action(AppLanguage.text(activity, "Zavřít", "Close"), Action.SECONDARY, null);
+      hint.action(AppLanguage.text(activity, "common.close"), Action.SECONDARY, null);
       hint.show();
     });
   }

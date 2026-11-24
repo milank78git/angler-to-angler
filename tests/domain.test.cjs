@@ -5,7 +5,7 @@ const pack = require('../app/src/main/assets/catalog.json');
 const rivers = require('../app/src/main/assets/rivers.json');
 
 test('search handles Czech accents, spacing and case', () => {
-  assert.equal(d.fold(' SÁZAVA  1'), d.fold('sazava1'));
+  assert.equal(d.fold(' ' + pack.waters.find(w => w.id === '401009').name.toUpperCase().replace(' ', '  ')), d.fold('sazava1'));
   assert.equal(d.fold('401 009'), d.fold('401009'));
 });
 test('signed GPS input preserves the prime meridian and rejects partial or invalid coordinates', () => {

@@ -1,1 +1,8 @@
-{"url":"https://identity.angler.invalid","publishableKey":"sb_publishable_fixture","deploymentEn":"Synthetic provider for instrumented tests.","deploymentCs":"Syntetická služba pro instrumentační test."}
+{
+  "url": "https://identity.angler.invalid",
+  "publishableKey": "sb_publishable_fixture",
+  "deploymentNotices": {
+    "cs": "Syntetická služba pro instrumentační test.",
+    "en": "Synthetic provider for instrumented tests."
+  }
+}

@@ -1,42 +1,112 @@
-"""Index static bilingual source messages shared by Android and the offline WebView.
-
-English source strings are dictionary keys. Dynamic messages retain their explicit source fallback.
-Use --check in CI to detect stale Czech entries after changing UI or guide text.
-"""
-from pathlib import Path
+"""Validate offline UI dictionaries, message references and English-only application sources."""
+import argparse
 import ast
 import json
 import re
-import sys
+import subprocess
+from pathlib import Path
 
-root = Path(__file__).resolve().parents[1]
-assets = root/"app/src/main/assets"
-literal = r"""('(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*")"""
-call = re.compile(r"\b(?:t|text|translate|words)\(\s*" + literal + r"\s*,\s*" + literal + r"\s*,?\s*\)", re.S)
-messages = {}
-for path in sorted([*assets.glob("*.js"), *(root/"app/src/main/java").rglob("*.java")]):
-    for match in call.finditer(path.read_text()):
-        cs,en = [ast.literal_eval(s) for s in match.groups()]
-        if cs and en:
-            messages[en]=cs
-for file in ("help-topics.json","field-hints.json"):
-    path=assets/file
-    def add(node):
-        if isinstance(node,list):
-            for value in node: add(value)
-        if isinstance(node,dict):
-            if "cs" in node and "en" in node: messages[node["en"]]=node["cs"]
-            else:
-                for value in node.values(): add(value)
-    if path.exists(): add(json.loads(path.read_text()))
-# Named messages are authored directly in the locale files, independent of English wording.
-named=json.loads((assets/"strings-en.json").read_text())
-czech=json.loads((assets/"strings-cs.json").read_text())
-for key in named:
-    if not czech.get(key): sys.exit("Missing Czech label: "+key)
-    messages[key]=czech[key]
-result=json.dumps(messages,ensure_ascii=False,sort_keys=True,indent=2)+"\n"
-target=assets/"strings-cs.json"
-if "--check" in sys.argv:
-    if target.read_text()!=result: sys.exit("Rebuild the locale index with scripts/index-translations.py")
-else: target.write_text(result)
+ROOT = Path(__file__).resolve().parents[1]
+ASSETS = ROOT / "app/src/main/assets"
+MESSAGE_ID = re.compile(r"[a-z][a-z0-9_-]*(?:\.[a-zA-Z0-9_-]+)+")
+PLACEHOLDER = re.compile(r"\{[a-z][a-zA-Z0-9_]*\}")
+CZECH_LETTERS = re.compile(r"[\u00e1\u010d\u010f\u00e9\u011b\u00ed\u0148\u00f3\u0159\u0161\u0165\u00fa\u016f\u00fd\u017e]", re.I)
+LITERAL = r"""('(?:\\.|[^'\\\n])*'|"(?:\\.|[^"\\\n])*")"""
+BILINGUAL = re.compile(r"\b(?:t|tr|translate|words|text)\(\s*" + LITERAL + r"\s*,\s*" + LITERAL)
+CODE_TYPES = {".js", ".cjs", ".mjs", ".ts", ".tsx", ".jsx", ".java", ".kt", ".kts", ".py",
+              ".css", ".html", ".xml", ".gradle", ".sh", ".sql", ".yml", ".yaml"}
+# Applied database seeds include official water names and historic species search aliases.
+DATA_MIGRATIONS = {"20261123180057_public_catch_cards.sql", "20261124004714_european_market_directory.sql",
+                   "20261124050000_czech_waters.sql", "20261124060100_european_water_seed.sql"}
+
+
+def unique(entries):
+    result = {}
+    for key, value in entries:
+        if key in result:
+            raise ValueError(f"Duplicate key {key!r}")
+        result[key] = value
+    return result
+
+
+def read(path):
+    return json.loads(path.read_text(), object_pairs_hook=unique)
+
+
+def check():
+    english = read(ASSETS / "strings-en.json")
+    czech = read(ASSETS / "strings-cs.json")
+    if english.keys() != czech.keys():
+        raise ValueError(f"English/Czech message IDs differ: {english.keys() ^ czech.keys()}")
+    packs = sorted(ASSETS.glob("strings-*.json"))
+    if read(ASSETS / "ui-locales.json") != [p.stem[8:] for p in packs]:
+        raise ValueError("Update ui-locales.json to match the packaged dictionaries")
+    for p in packs:
+        for key, value in read(p).items():
+            if key not in english or not MESSAGE_ID.fullmatch(key) or not isinstance(value, str) or not value.strip():
+                raise ValueError(f"{p.name}: invalid message {key!r}")
+            if sorted(PLACEHOLDER.findall(value)) != sorted(PLACEHOLDER.findall(english[key])):
+                raise ValueError(f"{p.name}: placeholders differ for {key}")
+
+    def reference(value, path):
+        if value not in english:
+            raise ValueError(f"{path}: unknown message ID {value!r}")
+
+    for chapter in read(ASSETS / "help-topics.json").values():
+        for key in [chapter["title"], *chapter["steps"]]:
+            reference(key, "help-topics.json")
+
+    def data_keys(node, path):
+        if isinstance(node, dict):
+            if "cs" in node or "en" in node:
+                raise ValueError(f"{path}: localized UI copy belongs in dictionaries")
+            if "message" in node:
+                reference(node["message"], path)
+            for value in node.values():
+                data_keys(value, path)
+        elif isinstance(node, list):
+            for item in node:
+                data_keys(item, path)
+
+    for name in ("catalog.json", "europe-rules.json", "field-hints.json"):
+        data_keys(read(ASSETS / name), name)
+
+    # Catch unaccented Czech labels too, while allowing identical English words and standard codes.
+    untranslated = {v for v in czech.values() if v.isascii() and v.isalpha() and len(v) > 2} - set(english.values())
+    paths = subprocess.check_output(["git", "ls-files", "-co", "--exclude-standard", "-z"], cwd=ROOT).decode().split("\0")
+    for name in paths:
+        path = ROOT / name
+        if path.suffix not in CODE_TYPES or not path.is_file():
+            continue
+        if ("supabase/migrations/" in name and path.name in DATA_MIGRATIONS
+                or re.fullmatch(r"app/src/main/res/values-[^/]+/strings\.xml", name)):
+            continue
+        source = path.read_text()
+        for i, line in enumerate(source.splitlines(), 1):
+            if CZECH_LETTERS.search(line):
+                raise ValueError(f"{name}:{i}: move localized text to a language or provider dictionary")
+        if path.suffix not in {".js", ".cjs", ".ts", ".tsx", ".jsx", ".mjs", ".java", ".kt"}:
+            continue
+        if BILINGUAL.search(source):
+            raise ValueError(f"{name}: use one English message ID per translation lookup")
+        for match in re.finditer(LITERAL, source):
+            if match[1][1:-1] in untranslated:
+                raise ValueError(f"{name}: inline localized label {match[1]}")
+        if path.suffix in {".js", ".ts", ".tsx", ".jsx", ".mjs"}:
+            lookup = r"(?<!\.)\b(?:t|words|label)\("
+        elif "android-smoke/" in name:
+            lookup = r"\b(?:tr|label)\("
+        elif path.stem in {"AccountActivity", "WaterSettingsActivity", "GroupsActivity"}:
+            lookup = r"(?<!\.)\b(?:text|t)\("
+        else:
+            lookup = r"\bAppLanguage\.text\(\s*\w+,\s*"
+        for match in re.finditer(lookup + r"\s*" + LITERAL + r"\s*\)", source):
+            reference(ast.literal_eval(match[1]), name)
+    print(f"Validated {len(english)} English and Czech messages and {len(packs)} locale packs")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--check", action="store_true", help="Validate without modifying any resources (default)")
+    parser.parse_args()
+    check()

@@ -29,7 +29,7 @@ case "$mode" in
       fi
     else
       gh release create "$tag" --repo "$repo" --target "$sha" --draft --prerelease \
-        --title "Rybáři sobě ${tag#v}" --notes "Android pilot for testing. Download the APK under Assets. Build commit: $sha."
+        --title "Angler to Angler ${tag#v}" --notes "Android pilot for testing. Download the APK under Assets. Build commit: $sha."
     fi
     gh release upload "$tag" "$name" "$name.sha256" --repo "$repo" --clobber
     release=$(view)

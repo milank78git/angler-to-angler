@@ -27,14 +27,8 @@ function bindPhotoPreview() {
     capture = camera ? JSON.parse(window.Device?.cameraFix?.() || 'null') : null;
     by(camera ? 'photo' : 'camera-photo').value = '';
     by('capture-state').textContent = capture
-      ? t(
-          'Poloha je u snímku uložená. Po uložení úlovku můžeš fotku odeslat ke kontrole z detailu výpravy.',
-          'This photo has a location fix. After saving, you can submit it from the trip.',
-        )
-      : t(
-          'Tato fotka se uloží do deníku bez kontroly.',
-          'This photo will be saved in your journal without review.',
-        );
+      ? t('catch_form.this_photo_has_a_location_fix_after')
+      : t('catch_form.this_photo_will_be_saved_in_your');
     if (preview) URL.revokeObjectURL(preview);
     preview = file ? URL.createObjectURL(file) : null;
     const img = by('photo-preview');
@@ -42,8 +36,8 @@ function bindPhotoPreview() {
     if (file) img.src = preview;
     else img.removeAttribute('src');
     by('photo-label').textContent = file
-      ? t('Změnit fotografii', 'Change photo')
-      : t('Přidat fotografii', 'Add photo');
+      ? t('catch_form.change_photo')
+      : t('catch_form.add_photo');
   }
   by('photo').onchange = (e) => choose(e.target, false);
   by('camera-photo').onchange = (e) => choose(e.target, true);
@@ -68,7 +62,7 @@ export function catchForm({ view, nav, pack }) {
   by('camera-photo').onclick = (event) => {
     if (positionInput.waiting()) {
       event.preventDefault();
-      toast(t('Vyčkej na polohu nebo zruš její hledání.', 'Wait for the location or cancel the request.'));
+      toast(t('catch_form.wait_for_the_location_or_cancel_the'));
     }
   };
   view.dispose = () => {
@@ -82,7 +76,7 @@ export function catchForm({ view, nav, pack }) {
   fishDirectory().then(directory => {
     if (!view.active()) return;
     const group = document.createElement('optgroup');
-    group.label = t('Katalog ryb','Fish catalogue');
+    group.label = t('fish_catalogue.title');
     directory.species.filter(f => !known.has(f.latin)).sort((a,b) => a.label.localeCompare(b.label))
       .forEach(f => group.append(new Option(fishOption(f), f.latin)));
     fishSelect.append(group);
@@ -96,7 +90,7 @@ export function catchForm({ view, nav, pack }) {
     e.preventDefault();
     if (view.saving) return;
     if (positionInput.waiting()) {
-      toast(t('Vyčkej na polohu nebo zruš její hledání.', 'Wait for the location or cancel the request.'));
+      toast(t('catch_form.wait_for_the_location_or_cancel_the'));
       return;
     }
     by('form-error').hidden = true;
@@ -107,7 +101,7 @@ export function catchForm({ view, nav, pack }) {
     const speciesId = by('fish').value,
       speciesName = by('fish-name').value.trim();
     if (!speciesId && !speciesName) {
-      toast(t('Zadej druh ryby.', 'Enter a fish species.'));
+      toast(t('catch_form.enter_a_fish_species'));
       return;
     }
     let lengthMm, position;
@@ -122,11 +116,8 @@ export function catchForm({ view, nav, pack }) {
       by('form-error').hidden = false;
       by('form-error').textContent =
         err.message === 'length'
-          ? t('Uveď kladnou délku v centimetrech.', 'Enter a positive length in centimetres.')
-          : t(
-              'Zkontroluj obě souřadnice (šířka ±90°, délka ±180°).',
-              'Check both coordinates (latitude ±90°, longitude ±180°).',
-            );
+          ? t('catch_form.enter_a_positive_length_in_centimetres')
+          : t('catch_form.check_both_coordinates_latitude_90_longitude_180');
       invalid.focus();
       return;
     }
@@ -154,40 +145,34 @@ export function catchForm({ view, nav, pack }) {
       (error) =>
         toast(
           error.message === 'photo'
-            ? t(
-                'Fotografii nelze přečíst. Vyber snímek do 30 MB.',
-                'Cannot read the photo. Choose an image under 30 MB.',
-              )
-            : t(
-                'Úlovek se neuložil. Zápis zůstal otevřený pro další pokus.',
-                'Saving failed. Your entry is still here to retry.',
-              ),
+            ? t('catch_form.cannot_read_the_photo_choose_an_image')
+            : t('catch_form.saving_failed_your_entry_is_still_here'),
         ),
     );
   };
 }
 function catchFields(pack) {
   const fish = [
-    ['', t('Vlastní druh', 'Other species')],
+    ['', t('catch-form.other.species')],
     ...Object.entries(pack.species).map(([id, species]) => [id, loc(species)]),
   ];
   const kinds = [
-    ['stand', t('Stanoviště rybáře', 'Angler position')],
-    ['strike', t('Místo záběru', 'Strike location')],
+    ['stand', t('common.angler_position')],
+    ['strike', t('common.strike_location')],
   ];
   return (
-    back(t('Výprava', 'Trip')) +
-    `<div class="page-intro"><div class="title-mark">${icon('fish')}</div><h1>${t('Nový úlovek', 'New catch')}</h1></div>
-  <form id="form" class="entry-form"><section class="surface">${selectField('fish', t('Druh ryby', 'Fish species'), fish, '')}
-    <div id="custom-fish">${textInput('fish-name', t('Název druhu', 'Species name'), '', 'maxlength="100"')}</div>
-    ${textInput('length', t('Změřená délka (cm)', 'Measured length (cm)'), '', 'inputmode="decimal" placeholder="64,5"')}
-    <div class="photo-field"><input type="file" id="camera-photo" accept="image/*" capture="environment"><label for="camera-photo">${icon('camera')}${t('Vyfotit úlovek u vody', 'Photograph catch at the water')}</label>
-    <small>${t('Vyfoť celou rybu s mírou nebo předmětem známé velikosti. Po focení vyčkej na polohu telefonu. Odeslání ke kontrole je dobrovolné.', 'Photograph the whole fish with a ruler or a known-size reference. Wait for a location fix after taking the picture. Sending it for review is optional.')}</small>
-    <input type="file" id="photo" accept="image/*"><label for="photo">${icon('camera')}<span id="photo-label">${t('Přidat fotografii', 'Add photo')}</span></label><small id="capture-state" role="status"></small><img id="photo-preview" class="preview" hidden alt=""></div></section>
-  <details class="fold"><summary>${icon('fish-symbol')}${t('Nástraha a technika', 'Bait and technique')}</summary><div class="fold-body">${textInput('bait', t('Na co zabral', 'Bait or lure'), '', 'maxlength="300"')}${textInput('technique', t('Technika lovu', 'Fishing technique'), '', 'maxlength="500"')}</div></details>
-  <details id="position-fields" class="fold"><summary>${icon('lock-keyhole')}${t('Soukromá poloha', 'Private location')}</summary><div class="fold-body">${selectField('kind', t('Co bod označuje', 'Point represents'), kinds, 'stand')}
-  <div class="pair"><div>${textInput('lat', t('Šířka', 'Latitude'), '', 'placeholder="49.8783"')}</div><div>${textInput('lon', t('Délka', 'Longitude'), '', 'placeholder="14.4282"')}</div></div>
-  <div class="actions">${button('gps', t('Použít současnou polohu', 'Use current location'), 'secondary', 'locate-fixed')}</div><small>${t('U starší fotky zadej místo ručně nebo ho nech prázdné.', 'For older photos, enter the location manually or leave it empty.')}</small></div></details>
-  <p class="field-error" id="form-error" role="alert" hidden></p><div class="savebar"><button class="primary">${icon('check')}${t('Uložit úlovek', 'Save catch')}</button></div></form>`
+    back(t('common.trip')) +
+    `<div class="page-intro"><div class="title-mark">${icon('fish')}</div><h1>${t('catch_form.new_catch')}</h1></div>
+  <form id="form" class="entry-form"><section class="surface">${selectField('fish', t('common.fish_species'), fish, '')}
+    <div id="custom-fish">${textInput('fish-name', t('catch_form.species_name'), '', 'maxlength="100"')}</div>
+    ${textInput('length', t('catch_form.measured_length_cm'), '', 'inputmode="decimal" placeholder="64,5"')}
+    <div class="photo-field"><input type="file" id="camera-photo" accept="image/*" capture="environment"><label for="camera-photo">${icon('camera')}${t('catch_form.photograph_catch_at_the_water')}</label>
+    <small>${t('catch_form.photograph_the_whole_fish_with_a_ruler')}</small>
+    <input type="file" id="photo" accept="image/*"><label for="photo">${icon('camera')}<span id="photo-label">${t('catch_form.add_photo')}</span></label><small id="capture-state" role="status"></small><img id="photo-preview" class="preview" hidden alt=""></div></section>
+  <details class="fold"><summary>${icon('fish-symbol')}${t('catch_form.bait_and_technique')}</summary><div class="fold-body">${textInput('bait', t('catch_form.bait_or_lure'), '', 'maxlength="300"')}${textInput('technique', t('catch-form.fishing.technique'), '', 'maxlength="500"')}</div></details>
+  <details id="position-fields" class="fold"><summary>${icon('lock-keyhole')}${t('catch_form.private_location')}</summary><div class="fold-body">${selectField('kind', t('catch_form.point_represents'), kinds, 'stand')}
+  <div class="pair"><div>${textInput('lat', t('catch_form.latitude'), '', 'placeholder="49.8783"')}</div><div>${textInput('lon', t('catch_form.longitude'), '', 'placeholder="14.4282"')}</div></div>
+  <div class="actions">${button('gps', t('catch_form.use_current_location'), 'secondary', 'locate-fixed')}</div><small>${t('catch_form.for_older_photos_enter_the_location_manually')}</small></div></details>
+  <p class="field-error" id="form-error" role="alert" hidden></p><div class="savebar"><button class="primary">${icon('check')}${t('catch_form.save_catch')}</button></div></form>`
   );
 }

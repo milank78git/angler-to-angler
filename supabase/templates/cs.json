@@ -1,0 +1,14 @@
+{
+  "confirmation.title": "Potvrď svůj e-mail",
+  "brand": "Rybáři sobě",
+  "confirmation.instruction": "Pro dokončení registrace otevři tento odkaz na telefonu, kde sis účet založil/a. Pak se můžeš přihlásit zvoleným heslem.",
+  "confirmation.action": "Potvrdit e-mail",
+  "expiry": "Odkaz je jednorázový. Pokud jsi o něj nežádal/a, můžeš tuto zprávu smazat.",
+  "fallback": "Pokud tlačítko nefunguje, zkopíruj odkaz do prohlížeče na stejném telefonu.",
+  "magic_link.title": "Přihlášení do deníku",
+  "magic_link.instruction": "Otevři odkaz na telefonu, kde jsi požádal/a o přihlášení do deníku.",
+  "magic_link.action": "Otevřít deník",
+  "recovery.title": "Nastavení hesla",
+  "recovery.instruction": "Na telefonu, kde jsi požádal/a o nastavení hesla, otevři odkaz a zvol si nové heslo ke svému účtu.",
+  "recovery.action": "Nastavit heslo"
+}

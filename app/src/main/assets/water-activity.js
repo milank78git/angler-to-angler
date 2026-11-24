@@ -20,13 +20,13 @@ import {
   toast,
 } from './ui.js';
 
-const title = () => t('Aktivita na revíru', 'Water activity');
-const unspecified = () => t('Neuvedeno', 'Unspecified');
-const all = () => t('Všechny', 'All');
-const fishLabel = () => t('Počet všech zapsaných ryb', 'Total recorded fish');
-const targetLabel = () => t('Cílový druh výpravy', 'Trip target species');
-const methodLabel = () => t('Hlavní způsob lovu', 'Main fishing method');
-const mineLabel = () => t('Moje výpravy ve statistice', 'My activity contributions');
+const title = () => t('common.water_activity');
+const unspecified = () => t('water_activity.unspecified');
+const all = () => t('common.all');
+const fishLabel = () => t('water_activity.total_recorded_fish');
+const targetLabel = () => t('water_activity.trip_target_species');
+const methodLabel = () => t('water_activity.main_fishing_method');
+const mineLabel = () => t('common.my_activity_contributions');
 const monthLabel = (month) =>
   new Intl.DateTimeFormat(languageTag, { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(
     new Date(month + 'T12:00:00Z'),
@@ -37,41 +37,38 @@ function choices(pack) {
     targets: [
       ['unspecified', unspecified()],
       ...Object.entries(pack.species).map(([id, s]) => [id, loc(s)]),
-      ['other', t('Jiný druh', 'Other species')],
+      ['other', t('water_activity.other_species')],
     ],
     methods: [
       ['unspecified', unspecified()],
-      ['float', t('Plavaná', 'Float fishing')],
-      ['bottom', t('Položená nebo feeder', 'Bottom fishing or feeder')],
-      ['lure', t('Přívlač', 'Lure fishing')],
-      ['fly', t('Muškaření', 'Fly fishing')],
-      ['other', t('Jiný způsob', 'Other method')],
+      ['float', t('water_activity.float_fishing')],
+      ['bottom', t('water_activity.bottom_fishing_or_feeder')],
+      ['lure', t('water_activity.lure_fishing')],
+      ['fly', t('water_activity.fly_fishing')],
+      ['other', t('water_activity.other_method')],
     ],
   };
 }
 
 function problem(err) {
   if (err.status === 401 || err.status === 403)
-    return t('Pro statistiku se znovu přihlas.', 'Sign in again to use water activity.');
+    return t('water_activity.sign_in_again_to_use_water_activity');
   if (err.status === 409)
-    return t('Příspěvek se změnil. Obnov zobrazení.', 'The contribution changed. Refresh the screen.');
-  if (err.status === 422) return t('Zkontroluj období a počet ryb.', 'Check the period and fish count.');
-  return t(
-    'Služba je nedostupná. Zkontroluj připojení a zkus to znovu.',
-    'Service unavailable. Check your connection and retry.',
-  );
+    return t('water_activity.the_contribution_changed_refresh_the_screen');
+  if (err.status === 422) return t('water_activity.check_the_period_and_fish_count');
+  return t('common.service_unavailable_check_your_connection_and_retry');
 }
 
 function failed(view, nav, err) {
   if (!view.active()) return;
   screen.innerHTML =
-    back(t('Zpět', 'Back')) +
+    back(t('common.back')) +
     '<h1>' +
     title() +
     '</h1><p role="alert">' +
     problem(err) +
     '</p>' +
-    button('activity-retry', t('Obnovit', 'Refresh'), 'secondary');
+    button('activity-retry', t('common.refresh'), 'secondary');
   bindBack(nav);
   bind('activity-retry', () => nav.show());
 }
@@ -89,11 +86,11 @@ function entryText(entry, pack, options) {
 }
 
 async function withdraw(view, nav, item) {
-  const accept = t('Odebrat ze statistiky', 'Withdraw from statistics');
+  const accept = t('water_activity.withdraw_from_statistics');
   if (
     !(await confirmAction({
       title: accept + '?',
-      message: t('Soukromý zápis zůstane v deníku.', 'Your private journal entry will be kept.'),
+      message: t('water_activity.your_private_journal_entry_will_be_kept'),
       accept,
       destructive: true,
     })) ||
@@ -127,17 +124,17 @@ export async function activityContribution({ view, nav, pack }) {
   const options = choices(pack);
   const allowed = water && trip.day >= '1900-01-01' && trip.day <= today(pack.zone);
   screen.innerHTML =
-    back(t('Výprava', 'Trip')) +
+    back(t('common.trip')) +
     '<h1>' +
-    t('Výprava ve statistice', 'Trip contribution') +
+    t('common.trip_contribution') +
     '</h1>' +
     (state.entry
       ? '<section class="surface"><h2>' +
-        t('Sdílené údaje', 'Shared details') +
+        t('water_activity.shared_details') +
         '</h2><p>' +
         esc(entryText(state.entry, pack, options)) +
         '</p>' +
-        button('withdraw-activity', t('Odebrat ze statistiky', 'Withdraw from statistics'), 'danger') +
+        button('withdraw-activity', t('water_activity.withdraw_from_statistics'), 'danger') +
         '</section>'
       : '') +
     (allowed
@@ -153,24 +150,18 @@ export async function activityContribution({ view, nav, pack }) {
         selectField('activity-target', targetLabel(), options.targets, state.entry?.target || 'unspecified') +
         selectField('activity-method', methodLabel(), options.methods, state.entry?.method || 'unspecified') +
         '<p>' +
-        t(
-          'Do souhrnu přispěješ za celý revír a měsíc. Přesný den, místo, poznámky a fotky zůstanou v deníku.',
-          'Contribute for the entire water and month. Exact date, location, notes and photos stay in your journal.',
-        ) +
+        t('water_activity.contribute_for_the_entire_water_and_month') +
         '</p>' +
         button(
           'activity-submit',
           state.entry
-            ? t('Aktualizovat údaje', 'Update details')
-            : t('Přispět do statistiky', 'Contribute to statistics'),
+            ? t('water_activity.update_details')
+            : t('water_activity.contribute_to_statistics'),
           'primary',
         ) +
         '</section>'
       : '<p>' +
-        t(
-          'Lze zařadit jen dokončenou výpravu na revíru z atlasu.',
-          'Only completed trips on a catalog water can be included.',
-        ) +
+        t('water_activity.only_completed_trips_on_a_catalog_water') +
         '</p>');
   bindBack(nav);
   if (state.entry) bind('withdraw-activity', () => withdraw(view, nav, state));
@@ -185,9 +176,9 @@ export async function activityContribution({ view, nav, pack }) {
     };
     if (
       !(await confirmAction({
-        title: t('Zahrnout dokončenou výpravu?', 'Include this completed trip?'),
+        title: t('water_activity.include_this_completed_trip'),
         message: entryText(entry, pack, options),
-        accept: t('Potvrdit údaje', 'Confirm details'),
+        accept: t('water_activity.confirm_details'),
       })) ||
       !view.active()
     )
@@ -206,7 +197,7 @@ export async function activityContribution({ view, nav, pack }) {
         }),
       () => {
         nav.show();
-        toast(t('Příspěvek je uložený.', 'Contribution saved.'));
+        toast(t('water_activity.contribution_saved'));
       },
       (err) => (err.status === 409 ? failed(view, nav, err) : toast(problem(err))),
     );
@@ -225,7 +216,7 @@ export async function myActivity({ view, nav, pack }) {
   if (!view.active()) return;
   const options = choices(pack);
   screen.innerHTML =
-    back(t('Zpět', 'Back')) +
+    back(t('common.back')) +
     '<h1>' +
     mineLabel() +
     '</h1>' +
@@ -236,12 +227,12 @@ export async function myActivity({ view, nav, pack }) {
               '<article class="surface"><p>' +
               esc(entryText(item.entry, pack, options)) +
               '</p>' +
-              button('withdraw-' + i, t('Odebrat ze statistiky', 'Withdraw from statistics'), 'secondary') +
+              button('withdraw-' + i, t('water_activity.withdraw_from_statistics'), 'secondary') +
               '</article>',
           )
           .join('')
-      : '<p>' + t('Žádné další sdílené výpravy.', 'No more contributed trips.') + '</p>') +
-    (page.next ? button('activity-older', t('Starší příspěvky', 'Older contributions'), 'secondary') : '');
+      : '<p>' + t('water_activity.no_more_contributed_trips') + '</p>') +
+    (page.next ? button('activity-older', t('water_activity.older_contributions'), 'secondary') : '');
   bindBack(nav);
   page.items.forEach((item, i) => bind('withdraw-' + i, () => withdraw(view, nav, item)));
   if (page.next) bind('activity-older', () => nav.open('myActivity', { cursor: page.next }));
@@ -275,41 +266,38 @@ export async function waterActivity({ view, nav, pack, rivers }) {
     '</h1><p>' +
     esc(water.name) +
     ' · ' +
-    t('celý revír', 'entire water') +
+    t('water_activity.entire_water') +
     '</p>' +
     '<details class="fold"><summary>' +
-    t('Rozsah souhrnu na mapě', 'Summary area on the map') +
+    t('water_activity.summary_area_on_the_map') +
     '</summary>' +
     waterMap(water, rivers, true) +
     '</details>' +
     '<form id="activity-filters" class="surface">' +
     textInput(
       'activity-month',
-      t('Kalendářní měsíc', 'Calendar month'),
+      t('water_activity.calendar_month'),
       report.month.slice(0, 7),
       'type="month" required min="1900-01" max="' + esc(report.latest.slice(0, 7)) + '"',
     ) +
     selectField('activity-target', targetLabel(), withAll(options.targets), route.target || '') +
     selectField('activity-method', methodLabel(), withAll(options.methods), route.method || '') +
     '<button class="secondary">' +
-    t('Zobrazit období', 'Show period') +
+    t('water_activity.show_period') +
     '</button></form>' +
     '<section class="surface" id="activity-result"><h2>' +
     esc(monthLabel(report.month)) +
     '</h2>' +
     (sample
-      ? metric(t('Výpravy', 'Trips'), sample.trips) +
-        metric(t('Různí rybáři', 'Distinct anglers'), sample.anglers) +
+      ? metric(t('common.trips'), sample.trips) +
+        metric(t('water_activity.distinct_anglers'), sample.anglers) +
         metric(fishLabel(), sample.fish) +
         (sample.successfulTrips === null
           ? '<p>' +
-            t(
-              'Podíl úspěšných výprav se zobrazí, až vzorek zahrne i výpravu bez ryby.',
-              'Success rate is shown when the sample also includes a blank trip.',
-            ) +
+            t('water_activity.success_rate_is_shown_when_the_sample') +
             '</p>'
           : metric(
-              t('Výpravy s alespoň jednou rybou', 'Trips with at least one fish'),
+              t('water_activity.trips_with_at_least_one_fish'),
               sample.successfulTrips +
                 ' / ' +
                 sample.trips +
@@ -318,18 +306,12 @@ export async function waterActivity({ view, nav, pack, rivers }) {
                 ' %)',
             ))
       : '<p>' +
-        t(
-          'Pro tento výběr není dost podkladů. Zkus celý revír bez filtrů, starší měsíc nebo se zeptej místních.',
-          'Too little data for this selection. Try this water without filters, an earlier month, or ask local anglers.',
-        ) +
+        t('water_activity.too_little_data_for_this_selection_try') +
         '</p>') +
     '</section><p class="meta">' +
-    t(
-      'Souhrn dobrovolně sdílených výprav se zpřístupní sedm dní po konci měsíce. Minimum je 10 výprav od 5 rybářů. Malé skupiny zůstávají skryté i při filtrování.',
-      'Voluntary trip summaries are released seven days after month end. At least 10 trips from 5 anglers are required. Small groups stay hidden when filtering.',
-    ) +
+    t('water_activity.voluntary_trip_summaries_are_released_seven_days') +
     '</p>' +
-    button('activity-questions', t('Poznatky a dotazy', 'Observations and questions'), 'secondary');
+    button('activity-questions', t('common.observations_and_questions'), 'secondary');
   bindBack(nav);
   by('activity-filters').onsubmit = (event) => {
     event.preventDefault();

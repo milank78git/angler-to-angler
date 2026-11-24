@@ -1,32 +1,39 @@
-/** Resolve the phone's BCP 47 preference independently from the country where the angler fishes. */
-export const languageTag = (globalThis.location?.pathname?.endsWith('/guide.html') && new URLSearchParams(location.search).get('lang')) || globalThis.Device?.localeTag?.() || globalThis.Device?.locale?.() || navigator.language || 'en';
-const primary = languageTag.toLowerCase().split('-')[0];
-export const language = primary === 'nb' ? 'no' : primary;
+/** The phone language selects UI dictionaries independently of the fishing country. */
+const guideTag = globalThis.location?.pathname?.endsWith('/guide.html') && new URLSearchParams(location.search).get('lang');
+const requested = guideTag || globalThis.Device?.localeTag?.() || globalThis.Device?.locale?.() || navigator.language;
+function baseTag(tag) {
+  try { return new Intl.Locale(tag).baseName; }
+  catch { return 'en'; }
+}
+export const languageTag = baseTag(requested);
+const parts = languageTag.toLowerCase().split('-');
+if (parts[0] === 'nb') parts[0] = 'no';
+export const language = parts[0];
+export let contentLanguage = 'en';
 let messages = {};
-// Screen readers use the language of the loaded text. Formatting retains the phone's full locale.
-export let contentLanguage = language === 'cs' ? 'cs' : 'en';
 
-let englishLabels = {};
-
-async function dictionary(code) {
-  const response = await fetch('strings-' + code + '.json');
-  if (!response.ok) throw Error('Missing locale ' + code);
+async function json(path) {
+  const response = await fetch(path);
+  if (!response.ok) throw Error('Missing language resource ' + path);
   return response.json();
 }
 
+/** Overlay existing packs from least to most specific so partial regional packs inherit each message. */
 export async function loadDictionary() {
-  const localized = language !== 'en' && /^[a-z]{2,3}$/.test(language);
-  const [english, local] = await Promise.all([
-    dictionary('en'), localized ? dictionary(language).catch(() => null) : null,
-  ]);
-  englishLabels = english;
-  if (local) { messages = local; contentLanguage = language; }
+  const [english, available] = await Promise.all([json('strings-en.json'), json('ui-locales.json')]);
+  const candidates = parts.map((_, i) => parts.slice(0, i + 1).join('-'))
+    .filter(code => code !== 'en' && available.includes(code));
+  const packs = await Promise.all(candidates.map(code => json('strings-' + code + '.json').catch(() => null)));
+  messages = { ...english };
+  contentLanguage = 'en';
+  packs.forEach((pack, index) => {
+    if (pack) {
+      Object.assign(messages, pack);
+      contentLanguage = candidates[index];
+    }
+  });
 }
 
-/** Resolve a stable interface key using the phone's language and the bundled English fallback. */
 export function label(key) {
-  return messages[key] || englishLabels[key];
-}
-export function translate(czech, english) {
-  return messages[english] || (language === 'cs' ? czech : english);
+  return messages[key] ?? key;
 }

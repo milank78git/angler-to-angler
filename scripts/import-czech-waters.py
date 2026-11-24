@@ -18,9 +18,10 @@ from osgeo import ogr, osr
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "app/src/main/assets"
-CRS = "https://www.rybsvaz.cz"
 MRS = "https://mrsbrno.cz"
-RIS_API = CRS + "/proxy/api/public/reviry"
+SCHEMA = json.loads((ROOT / "data/waters/cz-provider-schema.json").read_text())
+FIELDS = SCHEMA["fields"]
+RIS_API = SCHEMA["directoryUrl"]
 # Map overview extent used by RIS in S-JTSK / Krovak East North.
 EXTENT = "-925000,-1444353.53,-400646.46,-920000"
 PILOT = {"4615401": "CZ:401001", "4615408": "CZ:401009"}
@@ -56,7 +57,7 @@ def ris_pages(cache, spatial=False):
     folder = "geography" if spatial else "bohemia"
     params = {"size": size, "getTotal": "true"}
     if spatial:
-        params.update({"filter.bbox": EXTENT, "output.uzemniVymezeni": "true"})
+        params.update({"filter.bbox": EXTENT, SCHEMA["geometryOption"]: "true"})
     offset, rows = 0, []
     while True:
         url = RIS_API + "?" + urlencode(dict(params, **{"from": offset}))
@@ -75,7 +76,7 @@ def ris_pages(cache, spatial=False):
 
 def download(cache):
     crs = ris_pages(cache)
-    mapped = {r["sid"] for r in ris_pages(cache, True) if r.get("uzemniVymezeni")}
+    mapped = {r["sid"] for r in ris_pages(cache, True) if r.get(FIELDS["boundaries"])}
     def detail(row):
         cached(cache / "ris-details" / (row["sid"] + ".json"),
                RIS_API + "/by-friendly-url/" + quote(row["friendlyUrl"], safe=""))
@@ -161,22 +162,22 @@ def build(cache, as_of):
     waters, shapes = [], {}
     transform = projection()
     directory = read_pages((cache / "bohemia").glob("*.json"), "total", "sid")
-    mapping = {r["sid"]: r["uzemniVymezeni"] for r in
-               read_pages((cache / "geography").glob("*.json"), "total") if r.get("uzemniVymezeni")}
+    mapping = {r["sid"]: r[FIELDS["boundaries"]] for r in
+               read_pages((cache / "geography").glob("*.json"), "total") if r.get(FIELDS["boundaries"])}
     for r in directory:
         sid = r["sid"]
         key = PILOT.get(sid, "CZ:CRS:" + sid)
-        row = {"id": key, "number": r["cislo"], "name": r["oficialniNazev"].strip(), "provider": "CRS",
-               "slug": r["friendlyUrl"], "trout": {"PSTRUHOVY": True, "MIMOPSTRUHOVY": False}[r["typReviru"]["kod"]],
-               "kind": {"REVIR": "fishery", "VPLU": "water"}[r["typVodniOblasti"]["kod"]],
-               "region": r.get("uzemniSvaz", {}).get("nazev", ""), "manager": r.get("organizace", {}).get("nazev", "")}
+        row = {"id": key, "number": r[FIELDS["number"]], "name": r[FIELDS["name"]].strip(), "provider": "CRS",
+               "slug": r["friendlyUrl"], "trout": SCHEMA["troutTypes"][r[FIELDS["fisheryType"]][FIELDS["code"]]],
+               "kind": SCHEMA["waterTypes"][r[FIELDS["waterType"]][FIELDS["code"]]],
+               "region": r.get(FIELDS["region"], {}).get(FIELDS["shortName"], ""), "manager": r.get(FIELDS["manager"], {}).get(FIELDS["shortName"], "")}
         feature = mapping.get(sid)
         if not feature:
             detail = read(cache / "ris-details" / (sid + ".json"))
-            if (detail["sid"], detail["cislo"]) != (sid, row["number"]):
+            if (detail["sid"], detail[FIELDS["number"]]) != (sid, row["number"]):
                 raise ValueError(f"RIS card mismatch: {sid}")
-            feature = detail.get("uzemniVymezeni")
-            pt = point(detail.get("gpsSouradniceDelka"), detail.get("gpsSouradniceSirka"))
+            feature = detail.get(FIELDS["boundaries"])
+            pt = point(detail.get(FIELDS["longitude"]), detail.get(FIELDS["latitude"]))
             if pt:
                 row["points"] = [pt]
         if feature:
@@ -205,7 +206,7 @@ def build(cache, as_of):
                     add(part.get("endLongitude"), part.get("endLatitude"))
         row = {"id": "CZ:MRS:" + str(r["id"]), "number": r["code"], "name": r["name"].strip(),
                "provider": "MRS", "slug": str(r["id"]), "trout": r["isTroutType"],
-               "kind": {"Revír": "fishery", "Rybník": "pond"}[r["type"]], "region": r.get("region") or "",
+               "kind": SCHEMA["districtTypes"][r["type"]], "region": r.get("region") or "",
                "manager": (r.get("belongsToGroup") or {}).get("name", "")}
         if pts:
             row["points"] = pts

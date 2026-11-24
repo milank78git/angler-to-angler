@@ -20,31 +20,22 @@ import {
 } from './ui.js';
 
 const postTime = new Intl.DateTimeFormat(languageTag, { dateStyle: 'medium', timeStyle: 'short' });
-const questions = () => t('Poznatky a dotazy', 'Observations and questions');
-const withdraw = () => t('Stáhnout příspěvek', 'Withdraw post');
-const removed = () => t('Text příspěvku byl odstraněn.', 'The text of this post was removed.');
+const questions = () => t('common.observations_and_questions');
+const withdraw = () => t('discussion.withdraw_post');
+const removed = () => t('discussion.the_text_of_this_post_was_removed');
 const linked = () =>
-  t(
-    'Příspěvek už má textovou odpověď a zůstává ve vlákně.',
-    'This post has a text reply and stays in the thread.',
-  );
-const report = () => t('Nahlásit příspěvek', 'Report post');
+  t('discussion.this_post_has_a_text_reply_and');
+const report = () => t('discussion.report_post');
 
 function errorText(error) {
   if (error.status === 401 || error.status === 403)
-    return t(
-      'Pro diskusi se přihlas k ověřenému účtu.',
-      'Sign in with a verified account to use discussions.',
-    );
+    return t('discussion.sign_in_with_a_verified_account_to');
   if (error.status === 404)
-    return t('Diskuse nebo příspěvek už nejsou dostupné.', 'This discussion or post is no longer available.');
-  if (error.status === 400) return t('Zkontroluj text a datum výpravy.', 'Check your text and trip date.');
+    return t('discussion.this_discussion_or_post_is_no_longer');
+  if (error.status === 400) return t('discussion.check_your_text_and_trip_date');
   if (error.status === 409)
-    return t(
-      'Tento příspěvek se mezitím změnil. Znovu otevři diskusi.',
-      'This post changed. Reopen the discussion.',
-    );
-  return t('Připojení se nezdařilo. Zkus to znovu.', 'Could not connect. Please retry.');
+    return t('discussion.this_post_changed_reopen_the_discussion');
+  return t('common.could_not_connect_please_retry');
 }
 
 function postCard(item) {
@@ -52,9 +43,9 @@ function postCard(item) {
   card.className = 'surface discussion-post';
   card.innerHTML =
     '<p class="meta">' +
-    esc(item.removed ? t('Odstraněný příspěvek', 'Removed post') : item.author) +
+    esc(item.removed ? t('discussion.removed_post') : item.author) +
     ' · ' +
-    t('Publikováno', 'Posted') +
+    t('discussion.posted') +
     ' ' +
     esc(postTime.format(new Date(item.postedAt))) +
     '</p>' +
@@ -62,8 +53,8 @@ function postCard(item) {
       ? '<blockquote class="discussion-context"><strong>' +
         esc(
           item.replyTo.author
-            ? t('Odpověď pro ', 'Reply to ') + item.replyTo.author
-            : t('Odpověď na příspěvek', 'In reply to a post'),
+            ? t('discussion.reply_to') + item.replyTo.author
+            : t('discussion.in_reply_to_a_post'),
         ) +
         '</strong><br>' +
         esc(item.replyTo.excerpt ?? removed()) +
@@ -73,17 +64,17 @@ function postCard(item) {
     esc(item.body ?? removed()) +
     '</p>' +
     (item.tripDay
-      ? '<p class="meta">' + t('Datum výpravy', 'Trip date') + ' · ' + esc(displayDay(item.tripDay)) + '</p>'
+      ? '<p class="meta">' + t('common.trip_date') + ' · ' + esc(displayDay(item.tripDay)) + '</p>'
       : '') +
     (item.helpful
       ? '<p class="discussion-helpful">' +
-        t('Tazatel označil jako užitečné', 'Marked helpful by the angler who asked') +
+        t('discussion.marked_helpful_by_the_angler_who_asked') +
         '</p>'
       : '');
   if (item.replyCount !== undefined) {
     const count = document.createElement('p');
     count.className = 'meta';
-    count.textContent = t('Počet odpovědí', 'Replies') + ' · ' + item.replyCount;
+    count.textContent = t('discussion.replies') + ' · ' + item.replyCount;
     card.append(count);
   }
   return card;
@@ -112,25 +103,25 @@ export async function waterDiscussion({ view, nav, waterDirectory }) {
   if (!water) return nav.back();
   const key = water.key;
   screen.innerHTML =
-    back(t('Zpět', 'Back')) +
+    back(t('common.back')) +
     '<div class="page-intro"><p class="meta">' +
     esc(water.name) +
     ' · ' +
     esc(water.number) +
     '</p><h1>' +
-    (questionId ? t('Příspěvek u revíru', 'Water post') : questions()) +
+    (questionId ? t('discussion.water_post') : questions()) +
     '</h1></div>' +
     '<div id="discussion-root"></div><div class="actions" id="discussion-tools" hidden>' +
     button('discussion-compose', label(questionId ? 'discussion.reply' : 'discussion.compose'), 'primary') +
-    button('discussion-refresh', t('Obnovit', 'Refresh'), 'secondary') +
+    button('discussion-refresh', t('common.refresh'), 'secondary') +
     '</div>' +
     '<h2 id="answers-title" hidden>' +
-    t('Odpovědi', 'Answers') +
+    t('discussion.answers') +
     '</h2><div id="discussion-items"></div>' +
     '<p id="discussion-status" role="status"></p>' +
-    button('discussion-more', t('Starší příspěvky', 'Older posts'), 'secondary') +
-    button('discussion-retry', t('Zkusit znovu', 'Retry'), 'secondary') +
-    button('discussion-signin', t('Přihlásit se', 'Sign in'), 'secondary');
+    button('discussion-more', t('discussion.older_posts'), 'secondary') +
+    button('discussion-retry', t('common.retry'), 'secondary') +
+    button('discussion-signin', t('common.sign_in'), 'secondary');
   bindBack(nav);
   const more = by('discussion-more'),
     retry = by('discussion-retry'),
@@ -149,7 +140,7 @@ export async function waterDiscussion({ view, nav, waterDirectory }) {
   function makeCard(item, isRoot) {
     const card = postCard(item);
     if (!questionId) {
-      action(card, t('Otevřít příspěvek', 'Open post'), () =>
+      action(card, t('discussion.open_post'), () =>
         nav.open('waterDiscussion', { id, questionId: item.id }),
       );
       return card;
@@ -170,7 +161,7 @@ export async function waterDiscussion({ view, nav, waterDirectory }) {
             title: withdraw() + '?',
             accept: withdraw(),
             destructive: true,
-            message: t('Tvůj text zmizí z diskuse.', 'Your text will be removed from the discussion.'),
+            message: t('discussion.your_text_will_be_removed_from_the'),
           });
           if (accepted && view.active())
             await submitChange(
@@ -189,7 +180,7 @@ export async function waterDiscussion({ view, nav, waterDirectory }) {
       );
     } else {
       if (isRoot) {
-        const privateReply = action(card, t('Odpovědět soukromě', 'Reply privately'), () =>
+        const privateReply = action(card, t('discussion.reply_privately'), () =>
           nav.open('messageThread', { questionId: item.id }),
         );
         privateReply.id = 'private-reply';
@@ -198,10 +189,7 @@ export async function waterDiscussion({ view, nav, waterDirectory }) {
         const accepted = await confirmAction({
           title: report() + '?',
           accept: report(),
-          message: t(
-            'Příspěvek předáš správci pilotu ke kontrole.',
-            'Send this post to the pilot operator for review.',
-          ),
+          message: t('discussion.send_this_post_to_the_pilot_operator'),
         });
         if (accepted && view.active())
           await submitChange(
@@ -210,7 +198,7 @@ export async function waterDiscussion({ view, nav, waterDirectory }) {
             () => {
               item.reported = true;
               flag.disabled = true;
-              flag.textContent = t('Nahlášeno', 'Reported');
+              flag.textContent = t('common.reported');
             },
             failed,
           );
@@ -218,12 +206,12 @@ export async function waterDiscussion({ view, nav, waterDirectory }) {
       flag.classList.add('report-post');
       if (item.reported) {
         flag.disabled = true;
-        flag.textContent = t('Nahlášeno', 'Reported');
+        flag.textContent = t('common.reported');
       }
       if (!isRoot && question.mine) {
         const mark = action(
           card,
-          item.helpful ? t('Zrušit označení', 'Remove helpful mark') : t('Užitečná odpověď', 'Mark helpful'),
+          item.helpful ? t('discussion.remove_helpful_mark') : t('discussion.mark_helpful'),
           () =>
             submitChange(
               view,
@@ -238,7 +226,7 @@ export async function waterDiscussion({ view, nav, waterDirectory }) {
       }
     }
     if (!isRoot && !question.removed) {
-      const respond = action(card, t('Odpovědět na příspěvek', 'Reply to this post'), () =>
+      const respond = action(card, t('discussion.reply_to_this_post'), () =>
         nav.open('discussionComposer', {
           id,
           questionId,
@@ -256,7 +244,7 @@ export async function waterDiscussion({ view, nav, waterDirectory }) {
     if (loading || view.saving || !view.active()) return;
     loading = true;
     signIn.hidden = retry.hidden = more.hidden = true;
-    status.textContent = t('Načítám diskusi…', 'Loading discussion…');
+    status.textContent = t('discussion.loading_discussion');
     try {
       const page = await rpc('water_discussion', {
         water_key: key,
@@ -279,8 +267,8 @@ export async function waterDiscussion({ view, nav, waterDirectory }) {
       status.textContent = by('discussion-items').childElementCount
         ? ''
         : questionId
-          ? t('Zatím žádná odpověď.', 'No answers yet.')
-          : t('Zatím tu nejsou žádné příspěvky.', 'No posts here yet.');
+          ? t('discussion.no_answers_yet')
+          : t('discussion.no_posts_here_yet');
     } catch (err) {
       if (view.active()) {
         status.textContent = errorText(err);
@@ -300,18 +288,18 @@ export function discussionComposer({ view, nav, waterDirectory }) {
   const { id, questionId = null } = view.route;
   const water = waterDirectory.byId.get(id);
   if (!water) return nav.back();
-  const publish = questionId ? t('Zveřejnit odpověď', 'Post answer') : t('Zveřejnit příspěvek', 'Publish post');
+  const publish = questionId ? t('discussion.post_answer') : t('discussion.publish_post');
   screen.innerHTML =
-    back(t('Zpět', 'Back')) +
+    back(t('common.back')) +
     '<div class="page-intro"><p class="meta">' +
     esc(water.name) +
     '</p><h1>' +
-    (questionId ? t('Odpověď u revíru', 'Answer at this water') : t('Nový příspěvek', 'New post')) +
+    (questionId ? t('discussion.answer_at_this_water') : t('discussion.new_post')) +
     '</h1></div>' +
     (questionId
       ? '<blockquote class="discussion-context">' +
         (view.route.replyAuthor
-          ? '<strong>' + esc(t('Odpověď pro ', 'Reply to ') + view.route.replyAuthor) + '</strong><br>'
+          ? '<strong>' + esc(t('discussion.reply_to') + view.route.replyAuthor) + '</strong><br>'
           : '') +
         esc(view.route.questionText) +
         '</blockquote>'
@@ -320,22 +308,19 @@ export function discussionComposer({ view, nav, waterDirectory }) {
     field(
       'discussion-text',
       questionId
-        ? t('Tvoje odpověď', 'Your answer')
-        : t('Co jsi u vody zjistil nebo na co se chceš zeptat?', 'What did you observe or what would you like to ask?'),
+        ? t('discussion.your_answer')
+        : t('discussion.what_did_you_observe_or_what_would'),
       '<textarea id="discussion-text" rows="5" maxlength="1600" required></textarea>',
     ) +
     (questionId
       ? field(
           'discussion-day',
-          t('Datum výpravy (nepovinné)', 'Trip date (optional)'),
+          t('discussion.trip_date_optional'),
           '<input id="discussion-day" type="date" max="' + esc(today(water.zone)) + '">',
         )
       : '') +
     '<p class="meta">' +
-    t(
-      'Příspěvek uvidí přihlášení rybáři spolu s tvou přezdívkou.',
-      'Signed-in anglers will see this post and your display name.',
-    ) +
+    t('discussion.signed_in_anglers_will_see_this_post') +
     '</p><p id="discussion-error" role="alert"></p></section><div class="savebar"><button type="submit" class="primary">' +
     publish +
     '</button></div></form>';
@@ -350,7 +335,7 @@ export function discussionComposer({ view, nav, waterDirectory }) {
       day = by('discussion-day')?.value || null;
     const error = by('discussion-error');
     if (!message || (day && (!validDay(day) || day > today(water.zone)))) {
-      error.textContent = t('Zkontroluj text a datum výpravy.', 'Check your text and trip date.');
+      error.textContent = t('discussion.check_your_text_and_trip_date');
       return;
     }
     const confirmed = await confirmAction({
@@ -360,7 +345,7 @@ export function discussionComposer({ view, nav, waterDirectory }) {
         water.name +
         '\n\n' +
         message +
-        (day ? '\n\n' + t('Datum výpravy', 'Trip date') + ' · ' + displayDay(day) : ''),
+        (day ? '\n\n' + t('common.trip_date') + ' · ' + displayDay(day) : ''),
     });
     if (!confirmed || !view.active()) return;
     if (!attempt || attempt.message !== message || attempt.trip_day !== day)

@@ -33,13 +33,13 @@ function portrait(avatar, photo) {
 export function showError(view, nav, error) {
   if (!view.active()) return;
   screen.innerHTML =
-    back(t('Zpět', 'Back')) +
+    back(t('common.back')) +
     '<p role="alert">' +
     failure(error) +
     '</p>' +
-    button('retry-profile', t('Zkusit znovu', 'Retry'), 'secondary') +
-    (error.status === 401 ? button('sign-in', t('Přihlásit se', 'Sign in'), 'primary') : '') +
-    button('account-settings', t('Nastavení účtu', 'Account settings'), 'secondary');
+    button('retry-profile', t('common.retry'), 'secondary') +
+    (error.status === 401 ? button('sign-in', t('common.sign_in'), 'primary') : '') +
+    button('account-settings', t('common.account_settings'), 'secondary');
   bindBack(nav);
   bind('retry-profile', () => nav.show());
   bind('account-settings', () => window.Device.profile());
@@ -58,7 +58,7 @@ export async function profileScreen({ view, nav }) {
   if (!view.active()) return;
   const groups = card.groups.map((name) => '<li>' + esc(name) + '</li>').join('');
   screen.innerHTML =
-    back(t('Zpět', 'Back')) +
+    back(t('common.back')) +
     '<article class="surface angler-card"><div class="angler-heading">' +
     portrait(card.avatar, card.photo) +
     '<div><h1>' +
@@ -69,41 +69,41 @@ export async function profileScreen({ view, nav }) {
     (card.tagline ? '<h2>' + esc(card.tagline) + '</h2>' : '') +
     (card.biography ? '<p class="biography">' + esc(card.biography) + '</p>' : '') +
     '<section class="profile-count"><h2>' +
-    t('Úlovky doložené fotkou', 'Photo-documented catches') +
+    t('profiles.photo_documented_catches') +
     '</h2><strong>' +
     esc(card.verifiedCount) +
     '</strong></section>' +
     authorRating(card.authorRating, true) +
     '<section><h2>' +
-    (own ? t('Moje party', 'My groups') : t('Společné party', 'Groups in common')) +
+    (own ? t('profiles.my_groups') : t('profiles.groups_in_common')) +
     '</h2>' +
     (groups
       ? '<ul>' + groups + '</ul>'
       : '<p>' +
         (own
-          ? t('Zatím nejsi v žádné partě.', 'You have not joined a group yet.')
-          : t('Žádná společná parta.', 'No groups in common.')) +
+          ? t('profiles.you.have.not.joined.a.group.yet')
+          : t('profiles.no_groups_in_common')) +
         '</p>') +
     '</section>' +
     (own
       ? '<p class="meta">' +
         (card.shared
-          ? t('Zveřejněno pro přihlášené rybáře', 'Published to signed-in anglers')
-          : t('Soukromý profil', 'Private profile')) +
+          ? t('profiles.published_to_signed_in_anglers')
+          : t('profiles.private_profile')) +
         '</p>'
       : '') +
     '</article>' +
     (own
       ? '<div class="actions">' +
-        button('edit-card', t('Upravit profil', 'Edit profile'), 'primary') +
-        button('tip-market', t('Tržiště tipů', 'Tip market'), 'secondary') +
-        button('my-public-cards', t('Moje veřejné karty', 'My public cards'), 'secondary') +
-        button('my-activity', t('Moje výpravy ve statistice', 'My activity contributions'), 'secondary') +
-        button('weekly-groups', t('Úlovek týdne v partě', 'Group catch of the week'), 'secondary') +
-        button('private-inbox', t('Soukromé zprávy', 'Private messages'), 'secondary') +
-        button('directory', t('Profily rybářů', 'Angler directory'), 'secondary') +
-        button('evidence', t('Moje odeslané fotky', 'My submitted catch photos'), 'secondary') +
-        button('account-settings', t('Účet a správa part', 'Account and group settings'), 'secondary') +
+        button('edit-card', t('profiles.edit_profile'), 'primary') +
+        button('tip-market', t('market.title'), 'secondary') +
+        button('my-public-cards', t('common.my_public_cards'), 'secondary') +
+        button('my-activity', t('common.my_activity_contributions'), 'secondary') +
+        button('weekly-groups', t('profiles.group_catch_of_the_week'), 'secondary') +
+        button('private-inbox', t('common.private_messages'), 'secondary') +
+        button('directory', t('profiles.angler_directory'), 'secondary') +
+        button('evidence', t('common.my_submitted_catch_photos'), 'secondary') +
+        button('account-settings', t('profiles.account_and_group_settings'), 'secondary') +
         '</div>'
       : '');
   bindBack(nav);
@@ -135,7 +135,7 @@ export async function editProfile({ view, nav }) {
       '<label class="portrait-choice"><input type="radio" name="portrait" value="' +
       n +
       '" aria-label="' +
-      t('Karikatura ', 'Portrait ') +
+      t('profiles.portrait') +
       n +
       '"' +
       (avatar === n ? ' checked' : '') +
@@ -145,54 +145,51 @@ export async function editProfile({ view, nav }) {
     );
   }).join('');
   screen.innerHTML =
-    back(t('Zpět', 'Back')) +
+    back(t('common.back')) +
     '<h1>' +
-    t('Upravit profil', 'Edit profile') +
+    t('profiles.edit_profile') +
     '</h1>' +
     '<form class="entry-form" id="card-form"><fieldset class="surface angler-editor"><legend>' +
-    t('Můj profil', 'My profile') +
+    t('profiles.my_profile') +
     '</legend>' +
     '<div id="portrait-preview">' +
     portrait(avatar, photo) +
     '</div>' +
     '<details class="fold"><summary>' +
-    t('Vybrat karikaturu (50)', 'Choose a portrait (50)') +
+    t('profiles.choose_a_portrait_50') +
     '</summary><div class="portrait-grid">' +
     choices +
     '</div></details>' +
     field(
       'profile-photo',
-      t('Vlastní obrázek nebo fotografie', 'Your own image or photograph'),
+      t('profiles.your_own_image_or_photograph'),
       '<input type="file" id="profile-photo" accept="image/*">',
     ) +
-    button('clear-photo', t('Bez obrázku', 'Remove picture'), 'secondary') +
+    button('clear-photo', t('profiles.remove_picture'), 'secondary') +
     textInput(
       'hometown',
-      t('Odkud jsem', 'Hometown'),
+      t('profiles.hometown'),
       card.hometown,
       'maxlength="80" autocomplete="address-level2"',
     ) +
-    textInput('tagline', t('Krátký popisek', 'Short tagline'), card.tagline, 'maxlength="100"') +
+    textInput('tagline', t('profiles.short_tagline'), card.tagline, 'maxlength="100"') +
     field(
       'biography',
-      t('Něco o mně', 'About me'),
+      t('profiles.about_me'),
       '<textarea rows="4" id="biography" maxlength="600">' + esc(card.biography) + '</textarea>',
     ) +
     '<label class="publish-choice"><input type="checkbox" id="shared"' +
     (card.shared ? ' checked' : '') +
     '>' +
-    t('Zveřejnit profil všem přihlášeným rybářům', 'Publish my profile to all signed-in anglers') +
+    t('profiles.publish_my_profile_to_all_signed_in') +
     '</label>' +
     '<small>' +
-    t(
-      'Uložením se profil a vybraný obrázek přenesou do pilotu. Zveřejnění můžeš kdykoliv vypnout. Názvy part uvidí jen společní členové.',
-      'Saving sends the profile and chosen picture to the pilot. You can stop publishing at any time. Group names are visible only to fellow members.',
-    ) +
+    t('profiles.saving_sends_the_profile_and_chosen_picture') +
     '</small>' +
     '</fieldset><p role="alert" id="card-error"></p><div class="actions"><button class="primary" id="save-card">' +
-    t('Uložit profil', 'Save profile') +
+    t('common.save_profile') +
     '</button>' +
-    button('reload-card', t('Načíst uložený profil', 'Reload saved profile'), 'secondary') +
+    button('reload-card', t('profiles.reload_saved_profile'), 'secondary') +
     '</div></form>';
   bindBack(nav);
   trackEdits(by('card-form'), view);
@@ -235,10 +232,7 @@ export async function editProfile({ view, nav }) {
       preview();
     } catch {
       toast(
-        t(
-          'Obrázek nelze přečíst. Vyber jiný snímek do 30 MB.',
-          'Cannot read this image. Choose another file under 30 MB.',
-        ),
+        t('profiles.cannot_read_this_image_choose_another_file'),
       );
     } finally {
       lock(false);
@@ -264,7 +258,7 @@ export async function editProfile({ view, nav }) {
       if (error.status === 401 && !by('editor-sign-in')) {
         by('card-error').insertAdjacentHTML(
           'beforeend',
-          button('editor-sign-in', t('Přihlásit se', 'Sign in'), 'secondary'),
+          button('editor-sign-in', t('common.sign_in'), 'secondary'),
         );
         bind('editor-sign-in', () => {
           if (nav.mayLeave()) window.Device.profileSignIn();
@@ -287,9 +281,9 @@ export async function directoryScreen({ view, nav }) {
   }
   if (!view.active()) return;
   screen.innerHTML =
-    back(t('Zpět', 'Back')) +
+    back(t('common.back')) +
     '<h1>' +
-    t('Profily rybářů', 'Angler directory') +
+    t('profiles.angler_directory') +
     '</h1><div class="profile-directory">' +
     (page.profiles
       .map(
@@ -303,10 +297,10 @@ export async function directoryScreen({ view, nav }) {
       )
       .join('') ||
       '<p>' +
-        t('Zatím zde není žádný zveřejněný profil.', 'There are no published profiles here yet.') +
+        t('profiles.there_are_no_published_profiles_here_yet') +
         '</p>') +
     '</div>' +
-    (page.more ? button('more-cards', t('Další profily', 'More profiles'), 'secondary') : '');
+    (page.more ? button('more-cards', t('profiles.more_profiles'), 'secondary') : '');
   bindBack(nav);
   screen
     .querySelectorAll('[data-card]')

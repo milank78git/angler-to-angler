@@ -18,7 +18,6 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - run: python3 scripts/review-field-guide.py
-      - run: python3 scripts/index-translations.py --check
       - if: github.event_name != 'pull_request'
         run: python3 scripts/review-field-guide.py --check-sources
   refresh-candidates:

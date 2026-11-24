@@ -260,7 +260,7 @@ public final class FishingActivity extends Activity {
               result =
                   AccountStore.rpc(
                       FishingActivity.this,
-                      new IdentityService(FishingActivity.this, "cs".equals(locale())),
+                      new IdentityService(FishingActivity.this),
                       subject,
                       operation,
                       new org.json.JSONObject(body));

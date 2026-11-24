@@ -146,8 +146,7 @@ public final class SeasonReminder extends BroadcastReceiver {
       prefs(c).edit().putLong(key, stamp).apply();
     }
     if (event != null && notificationsEnabled(c)) {
-      String lang = c.getResources().getConfiguration().getLocales().get(0).getLanguage();
-      String name = fish.getString("cs".equals(lang) ? "cs" : "en");
+      String name = AppLanguage.text(c, fish.getString("message"));
       int message =
           event == SeasonCalendar.Event.EXPIRES
               ? R.string.pack_expired

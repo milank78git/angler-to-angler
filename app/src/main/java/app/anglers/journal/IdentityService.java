@@ -14,13 +14,18 @@ import org.json.*;
 final class IdentityService {
   final String origin, key, redirect, notice, language;
 
-  IdentityService(Context c, boolean cs) throws Exception {
-    language = cs ? "cs" : "en";
+  IdentityService(Context c) throws Exception {
+    language = c.getResources().getConfiguration().getLocales().get(0).getLanguage();
     JSONObject config = new JSONObject(asset(c, "account-config.json"));
     origin = config.optString("url");
     key = config.optString("publishableKey");
     redirect = c.getPackageName() + "://account/callback";
-    notice = config.optString(cs ? "deploymentCs" : "deploymentEn");
+    JSONObject notices = config.optJSONObject("deploymentNotices");
+    String selected = "";
+    if (notices != null) {
+      for (String code : AppLanguage.codes(c)) selected = notices.optString(code, selected);
+    }
+    notice = selected;
   }
 
   boolean configured() {

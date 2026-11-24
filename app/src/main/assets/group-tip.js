@@ -4,16 +4,13 @@ import { button, by, field, t, toast, writeEntry } from './ui.js';
 
 export function groupTipControls() {
   return (
-    button('tip-groups', t('Vybrat rybářskou partu', 'Choose a fishing group'), 'secondary') +
+    button('tip-groups', t('group_tip.choose_a_fishing_group'), 'secondary') +
     '<section id="tip-destination" hidden>' +
-    field('tip-group', t('Příjemce', 'Recipient'), '<select id="tip-group"></select>') +
+    field('tip-group', t('common.recipient'), '<select id="tip-group"></select>') +
     '<p class="meta">' +
-    t(
-      'Členové party uvidí tvou přezdívku a text z náhledu. Odchodem z party se tvé tipy smažou.',
-      'Group members will see your display name and the previewed text. Leaving the group deletes your tips.',
-    ) +
+    t('group_tip.group_members_will_see_your_display_name') +
     '</p>' +
-    button('tip-post', t('Odeslat tip do party', 'Post tip to group'), 'primary') +
+    button('tip-post', t('group_tip.post_tip_to_group'), 'primary') +
     '</section><p id="tip-feedback" role="status" hidden></p>'
   );
 }
@@ -38,19 +35,10 @@ export function bindGroupTip(view, nav, tripId, getText) {
   function reportError(error) {
     const message =
       error.status === 401
-        ? t(
-            'Pro sdílení do party se znovu přihlas k účtu.',
-            'Sign in to your account again to post to a group.',
-          )
+        ? t('group_tip.sign_in_to_your_account_again_to')
         : error.status === 403
-          ? t(
-              'Tato parta už není dostupná. Vyber partu znovu.',
-              'This group is no longer available. Choose a group again.',
-            )
-          : t(
-              'Ověření se nezdařilo. Zkontroluj připojení a zkus to znovu.',
-              'Could not confirm the request. Check your connection and retry.',
-            );
+          ? t('group_tip.this_group_is_no_longer_available_choose')
+          : t('group_tip.could_not_confirm_the_request_check_your');
     report(message);
   }
 
@@ -58,9 +46,9 @@ export function bindGroupTip(view, nav, tripId, getText) {
     if (loading || view.saving) return;
     loading = true;
     destination.hidden = true;
-    select.replaceChildren(new Option(t('Vyber partu', 'Select a group'), ''));
+    select.replaceChildren(new Option(t('group_tip.select_a_group'), ''));
     sync();
-    report(t('Načítám party…', 'Loading groups…'));
+    report(t('group_tip.loading_groups'));
     try {
       const { groups } = await rpc('groups');
       if (!view.active()) return;
@@ -69,10 +57,7 @@ export function bindGroupTip(view, nav, tripId, getText) {
       report(
         groups.length
           ? ''
-          : t(
-              'Založ partu nebo přijmi pozvánku v nastavení účtu.',
-              'Create a group or join with an invitation in account settings.',
-            ),
+          : t('group_tip.create_a_group_or_join_with_an'),
       );
       if (groups.length) select.focus();
     } catch (error) {
@@ -94,7 +79,7 @@ export function bindGroupTip(view, nav, tripId, getText) {
     if (!attempt || attempt.group_id !== group || attempt.message !== text)
       attempt = { group_id: group, message: text, request_id: newJournalId() };
     const name = select.selectedOptions[0].text;
-    report(t('Odesílám tip…', 'Posting tip…'));
+    report(t('group_tip.posting_tip'));
     await writeEntry(
       view,
       nav,
@@ -103,7 +88,7 @@ export function bindGroupTip(view, nav, tripId, getText) {
         const receipt = await rpc('group_tip_post', attempt);
         if (receipt.id?.replaceAll('-', '') !== attempt.request_id.replaceAll('-', ''))
           throw Error('Unexpected tip receipt');
-        if (view.active()) toast(t('Tip má parta ', 'Tip posted to ') + name + '.');
+        if (view.active()) toast(t('group_tip.tip_posted_to') + name + '.');
       },
       reportError,
     );

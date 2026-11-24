@@ -8,7 +8,7 @@ The repository contains a mobile client and a PostgreSQL migration for Supabase 
 4. Provide the controller-approved deployment notice in both languages. Name the actual identity host, SMTP and logging processors, log and backup retention, and any transfers or safeguards. Complete processor agreements and publish reachable privacy and deletion information before public signup. Store only the public configuration in GitHub's **Actions variable** `ANGLER_ACCOUNT_CONFIG` or set `ANGLER_ACCOUNT_CONFIG_FILE` to a local JSON file when building. Gradle accepts the same file during asset generation. Never put service-role keys, provider secrets or SMTP credentials in either build.
 
 ```json
-{"url":"https://YOUR-PROJECT.supabase.co","publishableKey":"sb_publishable_…","deploymentEn":"Operator-approved deployment details in English","deploymentCs":"Schválené údaje o nasazení v češtině"}
+{"url":"https://YOUR-PROJECT.supabase.co","publishableKey":"sb_publishable_…","deploymentNotices":{"en":"Operator-approved deployment details in English","cs":"Operator-approved deployment details in Czech"}}
 ```
 
 After the provider verifies the person, the client checks the profile through authenticated RPCs. A new profile needs a display name, an explicit terms acceptance and a separate privacy acknowledgement. The service stamps both revisions and the time. A document update requires a new immutable revision in the migration and client, replacing the text in the four bundled documents. Serve the same change to all languages. Preserve old text in Git and acceptance history in the database.
@@ -17,13 +17,13 @@ The phone keeps a verified profile identifier and timestamp for up to seven days
 
 ## Transactional email
 
-With an authenticated SMTP sender, open **Authentication → Email Templates**. Paste each HTML file and its matching subject below. Confirmation, recovery and older magic-link messages select the language recorded in the Auth user's metadata at registration. Existing accounts without a language receive Czech. Disable link tracking at the mail provider so the verification URL reaches the requesting device intact.
+Generate the Supabase email bodies and subjects from the shared HTML layout and the English and Czech dictionaries.
 
-| Supabase template | Body | Subject |
-| --- | --- | --- |
-| Confirm signup | [confirmation.html](../supabase/templates/confirmation.html) | `{{ if eq .Data.locale "en" }}Confirm your email · Angler to Angler{{ else }}Potvrď svůj e-mail · Rybáři sobě{{ end }}` |
-| Reset password | [recovery.html](../supabase/templates/recovery.html) | `{{ if eq .Data.locale "en" }}Set your password · Angler to Angler{{ else }}Nastavení hesla · Rybáři sobě{{ end }}` |
-| Magic link | [magic_link.html](../supabase/templates/magic_link.html) | `{{ if eq .Data.locale "en" }}Sign in to your journal · Angler to Angler{{ else }}Přihlášení do deníku · Rybáři sobě{{ end }}` |
+```sh
+python3 scripts/build-email-templates.py build/auth-email
+```
+
+With an authenticated SMTP sender, open **Authentication → Email Templates**. For **Confirm signup**, use the generated `confirmation.html` and `confirmation.subject.txt`. For **Reset password** use the `recovery` files, and for **Magic link** use the `magic_link` files. Paste the HTML into the body and the corresponding subject into the subject field. New accounts receive the language recorded at registration. Existing accounts without a recorded locale retain the Czech default. Disable link tracking at the mail provider so the verification URL reaches the requesting device intact.
 
 On an existing email-link account, choose **Set or reset password** once and use the email already registered. Recovery updates the same Auth user. Profile, groups and local journal retain the same identifier. A new device still needs online sign-in before it can use its own system screen lock. Local journal files are specific to each installation.
 

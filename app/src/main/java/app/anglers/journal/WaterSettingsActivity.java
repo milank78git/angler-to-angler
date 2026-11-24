@@ -17,20 +17,19 @@ public final class WaterSettingsActivity extends Activity {
     if (WaterCatalogue.CHECKED.equals(key) || WaterCatalogue.REVISION.equals(key)) showStatus();
   };
 
-  private String text(String cs, String en) { return AppLanguage.text(this, cs, en); }
+  private String text(String key) { return AppLanguage.text(this, key); }
 
   @Override public void onCreate(Bundle state) {
     super.onCreate(state);
     ui = new AccountLayout(this);
-    ui.page(text("Aktualizace atlasu revírů", "Water atlas updates"), false);
-    CheckBox auto = ui.check(text("Automaticky kontrolovat každý den", "Check automatically every day"));
+    ui.page(text("common.water_atlas_updates"), false);
+    CheckBox auto = ui.check(text("atlas_settings.check_automatically_every_day"));
     auto.setChecked(WaterCatalogue.automatic(this));
     auto.setOnCheckedChangeListener((v, enabled) -> WaterCatalogue.setAutomatic(this, enabled));
-    ui.label(text("Telefon zkontroluje atlas při dostupném připojení. Při odložení systémem kontrolu doplní při otevření aplikace.",
-        "The phone checks the atlas when online. If Android defers the check, opening the app catches up."));
+    ui.label(text("atlas_settings.the_phone_checks_the_atlas_when_online"));
     status = ui.label("");
-    check = ui.button(ui.form, text("Zkontrolovat nyní", "Check now"), AccountLayout.Action.PRIMARY, this::refresh);
-    ui.button(ui.form, text("Zpět", "Back"), AccountLayout.Action.SECONDARY, this::finish);
+    check = ui.button(ui.form, text("atlas_settings.check_now"), AccountLayout.Action.PRIMARY, this::refresh);
+    ui.button(ui.form, text("common.back"), AccountLayout.Action.SECONDARY, this::finish);
   }
 
   @Override protected void onStart() {
@@ -47,22 +46,22 @@ public final class WaterSettingsActivity extends Activity {
   private void showStatus() {
     long last = WaterCatalogue.prefs(this).getLong(WaterCatalogue.CHECKED, 0);
     String edition = WaterCatalogue.prefs(this).getString(WaterCatalogue.DATE, "");
-    status.setText((WaterCatalogue.revision(this).isEmpty() ? text("Atlas dodaný s aplikací", "Atlas bundled with the app")
-        : text("Vydání atlasu", "Atlas edition") + " · " + edition) + "\n"
-        + text("Poslední úspěšná kontrola", "Last successful check") + " · "
-        + (last == 0 ? text("zatím neproběhla", "never") : DateFormat.getDateTimeInstance().format(new Date(last))));
+    status.setText((WaterCatalogue.revision(this).isEmpty() ? text("atlas_settings.atlas_bundled_with_the_app")
+        : text("atlas_settings.atlas_edition") + " · " + edition) + "\n"
+        + text("atlas_settings.last_successful_check") + " · "
+        + (last == 0 ? text("atlas_settings.never") : DateFormat.getDateTimeInstance().format(new Date(last))));
   }
 
   private void refresh() {
     check.setEnabled(false);
-    ui.message(text("Kontroluji atlas…", "Checking the atlas…"));
+    ui.message(text("atlas_settings.checking_the_atlas"));
     WaterCatalogue.check(this, true, result -> runOnUiThread(() -> {
       if (isFinishing() || isDestroyed()) return;
       check.setEnabled(true);
       showStatus();
-      if (result == WaterCatalogue.Result.UPDATED) ui.message(text("Nový atlas je k dispozici offline.", "The updated atlas is available offline."));
-      else if (result == WaterCatalogue.Result.CURRENT) ui.message(text("Máš aktuální atlas.", "Your atlas is up to date."));
-      else ui.message(text("Aktualizace se nezdařila. Dosavadní atlas můžeš dál používat.", "The update failed. Your previous atlas is still available."));
+      if (result == WaterCatalogue.Result.UPDATED) ui.message(text("atlas_settings.the_updated_atlas_is_available_offline"));
+      else if (result == WaterCatalogue.Result.CURRENT) ui.message(text("atlas_settings.your_atlas_is_up_to_date"));
+      else ui.message(text("atlas_settings.the_update_failed_your_previous_atlas_is"));
     }));
   }
 }

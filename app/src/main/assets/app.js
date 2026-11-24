@@ -2,7 +2,7 @@ import { createWaterDirectory } from './water-directory.js';
 import { fishCatalogue, fishDetail } from './fish-catalogue.js';
 import { openGuide, closeGuide, attachHints } from './guide.js';
 import { contentLanguage } from './i18n.js';
-import { by, screen, t, cs, bind, button, icon, confirmAction, dismissConfirmation } from './ui.js';
+import { by, screen, t, bind, button, icon, confirmAction, dismissConfirmation } from './ui.js';
 import { marketShelf, marketDetail, marketEditor } from './market.js';
 import { Navigation } from './navigation.js';
 import { listWaters, waterScreen } from './waters.js';
@@ -52,9 +52,9 @@ const nav = new Navigation(
   render,
   () =>
     confirmAction({
-      title: t('Zahodit neuložené změny?', 'Discard unsaved changes?'),
-      message: t('Po odchodu se změny z tohoto formuláře ztratí.', 'Leaving this form will discard your edits.'),
-      accept: t('Zahodit změny', 'Discard changes'),
+      title: t('journal.discard_unsaved_changes'),
+      message: t('journal.leaving_this_form_will_discard_your_edits'),
+      accept: t('journal.discard_changes'),
       destructive: true,
     }),
   () => window.scrollY,
@@ -94,9 +94,9 @@ async function render(view, area) {
     console.error('Could not render ' + page, error);
     screen.innerHTML =
       '<p role="alert">' +
-      t('Obrazovku se nepodařilo načíst.', 'Could not open this screen.') +
+      t('journal.could_not_open_this_screen') +
       '</p>' +
-      button('retry', t('Zkusit znovu', 'Retry'));
+      button('retry', t('common.retry'));
     bind('retry', () => nav.show());
   } finally {
     if (view.active()) screen.removeAttribute('aria-busy');
@@ -107,7 +107,7 @@ function setTheme(mode) {
   document.documentElement.dataset.theme = mode;
   by('theme').setAttribute(
     'aria-label',
-    dark ? t('Zapnout světlý vzhled', 'Use light theme') : t('Zapnout tmavý vzhled', 'Use dark theme'),
+    dark ? t('journal.use_light_theme') : t('journal.use_dark_theme'),
   );
   by('theme').innerHTML = icon(dark ? 'sun' : 'moon');
   if (window.Device && typeof Device.systemBars === 'function')
@@ -115,20 +115,20 @@ function setTheme(mode) {
 }
 async function start() {
   document.documentElement.lang = contentLanguage;
-  by('guide-open').ariaLabel = by('guide-open').title = t('Nápověda', 'Help');
+  by('guide-open').ariaLabel = by('guide-open').title = t('common.help');
   bind('guide-open', () => openGuide({ page: nav.current?.route.page }));
-  by('profile').textContent = t('Profil', 'Profile');
+  by('profile').textContent = t('profile.title');
   bind('profile', () => {
     if (nav.current?.route.page !== 'anglerProfile' || nav.current.route.id) nav.open('anglerProfile');
   });
-  by('brand').textContent = t('Rybáři sobě', 'Angler to Angler');
+  by('brand').textContent = t('app.name');
   const versionLabel = window.Device?.versionLabel?.();
   if (versionLabel) {
     by('app-version').textContent = versionLabel;
     by('app-version').hidden = false;
   }
   by('mark').innerHTML = icon('fish-symbol');
-  by('offline').innerHTML = icon('check') + t('Offline podklady', 'Offline pack');
+  by('offline').innerHTML = icon('check') + t('journal.offline_pack');
   const system = matchMedia('(prefers-color-scheme: dark)');
   const sync = () =>
     setTheme(
@@ -181,11 +181,11 @@ async function start() {
     await window.waterCatalogueChanged();
 
     const destinations = [
-      ['waters', t('Revíry', 'Waters'), 'map'],
-      ['rules', t('Hájení', 'Seasons'), 'calendar-days'],
-      ['trips', t('Deník', 'Journal'), 'book-open'],
+      ['waters', t('app.waters'), 'map'],
+      ['rules', t('journal.seasons'), 'calendar-days'],
+      ['trips', t('journal.journal'), 'book-open'],
     ];
-    tabs.setAttribute('aria-label', t('Hlavní navigace', 'Main navigation'));
+    tabs.setAttribute('aria-label', t('journal.main_navigation'));
     tabs.innerHTML = destinations
       .map(([k, label, glyph]) => button('tab' + k, label, 'destination', glyph))
       .join('');
@@ -195,10 +195,7 @@ async function start() {
     else if (window.Device?.openProfile?.()) nav.open('anglerProfile');
     else nav.show();
   } catch (error) {
-    screen.textContent = t(
-      'Místní data se nepodařilo otevřít. Zkus aplikaci znovu spustit.',
-      'Could not open local data. Try restarting the app.',
-    );
+    screen.textContent = t('journal.could_not_open_local_data_try_restarting');
   }
 }
 if (document.readyState === 'loading') window.addEventListener('DOMContentLoaded', start, { once: true });

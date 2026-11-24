@@ -19,6 +19,7 @@ from osgeo import ogr, osr
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "app/src/main/assets"
+SOURCE_TERMS = json.loads((ROOT / "data/waters/europe-provider-terms.json").read_text())
 BERLIN = "https://gdi.berlin.de/services/wfs/angelgewaesser"
 SRZ = "https://srzrada.sk/rybarske-poriadky/"
 ARCGIS = {
@@ -92,6 +93,7 @@ def arcgis(provider):
 
 
 def luxembourg():
+    terms = SOURCE_TERMS["LU"]
     catalogue = json.loads(get("https://data.public.lu/api/1/datasets/sections-de-peche/"))
     # The official catalogue also lists archived exports. Pick the latest GeoJSON resource.
     files = [r for r in catalogue["resources"] if r["format"] == "geojson"
@@ -100,31 +102,32 @@ def luxembourg():
     rows = []
     for feature in json.loads(get(url))["features"]:
         prop = feature["properties"]
-        record = {"code":str(prop["OBJECTID"]), "name":prop["Gewaesser"].strip(),
+        record = {"code":str(prop["OBJECTID"]), "name":prop[terms["water"]].strip(),
                   **source_geometry(feature["geometry"])}
         if prop.get("lot"):
             record["number"] = str(prop["lot"])
-        if prop.get("Symbology") == "non adjugé":
-            record["status"] = "non adjugé"
+        if prop.get("Symbology") == terms["unassignedStatus"]:
+            record["status"] = terms["unassignedStatus"]
         rows.append(record)
     return rows
 
 
 def swedish():
+    terms = SOURCE_TERMS["SE"]
     # The country register labels active management areas with reference points.
     # ID_FVOF identifies the association across publications; OBJECTID is only for paging.
     url = "https://ext-geodata-acc.lansstyrelsen.se/arcgis/rest/services/svenskafiskekartan/lst_svenskafiskekartan/MapServer/11/query?"
-    params = {"where": "Status='Aktiv'"}
+    params = {"where": terms["condition"]}
     expected = json.loads(get(url + urlencode({**params, "returnCountOnly":"true", "f":"json"})))["count"]
     rows = []
     for offset in range(0, expected, 800):
-        query = {**params, "outFields":"ID_FVOF,Namn,Status", "outSR":4326, "orderByFields":"OBJECTID",
+        query = {**params, "outFields":terms["fields"], "outSR":4326, "orderByFields":"OBJECTID",
                  "resultOffset":offset, "resultRecordCount":800, "f":"geojson"}
         for feature in json.loads(get(url + urlencode(query)))["features"]:
             prop = feature["properties"]
-            if not isinstance(prop["ID_FVOF"], int) or prop["Status"] != "Aktiv":
+            if not isinstance(prop["ID_FVOF"], int) or prop["Status"] != terms["active"]:
                 raise ValueError("Unexpected management area identity")
-            rows.append({"code":str(prop["ID_FVOF"]), "name":prop["Namn"].strip(), **source_geometry(feature["geometry"])})
+            rows.append({"code":str(prop["ID_FVOF"]), "name":prop[terms["name"]].strip(), **source_geometry(feature["geometry"])})
     if len(rows) != expected:
         raise ValueError("Incomplete Swedish management area register")
     return rows
@@ -132,7 +135,7 @@ def swedish():
 
 def berlin():
     params = {"service": "WFS", "version": "2.0.0", "request": "GetFeature",
-              "typeNames": "angelgewaesser:c_angel_gew", "outputFormat": "application/json", "srsName": "EPSG:4326"}
+              "typeNames": SOURCE_TERMS["DE"]["layer"], "outputFormat": "application/json", "srsName": "EPSG:4326"}
     data = json.loads(get(BERLIN + "?" + urlencode(params)))
     if len(data["features"]) != int(data["numberMatched"]):
         raise ValueError("Incomplete Berlin fishery layer")
@@ -147,10 +150,10 @@ class BookLinks(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         a = dict(attrs)
-        if tag == "a" and "srz-poriadok-link" in a.get("class", "").split():
+        if tag == "a" and SOURCE_TERMS["SK"]["bookClass"] in a.get("class", "").split():
             url = a.get("href", "")
             if urlsplit(url).hostname in {"srzrada.sk", "srzrada.xandraone.com"} and url.startswith("https://"):
-                if re.search(r'(?:kaprov|lipnov|pstruhov|zvlastny).*\.pdf$', url, re.I):
+                if re.search(SOURCE_TERMS["SK"]["filePattern"], url, re.I):
                     self.books.append(url)
 
 
@@ -168,7 +171,7 @@ def slovak():
             # Discard the illustrative sample and use the actual list of waters.
             parsed = 0
             for page in text.split("\f"):
-                if "PRÍKLAD:" in page:
+                if SOURCE_TERMS["SK"]["sampleMarker"] in page:
                     continue
                 lines = page.splitlines()
                 for i, line in enumerate(lines):
@@ -176,7 +179,7 @@ def slovak():
                     if not re.fullmatch(r"[1-4]-\d{4}-\d-\d", code):
                         continue
                     header = " ".join(" ".join(lines[i + 1:i + 4]).split())
-                    org = re.search(r"\b(?:MsO|MO|SRZ|OZ|ŠH|ŠP|Rada|Miestna)\b", header, re.I)
+                    org = re.search(SOURCE_TERMS["SK"]["organisationPattern"], header, re.I)
                     if not org:
                         continue
                     name = header[:org.start()].strip(" ,")
@@ -211,30 +214,33 @@ def zipped_features(url, layer_name):
 
 
 def upper_austria():
+    terms = SOURCE_TERMS["AT"]
     url = "https://e-gov.ooe.gv.at/at.gv.ooe.dorisdaten/DORIS_U/FISCHEREIRECHTE.zip"
     rows = {}
     for fields, geometry in zipped_features(url, "FISCHEREIRECHTE.shp"):
-        number = (fields["RevierNr"] or "").strip()
+        number = (fields[terms["number"]] or "").strip()
         if not number:
             continue  # Unidentified map fragments cannot be assigned a report or discussion.
-        district = str(fields["BEZ"])
+        district = str(fields[terms["district"]])
         key = district + "-" + number.encode("utf-8").hex()
-        record = rows.setdefault(key, {"code":key, "name":"Fischereirecht " + number, "number":number,
-                                       "area":"Oberösterreich · Bezirk " + district, "lines":[]})
+        record = rows.setdefault(key, {"code":key, "name":terms["namePrefix"] + number, "number":number,
+                                       "area":terms["areaPrefix"] + district, "lines":[]})
         record["lines"].extend(geometry["lines"])
     return list(rows.values())
 
 
 def maine_loire():
+    terms = SOURCE_TERMS["FR"]
     url = "https://atom.geo-ide.developpement-durable.gouv.fr/atomArchive/GetResource?id=b9f0952c-b727-4d53-be36-0b27a5eb26b4&dataType=dataset"
     layer = "dataset/L_PECHE_PARCOURS_CARPE_NUIT_S_049.shp"
-    return [{"code":p["ID"], "name":p["Nom"], "number":p["ID"], "area":p["riviere"] + " · " + p["COM_2019"], **geo}
+    return [{"code":p["ID"], "name":p[terms["name"]], "number":p["ID"], "area":p[terms["river"]] + " · " + p[terms["municipality"]], **geo}
             for p, geo in zipped_features(url, layer)]
 
 
 def danish():
+    terms = SOURCE_TERMS["DK"]
     url = "https://geofa.geodanmark.dk/api/v2/sql/fkg?"
-    selection = " from fkg.t_5800_fac_pkt where facil_ty_k in (2031,2171,4411,4422) and statuskode=3 and off_kode=1"
+    selection = terms["tableFilter"]
     def query(sql):
         data = json.loads(get(url + urlencode({"q":sql, "srs":4326})))
         if not data["success"]:
@@ -243,11 +249,11 @@ def danish():
     count = query("select count(*) as n" + selection)[0]["properties"]["n"]
     rows = []
     for offset in range(0, int(count), 500):
-        sql = "select objekt_id,navn,facil_ty,cvr_navn,geometri" + selection + " order by objekt_id limit 500 offset " + str(offset)
+        sql = "select " + terms["columns"] + selection + " order by " + terms["order"] + " limit 500 offset " + str(offset)
         for f in query(sql):
             p = f["properties"]
-            name = (p["navn"] or "").strip() or p["facil_ty"]
-            rows.append({"code":p["objekt_id"], "name":name, "area":p["cvr_navn"], "status":p["facil_ty"],
+            name = (p[terms["name"]] or "").strip() or p[terms["category"]]
+            rows.append({"code":p[terms["order"]], "name":name, "area":p[terms["manager"]], "status":p[terms["category"]],
                          **source_geometry(f["geometry"])})
     if len(rows) != int(count):
         raise ValueError("Incomplete Danish facilities")
@@ -255,26 +261,28 @@ def danish():
 
 
 def castile_leon():
+    terms = SOURCE_TERMS["ES"]
     # The same layer also contains protected refuges. Select the explicitly designated COTO class.
-    params = {"service":"WFS", "version":"2.0.0", "request":"GetFeature", "typeNames":"piscis:visor_tramos",
-              "CQL_FILTER":"title ILIKE 'COTO-%'", "srsName":"EPSG:4326", "outputFormat":"application/json", "count":1000}
+    params = {"service":"WFS", "version":"2.0.0", "request":"GetFeature", "typeNames":terms["layer"],
+              "CQL_FILTER":terms["condition"], "srsName":"EPSG:4326", "outputFormat":"application/json", "count":1000}
     data = json.loads(get("https://vps24geoserver.cesefor.com/geoserver/piscis/ows?" + urlencode(params)))
     if len(data["features"]) != int(data["numberMatched"]):
-        raise ValueError("Incomplete Castile and León fishery register")
+        raise ValueError("Incomplete Castile and Leon fishery register")
     rows = []
     for f in data["features"]:
         p = f["properties"]
-        rows.append({"code":str(p["nid"]), "number":p["codigo_tramo"], "name":p["title"].split("-",1)[1].strip(),
+        rows.append({"code":str(p["nid"]), "number":p[terms["number"]], "name":p["title"].split("-",1)[1].strip(),
                      **source_geometry(f["geometry"])})
     return rows
 
 
 def zurich():
+    terms = SOURCE_TERMS["CH"]
     # The third WFS layer describes administrative areas on land. Use the two actual water layers.
     url = "https://maps.zh.ch/wfs/OGDZHWFS?"
     rows = {}
-    for suffix in ("stillgewaesser_f", "gewaessernetz_l"):
-        params = {"service":"WFS","version":"2.0.0","request":"GetFeature","typeNames":"ms:ogd-0314_giszhpub_fischrevier_" + suffix}
+    for suffix in terms["layers"]:
+        params = {"service":"WFS","version":"2.0.0","request":"GetFeature","typeNames":terms["layerPrefix"] + suffix}
         count = int(ElementTree.fromstring(get(url + urlencode({**params,"resultType":"hits"}))).attrib["numberMatched"])
         seen = set()
         for offset in range(0,count,1000):
@@ -284,14 +292,14 @@ def zurich():
             for f in features:
                 p = f["properties"]
                 seen.add(p["geodb_oid"])
-                if not p.get("reviernummer") or not (p.get("fischrevier") or "").strip():
+                if not p.get(terms["number"]) or not (p.get(terms["name"]) or "").strip():
                     continue
-                number = str(p["reviernummer"])
-                record = rows.setdefault(number, {"code":number, "number":number, "name":p["fischrevier"].strip()})
+                number = str(p[terms["number"]])
+                record = rows.setdefault(number, {"code":number, "number":number, "name":p[terms["name"]].strip()})
                 for key, pieces in source_geometry(f["geometry"]).items():
                     record.setdefault(key, []).extend(pieces)
         if len(seen) != count:
-            raise ValueError("Incomplete Zürich fishery layer: " + suffix)
+            raise ValueError("Incomplete Zurich fishery layer: " + suffix)
     return list(rows.values())
 
 
