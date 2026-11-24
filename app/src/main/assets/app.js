@@ -1,4 +1,4 @@
-import { createWaterDirectory } from './water-directory.js';
+import { createWaterDirectory, waterDistances } from './water-directory.js';
 import { fishCatalogue, fishDetail } from './fish-catalogue.js';
 import { openGuide, closeGuide, attachHints } from './guide.js';
 import { contentLanguage } from './i18n.js';
@@ -185,6 +185,22 @@ async function start() {
     };
     await window.waterCatalogueChanged();
 
+    window.fieldNearby = async (lat, lon) => {
+      if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;
+      const directory=catalog.waterDirectory;
+      const shapes=await directory.geography().catch(() => ({}));
+      if (directory!==catalog.waterDirectory) return;
+      const distances=waterDistances(directory.waters,shapes,{lat,lon});
+      let nearest, km=10;
+      for (const [id,distance] of distances) {
+        if (distance<=km) { nearest=directory.byId.get(id); km=distance; }
+      }
+      if (nearest) window.Device?.nearbyWater?.(nearest.key,nearest.name+' · '+
+        new Intl.NumberFormat(document.documentElement.lang,{maximumFractionDigits:1}).format(km)+' km');
+    };
+    window.refreshFieldSettings = () => window.Device?.checkNearby?.();
+    window.refreshFieldSettings();
+
     const destinations = [
       ['waters', t('app.waters'), 'map'],
       ['rules', t('journal.seasons'), 'calendar-days'],
@@ -196,7 +212,14 @@ async function start() {
       .join('');
     destinations.forEach(([k]) => bind('tab' + k, () => nav.open(k)));
     const weekly = window.Device?.weeklyDestination?.();
-    if (weekly) nav.open('weeklyBoard', { ...JSON.parse(weekly), onExit: () => window.Device.closeGroupBoard() });
+    const notice=window.Device?.fieldKind?.();
+    const water=catalog.waterDirectory.byKey.get(window.Device?.fieldWater?.());
+    if (notice==='posts' && water) nav.open('waterDiscussion',{id:water.id});
+    else if (notice==='nearby' && water) nav.open('water',{id:water.id});
+    else if (notice==='waters') {
+      nav.stacks.get('waters')[0].additions=new Set(JSON.parse(window.Device.addedWaters()));
+      nav.show();
+    } else if (weekly) nav.open('weeklyBoard', { ...JSON.parse(weekly), onExit: () => window.Device.closeGroupBoard() });
     else if (window.Device?.openProfile?.()) nav.open('anglerProfile');
     else nav.show();
   } catch (error) {

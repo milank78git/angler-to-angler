@@ -20,14 +20,16 @@ function today(zone, instant = new Date()) {
   const get = (type) => parts.find((p) => p.type === type).value;
   return get('year') + '-' + get('month') + '-' + get('day');
 }
+function inSeason(day, [start, end]) {
+  const monthDay = day.slice(5);
+  return start <= end ? monthDay >= start && monthDay <= end : monthDay >= start || monthDay <= end;
+}
+
 function season(pack, species, section, day) {
   if (!validDay(day) || day < pack.from || day > pack.until) return 'unknown';
   if (section === 'restricted') return 'prohibited';
   if (section !== 'main' || !Object.prototype.hasOwnProperty.call(pack.species, species)) return 'unknown';
-  const [start, end] = pack.species[species].window;
-  const md = day.slice(5);
-  const closed = start <= end ? md >= start && md <= end : md >= start || md <= end;
-  return closed ? 'closed' : 'outside';
+  return inSeason(day, pack.species[species].window) ? 'closed' : 'outside';
 }
 /** Accept only ordinary decimal notation, with either local decimal separator. */
 function decimal(value) {
@@ -49,4 +51,4 @@ function lengthMm(input) {
   return Math.round(cm * 10);
 }
 
-export { fold, validDay, today, season, point, lengthMm };
+export { fold, validDay, today, inSeason, season, point, lengthMm };

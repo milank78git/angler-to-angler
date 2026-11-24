@@ -69,6 +69,14 @@ final class IdentityService {
         Base64.URL_SAFE | Base64.NO_WRAP | Base64.NO_PADDING);
   }
 
+  JSONObject postSignal(JSONObject args) throws Exception {
+    return request("/rest/v1/rpc/angler_post_signal", null, args);
+  }
+
+  void endPostWatch(JSONObject args) throws Exception {
+    request("/rest/v1/rpc/angler_end_post_watch", null, args);
+  }
+
   JSONObject waterManifest() throws Exception {
     return request("/rest/v1/rpc/angler_water_manifest", null, new JSONObject());
   }

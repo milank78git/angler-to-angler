@@ -655,7 +655,7 @@
     {
       "country": "CZ",
       "source": "cz11",
-      "scope": "nontrout",
+      "scope": "czall",
       "species": [
         "Hucho hucho"
       ],
@@ -664,7 +664,7 @@
     {
       "country": "CZ",
       "source": "cz11",
-      "scope": "nontrout",
+      "scope": "czall",
       "species": [
         "Leuciscus idus"
       ],
@@ -682,7 +682,7 @@
     {
       "country": "CZ",
       "source": "cz11",
-      "scope": "nontrout",
+      "scope": "czall",
       "species": [
         "Acipenser ruthenus"
       ],
@@ -691,7 +691,7 @@
     {
       "country": "CZ",
       "source": "cz11",
-      "scope": "nontrout",
+      "scope": "czall",
       "species": [
         "Cyprinus carpio"
       ],
@@ -700,7 +700,7 @@
     {
       "country": "CZ",
       "source": "cz11",
-      "scope": "nontrout",
+      "scope": "czall",
       "species": [
         "Tinca tinca"
       ],
@@ -709,7 +709,7 @@
     {
       "country": "CZ",
       "source": "cz11",
-      "scope": "nontrout",
+      "scope": "czall",
       "species": [
         "Thymallus thymallus"
       ],
@@ -718,7 +718,7 @@
     {
       "country": "CZ",
       "source": "cz11",
-      "scope": "nontrout",
+      "scope": "czall",
       "species": [
         "Chondrostoma nasus"
       ],
@@ -727,7 +727,7 @@
     {
       "country": "CZ",
       "source": "cz11",
-      "scope": "nontrout",
+      "scope": "czall",
       "species": [
         "Barbus barbus"
       ],
@@ -736,7 +736,7 @@
     {
       "country": "CZ",
       "source": "cz11",
-      "scope": "nontrout",
+      "scope": "czall",
       "species": [
         "Vimba vimba"
       ],
@@ -745,7 +745,7 @@
     {
       "country": "CZ",
       "source": "cz11",
-      "scope": "nontrout",
+      "scope": "czall",
       "species": [
         "Oncorhynchus mykiss"
       ],
@@ -754,7 +754,7 @@
     {
       "country": "CZ",
       "source": "cz11",
-      "scope": "nontrout",
+      "scope": "czall",
       "species": [
         "Salmo trutta"
       ],
@@ -763,7 +763,7 @@
     {
       "country": "CZ",
       "source": "cz11",
-      "scope": "nontrout",
+      "scope": "czall",
       "species": [
         "Salvelinus fontinalis"
       ],
@@ -790,7 +790,7 @@
     {
       "country": "CZ",
       "source": "cz11",
-      "scope": "nontrout",
+      "scope": "czall",
       "species": [
         "Anguilla anguilla"
       ],
@@ -799,7 +799,7 @@
     {
       "country": "CZ",
       "source": "cz11",
-      "scope": "nontrout",
+      "scope": "czall",
       "species": [
         "Lota lota"
       ],
@@ -808,7 +808,7 @@
     {
       "country": "CZ",
       "source": "cz11",
-      "scope": "nontrout",
+      "scope": "czall",
       "species": [
         "Salmo salar"
       ],
@@ -834,12 +834,16 @@
       "species": [
         "Chondrostoma nasus",
         "Barbus barbus",
-        "Vimba vimba",
-        "Acipenser ruthenus"
+        "Barbus petenyi",
+        "Vimba vimba"
       ],
       "closed": [
         "03-16",
         "06-15"
+      ],
+      "genera": [
+        "Acipenser",
+        "Huso"
       ]
     },
     {

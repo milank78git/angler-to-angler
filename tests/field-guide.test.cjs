@@ -48,3 +48,50 @@ test('all packaged market species can round-trip through the versioned database 
   const stored=new Set(migration.split('$fish$')[1].split('\n'));
   for (const row of json('europe-fish').species) assert.ok(stored.has(row.latin),row.latin);
 });
+
+test('CZ trout and non-trout sizes are distinct from whole-water closures', () => {
+  const rules = json('europe-rules').entries.filter(r => r.country === 'CZ');
+  const sizes = (name, waterClass) => rules.filter(r => r.species.includes(name) && r.minCm != null &&
+    [waterClass, 'czall'].includes(r.scope)).map(r => r.minCm);
+  assert.deepEqual(sizes('Cyprinus carpio','cztrout'),[40]);
+  assert.deepEqual(sizes('Esox lucius','cztrout'),[]);
+  assert.deepEqual(sizes('Esox lucius','nontrout'),[50]);
+  assert.ok(rules.some(r => r.scope==='cztrout' && r.allFreshwater && !r.species.length));
+  assert.ok(!rules.some(r => r.species.includes('Oncorhynchus mykiss') && r.closed));
+});
+
+test('map navigation uses published coordinates and distinguishes unknown locations', async () => {
+  global.document = {querySelector:()=>null};
+  const {mapFeature} = await import('../app/src/main/assets/atlas-map.js');
+  const outline = [[[[14,49],[15,49],[15,50],[14,49]]]];
+  assert.deepEqual(mapFeature({},outline).target,[14,49]);
+  assert.deepEqual(mapFeature({lines:[[[3,4],[5,6]]]}).target,[3,4]);
+  assert.deepEqual(mapFeature({access:{pt:[1,2]},points:[[3,4]]},outline).target,[1,2]);
+  assert.deepEqual(mapFeature({points:[[0,0]]}).target,[0,0]);
+  assert.equal(mapFeature({points:[[null,0],[0,100]]}),null);
+});
+
+test('dated Czech water rules distinguish water, species, inclusive boundaries and unverified dates', async () => {
+  const {scopedFishRules, forFishingDate} = await import('../app/src/main/assets/fish-rules.js');
+  const rules = json('europe-rules');
+  const trout = scopedFishRules(rules,'CZ','cztrout','Oncorhynchus mykiss');
+  assert.deepEqual(trout.species.map(r=>r.minCm), [25]);
+  assert.equal(trout.water.length, 1);
+  const winter = trout.water[0], source = rules.sources[winter.source];
+  const status = day => forFishingDate(winter,source,day);
+  assert.equal(status('2026-11-30'),'outside');
+  assert.equal(status('2026-12-01'),'closed');
+  assert.equal(status('2027-01-01'),'closed');
+  assert.equal(status('2027-02-02'),'unverified');
+  assert.equal(status('2026-11-23'),'unverified');
+  assert.equal(status('2026-02-30'),'unverified');
+  assert.equal(forFishingDate(winter,{...source,reviewBy:'2027-06-01'},'2027-04-15'),'closed');
+  assert.equal(forFishingDate(winter,{...source,reviewBy:'2027-06-01'},'2027-04-16'),'outside');
+  const pike = scopedFishRules(rules,'CZ','nontrout','Esox lucius');
+  assert.deepEqual(pike.water, []);
+  assert.ok(pike.species.some(r=>r.minCm===50));
+  for (const latin of ['Barbus petenyi','Acipenser sturio','Huso huso']) {
+    assert.ok(scopedFishRules(rules,'CZ','nontrout',latin).species.some(r=>r.closed?.[0]==='03-16'));
+  }
+  assert.equal(scopedFishRules(rules,'CZ','nontrout','Huso huso').species.some(r=>r.minCm),false);
+});

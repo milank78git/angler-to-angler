@@ -70,6 +70,7 @@ final class AccountStore {
     SharedPreferences p = prefs(c);
     if (!value.id.equals(p.getString("subject", ""))) {
       SeasonReminder.clearSubscriptions(c);
+      FieldAlerts.clear(c);
       DeviceVault.clear(c);
     }
     SharedPreferences.Editor edit =
@@ -160,5 +161,6 @@ final class AccountStore {
         .remove("revision")
         .apply();
     SeasonReminder.clearSubscriptions(c);
+    FieldAlerts.clear(c);
   }
 }

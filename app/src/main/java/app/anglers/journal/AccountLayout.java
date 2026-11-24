@@ -78,7 +78,7 @@ final class AccountLayout {
   private TextView text(String title, int size, int color, Typeface face) {
     TextView v = new TextView(activity);
     v.setText(title);
-    v.setTextSize(size);
+    v.setTextSize(size * WaterSettingsActivity.textScale(activity));
     v.setTextColor(color);
     v.setTypeface(face);
     v.setIncludeFontPadding(false);
@@ -183,6 +183,8 @@ final class AccountLayout {
     WebView web = new WebView(activity);
     web.setBackgroundColor(surface);
     web.getSettings().setJavaScriptEnabled(true);
+    web.getSettings().setTextZoom(Math.round(100 * activity.getResources().getConfiguration().fontScale
+        * WaterSettingsActivity.textScale(activity)));
     web.getSettings().setAllowFileAccess(false);
     web.getSettings().setAllowContentAccess(false);
     web.setWebViewClient(new LocalAssetClient(activity.getAssets(), ignored -> {}));
@@ -242,7 +244,7 @@ final class AccountLayout {
     Button b = new Button(activity);
     b.setAllCaps(false);
     b.setText(label);
-    b.setTextSize(16);
+    b.setTextSize(16 * WaterSettingsActivity.textScale(activity));
     b.setTypeface(Typeface.create("sans-serif-medium", 0));
     b.setLetterSpacing(0);
     b.setMinHeight(dp(kind == Action.LINK ? 48 : 52));
@@ -280,7 +282,7 @@ final class AccountLayout {
     f.setSingleLine();
     f.setInputType(type);
     f.setHint(hint);
-    f.setTextSize(16);
+    f.setTextSize(16 * WaterSettingsActivity.textScale(activity));
     f.setTextColor(ink);
     f.setHintTextColor(muted);
     f.setPadding(dp(16), dp(10), dp(16), dp(10));
@@ -405,7 +407,7 @@ final class AccountLayout {
   CheckBox check(String title) {
     CheckBox b = new CheckBox(activity);
     b.setText(title);
-    b.setTextSize(16);
+    b.setTextSize(16 * WaterSettingsActivity.textScale(activity));
     b.setTextColor(ink);
     b.setMinHeight(dp(48));
     b.setButtonTintList(ColorStateList.valueOf(primary));
