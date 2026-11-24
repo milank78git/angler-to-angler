@@ -621,7 +621,8 @@ public final class Runner extends Instrumentation {
       clickReady("#back");
       waitFor("document.querySelector('#map-toggle')?.getAttribute('aria-pressed')==='true'");
       clickReady("#map-toggle");
-      clickReady("[data-water='CZ:401009']");
+      waitFor("document.querySelectorAll('[data-water]').length===1");
+      clickReady("[data-water]");
       waitFor("!!document.querySelector('#drive-0') && !!document.querySelector('#water-rating')");
       capture("water");
       DiscussionChecks.run(this);
