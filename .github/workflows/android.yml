@@ -55,7 +55,7 @@ jobs:
         run: python3 scripts/check-account-links.py "$LINK_HOST" build/account-links
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
-          name: horistum-account-links
+          name: direct-android-app-links
           path: build/account-links/
           include-hidden-files: true
       - run: go test tests/email_templates_test.go
@@ -71,8 +71,12 @@ jobs:
           packages: "platforms;android-35 build-tools;35.0.0 platform-tools"
       - name: Assign the installable Android build number
         run: echo "ANGLER_VERSION_CODE=$((10000 + GITHUB_RUN_NUMBER))" >> "$GITHUB_ENV"
+      - name: Verify published project callback before issuing Pages links
+        if: github.event_name == 'push' && vars.ANGLER_ACCOUNT_PAGES == 'true'
+        run: python3 scripts/check-account-pages.py
       - run: bash scripts/build-debug.sh
         env:
+          ANGLER_ACCOUNT_PAGES: ${{ vars.ANGLER_ACCOUNT_PAGES }}
           ANGLER_APP_LINK_HOST: ${{ vars.ANGLER_APP_LINK_HOST }}
           ANGLER_ACCOUNT_CONFIG: ${{ vars.ANGLER_ACCOUNT_CONFIG }}
       - run: bash scripts/build-debug.sh --preview

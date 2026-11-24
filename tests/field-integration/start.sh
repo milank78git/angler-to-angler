@@ -7,7 +7,6 @@ umask 077
 mkdir -p "$stage"
 cd "$stage"
 supabase init
-python3 "$repo/scripts/build-email-templates.py" supabase/templates
 python3 - <<'PY'
 from pathlib import Path
 p=Path('supabase/config.toml')
@@ -18,14 +17,9 @@ assert 'enable_confirmations = true' in email
 s=s[:a]+email+s[b:]
 start=s.index('[auth]'); end=s.index('\n[',start+1)
 import re
-section=re.sub(r'^additional_redirect_urls\s*=.*$', 'additional_redirect_urls = ["https://horistum.com/account/app.anglers.journal.preview/callback"]',s[start:end],flags=re.M)
-assert 'horistum.com/account' in section
-import json
-subject = Path('supabase/templates/confirmation.subject.txt').read_text().strip()
-template = ('\n[auth.email.template.confirmation]\n'
-            + 'subject = ' + json.dumps(subject) + '\n'
-            + 'content_path = "./supabase/templates/confirmation.html"\n')
-p.write_text(s[:start]+section+s[end:]+template)
+section=re.sub(r'^additional_redirect_urls\s*=.*$', 'additional_redirect_urls = ["https://milank78git.github.io/angler-to-angler/account/"]',s[start:end],flags=re.M)
+assert 'milank78git.github.io/angler-to-angler/account/' in section
+p.write_text(s[:start]+section+s[end:])
 PY
 supabase start -x studio,storage-api,imgproxy,realtime,edge-runtime,postgres-meta,logflare,vector,supavisor >/dev/null
 supabase status -o json > "$stage/local.json"

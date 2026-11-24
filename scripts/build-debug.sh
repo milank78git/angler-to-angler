@@ -31,9 +31,14 @@ python3 scripts/account-config.py "$out/assets/account-config.json"
 host=$(python3 scripts/app-link-host.py)
 mkdir -p "$out/res/values"
 cp -R app/src/main/res/. "$out/res/"
+use_pages=${ANGLER_ACCOUNT_PAGES:-false}
+case "$use_pages" in true|false) ;; *) echo "ANGLER_ACCOUNT_PAGES must be true or false" >&2; exit 2 ;; esac
+if [[ "$use_pages" == true && -n "${ANGLER_APP_LINK_HOST:-}" ]]; then
+  echo "Choose one account callback mode" >&2; exit 2
+fi
 use_web=false
 if [[ -n "${ANGLER_APP_LINK_HOST:-}" ]]; then use_web=true; fi
-printf '<resources><bool name="use_verified_links">%s</bool><string name="app_link_host" translatable="false">%s</string></resources>\n' "$use_web" "$host" > "$out/res/values/app_links.xml"
+printf '<resources><bool name="use_verified_links">%s</bool><bool name="use_project_pages">%s</bool><string name="app_link_host" translatable="false">%s</string></resources>\n' "$use_web" "$use_pages" "$host" > "$out/res/values/app_links.xml"
 manifest="$out/AndroidManifest.xml"
 label=app_name
 if [[ "${1:-}" == "--preview" ]]; then label=app_name_preview; fi

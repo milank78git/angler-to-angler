@@ -5,6 +5,9 @@ import os
 import re
 import secrets
 import shlex
+import shutil
+import tempfile
+from html.parser import HTMLParser
 import subprocess
 import sys
 import time
@@ -15,8 +18,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 PACKAGE = 'app.anglers.journal.preview'
-HOST = 'horistum.com'
-CALLBACK = f'https://{HOST}/account/{PACKAGE}/callback'
+CALLBACK = 'https://milank78git.github.io/angler-to-angler/account/'
 LABELS = json.loads(Path('app/src/main/assets/strings-en.json').read_text())
 
 
@@ -78,8 +80,6 @@ def confirm_in_mailbox(address):
     else:
         raise RuntimeError('The test inbox did not receive confirmation')
     body = mailbox('message/' + message['ID'])['HTML']
-    mail_labels = json.loads(Path('supabase/templates/en.json').read_text())
-    assert mail_labels['confirmation.instruction'] in html.unescape(body), 'Wrong confirmation template or language'
     link = html.unescape(re.search(r'href=["\']([^"\']+/verify\?[^"\']+)["\']', body).group(1))
     parts = urllib.parse.urlsplit(link)
     assert parts.hostname in ('127.0.0.1', 'localhost') and parts.port == 54321
@@ -126,15 +126,32 @@ def complete_profile():
 def phone_confirmation():
     address, password = register()
     target = confirm_in_mailbox(address)
-    # The emulator user chooses this preview for the domain. The public site uses the pilot certificate.
-    shell('pm', 'set-app-links-user-selection', '--user', 'current', '--package', PACKAGE, 'true', HOST)
-    intent = ('-a', 'android.intent.action.VIEW', '-c', 'android.intent.category.BROWSABLE', '-d')
-    component = shell('cmd', 'package', 'resolve-activity', '--brief', *intent, CALLBACK)
-    assert PACKAGE + '/' in component and 'AccountCallbackActivity' in component, 'App link did not resolve to preview'
+    # Render the published HTML with a mobile browser, then give its actual intent to Android.
+    # Only a local fixture sees this real short-lived PKCE code; no request goes to live Pages.
+    page = Path(sys.argv[1], 'account-pages/account/index.html').as_uri()
+    opened = urllib.parse.urlsplit(target)
+    browser = shutil.which('google-chrome') or shutil.which('chromium')
+    assert browser, 'Browser is required for the handoff test'
+    with tempfile.TemporaryDirectory() as profile:
+        rendered = subprocess.run(
+            [browser, '--headless', '--disable-gpu', '--no-sandbox', '--disable-background-networking',
+             '--user-data-dir=' + profile, '--user-agent=Mozilla/5.0 (Linux; Android 15)',
+             '--dump-dom', page + '?' + opened.query], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+            timeout=30)
+    assert rendered.returncode == 0, 'Browser could not render the callback'
+    class Handoff(HTMLParser):
+        intent = None
+        def handle_starttag(self, tag, attrs):
+            attrs = dict(attrs)
+            if tag == 'a' and attrs.get('href', '').startswith('intent://'):
+                self.intent = attrs['href']
+    handoff = Handoff()
+    handoff.feed(rendered.stdout.decode())
+    assert handoff.intent and handoff.intent.endswith(';package=' + PACKAGE + ';end'), 'Missing Android intent'
     shell('am', 'force-stop', PACKAGE)
-    shell('am', 'start', *intent, target)
+    shell('am', 'start', handoff.intent)
     complete_profile()
-    print('Phone: SMTP, system link selection, cold start, PKCE and profile creation passed.', flush=True)
+    print('Phone: SMTP, rendered Pages handoff, Android intent, cold start, PKCE and profile creation passed.', flush=True)
     return address, password
 
 

@@ -422,9 +422,11 @@ public final class AccountActivity extends Activity {
   }
 
   private void inbox() {
+    String purpose = AccountStore.prefs(this).getString("pkcePurpose", "");
+    boolean signup = "signup".equals(purpose);
     ui.page(text("account.check_your_email"), false);
-    ui.label(
-        text("account.open_the_latest_message_sent_to")
+    ui.label(signup ? text("account.signup_confirmation_help").replace("{email}", email)
+        : text("account.open_the_latest_message_sent_to")
             + email
             + text("account.and_tap_the_link_on_this_phone"));
     action(
@@ -440,15 +442,14 @@ public final class AccountActivity extends Activity {
                 text("account.open_your_webmail_in_the_browser_on"));
           }
         });
-    String purpose = AccountStore.prefs(this).getString("pkcePurpose", "");
-    if ("signup".equals(purpose))
+    if (signup)
       action(text("account.confirmed_sign_in"), AccountLayout.Action.SECONDARY, this::login);
-    if ("recovery".equals(purpose) || "signup".equals(purpose))
+    if (signup || "recovery".equals(purpose))
       action(
           text("account.request_another_link"),
           AccountLayout.Action.SECONDARY,
           () -> resendEmail(purpose));
-    if (!"signup".equals(purpose))
+    if (!signup)
       action(
           text("account.back_to_sign_in"),
           AccountLayout.Action.LINK,

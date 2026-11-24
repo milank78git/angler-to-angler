@@ -14,7 +14,8 @@ cat > app/src/main/res/xml/local_trust.xml <<'XML'
 <network-security-config><domain-config><domain>localhost</domain><trust-anchors><certificates src="@raw/local_ca"/></trust-anchors></domain-config></network-security-config>
 XML
 sed -i 's/<application /<application android:networkSecurityConfig="@xml\/local_trust" /' app/src/main/AndroidManifest.xml
-export ANGLER_APP_LINK_HOST=horistum.com
+export ANGLER_ACCOUNT_PAGES=true
+python3 scripts/build-account-pages.py "$stage/account-pages" --preview
 export ANGLER_ACCOUNT_CONFIG='{"url":"https://localhost:58443","publishableKey":"sb_publishable_loopback","deploymentNotices":{"cs":"Test","en":"Test"}}'
 bash scripts/build-debug.sh --preview >/dev/null
 python3 tests/field-integration/proxy.py "$stage" &
