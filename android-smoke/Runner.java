@@ -553,6 +553,15 @@ public final class Runner extends Instrumentation {
       clickReady("[data-water='CZ:MRS:1']");
       waitFor("!!document.querySelector(\"a[href='https://mrsbrno.cz/reviry/1']\")"
           + " && !!document.querySelector('#water-reports')");
+      clickReady("#open-rules");
+      setControl("#lookup-species", "Esox lucius", "change");
+      setControl("#rule-date", "2027-01-01", "change");
+      waitFor("!!document.querySelector('#lookup-closure [data-rule-status=closed]')"
+          + " && document.querySelector('#lookup-size').textContent.includes('50 cm') && !document.querySelector('#lookup-water')");
+      setControl("#rule-date", "2027-12-01", "change");
+      waitFor("!!document.querySelector('#lookup-size [data-rule-status=unverified]')"
+          + " && !document.querySelector('#lookup-size').textContent.includes('50 cm')");
+      clickReady("#back");
       clickReady("#back");
       waitFor("document.querySelector('#search').value==='461 024'");
       checkWaterReport();
@@ -602,6 +611,9 @@ public final class Runner extends Instrumentation {
       waitFor(
           "!!document.querySelector('#add') && document.querySelectorAll('#catch-list"
               + " article').length===0");
+      clickReady("#trip-rules");
+      waitFor("document.querySelector('#rule-water').value==='CZ:401009' && !!document.querySelector('#rule-date')");
+      clickReady("#back");
       ActivityChecks.contribute(this);
       String postedTip = ShareChecks.tripTip(this);
       for (int n = 1; n <= 2; n++) {

@@ -834,12 +834,16 @@
       "species": [
         "Chondrostoma nasus",
         "Barbus barbus",
-        "Vimba vimba",
-        "Acipenser ruthenus"
+        "Barbus petenyi",
+        "Vimba vimba"
       ],
       "closed": [
         "03-16",
         "06-15"
+      ],
+      "genera": [
+        "Acipenser",
+        "Huso"
       ]
     },
     {

@@ -274,5 +274,13 @@
   "fish-water-class": {
     "topic": "catalog",
     "message": "field-hints.fish-water-class"
+  },
+  "lookup-species": {
+    "topic": "waters",
+    "message": "field-hints.lookup-species"
+  },
+  "lookup-class": {
+    "topic": "waters",
+    "message": "field-hints.lookup-class"
   }
 }

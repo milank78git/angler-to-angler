@@ -1,3 +1,4 @@
+import { waterFishRules } from './water-fish-rules.js';
 import { bindWaterPicker, waterOption, waterPicker } from './water-picker.js';
 import { localRuleWater } from './water-directory.js';
 import { languageTag } from './i18n.js';
@@ -89,6 +90,7 @@ export function rulesScreen({ view, pack, nav, waterDirectory }) {
     by('rule-water').onchange = async () => {
       const selected = selectedWater();
       if (!selected) return;
+      if (selected.id !== route.id) delete route.lookupClass;
       route.id = selected.id;
       route.section = 'main';
       await nav.show();
@@ -98,6 +100,7 @@ export function rulesScreen({ view, pack, nav, waterDirectory }) {
   // Directory membership alone supplies no local size limit, closed season or reminder.
   if (!site) return;
   if (!w || (route.latin && !fishId)) {
+    if (site.country === 'CZ') return waterFishRules(view, nav, site);
     const authority = waterDirectory.countries[site.country]?.authority;
     by('status').innerHTML = `<div class="panel result unknown"><strong>${icon('circle-help')}${t('seasons.no_verified_rule_for_this_selection')}</strong>
       <div class="rulesrc">${link(site.source, t('waters.official_fishery_record'))}

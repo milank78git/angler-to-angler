@@ -1,6 +1,7 @@
+import { forFishingDate, scopedFishRules } from './fish-rules.js';
 import { language, languageTag } from './i18n.js';
-import { by, screen, back, bindBack, bind, button, esc, field, selectField, t, link, toast } from './ui.js';
-import { fold } from './domain.js';
+import { by, screen, back, bindBack, bind, button, displayDay, esc, field, selectField, t, link, toast } from './ui.js';
+import { fold, validDay } from './domain.js';
 
 let cache;
 let requestId = 1000000;
@@ -87,7 +88,7 @@ function listedSizes(rules,country,waterClass) {
   return result;
 }
 
-function sizeTerms(rule) {
+export function sizeTerms(rule) {
   return [
     rule.overCm != null && t('fish_catalogue.length_must_exceed')+' '+rule.overCm+' cm',
     rule.minCm != null && t('fish_catalogue.minimum_size')+' · '+rule.minCm+' cm',
@@ -126,7 +127,7 @@ export async function fishCatalogue({view, nav}) {
         b.classList.add('fish-list-item');
         b.append(hint);
       }
-      b.onclick = () => nav.open('fishDetail',{latin:fish.latin,country:route.country,siteId:route.siteId,waterClass:route.waterClass});
+      b.onclick = () => nav.open('fishDetail',{latin:fish.latin,country:route.country,siteId:route.siteId,waterClass:route.waterClass,day:route.day});
       return b;
     }));
     by('more-fish').hidden = shown.length >= matched.length;
@@ -178,7 +179,7 @@ export async function fishCatalogue({view, nav}) {
   render();
 }
 
-function seasonalDay(day) {
+export function seasonalDay(day) {
   return new Intl.DateTimeFormat(languageTag,{day:'numeric',month:'short',timeZone:'UTC'}).format(new Date('2000-' + day + 'T12:00Z'));
 }
 
@@ -187,12 +188,14 @@ export async function fishDetail({view, nav, waterDirectory}) {
   const data = await fishDirectory();
   if (!view.active()) return;
   const {latin} = view.route, fish = data.names.get(latin);
+  const fishingDay = validDay(view.route.day) ? view.route.day : '';
   const options = data.countries.map(c => [c,countryName(c)]).sort((a,b) => a[1].localeCompare(b[1],languageTag));
   screen.innerHTML = back(catalogue()) + '<h1>' + esc(fish.label) + '</h1><p><i>' + esc(latin) + '</i> · ' + esc(fish.family || '') + '</p><h2>' +
     t('fish_catalogue.sizes_and_closed_seasons') + '</h2>' +
     selectField('rule-country',t('fish_catalogue.fishing_country'),[['',t('fish_catalogue.choose_country')],...options],view.route.country) +
     '<div id="water-class">' + selectField('fish-water-class',t('fish_rules.water_class'),
       [['nontrout',t('waters.non_trout_water')],['cztrout',t('waters.trout_water')]],view.route.waterClass || 'nontrout') + '</div>' +
+    (fishingDay ? '<p>' + esc(t('seasons.fishing_date')) + ' · ' + esc(displayDay(fishingDay)) + '</p>' : '') +
     '<div id="fish-rules"></div>' + button('report-fish',t('fish_rules.report'),'secondary') +
     '<p class="meta" id="report-address" hidden></p><details class="fold"><summary>'+t('fish_rules.species_sources')+'</summary><div class="fold-body"><p>' +
     [fish.river && t('fish_catalogue.freshwater_inventory'),fish.marine && t('fish_catalogue.marine_inventory'),
@@ -214,7 +217,7 @@ export async function fishDetail({view, nav, waterDirectory}) {
     const code = by('rule-country').value;
     const body = [fish.label, latin, code && countryName(code),
       code === 'CZ' && by('fish-water-class').selectedOptions[0].textContent,
-      waterDirectory.byId.get(view.route.siteId)?.name, window.Device?.versionLabel?.(), by('fish-size')?.innerText?.slice(0,350),
+      fishingDay || undefined, waterDirectory.byId.get(view.route.siteId)?.name, window.Device?.versionLabel?.(), by('fish-size')?.innerText?.slice(0,350),
       by('fish-size')?.querySelector('article a')?.href, '', t('fish_rules.describe')].filter(v => typeof v === 'string').join('\n');
     const address = by('report-address');
     address.textContent = t('fish_rules.contact') + ' · milan.kucera78@gmail.com';
@@ -226,13 +229,9 @@ export async function fishDetail({view, nav, waterDirectory}) {
     by('water-class').hidden = code !== 'CZ';
     if (!region) { by('fish-rules').textContent = t('fish_rules.choose_country'); return; }
     const site = waterDirectory.byId.get(view.route.siteId);
-    const entries = data.rules.entries.filter(rule => rule.country === code);
-    const waterClass = by('fish-water-class').value;
-    const applies = rule => code !== 'CZ' || rule.scope === 'czall' || rule.scope === waterClass;
-    const specific = entries.filter(rule => applies(rule) && rule.species.includes(latin));
-    // Water-wide restrictions apply on the named waters regardless of the taxonomic inventory.
-    const waterRules = entries.filter(rule => (code === 'CZ' || fish.river || !fish.marine) && applies(rule) && rule.allFreshwater);
-    const today = new Date().toISOString().slice(0,10);
+    const {species:specific, water:waterRules} = scopedFishRules(data.rules, code, by('fish-water-class').value,
+      latin, code === 'CZ' || fish.river || !fish.marine);
+    const today = fishingDay || new Date().toISOString().slice(0,10);
     function article(r, sizeOnly = false) {
       const source = data.rules.sources[r.source];
       const size = sizeTerms(r);
@@ -246,7 +245,8 @@ export async function fishDetail({view, nav, waterDirectory}) {
       const terms = (sizeOnly ? size : conditions).filter(Boolean);
       // A fixed-season regulation must never be presented as current in a later season.
       const inForce = (!r.validFrom || today >= r.validFrom) && (!r.validUntil || today <= r.validUntil);
-      const status = !inForce ? t('fish_catalogue.outside_the_period_of_validity_check_the') :
+      const dated = fishingDay && forFishingDate(r, source, fishingDay);
+      const status = dated === 'unverified' ? t('dated_rules.unverified_date') : !inForce ? t('fish_catalogue.outside_the_period_of_validity_check_the') :
         today > source.reviewBy ? t('fish_catalogue.review_overdue_check_the_current_source') : terms.join(' · ');
       return '<article class="surface"><strong>' + esc(words(data.rules.scopes[r.scope])) + '</strong><p>' +
         esc(status) +
@@ -264,7 +264,7 @@ export async function fishDetail({view, nav, waterDirectory}) {
         waterRules.map(r => article(r)).join('') + '</div></details>' : '') +
       '<p>' + [site?.country === code && link(site.source,site.name), region.authority && link(region.authority,t('fish_catalogue.local_rules_and_permits')),link(region.url,'FAOLEX')].filter(Boolean).join(' · ') + '</p>' +
       (waterDirectory.waters.some(water => water.country === code) ? button('fish-local',t('fish_catalogue.rules_by_water'),'secondary') : '');
-    if (by('fish-local')) bind('fish-local',() => nav.open('waterRules', { country: code, latin }));
+    if (by('fish-local')) bind('fish-local',() => nav.open('waterRules', { country: code, id:site?.country === code ? site.id : undefined, latin, day:view.route.day }));
   }
   by('fish-water-class').onchange = () => { view.route.waterClass = by('fish-water-class').value; rules(); };
   by('rule-country').onchange = () => { delete view.route.siteId; view.route.country = by('rule-country').value; rules(); };

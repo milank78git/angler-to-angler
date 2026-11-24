@@ -68,10 +68,12 @@ def validate():
     for raw, checked in zip(data['species'], projected):
         if set(raw['countries']) != set(checked['countries']):
             raise ValueError(f"Country evidence needs reconciliation for {raw['latin']}")
+    genera = {name.split()[0] for name in names}
     for rule in rules['entries']:
+        if set(rule.get('genera', [])) - genera: raise ValueError(rule)
         if set(rule['species'])-names or rule['country'] not in countries or rule['scope'] not in rules['scopes']:
             raise ValueError(rule)
-        if not rule['species'] and not rule.get('allFreshwater'): raise ValueError(rule)
+        if not rule['species'] and not rule.get('genera') and not rule.get('allFreshwater'): raise ValueError(rule)
         if not rules['sources'][rule['source']]['url'].startswith('https://'): raise ValueError(rule)
         for day in rule.get('closed',[])+rule.get('retentionClosed',[]): datetime.date.fromisoformat('2000-'+day)
         for field in ('validFrom','validUntil'):

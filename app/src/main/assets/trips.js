@@ -118,20 +118,25 @@ export async function tripScreen({ view, nav, pack, waterDirectory }) {
     nav.open('trips');
     return;
   }
+  const water = tripWater(waterDirectory, trip);
   const images = [];
   view.dispose = () => images.forEach((url) => URL.revokeObjectURL(url));
   screen.innerHTML = `${back(t('trips.my_journal'))}
     <p class="meta">${displayDay(trip.day)}</p><h1>${esc(trip.waterName)}</h1>
     ${trip.notes ? `<p class="trip-note">${esc(trip.notes)}</p>` : ''}
     <div class="actions">${button('add', t('trips.add_catch'), 'primary', 'plus')}
+      ${water ? button('trip-rules', t('dated_rules.trip'), 'secondary', 'calendar-days') : ''}
       ${button('offer-technique', t('common.offer_a_technique'), 'secondary')}
-      ${button('share-tip', t('common.share_a_trip_tip'), 'secondary')}${tripWater(waterDirectory, trip)
+      ${button('share-tip', t('common.share_a_trip_tip'), 'secondary')}${water
         ? button('trip-activity', t('common.trip_contribution'), 'secondary') : ''}</div>
     <h2>${t('trips.catches')} · ${catches.length}</h2><div id="catch-list"></div>
     <div class="actions">${button('delete', t('trips.delete_trip'), 'danger')}</div>`;
   bindBack(nav);
   bind('add', () => nav.open('newCatch', { id }));
-  if (by('trip-activity')) bind('trip-activity', () => nav.open('activityContribution', { id }));
+  if (water) {
+    bind('trip-rules', () => nav.open('waterRules', { id:water.id, day:trip.day }));
+    bind('trip-activity', () => nav.open('activityContribution', { id }));
+  }
   bind('offer-technique', () => nav.open('marketEditor', { day: trip.day }));
   bind('share-tip', () => nav.open('shareCard', { tripId: id }));
   bind('delete', async () => {
