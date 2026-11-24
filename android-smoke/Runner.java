@@ -255,6 +255,29 @@ public final class Runner extends Instrumentation {
     setControl("#catch-search", "", "input");
   }
 
+  /** An unresolved search cannot save the old water. A private name can be saved and found offline. */
+  private void checkPrivateWaterName() throws Exception {
+    setControl("#water-search", "Lipno", "input");
+    waitFor("!document.querySelector('#form').checkValidity() && document.querySelector('#water').value===''");
+    setControl("#water-search", "", "input");
+    waitFor("document.querySelector('#water').value==='IE:IFI:1'");
+    setControl("#water-search", "Private fixture pond", "input");
+    clickReady("#use-water-name");
+    waitFor("document.querySelector('#water-name').value==='Private fixture pond' && document.querySelector('#form').checkValidity()");
+    clickReady("#form .savebar button");
+    waitFor("document.querySelector('h1').textContent==='Private fixture pond' && !document.querySelector('#trip-rules')");
+    clickReady("#back");
+    setControl("#trip-search", "fixture pond", "input");
+    clickReady("[data-trip]");
+    waitFor("document.querySelector('h1').textContent==='Private fixture pond'");
+    clickReady("#back");
+    waitFor("document.querySelector('#trip-search')?.value==='fixture pond'");
+    clickReady("[data-trip]");
+    clickReady("#delete");
+    clickReady("#confirmation-accept");
+    waitFor("!!document.querySelector('#add-trip') && !document.querySelector('[data-trip]')");
+  }
+
   private void saveTripWithRetry() throws Exception {
     script("trip-write.js");
     waitFor("!!window.writeProbe");
@@ -617,11 +640,10 @@ public final class Runner extends Instrumentation {
       clickReady("#tabtrips");
       clickReady("#add-trip");
       setControl("#water-search", "Atlas fixture water", "input");
-      setControl("#water", "IE:IFI:1", "change");
+      clickReady("#water-suggestions [data-key='IE:IFI:1']");
       waitFor("document.querySelector('#water').selectedOptions[0].textContent.includes('Atlas fixture water')"
           + " && document.querySelector('#custom').hidden");
-      clickReady("#back");
-      clickReady("#confirmation-accept");
+      checkPrivateWaterName();
       clickReady("#tabwaters");
       setControl("#search", "", "input");
       setControl("#water-country", "PL", "change");
@@ -747,6 +769,10 @@ public final class Runner extends Instrumentation {
       launch();
       js("document.querySelector('#tabtrips').click()");
       waitFor("document.querySelectorAll('[data-trip]').length===1");
+      setControl("#trip-search", "Lipno", "input");
+      waitFor("!document.querySelector('[data-trip]') && !!document.querySelector('#trip-results').textContent");
+      setControl("#trip-search", "401009", "input");
+      waitFor("document.querySelector('[data-trip]')?.textContent.includes('401 009')");
       clickReady("#trip-stats");
       waitFor("document.querySelector('#screen').dataset.page==='journalStatistics' && document.querySelector('#screen').textContent.includes('Perch')");
       clickReady("#back");

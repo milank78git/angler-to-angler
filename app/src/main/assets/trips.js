@@ -26,36 +26,54 @@ import {
   trackEdits,
   writeEntry,
 } from './ui.js';
-export async function listTrips({ view, nav }) {
+function tripRow(trip, number) {
+  const date = new Date(trip.day + 'T12:00:00Z');
+  return `<button class="trip-row" data-trip="${esc(trip.id)}"><span class="date-stamp" aria-hidden="true"><strong>${date.getUTCDate()}</strong>${esc(date.toLocaleString(languageTag, { month: 'short', timeZone: 'UTC' }))}</span>
+    <span class="row-main"><span class="number">${esc(displayDay(trip.day))}</span><strong>${esc(trip.waterName)}${number ? ' · ' + esc(number) : ''}</strong><span class="sub">${t('trips.catches')} · ${trip.catchCount}${trip.notes ? ' · ' + esc(trip.notes.slice(0, 90)) : ''}</span></span>${icon('chevron-right')}</button>`;
+}
+
+/** Filter one offline journal snapshot without replacing the focused input or re-reading catches. */
+export async function listTrips({ view, nav, waterDirectory }) {
   const trips = await Journal.listTrips();
   if (!view.active()) return;
   trips.sort((a, b) => b.day.localeCompare(a.day) || b.created - a.created);
-  const total = trips.reduce((total, trip) => total + trip.catchCount, 0);
+  const total = trips.reduce((sum, trip) => sum + trip.catchCount, 0);
   screen.innerHTML = `<section class="journal-head"><div class="journal-art" aria-hidden="true">${icon('book-open')}</div>
     <h1>${t('trips.my_journal')}</h1><p>${icon('lock-keyhole')}${t('trips.private_on_this_phone')}</p>
     <div class="metrics"><span><strong>${trips.length}</strong>${t('common.trips')}</span><span><strong>${total}</strong>${t('trips.catches')}</span></div></section>
     <div class="list-heading"><h2>${t('trips.my_trips')}</h2>${button('add-trip', t('trips.new_trip'), 'primary', 'plus')}</div>
-    ${button('trip-stats',t('stats.title'),'secondary')}<div class="trip-list">${
-      trips
-        .map((trip) => {
-          const d = new Date(trip.day + 'T12:00:00Z'),
-            locale = languageTag,
-            count = trip.catchCount;
-          return `<button class="trip-row" data-trip="${esc(trip.id)}"><span class="date-stamp" aria-hidden="true"><strong>${d.getUTCDate()}</strong>${esc(d.toLocaleString(locale, { month: 'short', timeZone: 'UTC' }))}</span>
-        <span class="row-main"><span class="number">${esc(displayDay(trip.day))}</span><strong>${esc(trip.waterName)}</strong><span class="sub">${t('trips.catches')} · ${count}${trip.notes ? ' · ' + esc(trip.notes.slice(0, 90)) : ''}</span></span>${icon('chevron-right')}</button>`;
-        })
-        .join('') ||
-      emptyState(
-        'notebook-pen',
-        t('trips.log_your_first_trip'),
-        t('trips.a_day_on_the_water_belongs_here'),
-      )
-    }</div>`;
-  bind('trip-stats',()=>nav.open('journalStatistics'));
+    ${button('trip-stats', t('stats.title'), 'secondary')}` +
+    (trips.length ? textInput('trip-search', t('trips.find_by_water'), view.route.query, 'type="search"') +
+      '<p id="trip-results" class="meta" role="status"></p><div id="trip-list" class="trip-list"></div>' :
+      emptyState('notebook-pen', t('trips.log_your_first_trip'), t('trips.a_day_on_the_water_belongs_here')));
+  bind('trip-stats', () => nav.open('journalStatistics'));
   bind('add-trip', () => nav.open('newTrip'));
-  screen
-    .querySelectorAll('[data-trip]')
-    .forEach((b) => (b.onclick = () => nav.open('trip', { id: b.dataset.trip })));
+  if (!trips.length) return;
+
+  const search = by('trip-search'), list = by('trip-list');
+  let rows;
+  function render() {
+    const query = Domain.fold(search.value);
+    const visible = query ? rows.filter(row => row.terms.some(term => term.includes(query))) : rows;
+    list.innerHTML = visible.map(row => tripRow(row.trip, row.number)).join('');
+    by('trip-results').textContent = !query ? '' : visible.length
+      ? t('trips.match_count').replace('{count}', visible.length) : t('trips.no_matching_trips');
+  }
+  view.refreshWaters = directory => {
+    rows = trips.map(trip => {
+      const water = tripWater(directory, trip);
+      const number = trip.waterNumber || water?.number || water?.code;
+      const terms = [trip.waterName, number, water?.name, water?.number, water?.code].filter(Boolean).map(Domain.fold);
+      return { trip, number, terms };
+    });
+    render();
+  };
+  search.oninput = () => { view.route.query = search.value; render(); };
+  list.onclick = event => {
+    const row = event.target.closest('[data-trip]');
+    if (row) nav.open('trip', { id: row.dataset.trip });
+  };
+  view.refreshWaters(waterDirectory);
 }
 export function tripForm({ view, nav, pack, waterDirectory }) {
   const { route } = view;
@@ -63,7 +81,8 @@ export function tripForm({ view, nav, pack, waterDirectory }) {
   screen.innerHTML =
     back(t('common.back')) +
     `<div class="page-intro"><div class="title-mark">${icon('notebook-pen')}</div><h1>${t('trips.new_trip')}</h1></div>
-  <form id="form" class="entry-form"><section class="surface">${waterPicker('water', t('trips.fishing_water'), t('trips.other_water'))}
+  <form id="form" class="entry-form"><section class="surface">${waterPicker('water', t('trips.fishing_water'), t('trips.other_water'), { suggestions: true })}
+  ${button('use-water-name', t('trips.use_private_name'), 'secondary')}
   <div id="custom">${textInput('water-name', t('trips.water_name'), '', 'maxlength="100"')}</div>
   ${textInput('day', t('common.trip_date'), Domain.today(initialWater?.zone), 'type="date" required')}
   ${field('notes', t('trips.notes'), '<textarea id="notes" maxlength="4000" rows="3"></textarea>')}</section>
@@ -71,17 +90,29 @@ export function tripForm({ view, nav, pack, waterDirectory }) {
   bindBack(nav);
   const selectedWater = bindWaterPicker('water', view, waterDirectory, initialWater?.key);
   trackEdits(by('form'), view);
-  function custom() {
-    by('custom').hidden = !!by('water').value;
-    by('water-name').required = !by('water').value;
+  const search = by('water-search'), water = by('water'), customName = by('water-name');
+  search.maxLength = customName.maxLength;
+  function updateWaterFields() {
+    const pending = !!search.value.trim();
+    by('use-water-name').hidden = !pending;
+    by('custom').hidden = pending || !!water.value;
+    customName.required = !by('custom').hidden;
+    search.setCustomValidity(pending ? t('trips.confirm_water') : '');
   }
+  search.addEventListener('input', updateWaterFields);
+  bind('use-water-name', () => {
+    customName.value = search.value.trim();
+    water.value = '';
+    water.dispatchEvent(new Event('change', { bubbles: true }));
+    customName.focus();
+  });
   let autoDay = by('day').value;
   by('day').oninput = () => { autoDay = null; };
-  by('water').onchange = () => {
-    custom();
+  water.onchange = () => {
+    updateWaterFields();
     if (by('day').value === autoDay) by('day').value = autoDay = Domain.today(selectedWater()?.zone);
   };
-  custom();
+  updateWaterFields();
   const id = newJournalId(),
     created = Date.now();
   by('form').onsubmit = async (e) => {
@@ -106,6 +137,7 @@ export function tripForm({ view, nav, pack, waterDirectory }) {
           country: w?.country ?? null,
           zone: w?.zone ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
           waterName: name,
+          waterNumber: w?.number || w?.code || null,
           day,
           notes: by('notes').value.trim(),
         }),

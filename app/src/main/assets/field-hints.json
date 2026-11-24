@@ -294,5 +294,9 @@
   "catch-country-scope": {
     "topic": "catch",
     "message": "field-hints.catch-country-scope"
+  },
+  "trip-search": {
+    "topic": "journal",
+    "message": "field-hints.trip-search"
   }
 }
