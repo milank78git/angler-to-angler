@@ -302,6 +302,7 @@ export async function weeklyBoard({ view, nav, pack }) {
       ? button('week-newer', t('weekly_catch.newer_round'), 'secondary')
       : '') +
     '</div>' +
+    (!r.catchId ? '<details id="monthly" class="fold"><summary>'+t('monthly.title')+'</summary><div class="fold-body"></div></details>' : '') +
     '<div id="entry-preview"></div><div class="weekly-list"></div><div class="actions">' +
     (r.offset ? button('week-prev', t('weekly_catch.previous_catches'), 'secondary') : '') +
     (round.next != null ? button('week-next', t('weekly_catch.more_catches'), 'secondary') : '') +
@@ -320,6 +321,7 @@ export async function weeklyBoard({ view, nav, pack }) {
   if (by('week-newer')) bind('week-newer', () => step(round.following, 0));
   if (by('week-prev')) bind('week-prev', () => step(round.week, Math.max(0, r.offset - 3)));
   if (by('week-next')) bind('week-next', () => step(round.week, round.next));
+  if (by('monthly')) monthlyChallenge(by('monthly'),r.groupId);
   const list = screen.querySelector('.weekly-list');
   for (const item of round.items) list.append(entryCard(item, round, view, nav));
   if (!round.items.length)
@@ -338,4 +340,28 @@ export async function weeklyBoard({ view, nav, pack }) {
         by('entry-preview').textContent = t('weekly_catch.could_not_prepare_the_photo_try_refresh');
     }
   }
+}
+
+/** Monthly enrolment is voluntary, restricted to current group members and expires each month. */
+function monthlyChallenge(panel,groupId) {
+  const host=panel.querySelector('.fold-body');
+  let loaded=false, pending=false;
+  async function refresh(joining=null) {
+    if(pending)return;
+    pending=true;
+    host.textContent=t('messages.loading');
+    try {
+      const result=await rpc('group_monthly',{group_id:groupId,joining});
+      if(!panel.isConnected)return;
+      host.innerHTML='<p>'+esc(result.month.slice(0,7))+' · '+esc(t('monthly.rules'))+'</p>'+
+        (result.items.length?'<ol>'+result.items.map(row=>'<li value="'+Number(row.place)+'">'+esc(row.display_name)+' · '+esc(row.score)+'</li>').join('')+'</ol>':'<p>'+t('stats.empty')+'</p>')+
+        button('month-enroll',t(result.joined?'monthly.leave':'monthly.join'),'secondary');
+      host.querySelector('button').onclick=()=>refresh(!result.joined);
+      loaded=true;
+    } catch(err) {
+      host.innerHTML='<p>'+esc(problem(err))+'</p>'+button('month-retry',t('common.retry'),'secondary');
+      host.querySelector('button').onclick=()=>refresh();
+    } finally {pending=false;}
+  }
+  panel.ontoggle=()=>{if(panel.open && !loaded)refresh();};
 }

@@ -1,3 +1,4 @@
+import { journalStatistics } from './journal-statistics.js';
 import { createWaterDirectory, waterDistances } from './water-directory.js';
 import { fishCatalogue, fishDetail } from './fish-catalogue.js';
 import { openGuide, closeGuide, attachHints } from './guide.js';
@@ -20,6 +21,7 @@ import { evidenceScreen, reviewScreen } from './verification.js';
 const tabs = by('tabs'),
   catalog = {};
 const views = {
+  journalStatistics,
   marketShelf, marketDetail, marketEditor, fishCatalogue, fishDetail,
   waters: listWaters,
   water: waterScreen,

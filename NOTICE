@@ -18,3 +18,6 @@ Czech fishery names, identifiers and locations are sourced from the Czech Fishin
 (https://www.rybsvaz.cz/seznam-reviru) and the Moravian Fishing Union
 (https://mrsbrno.cz/reviry). The offline atlas generalizes ČRS map outlines
 and associates MRS locations with their individual directory records.
+
+The offline world overview uses Natural Earth 1:110m land outlines (public domain).
+Source: https://www.naturalearthdata.com/downloads/110m-physical-vectors/110m-land/

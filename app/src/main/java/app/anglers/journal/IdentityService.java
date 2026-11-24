@@ -20,7 +20,7 @@ final class IdentityService {
     JSONObject config = new JSONObject(asset(c, "account-config.json"));
     origin = config.optString("url");
     key = config.optString("publishableKey");
-    redirect = c.getPackageName() + "://account/callback";
+    redirect = AccountCallbackActivity.redirect(c);
     JSONObject notices = config.optJSONObject("deploymentNotices");
     String selected = "";
     if (notices != null) {

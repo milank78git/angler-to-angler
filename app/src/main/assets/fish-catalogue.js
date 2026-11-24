@@ -220,7 +220,7 @@ export async function fishDetail({view, nav, waterDirectory}) {
       fishingDay || undefined, waterDirectory.byId.get(view.route.siteId)?.name, window.Device?.versionLabel?.(), by('fish-size')?.innerText?.slice(0,350),
       by('fish-size')?.querySelector('article a')?.href, '', t('fish_rules.describe')].filter(v => typeof v === 'string').join('\n');
     const address = by('report-address');
-    address.textContent = t('fish_rules.contact') + ' · milan.kucera78@gmail.com';
+    address.textContent = t('fish_rules.contact') + ' · info@horistum.com';
     address.hidden = false;
     window.Device?.reportFish?.(t('fish_rules.report') + ' · ' + latin, body);
   });

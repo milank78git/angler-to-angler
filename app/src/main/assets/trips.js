@@ -35,7 +35,7 @@ export async function listTrips({ view, nav }) {
     <h1>${t('trips.my_journal')}</h1><p>${icon('lock-keyhole')}${t('trips.private_on_this_phone')}</p>
     <div class="metrics"><span><strong>${trips.length}</strong>${t('common.trips')}</span><span><strong>${total}</strong>${t('trips.catches')}</span></div></section>
     <div class="list-heading"><h2>${t('trips.my_trips')}</h2>${button('add-trip', t('trips.new_trip'), 'primary', 'plus')}</div>
-    <div class="trip-list">${
+    ${button('trip-stats',t('stats.title'),'secondary')}<div class="trip-list">${
       trips
         .map((trip) => {
           const d = new Date(trip.day + 'T12:00:00Z'),
@@ -51,6 +51,7 @@ export async function listTrips({ view, nav }) {
         t('trips.a_day_on_the_water_belongs_here'),
       )
     }</div>`;
+  bind('trip-stats',()=>nav.open('journalStatistics'));
   bind('add-trip', () => nav.open('newTrip'));
   screen
     .querySelectorAll('[data-trip]')

@@ -1,0 +1,8 @@
+{
+  "CZ:401009": [
+    {"label":"parking.pikovice","point":[14.4263203,49.8770658],"source":"https://coparking.ch/en/Czech/parking/parkoviste-pobrezni-12863","checked":"2026-11-24"}
+  ],
+  "CZ:CRS:4615686": [
+    {"label":"parking.lipno","point":[14.220378,48.644036],"source":"https://www.kralovstvilesa.cz/en/","checked":"2026-11-24"}
+  ]
+}

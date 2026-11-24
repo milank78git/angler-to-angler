@@ -33,19 +33,23 @@
     "steps": [
       "help-topics.waters.steps.1",
       "help-topics.waters.steps.2",
-      "help-topics.waters.steps.3"
+      "help-topics.waters.steps.3",
+      "atlas.help",
+      "parking.help"
     ]
   },
   "journal": {
     "pages": [
       "trips",
       "trip",
-      "newTrip"
+      "newTrip",
+      "journalStatistics"
     ],
     "title": "help-topics.journal.title",
     "steps": [
       "help-topics.journal.steps.1",
-      "help-topics.journal.steps.2"
+      "help-topics.journal.steps.2",
+      "stats.help"
     ]
   },
   "catch": {

@@ -1367,3 +1367,9 @@ label.label-with-hint { display: inline-block; margin-inline-end: .45rem; }
 
 .fish-list-item { flex-direction: column; align-items: flex-start; text-align: start; }
 .fish-list-item small { font-weight: 400; color: var(--muted); }
+
+#world-map { display: block; width: 100%; height: clamp(260px, 55vh, 620px); background: #e0edf0; touch-action: none; border-radius: 12px; }
+#world-map g { cursor: pointer; }
+#world-map circle { fill: #245740; stroke: white; stroke-width: 2px; }
+#world-map text { fill: white; font: bold 12px sans-serif; text-anchor: middle; pointer-events: none; }
+#world-map g:focus circle { stroke: #cf641a; stroke-width: 4px; }

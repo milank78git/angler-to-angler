@@ -522,7 +522,7 @@ public final class Runner extends Instrumentation {
           + " && document.querySelector('#fish-size').textContent.includes('25 cm') && !!document.querySelector('#report-fish')");
       android.content.Intent report = ShareChecks.outgoing(this,"#report-fish");
       String draft = android.net.Uri.decode(report.getDataString());
-      if (!android.content.Intent.ACTION_SENDTO.equals(report.getAction()) || !draft.startsWith("mailto:milan.kucera78@gmail.com?")
+      if (!android.content.Intent.ACTION_SENDTO.equals(report.getAction()) || !draft.startsWith("mailto:info@horistum.com?")
           || !draft.contains("Oncorhynchus mykiss") || !draft.contains("25 cm")) throw new AssertionError("Incomplete fish report");
       capture("trout-rules");
       clickReady("#back");
@@ -613,8 +613,17 @@ public final class Runner extends Instrumentation {
           "document.getElementById('search').value='401 009';"
               + " document.getElementById('search').dispatchEvent(new Event('input'))");
       waitFor("document.querySelectorAll('[data-water]').length===1");
-      js("document.querySelector('[data-water]').click()");
+      clickReady("#map-toggle");
+      waitFor("document.querySelectorAll('#world-map [data-group]').length===1");
+      js("document.querySelector('#world-map [data-group]').dispatchEvent(new MouseEvent('click',{bubbles:true}))");
       waitFor("!!document.querySelector('#navigate')");
+      ShareChecks.parking(this);
+      clickReady("#back");
+      waitFor("document.querySelector('#map-toggle')?.getAttribute('aria-pressed')==='true'");
+      clickReady("#map-toggle");
+      waitFor("document.querySelectorAll('[data-water]').length===1");
+      clickReady("[data-water]");
+      waitFor("!!document.querySelector('#drive-0') && !!document.querySelector('#water-rating')");
       capture("water");
       DiscussionChecks.run(this);
       ActivityChecks.report(this);
@@ -679,6 +688,9 @@ public final class Runner extends Instrumentation {
       launch();
       js("document.querySelector('#tabtrips').click()");
       waitFor("document.querySelectorAll('[data-trip]').length===1");
+      clickReady("#trip-stats");
+      waitFor("document.querySelector('#screen').dataset.page==='journalStatistics' && document.querySelector('#screen').textContent.includes('Perch')");
+      clickReady("#back");
       capture("journal");
       js("document.querySelector('[data-trip]').click()");
       waitFor("document.querySelectorAll('#catch-list article').length===2");
