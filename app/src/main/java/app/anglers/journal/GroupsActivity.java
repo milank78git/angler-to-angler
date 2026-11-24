@@ -23,7 +23,7 @@ public final class GroupsActivity extends Activity {
   private EditText dialogInput;
 
   private String t(String cz, String en) {
-    return cs ? cz : en;
+    return AppLanguage.text(this, cz, en);
   }
 
   @Override
@@ -136,6 +136,9 @@ public final class GroupsActivity extends Activity {
                 ? t("Název party (2–60 znaků)", "Group name (2–60 characters)")
                 : t("Kód pozvánky", "Invitation code"),
             InputType.TYPE_CLASS_TEXT);
+    ui.explain(input.getHint().toString(), create
+        ? t("Tento název uvidí členové party.", "Group members will see this name.")
+        : t("Zadej kód, který ti předal správce party.", "Enter the code shared by the group administrator."), input);
     dialogInput = input;
     dialog.submit(
         action,

@@ -1,9 +1,9 @@
+import { language, languageTag, translate } from './i18n.js';
 const screen = document.querySelector('#screen');
 let noticeTimer;
 let finishConfirmation;
-const cs = (window.Device ? Device.locale() : navigator.language).toLowerCase().startsWith('cs');
-const t = (cz, en) => (cs ? cz : en),
-  loc = (obj) => obj[cs ? 'cs' : 'en'];
+const cs = language === 'cs';
+const t = translate, loc = obj => obj[language] || obj.en || obj.cs;
 const esc = (s) =>
   String(s ?? '').replace(
     /[&<>"']/g,
@@ -95,7 +95,7 @@ function bindBack(nav) {
   bind('back', () => nav.back());
 }
 const displayDay = (day) =>
-  new Intl.DateTimeFormat(cs ? 'cs-CZ' : 'en-GB', { dateStyle: 'medium', timeZone: 'UTC' }).format(
+  new Intl.DateTimeFormat(languageTag, { dateStyle: 'medium', timeZone: 'UTC' }).format(
     new Date(day + 'T12:00:00Z'),
   );
 function field(id, label, html) {

@@ -1,0 +1,2252 @@
+{
+  "countries": {
+    "AD": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=AND",
+      "authority": "https://www.govern.ad/ca/tematiques/medi-ambient-i-sostenibilitat/pesca"
+    },
+    "AL": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=ALB",
+      "authority": "https://leap.unep.org/en/countries/al/national-legislation/law-fisheries-no-642012"
+    },
+    "AM": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=ARM",
+      "authority": "https://faolex.fao.org/docs/pdf/arm7722.pdf"
+    },
+    "AT": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=AUT",
+      "authority": "https://www.oesterreich.gv.at/de/themen/reisen_und_freizeit/freizeit-in-der-natur/fischen"
+    },
+    "AZ": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=AZE",
+      "authority": "https://president.az/az/articles/view/73377/print"
+    },
+    "BA": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=BIH",
+      "authority": "https://fmpvs.gov.ba/pravilnici-ribarstvo/"
+    },
+    "BE": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=BEL",
+      "authority": "https://natuurenbos.vlaanderen.be/sites/default/files/documenten/reglement_openbare_visserij.pdf"
+    },
+    "BG": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=BGR",
+      "authority": "https://www.moew.government.bg/static/media/ups/tiny/file/Legislation/Zakoni/ZAKON%20ZA%20RIBARSTVOTO%20I%20AKVAKULTURITE.pdf"
+    },
+    "BY": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=BLR",
+      "authority": "https://faolex.fao.org/docs/pdf/blr210299original.pdf"
+    },
+    "CH": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=CHE",
+      "authority": "https://www.bafu.admin.ch/en/fishing"
+    },
+    "CY": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=CYP",
+      "authority": "https://www.gov.cy/moa-dfmr/en/documents/conditions-for-recreational-fishing-licenses-in-reservoirs-2026/"
+    },
+    "CZ": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=CZE",
+      "authority": "https://mze.gov.cz/public/portal/mze/legislativa/vap57781-5594"
+    },
+    "DE": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=DEU",
+      "authority": "https://verwaltung.bund.de/leistungsverzeichnis/DE/leistung/99042001012000/herausgeber/BY-12276/region/09"
+    },
+    "DK": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=DNK",
+      "authority": "https://mst.dk/media/whlpzdbm/fredning_og_mindstemaal_i_ferskvand-2025.pdf"
+    },
+    "EE": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=EST",
+      "authority": "https://www.eesti.ee/en/artikkel/culture-leisure-and-hobbies/recreational-fishing-and-hunting/recreational-fishing-and-hunting"
+    },
+    "ES": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=ESP",
+      "authority": "https://www.mapa.gob.es/es/pesca/temas/pesca-maritima-de-recreo/preguntas-frecuentes"
+    },
+    "FI": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=FIN",
+      "authority": "https://www.eraluvat.fi/en/fishing/fisher-s-information-bank/minimum-catch-sizes-and-protection-periods"
+    },
+    "FR": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=FRA",
+      "authority": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000038416171"
+    },
+    "GB": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=GBR",
+      "authority": "https://www.gov.uk/freshwater-rod-fishing-rules/when-and-where-you-can-fish"
+    },
+    "GE": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=GEO",
+      "authority": "https://www.eiec.gov.ge/Ge/Documents/ViewFile/1656"
+    },
+    "GR": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=GRC",
+      "authority": "https://alieia.hcg.gr/faq/faq_eng.php"
+    },
+    "HR": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=HRV",
+      "authority": "https://narodne-novine.nn.hr/clanci/sluzbeni/2026_05_48_592.html"
+    },
+    "HU": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=HUN",
+      "authority": "https://net.jogtar.hu/jogszabaly?docid=a1300133.vm"
+    },
+    "IE": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=IRL",
+      "authority": "https://www.fisheriesireland.ie/news/media-releases/angling-regulations-reminder-ahead-of-summer-season"
+    },
+    "IS": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=ISL",
+      "authority": "https://island.is/en/o/directorate-of-fisheries/laws-and-regulations-directorate-of-fisheries"
+    },
+    "IT": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=ITA",
+      "authority": "https://www.masaf.gov.it/flex/cm/pages/ServeBLOB.php/L/IT/IDPagina/4247"
+    },
+    "KZ": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=KAZ",
+      "authority": "https://www.gov.kz/situations/230/647?lang=en"
+    },
+    "LI": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=LIE",
+      "authority": "https://www.gesetze.li/konso/2012180000"
+    },
+    "LT": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=LTU",
+      "authority": "https://aad.lrv.lt/en/memos-on-environmental-requirements/fishing/fishing-periods-permitted-quantities-and-sizes-of-fish-etc/"
+    },
+    "LU": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=LUX",
+      "authority": "https://guichet.public.lu/fr/citoyens/life-event/loisirs/peche.html"
+    },
+    "LV": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=LVA",
+      "authority": "https://likumi.lv/ta/en/id/34871-fishery-law"
+    },
+    "MC": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=MCO",
+      "authority": "https://journaldemonaco.gouv.mc/fr/Journaux/2021/Journal-8537/Ordonnance-Souveraine-n-8.640-du-29-avril-2021-modifiant-l-article-O.244-10-du-Code-de-la-mer-relatif-a-l-exploitation-des-ressources-vivantes"
+    },
+    "MD": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=MDA",
+      "authority": "https://border.gov.md/node/15825"
+    },
+    "ME": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=MNE",
+      "authority": "https://www.gov.me/clanak/minimalne-velicine"
+    },
+    "MK": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=MKD",
+      "authority": "https://www.mzsv.gov.mk/CMS/Upload/0-novosti/Zakon-za-ribarstvo-i-akvakultura%2019.3.2024.pdf"
+    },
+    "MT": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=MLT",
+      "authority": "https://legislation.mt/getpdf/695d04002805d523acfe8537"
+    },
+    "NL": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=NLD",
+      "authority": "https://www.sportvisunie.nl/en/sport-fishing-in-the-netherlands/fishing-documents-regulations"
+    },
+    "NO": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=NOR",
+      "authority": "https://www.fiskeridir.no/fritidsfiske/minstemaal"
+    },
+    "PL": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=POL",
+      "authority": "https://eli.gov.pl/api/acts/DU/2023/1373/text/I/D20231373.pdf"
+    },
+    "PT": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=PRT",
+      "authority": "https://diariodarepublica.pt/dr/legislacao-consolidada/portaria/2017-115146412-115137315"
+    },
+    "RO": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=ROU",
+      "authority": "https://legislatie.just.ro/"
+    },
+    "RS": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=SRB",
+      "authority": "https://www.rsv.rs/zakoni_pravilnici.html"
+    },
+    "RU": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=RUS",
+      "authority": "https://fish.gov.ru/obrashheniya-grazhdan/chasto-zadavaemye-voprosy-1/"
+    },
+    "SE": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=SWE",
+      "authority": "https://www.naturvardsverket.se/en/topics/the-right-of-public-access/activities-and-places/hunting-and-fishing"
+    },
+    "SI": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=SVN",
+      "authority": "https://pisrs.si/api/datoteke/integracije/352150478"
+    },
+    "SK": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=SVK",
+      "authority": "https://srzrada.sk/rybarske-poriadky/"
+    },
+    "SM": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=SMR",
+      "authority": "https://www.cons.sm/sports/pesca-sportiva/"
+    },
+    "TR": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=TUR",
+      "authority": "https://www.tarimorman.gov.tr/Konular/Su-Urunleri/Su-Urunleri-Avciligi"
+    },
+    "UA": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=UKR",
+      "authority": "https://darg.gov.ua/hromadskosti/naibilsh-zapytuvana-informatsiia/liubytelske-rybalstvo-shcho-lovymo-i-chym"
+    },
+    "VA": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=VAT"
+    },
+    "XK": {
+      "url": "https://www.fao.org/faolex/country-profiles/general-profile/en/?iso3=XKX",
+      "authority": "https://gzk.rks-gov.net/ActDetail.aspx?ActID=2507&langid=2"
+    }
+  },
+  "sources": {
+    "cz11": {
+      "title": "MZe · 197/2004 Sb. § 11",
+      "url": "https://mze.gov.cz/public/portal/mze/legislativa/vap57781-5594",
+      "checked": "2026-11-24",
+      "reviewBy": "2027-02-01"
+    },
+    "cz13": {
+      "title": "MZe · 197/2004 Sb. § 13",
+      "url": "https://mze.gov.cz/public/portal/mze/legislativa/vap57781-6415",
+      "checked": "2026-11-24",
+      "reviewBy": "2027-02-01"
+    },
+    "sk": {
+      "title": "MO SRZ Vranov nad Topľou · miestny rybársky poriadok",
+      "url": "https://www.mosrzvranov.sk/files/MRP_MOVT.pdf",
+      "checked": "2026-11-24",
+      "reviewBy": "2026-12-31"
+    },
+    "fr": {
+      "title": "Code de l’environnement · R436-18",
+      "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000038416171",
+      "checked": "2026-11-24",
+      "reviewBy": "2027-02-01",
+      "manualReview": true
+    },
+    "fr19": {
+      "title": "Code de l’environnement · R436-19",
+      "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000038416177",
+      "checked": "2026-11-24",
+      "reviewBy": "2027-02-01",
+      "manualReview": true
+    },
+    "ie": {
+      "title": "Inland Fisheries Ireland · Pike Bye-Law 809",
+      "url": "https://www.fisheriesireland.ie/news/media-releases/angling-regulations-reminder-ahead-of-summer-season",
+      "checked": "2026-11-24",
+      "reviewBy": "2027-02-01"
+    },
+    "gb": {
+      "title": "Environment Agency · freshwater rod fishing rules",
+      "url": "https://www.gov.uk/freshwater-rod-fishing-rules/when-and-where-you-can-fish",
+      "checked": "2026-11-24",
+      "reviewBy": "2027-02-01"
+    },
+    "gbsize": {
+      "title": "Environment Agency · removal of fish from rivers",
+      "url": "https://www.gov.uk/freshwater-rod-fishing-rules/fish-size-and-catch-limits",
+      "checked": "2026-11-24",
+      "reviewBy": "2027-02-01"
+    },
+    "fi": {
+      "title": "Metsähallitus · Eräluvat",
+      "url": "https://www.eraluvat.fi/en/fishing/fisher-s-information-bank/minimum-catch-sizes-and-protection-periods",
+      "checked": "2026-11-24",
+      "reviewBy": "2027-02-01"
+    },
+    "dk": {
+      "title": "Miljøstyrelsen · ferskvand",
+      "url": "https://mst.dk/media/whlpzdbm/fredning_og_mindstemaal_i_ferskvand-2025.pdf",
+      "checked": "2026-11-24",
+      "reviewBy": "2027-02-01"
+    },
+    "no": {
+      "title": "Fiskeridirektoratet · minstemål",
+      "url": "https://www.fiskeridir.no/fritidsfiske/minstemaal",
+      "checked": "2026-11-24",
+      "reviewBy": "2027-02-01"
+    },
+    "be": {
+      "title": "Agentschap voor Natuur en Bos · Reglement 2026",
+      "url": "https://natuurenbos.vlaanderen.be/sites/default/files/documenten/reglement_openbare_visserij.pdf",
+      "checked": "2026-11-24",
+      "reviewBy": "2026-12-31"
+    },
+    "si": {
+      "title": "PISRS · Pravilnik o ribolovnem režimu",
+      "url": "https://pisrs.si/api/datoteke/integracije/352150478",
+      "checked": "2026-11-24",
+      "reviewBy": "2027-02-01"
+    },
+    "hu": {
+      "title": "133/2013. (XII. 29.) VM rendelet · 9. melléklet",
+      "url": "https://net.jogtar.hu/jogszabaly?docid=a1300133.vm",
+      "checked": "2026-11-24",
+      "reviewBy": "2027-02-01"
+    },
+    "pl": {
+      "title": "Dziennik Ustaw 2023 poz. 1373 · § 6",
+      "url": "https://eli.gov.pl/api/acts/DU/2023/1373/text/I/D20231373.pdf",
+      "checked": "2026-11-24",
+      "reviewBy": "2027-02-01"
+    },
+    "lt": {
+      "title": "Aplinkos apsaugos departamentas · inland fisheries",
+      "url": "https://aad.lrv.lt/en/memos-on-environmental-requirements/fishing/fishing-periods-permitted-quantities-and-sizes-of-fish-etc/",
+      "checked": "2026-11-24",
+      "reviewBy": "2027-02-01"
+    },
+    "atl26": {
+      "title": "Council Regulation (EU) 2026/249 · European eel",
+      "url": "https://eur-lex.europa.eu/eli/reg/2026/249/oj/eng",
+      "checked": "2026-11-24",
+      "reviewBy": "2026-12-31"
+    },
+    "med26": {
+      "title": "Council Regulation (EU) 2026/266 · Articles 4 and 6",
+      "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX%3A32026R0266",
+      "checked": "2026-11-24",
+      "reviewBy": "2026-12-31"
+    },
+    "bal26": {
+      "title": "Council Regulation (EU) 2025/2454 · Article 10",
+      "url": "https://eur-lex.europa.eu/eli/reg/2025/2454/oj/eng",
+      "checked": "2026-11-24",
+      "reviewBy": "2026-12-31"
+    },
+    "atlocal": {
+      "title": "RIS · NÖ Fischereiverordnung",
+      "url": "https://www.ris.bka.gv.at/GeltendeFassung.wxe?Abfrage=LrNO&Gesetzesnummer=20000592",
+      "checked": "2026-11-24",
+      "reviewBy": "2027-02-01"
+    },
+    "adlocal": {
+      "title": "Govern d’Andorra · 2026",
+      "url": "https://www.govern.ad/en/tematiques/medi-ambient-i-sostenibilitat/pesca",
+      "checked": "2026-11-24",
+      "reviewBy": "2026-12-31"
+    },
+    "balocal": {
+      "title": "Federalno ministarstvo · Pravilnik",
+      "url": "https://fmpvs.gov.ba/wp-content/uploads/2017/Poljoprivreda%20legislative/Poljoprivreda-pravilnici/prav-polj6305ii.pdf",
+      "checked": "2026-11-24",
+      "reviewBy": "2026-12-31"
+    },
+    "bglocal": {
+      "title": "Министерство · Приложение № 2",
+      "url": "https://moew.government.bg/wp-content/uploads/file/Legislation/Zakoni/ZAKON%20ZA%20RIBARSTVOTO%20I%20AKVAKULTURITE.pdf",
+      "checked": "2026-11-24",
+      "reviewBy": "2027-02-01"
+    },
+    "bylocal": {
+      "title": "Указ Президента · Правила любительского рыболовства",
+      "url": "https://faolex.fao.org/docs/pdf/blr210299original.pdf",
+      "checked": "2026-11-24",
+      "reviewBy": "2027-02-01"
+    },
+    "chlocal": {
+      "title": "Kanton Glarus · Art. 17",
+      "url": "https://gl.lexwork.naz.ch/de/dta/VI-E.31.3.pdf",
+      "checked": "2026-11-24",
+      "reviewBy": "2027-02-01"
+    },
+    "lilocal": {
+      "title": "Lilex · FischV 923.01",
+      "url": "https://www.gesetze.li/konso/pdf/2012180000?version=5",
+      "checked": "2026-11-24",
+      "reviewBy": "2027-02-01"
+    },
+    "islocal": {
+      "title": "Fiskistofa · salmon and trout fishing",
+      "url": "https://island.is/en/monitoring-by-the-directorate-of-fisheries-with-salmon-and-trout-fishing",
+      "checked": "2026-11-24",
+      "reviewBy": "2027-02-01",
+      "manualReview": true
+    },
+    "mclocal": {
+      "title": "Journal de Monaco · Ordonnance 10.981",
+      "url": "https://journaldemonaco.gouv.mc/Journaux/2024/Journal-8726/Ordonnance-Souveraine-n-10.981-du-12-decembre-2024-modifiant-la-liste-des-especes-interdites-de-peche",
+      "checked": "2026-11-24",
+      "reviewBy": "2027-02-01"
+    },
+    "mdlocal": {
+      "title": "Poliția de Frontieră · prohibiția 2026",
+      "url": "https://border.gov.md/prohibitia-pescuitului-2026-restrictii-pentru-protejarea-resurselor-acvatice",
+      "checked": "2026-11-24",
+      "reviewBy": "2026-12-31"
+    },
+    "rolocal": {
+      "title": "Monitorul Oficial · Ordin 85/662",
+      "url": "https://www.infodosar.ro/monitorul-oficial/ministerul-agriculturii-si-dezvoltarii-rurale/47749-ordin-85-2021",
+      "checked": "2026-11-24",
+      "reviewBy": "2027-02-01"
+    },
+    "trlocal": {
+      "title": "Resmî Gazete · 6/2, Çizelge 5",
+      "url": "https://aliaga.denizticaretodasi.org.tr/tr/Media/ViewerWithName/85755?fileName=532_1822_6_2_numaral_amat_r_ama_l_su_r_nleri_avc_l_n_n_d_zenlenmesi_tebli_i_hk.pdf",
+      "checked": "2026-11-24",
+      "reviewBy": "2027-02-01"
+    },
+    "ualocal": {
+      "title": "Держрибагентство · Дніпропетровська область",
+      "url": "https://dnp.darg.gov.ua/index.php?content_id=3019&lang_id=1&lp=8",
+      "checked": "2026-11-24",
+      "reviewBy": "2027-02-01",
+      "manualReview": true
+    },
+    "lulocal": {
+      "title": "Administration de la gestion de l’eau · eaux frontalières",
+      "url": "https://eau.gouvernement.lu/dam-assets/publications/p%C3%AAche/Apercu-Eaux-front-F-2016.pdf",
+      "checked": "2026-11-24",
+      "reviewBy": "2026-12-31"
+    },
+    "xklocal": {
+      "title": "FPSRK · Krap 2026",
+      "url": "https://fpsrkosova.com/njoftim-zyrtar-per-pezullimin-e-perkohshem-te-peshkimit-te-llojit-te-peshkut-krap/",
+      "checked": "2026-11-24",
+      "reviewBy": "2026-12-31"
+    },
+    "rslocal": {
+      "title": "Palić–Ludaš · recreational angling guide",
+      "url": "https://www.zastitapalicludas.rs/wp-content/uploads/2021/04/Liflet-LudJez-SRB-2021-1.pdf",
+      "checked": "2026-11-24",
+      "reviewBy": "2026-12-31"
+    },
+    "delocal": {
+      "title": "Bayerische Staatskanzlei · AVBayFiG",
+      "url": "https://www.gesetze-bayern.de/Content/Document/BayAVFiG-ANL_1",
+      "checked": "2026-11-24",
+      "reviewBy": "2027-02-01"
+    }
+  },
+  "scopes": {
+    "nontrout": {
+      "cs": "ČR · mimopstruhové revíry",
+      "en": "Czechia · non-trout fishing waters"
+    },
+    "czall": {
+      "cs": "ČR · rybářské revíry",
+      "en": "Czechia · fishing waters"
+    },
+    "cztrout": {
+      "cs": "ČR · pstruhové revíry, všechny druhy",
+      "en": "Czechia · trout fishing waters, all species"
+    },
+    "vranov": {
+      "cs": "Slovensko · revíry MO SRZ Vranov nad Topľou podle místního řádu",
+      "en": "Slovakia · waters covered by the Vranov nad Topľou permit"
+    },
+    "frbase": {
+      "cs": "Francie · výchozí míra, ověř vyhlášku prefektury podle R436-19",
+      "en": "France · national baseline, check the prefectural order under R436-19"
+    },
+    "fr2": {
+      "cs": "Francie · vody druhé kategorie, prefektura může míru zvýšit",
+      "en": "France · second-category waters, the prefect may raise the minimum"
+    },
+    "ie": {
+      "cs": "Irsko · ponechání štiky podle předpisu č. 809",
+      "en": "Ireland · pike retention under Bye-Law 809"
+    },
+    "ew": {
+      "cs": "Anglie a Wales · říční lov nedravých a dravých ryb kategorie coarse fish",
+      "en": "England and Wales · coarse fishing on rivers"
+    },
+    "fi": {
+      "cs": "Finsko · rekreační rybolov v přírodních vodách na pevnině",
+      "en": "Finland · recreational fishing in mainland natural waters"
+    },
+    "fisea": {
+      "cs": "Finsko · Baltské moře, pevninská jurisdikce",
+      "en": "Finland · Baltic Sea, mainland jurisdiction"
+    },
+    "dk": {
+      "cs": "Dánsko · sladké vody, ověř místní výjimky",
+      "en": "Denmark · freshwater, check local exceptions"
+    },
+    "no": {
+      "cs": "Norsko · rekreační mořský rybolov",
+      "en": "Norway · recreational sea fishing"
+    },
+    "noN": {
+      "cs": "Norsko · moře severně od 62° s. š.",
+      "en": "Norway · sea north of 62° N"
+    },
+    "noS": {
+      "cs": "Norsko · moře jižně od 62° s. š.",
+      "en": "Norway · sea south of 62° N"
+    },
+    "be": {
+      "cs": "Belgie · vlámské veřejné vody. Ponechání vyžaduje velkou povolenku a má časová omezení.",
+      "en": "Belgium · Flemish public waters. Retaining fish requires a large permit and is subject to time restrictions."
+    },
+    "si": {
+      "cs": "Slovinsko · sladké vody jadranského povodí",
+      "en": "Slovenia · freshwater in the Adriatic basin"
+    },
+    "hu": {
+      "cs": "Maďarsko · celostátní lovná míra, ověř řád konkrétní vody",
+      "en": "Hungary · national size threshold, check the specific water’s regulations"
+    },
+    "pl": {
+      "cs": "Polsko · vnitrozemské povrchové vody, délka musí překročit ochrannou hranici",
+      "en": "Poland · inland surface waters, length must exceed the protected threshold"
+    },
+    "ltbase": {
+      "cs": "Litva · vnitrozemské vody mimo přílohy 2 a 7, ověř kombinovaný limit na výpravu",
+      "en": "Lithuania · inland waters outside Annexes 2 and 7, check the combined trip limit"
+    },
+    "lt7": {
+      "cs": "Litva · pouze vody uvedené v příloze 7",
+      "en": "Lithuania · only waters listed in Annex 7"
+    },
+    "atl26": {
+      "cs": "2026 · rekreační lov ve vodách EU v oblastech ICES 3, 4, 6, 7, 8 a 9 a přilehlých brakických vodách",
+      "en": "2026 · recreational fishing in EU marine and adjacent brackish waters of ICES areas 3, 4, 6, 7, 8 and 9"
+    },
+    "med26": {
+      "cs": "2026 · rekreační lov úhoře, středomořské podoblasti GFCM 1–27 a související brakické a sladké vody",
+      "en": "2026 · recreational eel fishing in Mediterranean GFCM subareas 1–27 and associated brackish and fresh waters"
+    },
+    "medfish": {
+      "cs": "2026 · Středozemní moře, rekreační lov. V otevřeném období platí limit 10 kg nebo pět ryb na osobu a den.",
+      "en": "2026 · Mediterranean recreational fishing. The open season has a limit of 10 kg or five fish per person per day."
+    },
+    "bal26": {
+      "cs": "2026 · Baltské moře, podoblasti 22–32. Cílený lov tresky je zakázán. Náhodný úlovek se vrací, výjimka pro ponechání se vztahuje na podoblasti 27–32.",
+      "en": "2026 · Baltic subdivisions 22–32. Directed cod fishing is closed. Release incidental catches, except that bycatch may be kept in subdivisions 27–32."
+    },
+    "atlocal": {
+      "cs": "Rakousko · Dolní Rakousy, NÖ Fischereiverordnung § 1",
+      "en": "Austria · Lower Austria, NÖ Fischereiverordnung § 1"
+    },
+    "adlocal": {
+      "cs": "Andorra · běžné říční úseky 2026, kromě výjimek uvedených v seznamu správce",
+      "en": "Andorra · ordinary river sections in 2026, excluding individually listed exceptions"
+    },
+    "balocal": {
+      "cs": "Federace Bosny a Hercegoviny · sportovní sladkovodní rybolov, ověř pravidla správce revíru",
+      "en": "Federation of Bosnia and Herzegovina · freshwater sport fishing, verify the water manager’s rules"
+    },
+    "bglocal": {
+      "cs": "Bulharsko · minimální velikosti dle přílohy č. 2 zákona o rybolovu",
+      "en": "Bulgaria · minimum sizes under Annex 2 of the Fisheries and Aquaculture Act"
+    },
+    "bylocal": {
+      "cs": "Bělorusko · příloha 1 pravidel rekreačního rybolovu",
+      "en": "Belarus · Annex 1 of the recreational fishing rules"
+    },
+    "chlocal": {
+      "cs": "Švýcarsko · kanton Glarus, bez jezer Oberblegisee, Obersee a rašelinných jezer v Biltenu",
+      "en": "Switzerland · canton Glarus, excluding Oberblegisee, Obersee and the peat lakes in Bilten"
+    },
+    "lilocal": {
+      "cs": "Lichtenštejnsko · Fischereiverordnung čl. 16",
+      "en": "Liechtenstein · Fisheries Ordinance Article 16"
+    },
+    "islocal": {
+      "cs": "Island · cílený lov lososa na moři",
+      "en": "Iceland · directed salmon fishing at sea"
+    },
+    "mclocal": {
+      "cs": "Monako · druhy chráněné čl. O.244-11 odst. 2 mořského zákoníku",
+      "en": "Monaco · protected species under Article O.244-11(2) of the Maritime Code"
+    },
+    "mdlocal": {
+      "cs": "Moldavsko · rok 2026, vnitrozemské přítoky Dněstru a Prutu včetně řek Răut, Bîc a Botna",
+      "en": "Moldova · 2026, inland tributaries of the Dniester and Prut including the Răut, Bîc and Botna"
+    },
+    "rolocal": {
+      "cs": "Rumunsko · volně žijící jeseteři v přirozených vodách",
+      "en": "Romania · wild sturgeon in natural fish habitats"
+    },
+    "trlocal": {
+      "cs": "Turecko · vnitrozemské vody, rekreační rybolov, tabulka 5",
+      "en": "Türkiye · inland recreational fishing, Table 5"
+    },
+    "ualocal": {
+      "cs": "Ukrajina · vnitrozemské vody v metodice Dněpropetrovské oblasti",
+      "en": "Ukraine · inland waters covered by the Dnipropetrovsk regional guidance"
+    },
+    "lulocal": {
+      "cs": "Lucembursko · hraniční vody s Německem podle přehledu správy vod",
+      "en": "Luxembourg · German border waters covered by the water administration guide"
+    },
+    "xklocal": {
+      "cs": "Kosovo · řeky a jezera, rok 2026. V uvedeném období pouze chyť a pusť, bez přechovávání.",
+      "en": "Kosovo · rivers and lakes in 2026. Catch and release only during the stated period, without holding fish."
+    },
+    "rslocal": {
+      "cs": "Srbsko · revír Ludaš, ověř aktuální místní povolení",
+      "en": "Serbia · Ludaš fishing area, check the current local permit"
+    },
+    "delocal": {
+      "cs": "Německo · Bavorsko, povodí D/E/R/W v příloze AVBayFiG",
+      "en": "Germany · Bavaria, basins D/E/R/W in the AVBayFiG annex"
+    }
+  },
+  "entries": [
+    {
+      "country": "CZ",
+      "source": "cz11",
+      "scope": "nontrout",
+      "species": [
+        "Leuciscus aspius"
+      ],
+      "minCm": 40
+    },
+    {
+      "country": "CZ",
+      "source": "cz11",
+      "scope": "nontrout",
+      "species": [
+        "Sander lucioperca"
+      ],
+      "minCm": 45
+    },
+    {
+      "country": "CZ",
+      "source": "cz11",
+      "scope": "nontrout",
+      "species": [
+        "Hucho hucho"
+      ],
+      "minCm": 65
+    },
+    {
+      "country": "CZ",
+      "source": "cz11",
+      "scope": "nontrout",
+      "species": [
+        "Leuciscus idus"
+      ],
+      "minCm": 25
+    },
+    {
+      "country": "CZ",
+      "source": "cz11",
+      "scope": "nontrout",
+      "species": [
+        "Squalius cephalus"
+      ],
+      "minCm": 25
+    },
+    {
+      "country": "CZ",
+      "source": "cz11",
+      "scope": "nontrout",
+      "species": [
+        "Acipenser ruthenus"
+      ],
+      "minCm": 30
+    },
+    {
+      "country": "CZ",
+      "source": "cz11",
+      "scope": "nontrout",
+      "species": [
+        "Cyprinus carpio"
+      ],
+      "minCm": 40
+    },
+    {
+      "country": "CZ",
+      "source": "cz11",
+      "scope": "nontrout",
+      "species": [
+        "Tinca tinca"
+      ],
+      "minCm": 20
+    },
+    {
+      "country": "CZ",
+      "source": "cz11",
+      "scope": "nontrout",
+      "species": [
+        "Thymallus thymallus"
+      ],
+      "minCm": 30
+    },
+    {
+      "country": "CZ",
+      "source": "cz11",
+      "scope": "nontrout",
+      "species": [
+        "Chondrostoma nasus"
+      ],
+      "minCm": 30
+    },
+    {
+      "country": "CZ",
+      "source": "cz11",
+      "scope": "nontrout",
+      "species": [
+        "Barbus barbus"
+      ],
+      "minCm": 40
+    },
+    {
+      "country": "CZ",
+      "source": "cz11",
+      "scope": "nontrout",
+      "species": [
+        "Vimba vimba"
+      ],
+      "minCm": 25
+    },
+    {
+      "country": "CZ",
+      "source": "cz11",
+      "scope": "nontrout",
+      "species": [
+        "Oncorhynchus mykiss"
+      ],
+      "minCm": 25
+    },
+    {
+      "country": "CZ",
+      "source": "cz11",
+      "scope": "nontrout",
+      "species": [
+        "Salmo trutta"
+      ],
+      "minCm": 25
+    },
+    {
+      "country": "CZ",
+      "source": "cz11",
+      "scope": "nontrout",
+      "species": [
+        "Salvelinus fontinalis"
+      ],
+      "minCm": 25
+    },
+    {
+      "country": "CZ",
+      "source": "cz11",
+      "scope": "nontrout",
+      "species": [
+        "Silurus glanis"
+      ],
+      "minCm": 70
+    },
+    {
+      "country": "CZ",
+      "source": "cz11",
+      "scope": "nontrout",
+      "species": [
+        "Esox lucius"
+      ],
+      "minCm": 50
+    },
+    {
+      "country": "CZ",
+      "source": "cz11",
+      "scope": "nontrout",
+      "species": [
+        "Anguilla anguilla"
+      ],
+      "minCm": 50
+    },
+    {
+      "country": "CZ",
+      "source": "cz11",
+      "scope": "nontrout",
+      "species": [
+        "Lota lota"
+      ],
+      "minCm": 30
+    },
+    {
+      "country": "CZ",
+      "source": "cz11",
+      "scope": "nontrout",
+      "species": [
+        "Salmo salar"
+      ],
+      "minCm": 50
+    },
+    {
+      "country": "CZ",
+      "source": "cz13",
+      "scope": "czall",
+      "species": [
+        "Salmo trutta",
+        "Salmo salar"
+      ],
+      "closed": [
+        "09-01",
+        "04-15"
+      ]
+    },
+    {
+      "country": "CZ",
+      "source": "cz13",
+      "scope": "czall",
+      "species": [
+        "Chondrostoma nasus",
+        "Barbus barbus",
+        "Vimba vimba",
+        "Acipenser ruthenus"
+      ],
+      "closed": [
+        "03-16",
+        "06-15"
+      ]
+    },
+    {
+      "country": "CZ",
+      "source": "cz13",
+      "scope": "nontrout",
+      "species": [
+        "Leuciscus idus",
+        "Squalius cephalus"
+      ],
+      "closed": [
+        "03-16",
+        "06-15"
+      ]
+    },
+    {
+      "country": "CZ",
+      "source": "cz13",
+      "scope": "nontrout",
+      "species": [
+        "Leuciscus aspius",
+        "Sander lucioperca",
+        "Perca fluviatilis",
+        "Silurus glanis",
+        "Esox lucius"
+      ],
+      "closed": [
+        "01-01",
+        "06-15"
+      ]
+    },
+    {
+      "country": "CZ",
+      "source": "cz13",
+      "scope": "czall",
+      "species": [
+        "Thymallus thymallus"
+      ],
+      "closed": [
+        "12-01",
+        "06-15"
+      ]
+    },
+    {
+      "country": "CZ",
+      "source": "cz13",
+      "scope": "czall",
+      "species": [
+        "Hucho hucho"
+      ],
+      "closed": [
+        "01-01",
+        "09-30"
+      ]
+    },
+    {
+      "country": "CZ",
+      "source": "cz13",
+      "scope": "czall",
+      "species": [
+        "Anguilla anguilla"
+      ],
+      "closed": [
+        "09-01",
+        "11-30"
+      ]
+    },
+    {
+      "country": "CZ",
+      "source": "cz13",
+      "scope": "czall",
+      "species": [
+        "Lota lota"
+      ],
+      "closed": [
+        "01-01",
+        "03-15"
+      ]
+    },
+    {
+      "country": "SK",
+      "source": "sk",
+      "scope": "vranov",
+      "species": [
+        "Esox lucius"
+      ],
+      "minCm": 60
+    },
+    {
+      "country": "SK",
+      "source": "sk",
+      "scope": "vranov",
+      "species": [
+        "Sander lucioperca"
+      ],
+      "minCm": 50
+    },
+    {
+      "country": "SK",
+      "source": "sk",
+      "scope": "vranov",
+      "species": [
+        "Salvelinus fontinalis"
+      ],
+      "minCm": 25
+    },
+    {
+      "country": "SK",
+      "source": "sk",
+      "scope": "vranov",
+      "species": [
+        "Silurus glanis"
+      ],
+      "minCm": 70
+    },
+    {
+      "country": "SK",
+      "source": "sk",
+      "scope": "vranov",
+      "species": [
+        "Anguilla anguilla"
+      ],
+      "minCm": 45
+    },
+    {
+      "country": "SK",
+      "source": "sk",
+      "scope": "vranov",
+      "species": [
+        "Esox lucius"
+      ],
+      "closed": [
+        "01-01",
+        "06-15"
+      ]
+    },
+    {
+      "country": "FR",
+      "source": "fr",
+      "scope": "frbase",
+      "species": [
+        "Hucho hucho"
+      ],
+      "minCm": 70
+    },
+    {
+      "country": "FR",
+      "source": "fr",
+      "scope": "frbase",
+      "species": [
+        "Esox lucius"
+      ],
+      "minCm": 50
+    },
+    {
+      "country": "FR",
+      "source": "fr",
+      "scope": "fr2",
+      "species": [
+        "Sander lucioperca"
+      ],
+      "minCm": 40
+    },
+    {
+      "country": "FR",
+      "source": "fr",
+      "scope": "frbase",
+      "species": [
+        "Thymallus thymallus"
+      ],
+      "minCm": 30
+    },
+    {
+      "country": "FR",
+      "source": "fr",
+      "scope": "frbase",
+      "species": [
+        "Lampetra fluviatilis"
+      ],
+      "minCm": 20
+    },
+    {
+      "country": "FR",
+      "source": "fr",
+      "scope": "frbase",
+      "species": [
+        "Petromyzon marinus"
+      ],
+      "minCm": 40
+    },
+    {
+      "country": "IE",
+      "source": "ie",
+      "scope": "ie",
+      "species": [
+        "Esox lucius"
+      ],
+      "daily": 1,
+      "maxCm": 50
+    },
+    {
+      "country": "GB",
+      "source": "gb",
+      "scope": "ew",
+      "species": [
+        "Esox lucius",
+        "Rutilus rutilus",
+        "Perca fluviatilis",
+        "Cyprinus carpio",
+        "Barbus barbus",
+        "Abramis brama",
+        "Tinca tinca"
+      ],
+      "closed": [
+        "03-15",
+        "06-15"
+      ]
+    },
+    {
+      "country": "GB",
+      "source": "gbsize",
+      "scope": "ew",
+      "species": [
+        "Esox lucius"
+      ],
+      "daily": 1,
+      "maxCm": 65
+    },
+    {
+      "country": "FI",
+      "source": "fi",
+      "scope": "fi",
+      "species": [
+        "Sander lucioperca"
+      ],
+      "minCm": 42
+    },
+    {
+      "country": "FI",
+      "source": "fi",
+      "scope": "fisea",
+      "species": [
+        "Thymallus thymallus"
+      ],
+      "closed": [
+        "01-01",
+        "12-31"
+      ]
+    },
+    {
+      "country": "DK",
+      "source": "dk",
+      "scope": "dk",
+      "species": [
+        "Esox lucius"
+      ],
+      "minCm": 60,
+      "closed": [
+        "03-15",
+        "04-30"
+      ]
+    },
+    {
+      "country": "DK",
+      "source": "dk",
+      "scope": "dk",
+      "species": [
+        "Sander lucioperca"
+      ],
+      "minCm": 50,
+      "closed": [
+        "05-01",
+        "05-31"
+      ]
+    },
+    {
+      "country": "DK",
+      "source": "dk",
+      "scope": "dk",
+      "species": [
+        "Thymallus thymallus"
+      ],
+      "minCm": 33,
+      "closed": [
+        "03-15",
+        "05-15"
+      ]
+    },
+    {
+      "country": "DK",
+      "source": "dk",
+      "scope": "dk",
+      "species": [
+        "Coregonus lavaretus"
+      ],
+      "minCm": 36,
+      "closed": [
+        "11-01",
+        "01-31"
+      ]
+    },
+    {
+      "country": "NO",
+      "source": "no",
+      "scope": "no",
+      "species": [
+        "Merlangius merlangus"
+      ],
+      "minCm": 32
+    },
+    {
+      "country": "NO",
+      "source": "no",
+      "scope": "no",
+      "species": [
+        "Merluccius merluccius"
+      ],
+      "minCm": 30
+    },
+    {
+      "country": "NO",
+      "source": "no",
+      "scope": "no",
+      "species": [
+        "Pleuronectes platessa"
+      ],
+      "minCm": 29
+    },
+    {
+      "country": "NO",
+      "source": "no",
+      "scope": "noN",
+      "species": [
+        "Melanogrammus aeglefinus"
+      ],
+      "minCm": 40
+    },
+    {
+      "country": "NO",
+      "source": "no",
+      "scope": "noS",
+      "species": [
+        "Melanogrammus aeglefinus"
+      ],
+      "minCm": 32
+    },
+    {
+      "country": "BE",
+      "source": "be",
+      "scope": "be",
+      "species": [
+        "Sander lucioperca"
+      ],
+      "minCm": 45,
+      "maxCm": 70
+    },
+    {
+      "country": "SI",
+      "source": "si",
+      "scope": "si",
+      "species": [
+        "Esox lucius"
+      ],
+      "minCm": 50,
+      "closed": [
+        "02-01",
+        "04-30"
+      ]
+    },
+    {
+      "country": "SI",
+      "source": "si",
+      "scope": "si",
+      "species": [
+        "Salmo marmoratus"
+      ],
+      "minCm": 40,
+      "closed": [
+        "10-01",
+        "03-31"
+      ]
+    },
+    {
+      "country": "SI",
+      "source": "si",
+      "scope": "si",
+      "species": [
+        "Tinca tinca"
+      ],
+      "minCm": 30,
+      "closed": [
+        "05-01",
+        "06-30"
+      ]
+    },
+    {
+      "country": "HU",
+      "source": "hu",
+      "scope": "hu",
+      "species": [
+        "Cyprinus carpio"
+      ],
+      "minCm": 30
+    },
+    {
+      "country": "HU",
+      "source": "hu",
+      "scope": "hu",
+      "species": [
+        "Barbus barbus"
+      ],
+      "minCm": 40
+    },
+    {
+      "country": "HU",
+      "source": "hu",
+      "scope": "hu",
+      "species": [
+        "Squalius cephalus"
+      ],
+      "minCm": 25
+    },
+    {
+      "country": "HU",
+      "source": "hu",
+      "scope": "hu",
+      "species": [
+        "Leuciscus idus"
+      ],
+      "minCm": 20
+    },
+    {
+      "country": "HU",
+      "source": "hu",
+      "scope": "hu",
+      "species": [
+        "Chondrostoma nasus"
+      ],
+      "minCm": 20
+    },
+    {
+      "country": "HU",
+      "source": "hu",
+      "scope": "hu",
+      "species": [
+        "Vimba vimba"
+      ],
+      "minCm": 20
+    },
+    {
+      "country": "PL",
+      "source": "pl",
+      "scope": "pl",
+      "species": [
+        "Sander lucioperca"
+      ],
+      "overCm": 45
+    },
+    {
+      "country": "PL",
+      "source": "pl",
+      "scope": "pl",
+      "species": [
+        "Esox lucius"
+      ],
+      "overCm": 45
+    },
+    {
+      "country": "PL",
+      "source": "pl",
+      "scope": "pl",
+      "species": [
+        "Chondrostoma nasus"
+      ],
+      "overCm": 25
+    },
+    {
+      "country": "LT",
+      "source": "lt",
+      "scope": "ltbase",
+      "species": [
+        "Esox lucius"
+      ],
+      "minCm": 50,
+      "maxCm": 80
+    },
+    {
+      "country": "LT",
+      "source": "lt",
+      "scope": "lt7",
+      "species": [
+        "Esox lucius"
+      ],
+      "minCm": 65,
+      "maxCm": 90
+    },
+    {
+      "country": "LT",
+      "source": "lt",
+      "scope": "ltbase",
+      "species": [
+        "Barbus barbus"
+      ],
+      "minCm": 45
+    },
+    {
+      "country": "LT",
+      "source": "lt",
+      "scope": "ltbase",
+      "species": [
+        "Lota lota"
+      ],
+      "minCm": 45
+    },
+    {
+      "country": "LT",
+      "source": "lt",
+      "scope": "ltbase",
+      "species": [
+        "Silurus glanis"
+      ],
+      "minCm": 75
+    },
+    {
+      "country": "LT",
+      "source": "lt",
+      "scope": "ltbase",
+      "species": [
+        "Squalius cephalus"
+      ],
+      "minCm": 30
+    },
+    {
+      "country": "LT",
+      "source": "lt",
+      "scope": "ltbase",
+      "species": [
+        "Leuciscus idus"
+      ],
+      "minCm": 30
+    },
+    {
+      "country": "BE",
+      "source": "atl26",
+      "scope": "atl26",
+      "species": [
+        "Anguilla anguilla"
+      ],
+      "closed": [
+        "01-01",
+        "12-31"
+      ]
+    },
+    {
+      "country": "DE",
+      "source": "atl26",
+      "scope": "atl26",
+      "species": [
+        "Anguilla anguilla"
+      ],
+      "closed": [
+        "01-01",
+        "12-31"
+      ]
+    },
+    {
+      "country": "DK",
+      "source": "atl26",
+      "scope": "atl26",
+      "species": [
+        "Anguilla anguilla"
+      ],
+      "closed": [
+        "01-01",
+        "12-31"
+      ]
+    },
+    {
+      "country": "EE",
+      "source": "atl26",
+      "scope": "atl26",
+      "species": [
+        "Anguilla anguilla"
+      ],
+      "closed": [
+        "01-01",
+        "12-31"
+      ]
+    },
+    {
+      "country": "ES",
+      "source": "atl26",
+      "scope": "atl26",
+      "species": [
+        "Anguilla anguilla"
+      ],
+      "closed": [
+        "01-01",
+        "12-31"
+      ]
+    },
+    {
+      "country": "FI",
+      "source": "atl26",
+      "scope": "atl26",
+      "species": [
+        "Anguilla anguilla"
+      ],
+      "closed": [
+        "01-01",
+        "12-31"
+      ]
+    },
+    {
+      "country": "FR",
+      "source": "atl26",
+      "scope": "atl26",
+      "species": [
+        "Anguilla anguilla"
+      ],
+      "closed": [
+        "01-01",
+        "12-31"
+      ]
+    },
+    {
+      "country": "IE",
+      "source": "atl26",
+      "scope": "atl26",
+      "species": [
+        "Anguilla anguilla"
+      ],
+      "closed": [
+        "01-01",
+        "12-31"
+      ]
+    },
+    {
+      "country": "LT",
+      "source": "atl26",
+      "scope": "atl26",
+      "species": [
+        "Anguilla anguilla"
+      ],
+      "closed": [
+        "01-01",
+        "12-31"
+      ]
+    },
+    {
+      "country": "LV",
+      "source": "atl26",
+      "scope": "atl26",
+      "species": [
+        "Anguilla anguilla"
+      ],
+      "closed": [
+        "01-01",
+        "12-31"
+      ]
+    },
+    {
+      "country": "NL",
+      "source": "atl26",
+      "scope": "atl26",
+      "species": [
+        "Anguilla anguilla"
+      ],
+      "closed": [
+        "01-01",
+        "12-31"
+      ]
+    },
+    {
+      "country": "PL",
+      "source": "atl26",
+      "scope": "atl26",
+      "species": [
+        "Anguilla anguilla"
+      ],
+      "closed": [
+        "01-01",
+        "12-31"
+      ]
+    },
+    {
+      "country": "PT",
+      "source": "atl26",
+      "scope": "atl26",
+      "species": [
+        "Anguilla anguilla"
+      ],
+      "closed": [
+        "01-01",
+        "12-31"
+      ]
+    },
+    {
+      "country": "SE",
+      "source": "atl26",
+      "scope": "atl26",
+      "species": [
+        "Anguilla anguilla"
+      ],
+      "closed": [
+        "01-01",
+        "12-31"
+      ]
+    },
+    {
+      "country": "CY",
+      "source": "med26",
+      "scope": "med26",
+      "species": [
+        "Anguilla anguilla"
+      ],
+      "closed": [
+        "01-01",
+        "12-31"
+      ]
+    },
+    {
+      "country": "CY",
+      "source": "med26",
+      "scope": "medfish",
+      "species": [
+        "Coryphaena hippurus"
+      ],
+      "closed": [
+        "01-01",
+        "08-14"
+      ]
+    },
+    {
+      "country": "ES",
+      "source": "med26",
+      "scope": "med26",
+      "species": [
+        "Anguilla anguilla"
+      ],
+      "closed": [
+        "01-01",
+        "12-31"
+      ]
+    },
+    {
+      "country": "ES",
+      "source": "med26",
+      "scope": "medfish",
+      "species": [
+        "Coryphaena hippurus"
+      ],
+      "closed": [
+        "01-01",
+        "08-14"
+      ]
+    },
+    {
+      "country": "FR",
+      "source": "med26",
+      "scope": "med26",
+      "species": [
+        "Anguilla anguilla"
+      ],
+      "closed": [
+        "01-01",
+        "12-31"
+      ]
+    },
+    {
+      "country": "FR",
+      "source": "med26",
+      "scope": "medfish",
+      "species": [
+        "Coryphaena hippurus"
+      ],
+      "closed": [
+        "01-01",
+        "08-14"
+      ]
+    },
+    {
+      "country": "GR",
+      "source": "med26",
+      "scope": "med26",
+      "species": [
+        "Anguilla anguilla"
+      ],
+      "closed": [
+        "01-01",
+        "12-31"
+      ]
+    },
+    {
+      "country": "GR",
+      "source": "med26",
+      "scope": "medfish",
+      "species": [
+        "Coryphaena hippurus"
+      ],
+      "closed": [
+        "01-01",
+        "08-14"
+      ]
+    },
+    {
+      "country": "HR",
+      "source": "med26",
+      "scope": "med26",
+      "species": [
+        "Anguilla anguilla"
+      ],
+      "closed": [
+        "01-01",
+        "12-31"
+      ]
+    },
+    {
+      "country": "HR",
+      "source": "med26",
+      "scope": "medfish",
+      "species": [
+        "Coryphaena hippurus"
+      ],
+      "closed": [
+        "01-01",
+        "08-14"
+      ]
+    },
+    {
+      "country": "IT",
+      "source": "med26",
+      "scope": "med26",
+      "species": [
+        "Anguilla anguilla"
+      ],
+      "closed": [
+        "01-01",
+        "12-31"
+      ]
+    },
+    {
+      "country": "IT",
+      "source": "med26",
+      "scope": "medfish",
+      "species": [
+        "Coryphaena hippurus"
+      ],
+      "closed": [
+        "01-01",
+        "08-14"
+      ]
+    },
+    {
+      "country": "MT",
+      "source": "med26",
+      "scope": "med26",
+      "species": [
+        "Anguilla anguilla"
+      ],
+      "closed": [
+        "01-01",
+        "12-31"
+      ]
+    },
+    {
+      "country": "MT",
+      "source": "med26",
+      "scope": "medfish",
+      "species": [
+        "Coryphaena hippurus"
+      ],
+      "closed": [
+        "01-01",
+        "08-14"
+      ]
+    },
+    {
+      "country": "SI",
+      "source": "med26",
+      "scope": "med26",
+      "species": [
+        "Anguilla anguilla"
+      ],
+      "closed": [
+        "01-01",
+        "12-31"
+      ]
+    },
+    {
+      "country": "SI",
+      "source": "med26",
+      "scope": "medfish",
+      "species": [
+        "Coryphaena hippurus"
+      ],
+      "closed": [
+        "01-01",
+        "08-14"
+      ]
+    },
+    {
+      "country": "DE",
+      "source": "bal26",
+      "scope": "bal26",
+      "species": [
+        "Gadus morhua"
+      ],
+      "closed": [
+        "01-01",
+        "12-31"
+      ]
+    },
+    {
+      "country": "DK",
+      "source": "bal26",
+      "scope": "bal26",
+      "species": [
+        "Gadus morhua"
+      ],
+      "closed": [
+        "01-01",
+        "12-31"
+      ]
+    },
+    {
+      "country": "EE",
+      "source": "bal26",
+      "scope": "bal26",
+      "species": [
+        "Gadus morhua"
+      ],
+      "closed": [
+        "01-01",
+        "12-31"
+      ]
+    },
+    {
+      "country": "FI",
+      "source": "bal26",
+      "scope": "bal26",
+      "species": [
+        "Gadus morhua"
+      ],
+      "closed": [
+        "01-01",
+        "12-31"
+      ]
+    },
+    {
+      "country": "LT",
+      "source": "bal26",
+      "scope": "bal26",
+      "species": [
+        "Gadus morhua"
+      ],
+      "closed": [
+        "01-01",
+        "12-31"
+      ]
+    },
+    {
+      "country": "LV",
+      "source": "bal26",
+      "scope": "bal26",
+      "species": [
+        "Gadus morhua"
+      ],
+      "closed": [
+        "01-01",
+        "12-31"
+      ]
+    },
+    {
+      "country": "PL",
+      "source": "bal26",
+      "scope": "bal26",
+      "species": [
+        "Gadus morhua"
+      ],
+      "closed": [
+        "01-01",
+        "12-31"
+      ]
+    },
+    {
+      "country": "SE",
+      "source": "bal26",
+      "scope": "bal26",
+      "species": [
+        "Gadus morhua"
+      ],
+      "closed": [
+        "01-01",
+        "12-31"
+      ]
+    },
+    {
+      "country": "CZ",
+      "source": "cz13",
+      "scope": "cztrout",
+      "species": [],
+      "allFreshwater": true,
+      "closed": [
+        "12-01",
+        "04-15"
+      ]
+    },
+    {
+      "country": "AT",
+      "scope": "atlocal",
+      "source": "atlocal",
+      "species": [
+        "Esox lucius"
+      ],
+      "minCm": 50,
+      "closed": [
+        "02-01",
+        "04-30"
+      ]
+    },
+    {
+      "country": "AT",
+      "scope": "atlocal",
+      "source": "atlocal",
+      "species": [
+        "Hucho hucho"
+      ],
+      "minCm": 75,
+      "closed": [
+        "03-01",
+        "05-31"
+      ]
+    },
+    {
+      "country": "AT",
+      "scope": "atlocal",
+      "source": "atlocal",
+      "species": [
+        "Cyprinus carpio"
+      ],
+      "minCm": 35
+    },
+    {
+      "country": "DE",
+      "scope": "delocal",
+      "source": "delocal",
+      "species": [
+        "Esox lucius"
+      ],
+      "minCm": 50,
+      "closed": [
+        "02-15",
+        "04-30"
+      ]
+    },
+    {
+      "country": "DE",
+      "scope": "delocal",
+      "source": "delocal",
+      "species": [
+        "Cyprinus carpio"
+      ],
+      "minCm": 35
+    },
+    {
+      "country": "AD",
+      "scope": "adlocal",
+      "source": "adlocal",
+      "species": [
+        "Salmo trutta",
+        "Oncorhynchus mykiss",
+        "Salvelinus fontinalis"
+      ],
+      "closed": [
+        "10-12",
+        "03-31"
+      ]
+    },
+    {
+      "country": "BA",
+      "scope": "balocal",
+      "source": "balocal",
+      "species": [
+        "Esox lucius"
+      ],
+      "minCm": 40,
+      "closed": [
+        "02-01",
+        "03-31"
+      ]
+    },
+    {
+      "country": "BA",
+      "scope": "balocal",
+      "source": "balocal",
+      "species": [
+        "Cyprinus carpio"
+      ],
+      "minCm": 35
+    },
+    {
+      "country": "BG",
+      "scope": "bglocal",
+      "source": "bglocal",
+      "species": [
+        "Esox lucius"
+      ],
+      "minCm": 35
+    },
+    {
+      "country": "BG",
+      "scope": "bglocal",
+      "source": "bglocal",
+      "species": [
+        "Leuciscus idus"
+      ],
+      "minCm": 22
+    },
+    {
+      "country": "BG",
+      "scope": "bglocal",
+      "source": "bglocal",
+      "species": [
+        "Cyprinus carpio"
+      ],
+      "minCm": 30
+    },
+    {
+      "country": "BG",
+      "scope": "bglocal",
+      "source": "bglocal",
+      "species": [
+        "Tinca tinca"
+      ],
+      "minCm": 20
+    },
+    {
+      "country": "BG",
+      "scope": "bglocal",
+      "source": "bglocal",
+      "species": [
+        "Abramis brama"
+      ],
+      "minCm": 20
+    },
+    {
+      "country": "BY",
+      "scope": "bylocal",
+      "source": "bylocal",
+      "species": [
+        "Esox lucius"
+      ],
+      "minCm": 40
+    },
+    {
+      "country": "BY",
+      "scope": "bylocal",
+      "source": "bylocal",
+      "species": [
+        "Sander lucioperca"
+      ],
+      "minCm": 40
+    },
+    {
+      "country": "BY",
+      "scope": "bylocal",
+      "source": "bylocal",
+      "species": [
+        "Tinca tinca"
+      ],
+      "minCm": 22
+    },
+    {
+      "country": "BY",
+      "scope": "bylocal",
+      "source": "bylocal",
+      "species": [
+        "Cyprinus carpio"
+      ],
+      "minCm": 20
+    },
+    {
+      "country": "CH",
+      "scope": "chlocal",
+      "source": "chlocal",
+      "species": [
+        "Esox lucius"
+      ],
+      "minCm": 45
+    },
+    {
+      "country": "CH",
+      "scope": "chlocal",
+      "source": "chlocal",
+      "species": [
+        "Thymallus thymallus"
+      ],
+      "minCm": 35
+    },
+    {
+      "country": "LI",
+      "scope": "lilocal",
+      "source": "lilocal",
+      "species": [
+        "Oncorhynchus mykiss"
+      ],
+      "minCm": 25
+    },
+    {
+      "country": "LI",
+      "scope": "lilocal",
+      "source": "lilocal",
+      "species": [
+        "Thymallus thymallus"
+      ],
+      "minCm": 35
+    },
+    {
+      "country": "LI",
+      "scope": "lilocal",
+      "source": "lilocal",
+      "species": [
+        "Anguilla anguilla"
+      ],
+      "minCm": 50
+    },
+    {
+      "country": "LI",
+      "scope": "lilocal",
+      "source": "lilocal",
+      "species": [
+        "Cyprinus carpio"
+      ],
+      "minCm": 30
+    },
+    {
+      "country": "LI",
+      "scope": "lilocal",
+      "source": "lilocal",
+      "species": [
+        "Lota lota"
+      ],
+      "minCm": 30
+    },
+    {
+      "country": "LI",
+      "scope": "lilocal",
+      "source": "lilocal",
+      "species": [
+        "Perca fluviatilis"
+      ],
+      "minCm": 25
+    },
+    {
+      "country": "IS",
+      "scope": "islocal",
+      "source": "islocal",
+      "species": [
+        "Salmo salar"
+      ],
+      "closed": [
+        "01-01",
+        "12-31"
+      ]
+    },
+    {
+      "country": "MC",
+      "scope": "mclocal",
+      "source": "mclocal",
+      "species": [
+        "Epinephelus marginatus",
+        "Mycteroperca rubra",
+        "Epinephelus aeneus",
+        "Epinephelus caninus",
+        "Epinephelus costae",
+        "Sciaena umbra"
+      ],
+      "closed": [
+        "01-01",
+        "12-31"
+      ]
+    },
+    {
+      "country": "MD",
+      "scope": "mdlocal",
+      "source": "mdlocal",
+      "species": [],
+      "allFreshwater": true,
+      "closed": [
+        "04-01",
+        "06-30"
+      ]
+    },
+    {
+      "country": "RO",
+      "scope": "rolocal",
+      "source": "rolocal",
+      "species": [
+        "Acipenser nudiventris",
+        "Acipenser gueldenstaedtii",
+        "Acipenser stellatus",
+        "Acipenser ruthenus",
+        "Huso huso",
+        "Acipenser sturio"
+      ],
+      "closed": [
+        "01-01",
+        "12-31"
+      ]
+    },
+    {
+      "country": "TR",
+      "scope": "trlocal",
+      "source": "trlocal",
+      "species": [
+        "Cyprinus carpio"
+      ],
+      "minCm": 40
+    },
+    {
+      "country": "TR",
+      "scope": "trlocal",
+      "source": "trlocal",
+      "species": [
+        "Sander lucioperca"
+      ],
+      "minCm": 26
+    },
+    {
+      "country": "TR",
+      "scope": "trlocal",
+      "source": "trlocal",
+      "species": [
+        "Esox lucius"
+      ],
+      "minCm": 40
+    },
+    {
+      "country": "TR",
+      "scope": "trlocal",
+      "source": "trlocal",
+      "species": [
+        "Silurus glanis"
+      ],
+      "minCm": 90
+    },
+    {
+      "country": "TR",
+      "scope": "trlocal",
+      "source": "trlocal",
+      "species": [
+        "Perca fluviatilis"
+      ],
+      "minCm": 18
+    },
+    {
+      "country": "UA",
+      "scope": "ualocal",
+      "source": "ualocal",
+      "species": [
+        "Esox lucius"
+      ],
+      "minCm": 50
+    },
+    {
+      "country": "UA",
+      "scope": "ualocal",
+      "source": "ualocal",
+      "species": [
+        "Sander lucioperca"
+      ],
+      "minCm": 42
+    },
+    {
+      "country": "LU",
+      "scope": "lulocal",
+      "source": "lulocal",
+      "species": [
+        "Esox lucius"
+      ],
+      "minCm": 50
+    },
+    {
+      "country": "LU",
+      "scope": "lulocal",
+      "source": "lulocal",
+      "species": [
+        "Sander lucioperca"
+      ],
+      "minCm": 45
+    },
+    {
+      "country": "LU",
+      "scope": "lulocal",
+      "source": "lulocal",
+      "species": [
+        "Tinca tinca"
+      ],
+      "minCm": 25
+    },
+    {
+      "country": "XK",
+      "scope": "xklocal",
+      "source": "xklocal",
+      "species": [
+        "Cyprinus carpio"
+      ],
+      "retentionClosed": [
+        "04-15",
+        "05-31"
+      ]
+    },
+    {
+      "country": "RS",
+      "scope": "rslocal",
+      "source": "rslocal",
+      "species": [
+        "Esox lucius"
+      ],
+      "minCm": 40
+    },
+    {
+      "country": "RS",
+      "scope": "rslocal",
+      "source": "rslocal",
+      "species": [
+        "Cyprinus carpio"
+      ],
+      "minCm": 30
+    },
+    {
+      "country": "RS",
+      "scope": "rslocal",
+      "source": "rslocal",
+      "species": [
+        "Silurus glanis"
+      ],
+      "minCm": 60
+    },
+    {
+      "country": "RS",
+      "scope": "rslocal",
+      "source": "rslocal",
+      "species": [
+        "Sander lucioperca"
+      ],
+      "minCm": 40
+    }
+  ]
+}

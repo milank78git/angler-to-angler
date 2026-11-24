@@ -29,7 +29,7 @@ public final class AccountActivity extends Activity {
   private JSONObject profile;
 
   private String text(String cz, String en) {
-    return cs ? cz : en;
+    return AppLanguage.text(this, cz, en);
   }
 
   @Override
@@ -249,6 +249,8 @@ public final class AccountActivity extends Activity {
         ui.field(
             text("E-mail", "Email"),
             InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+    ui.explain(field.getHint().toString(), text("Použij adresu, kterou jsi ověřil při registraci. Na stejnou adresu přijde odkaz pro obnovu hesla.",
+        "Use the address you verified at registration. Password recovery links go to the same address."), field);
     field.setAutofillHints(View.AUTOFILL_HINT_USERNAME, View.AUTOFILL_HINT_EMAIL_ADDRESS);
     field.setText(email);
     return field;
@@ -269,6 +271,10 @@ public final class AccountActivity extends Activity {
         ui.field(
             fresh ? text("Nové heslo", "New password") : text("Heslo", "Password"),
             InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+    ui.explain(field.getHint().toString(), fresh
+        ? text("Zvol heslo pro další přihlášení k tomuto účtu.", "Choose a password for future sign-ins to this account.")
+        : text("Zadej heslo nastavené při registraci. Zapomenuté heslo obnovíš odkazem z přihlašovací obrazovky.",
+            "Enter the password set at registration. Use password recovery on the sign-in screen if you have forgotten it."), field);
     field.setSaveEnabled(false);
     field.setAutofillHints(fresh ? "newPassword" : View.AUTOFILL_HINT_PASSWORD);
     return field;

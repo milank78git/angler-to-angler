@@ -1,12 +1,13 @@
-import { by, cs, esc, t, confirmAction, submitChange, trackEdits, toast } from './ui.js';
+import { languageTag } from './i18n.js';
+import { by, esc, t, confirmAction, submitChange, trackEdits, toast } from './ui.js';
 import { rpc } from './profile-api.js';
 
 const criteria = [
   ['accuracy', t('Přesnost údajů', 'Accuracy of information')],
   ['technique', t('Popis techniky', 'Technique description')],
-  ['match', t('Soulad s náhledem', 'Match with preview')],
+  ['match', t('Odpovídal tip tomu, co autor slíbil?', 'Did the tip deliver what the author promised?')],
 ];
-const decimal = new Intl.NumberFormat(cs ? 'cs-CZ' : 'en-GB', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const decimal = new Intl.NumberFormat(languageTag, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
 function breakdown(scores, average = false) {
   return '<dl class="rating-breakdown">' + criteria.map(([key, label]) =>

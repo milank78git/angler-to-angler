@@ -1,3 +1,4 @@
+import { rpc } from './profile-api.js';
 import * as Domain from './domain.js';
 import {
   screen,
@@ -78,9 +79,12 @@ export function listWaters({ view, pack, nav }) {
   const cover = pack.waters.find((w) => w.id === pack.coverWater) || pack.waters[0];
   screen.innerHTML = `<section class="hero">${photo(cover, 'hero-img')}<div class="hero-copy"><div class="hero-meta">${icon('map-pin')}${esc(loc(pack.label))}</div><h1>${t('Atlas revírů', 'Water atlas')}</h1></div>
     <span class="photo-place">${esc(cover?.name || '')}</span></section>
+    <div class="quick-actions home-features">${button('home-market', t('Tržiště tipů', 'Tip market'), 'primary')}${button('home-fish', t('Katalog ryb', 'Fish catalogue'), 'secondary', 'fish-symbol')}</div>
     <div class="catalog-tools"><div class="search-box">${icon('search')}<label class="sr" for="search">${t('Název, číslo revíru nebo obec', 'Name, water number or town')}</label><input type="search" id="search" value="${esc(route.query || '')}" placeholder="${t('Hledat název, číslo nebo obec', 'Search waters, numbers or towns')}"></div>
     <div class="filter-row"><div class="segments">${button('all', t('Všechny', 'All'))}${button('saved', t('Oblíbené', 'Favorites'), '', 'bookmark')}</div><span class="count" id="found" role="status"></span></div></div>
     <div id="waters" class="water-list"></div>${credits(...pack.waters)}`;
+  bind('home-market', () => nav.open('marketShelf'));
+  bind('home-fish', () => nav.open('fishCatalogue'));
   function results() {
     const q = Domain.fold(route.query || '');
     const matches = pack.waters.filter(
@@ -148,10 +152,19 @@ export function waterScreen({ view, pack, rivers, nav }) {
   screen.innerHTML =
     back(t('Atlas revírů', 'Water atlas')) +
     `<section class="hero detail-hero">${photo(w, 'hero-img')}<div class="hero-copy"><div class="hero-meta">${icon('map-pin')}${esc(w.number)} · ${esc(loc(pack.label))}</div><h1>${esc(w.name)}</h1></div>${favoriteButton(pack, w)}</section><p class="area-line">${icon('route')}${esc(w.area)}</p>
-    <div class="quick-actions">${button('new-trip', t('Zapsat výpravu', 'Log a trip'), 'primary', 'plus')}${button('open-rules', t('Hájení a míry', 'Seasons & sizes'), 'secondary', 'calendar-days')}${button('open-discussion', t('Dotazy u revíru', 'Water questions'), 'secondary')}${button('open-activity', t('Aktivita na revíru', 'Water activity'), 'secondary')}</div>
+    <div class="quick-actions">${button('water-market',t('Nabídky na revíru','Offers on this water'),'secondary')}${button('new-trip', t('Zapsat výpravu', 'Log a trip'), 'primary', 'plus')}${button('open-rules', t('Hájení a míry', 'Seasons & sizes'), 'secondary', 'calendar-days')}${button('open-discussion', t('Dotazy u revíru', 'Water questions'), 'secondary')}${button('open-activity', t('Aktivita na revíru', 'Water activity'), 'secondary')}</div>
     <div class="columns"><section class="surface">${sectionTitle('map', t('Mapa revíru', 'Water map'))}${waterMap(w, rivers)}<ul class="legend">${landmark('1', loc(w.ends[0]))}${landmark('2', loc(w.ends[1]))}${landmark('!', loc(w.restriction))}${w.access ? landmark('A', loc(w.access)) : ''}</ul></section>
     <section class="surface">${sectionTitle('navigation', t('Přístup k vodě', 'Getting to the water'))}${w.access ? `<p>${esc(loc(w.access))}</p><div class="actions">${button('navigate', t('Otevřít navigaci', 'Open directions'), 'secondary', 'navigation')}</div><div class="rulesrc">${link(w.access.source, t('Zdroj přístupového bodu', 'Access point source'))}</div>` : `<p class="muted">${t('Pro tento revír chybí ověřený přístupový bod.', 'This pack has no verified access point for this water.')}</p>`}</section></div>${credits(w)}`;
   bindBack(nav);
+  const waterKey = pack.country + ':' + w.id;
+  const marketButton = by('water-market');
+  bind('water-market', () => nav.open('marketShelf', { water: waterKey }));
+  // Availability is online. The atlas and the link remain usable while counts load or fail.
+  rpc('market_discover', { water_key: waterKey, before_position: null }).then(result => {
+    if (view.active()) marketButton.querySelector('span').textContent += ' (' + result.stats.offers + ')';
+  }).catch(() => {
+    if (view.active()) marketButton.querySelector('span').textContent += ' · ' + t('Počet nedostupný','Count unavailable');
+  });
   bind('new-trip', () => nav.open('newTrip', { water: w.id }));
   bind('open-activity', () => nav.open('waterActivity', { id: w.id }));
   bind('open-discussion', () => nav.open('waterDiscussion', { id: w.id }));

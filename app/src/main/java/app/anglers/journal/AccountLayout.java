@@ -169,15 +169,46 @@ final class AccountLayout {
     TextView heading = text(title, 28, ink, Typeface.create("sans-serif-medium", 0));
     if (android.os.Build.VERSION.SDK_INT >= 28) heading.setAccessibilityHeading(true);
     form.addView(heading);
+    Button help = new Button(activity);
+    help.setText(AppLanguage.text(activity, "Nápověda", "Help"));
+    help.setOnClickListener(v -> showGuide());
+    form.addView(help);
     status = text("", 15, muted, Typeface.DEFAULT);
     status.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
     add(form, status, 8);
     status.setVisibility(View.GONE);
   }
 
+  /** Open the same bundled guide during sign-in, without exposing the authenticated bridge. */
+  private void showGuide() {
+    android.webkit.WebView web = new android.webkit.WebView(activity);
+    web.getSettings().setJavaScriptEnabled(true);
+    web.getSettings().setDomStorageEnabled(true);
+    web.getSettings().setAllowFileAccess(false);
+    web.getSettings().setAllowContentAccess(false);
+    web.setWebViewClient(new LocalAssetClient(activity.getAssets(), ignored -> {}));
+    String topic = activity instanceof GroupsActivity ? "groups" : "accounts";
+    web.loadUrl("https://journal.invalid/guide.html?lang=" + activity.getResources().getConfiguration().getLocales().get(0).toLanguageTag() + "#" + topic);
+    android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(activity)
+        .setView(web).setPositiveButton(android.R.string.ok, null).create();
+    dialog.setOnDismissListener(ignored -> web.destroy());
+    dialog.show();
+  }
+
   void message(String message) {
     status.setText(message);
     status.setVisibility(message.isEmpty() ? View.GONE : View.VISIBLE);
+  }
+
+  /** Provide the same explanation on a tap, a long press and through accessibility focus. */
+  void explain(String fieldName, String explanation, View field) {
+    field.setTooltipText(explanation);
+    Button info = new Button(activity);
+    info.setText(AppLanguage.text(activity, "Vysvětlit", "Explain") + " · " + fieldName);
+    info.setAllCaps(false);
+    info.setOnClickListener(v -> new android.app.AlertDialog.Builder(activity).setTitle(fieldName)
+        .setMessage(explanation).setPositiveButton(android.R.string.ok, null).show());
+    ((LinearLayout) field.getParent()).addView(info);
   }
 
   TextView label(String s) {

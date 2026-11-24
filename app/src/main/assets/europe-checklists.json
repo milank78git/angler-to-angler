@@ -1,0 +1,60 @@
+{
+  "AD": {
+    "source": "https://www.govern.ad/ca/tematiques/medi-ambient-i-sostenibilitat/pesca",
+    "species": [
+      "Salmo trutta",
+      "Salvelinus fontinalis"
+    ]
+  },
+  "GE": {
+    "source": "https://www.biodiversitylibrary.org/part/422202",
+    "species": [
+      "Pseudorasbora parva",
+      "Carassius gibelio",
+      "Rutilus rutilus",
+      "Squalius cephalus"
+    ]
+  },
+  "LI": {
+    "source": "https://www.fischen.li/CFDOCS/cms/cmsout/index.cfm?GroupID=210&meID=99",
+    "species": [
+      "Salmo trutta",
+      "Oncorhynchus mykiss",
+      "Thymallus thymallus",
+      "Squalius cephalus",
+      "Abramis brama",
+      "Chondrostoma nasus",
+      "Barbus barbus",
+      "Perca fluviatilis",
+      "Lota lota",
+      "Anguilla anguilla",
+      "Esox lucius"
+    ]
+  },
+  "MD": {
+    "source": "https://zoology.usm.md/sites/default/files/2021-04/Culegere%20cu%20coperta%20Conferinta%202016.pdf",
+    "species": [
+      "Perca fluviatilis",
+      "Rutilus rutilus",
+      "Esox lucius",
+      "Abramis brama",
+      "Sander lucioperca",
+      "Pseudorasbora parva",
+      "Lepomis gibbosus"
+    ]
+  },
+  "SM": {
+    "source": "https://www.consigliograndeegenerale.sm/contents/instance18/files/document/17124046MaterialeVNR%5BVer.pdf",
+    "species": [
+      "Barbus plebejus",
+      "Squalius cephalus"
+    ]
+  },
+  "XK": {
+    "source": "https://ammk-rks.net/assets/cms/uploads/files/Publikime-raporte/Raporti_Natyra_Shqip.pdf",
+    "species": [
+      "Barbus barbus",
+      "Squalius cephalus"
+    ]
+  }
+}

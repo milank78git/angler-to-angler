@@ -1,0 +1,74 @@
+{
+  "Esox lucius": {
+    "en": "Northern pike",
+    "cs": "Štika obecná"
+  },
+  "Sander lucioperca": {
+    "en": "Zander",
+    "cs": "Candát obecný"
+  },
+  "Cyprinus carpio": {
+    "en": "Common carp",
+    "cs": "Kapr obecný"
+  },
+  "Tinca tinca": {
+    "en": "Tench",
+    "cs": "Lín obecný"
+  },
+  "Silurus glanis": {
+    "en": "Wels catfish",
+    "cs": "Sumec velký"
+  },
+  "Perca fluviatilis": {
+    "en": "European perch",
+    "cs": "Okoun říční"
+  },
+  "Barbus barbus": {
+    "en": "Common barbel",
+    "cs": "Parma obecná"
+  },
+  "Rutilus rutilus": {
+    "en": "Common roach",
+    "cs": "Plotice obecná"
+  },
+  "Abramis brama": {
+    "en": "Common bream",
+    "cs": "Cejn velký"
+  },
+  "Salmo trutta": {
+    "en": "Brown trout",
+    "cs": "Pstruh obecný"
+  },
+  "Salmo salar": {
+    "en": "Atlantic salmon",
+    "cs": "Losos obecný"
+  },
+  "Oncorhynchus mykiss": {
+    "en": "Rainbow trout",
+    "cs": "Pstruh duhový"
+  },
+  "Thymallus thymallus": {
+    "en": "European grayling",
+    "cs": "Lipan podhorní"
+  },
+  "Anguilla anguilla": {
+    "en": "European eel",
+    "cs": "Úhoř říční"
+  },
+  "Lota lota": {
+    "en": "Burbot",
+    "cs": "Mník jednovousý"
+  },
+  "Gadus morhua": {
+    "en": "Atlantic cod",
+    "cs": "Treska obecná"
+  },
+  "Clupea harengus": {
+    "en": "Atlantic herring",
+    "cs": "Sleď obecný"
+  },
+  "Scomber scombrus": {
+    "en": "Atlantic mackerel",
+    "cs": "Makrela obecná"
+  }
+}

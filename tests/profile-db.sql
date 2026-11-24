@@ -38,4 +38,5 @@ do $$begin if exists(select from angler_private.acceptances) or exists(select fr
 \ir public-cards-db.sql
 \ir market-db.sql
 \ir ratings-db.sql
+\ir europe-market-db.sql
 rollback;

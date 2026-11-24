@@ -263,6 +263,7 @@ final class AccountChecks {
                                           body)
                                       .toString();
                               break;
+                            case "/rest/v1/rpc/angler_market_discover":
                             case "/rest/v1/rpc/angler_market_list":
                             case "/rest/v1/rpc/angler_market_detail":
                             case "/rest/v1/rpc/angler_market_activate":

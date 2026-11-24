@@ -1,0 +1,327 @@
+{
+  "start": {
+    "pages": [
+      "waters"
+    ],
+    "title": {
+      "cs": "Jak začít",
+      "en": "Getting started"
+    },
+    "steps": [
+      {
+        "cs": "Na úvodní obrazovce otevři Tržiště tipů, Katalog ryb nebo vyhledej revír podle názvu, čísla či obce. Záložka uloží oblíbený revír do telefonu.",
+        "en": "From the home screen open the tip market, open the fish catalogue or search for a water by name, number or town. Bookmark a water to save it on this phone."
+      },
+      {
+        "cs": "Spodní nabídka přepíná atlas, hájení a osobní deník. Profil otevírá účet, skupiny a soukromé zprávy. Toto tlačítko nápovědy je dostupné i uvnitř formuláře.",
+        "en": "Use the bottom bar for the atlas, seasons and your journal. Profile opens your account, groups and messages. Help also works while filling in a form."
+      }
+    ]
+  },
+  "catalog": {
+    "pages": [
+      "fishCatalogue",
+      "fishDetail"
+    ],
+    "title": {
+      "cs": "Katalog ryb a poloha",
+      "en": "Fish catalogue and location"
+    },
+    "steps": [
+      {
+        "cs": "Vyber stát, nebo klepni na Zjistit stát podle polohy. Souřadnice se porovnají s hranicemi v telefonu. U hranice nebo na moři vyber stát ručně.",
+        "en": "Choose a country or tap Find country by location. Coordinates are compared with borders on your phone. Near a border or at sea, select the country yourself."
+      },
+      {
+        "cs": "Vyhledej místní nebo vědecký název. Seznam pro stát vychází z doložených pozorování. Celý katalog zahrnuje i druhy bez takového záznamu. V detailu najdeš vědecký název, dostupné údaje o výskytu a zdroje.",
+        "en": "Search using a local or scientific name. Country lists use recorded observations. The full catalogue also includes species without such records. Open a species for its scientific name, available distribution and sources."
+      },
+      {
+        "cs": "Před lovem zkontroluj pravidla pro konkrétní vodu a datum. Prázdná míra nebo chybějící období znamená, že údaj čeká na ověření.",
+        "en": "Check the rules for the actual water and date before fishing. An empty size limit or missing season means that the information still needs verification."
+      }
+    ]
+  },
+  "waters": {
+    "pages": [
+      "water",
+      "rules",
+      "waterRules"
+    ],
+    "title": {
+      "cs": "Revír, míry a hájení",
+      "en": "Waters, size limits and seasons"
+    },
+    "steps": [
+      {
+        "cs": "Otevři revír v atlasu. Mapa ukazuje hranice a vyznačené úseky. V nabídkách na revíru najdeš tipy, pro které autor zveřejnil tento revír.",
+        "en": "Open a water in the atlas. The map shows boundaries and marked sections. Offers on this water lists tips whose author published this water."
+      },
+      {
+        "cs": "V Hájení a míry vyber revír, úsek, druh a den lovu. Otevři odkaz správce pro místní omezení. Upozornění vyžaduje povolení oznámení v Androidu.",
+        "en": "In Seasons and sizes select the water, section, species and fishing date. Follow the manager link for local restrictions. Reminders need notification permission in Android."
+      }
+    ]
+  },
+  "journal": {
+    "pages": [
+      "trips",
+      "trip",
+      "newTrip"
+    ],
+    "title": {
+      "cs": "Deník a výpravy",
+      "en": "Journal and trips"
+    },
+    "steps": [
+      {
+        "cs": "Z deníku nebo detailu revíru založ výpravu, vyber vodu a den. Ulož ji i bez úlovku. Vlastní název vody zůstane soukromým zápisem.",
+        "en": "Start a trip from the journal or a water, choose the water and day and save it even without a catch. A custom water name stays in your private journal."
+      },
+      {
+        "cs": "Otevři uloženou výpravu a přidej jednotlivé úlovky. Deník funguje offline. Smazání výpravy odstraní i její místní úlovky a fotografie; zveřejněné kopie se spravují zvlášť.",
+        "en": "Open the saved trip and add each catch. The journal works offline. Deleting a trip removes its local catches and photos. Manage published copies separately."
+      }
+    ]
+  },
+  "catch": {
+    "pages": [
+      "newCatch"
+    ],
+    "title": {
+      "cs": "Úlovek, fotografie a poloha",
+      "en": "Catch, photo and location"
+    },
+    "steps": [
+      {
+        "cs": "Vyber rybu, vyplň změřenou délku v centimetrech a podle potřeby nástrahu či techniku. Nepoznaný druh si můžeš v soukromém deníku popsat vlastními slovy.",
+        "en": "Choose the fish, enter its measured length in centimetres and optionally its bait or technique. You may describe an unidentified fish in your private journal."
+      },
+      {
+        "cs": "Pro doložení úlovku vyfoť celou rybu u vody s měřítkem. Soukromá poloha rozlišuje stanoviště rybáře a místo záběru. Telefon se na polohu zeptá až po klepnutí.",
+        "en": "To document a catch photograph the whole fish at the water with a scale. A private point can mark the angler’s position or the bite location. The phone requests location when you tap."
+      }
+    ]
+  },
+  "share": {
+    "pages": [
+      "shareCard",
+      "publicCardEditor",
+      "myPublicCards"
+    ],
+    "title": {
+      "cs": "Sdílení a veřejné karty",
+      "en": "Sharing and public cards"
+    },
+    "steps": [
+      {
+        "cs": "U úlovku nebo výpravy vyber sdílení. Zaškrtni jen údaje, které chceš předat, zkontroluj náhled a zvol Android nebo vlastní partu.",
+        "en": "Choose sharing on a catch or trip. Select the fields to include, review the preview and choose Android sharing or your group."
+      },
+      {
+        "cs": "Veřejnou kartu otevře každý s odkazem. V Profilu pod Moje veřejné karty můžeš odkaz zrušit. Dříve uložené kopie si příjemci mohou ponechat.",
+        "en": "Anyone with the public card link can read it. Revoke it under Profile, My public cards. Recipients may retain copies saved earlier."
+      }
+    ]
+  },
+  "market": {
+    "pages": [
+      "marketShelf",
+      "marketDetail"
+    ],
+    "title": {
+      "cs": "Tržiště, nákup a statistika",
+      "en": "Market, purchases and statistics"
+    },
+    "steps": [
+      {
+        "cs": "Na úvodní obrazovce otevři Tržiště tipů. U každé nabídky najdeš autora, cílovou rybu, cenu, prodeje a dostupnost. Z detailu revíru se otevře výběr jen pro tuto vodu.",
+        "en": "Open Tip market on the home screen. Each offer shows its author, target fish, price, sales and availability. Opening it from a water filters the list to that water."
+      },
+      {
+        "cs": "Hodnocení tipu pochází z nákupů dané nabídky. Hodnocení autora zahrnuje všechny jeho hodnocené prodeje. Počet nákupů ani známky nedokládají počet ulovených ryb.",
+        "en": "The tip rating comes from purchases of that offer. The author rating covers all their rated sales. Sales and ratings do not measure the number of fish caught."
+      },
+      {
+        "cs": "Vyzvedni si testovací kredity, otevři tip a potvrď zobrazenou cenu. V Zakoupených tipech se vrátíš k odemčené verzi i po stažení nabídky. Při výpadku můžeš požadavek zopakovat.",
+        "en": "Claim test credits, open a tip and confirm the displayed price. Purchased tips retains the unlocked version after withdrawal. After a connection failure you can retry."
+      }
+    ]
+  },
+  "sell": {
+    "pages": [
+      "marketEditor"
+    ],
+    "title": {
+      "cs": "Jak nabídnout tip",
+      "en": "How to publish a tip"
+    },
+    "steps": [
+      {
+        "cs": "V tržišti zvol Nabídnout techniku. Vyber cílový druh z katalogu a případně přesný revír ze seznamu. Podle těchto hodnot se nabídka objeví ve vyhledávání.",
+        "en": "Choose Offer a technique in the market. Select a catalogue species and optionally a listed water. These choices determine where people can find the offer."
+      },
+      {
+        "cs": "Popiš postup pro kupující, nastav cenu a případný celkový počet prodejů. Před zveřejněním si prohlédni veřejný náhled. Nabídky můžeš upravit nebo stáhnout v Moje nabídky.",
+        "en": "Write the buyer instructions, set the price and optionally cap total sales. Check the public preview before publishing. Edit or withdraw listings under My offers."
+      }
+    ]
+  },
+  "ratings": {
+    "pages": [],
+    "title": {
+      "cs": "Jak známkovat tip",
+      "en": "How to rate a tip"
+    },
+    "steps": [
+      {
+        "cs": "V zakoupeném tipu ohodnoť přesnost údajů, srozumitelnost postupu a to, zda obsah odpovídal nabídce před nákupem. Každou položku vyber od 1 do 5 a známky potvrď.",
+        "en": "Open the purchased tip and score accuracy, clarity of the method and whether the content matched the offer before purchase. Choose 1 to 5 for each and confirm."
+      },
+      {
+        "cs": "Jestli autor slíbil postup lovu candáta ze břehu a ten jsi dostal, nabídka odpovídá. Může odpovídat i tehdy, když se ti rybu nepodařilo ulovit.",
+        "en": "If the author promised a shore technique for zander and delivered it, the content matched the offer. This can be true even if you caught nothing."
+      }
+    ]
+  },
+  "profile": {
+    "pages": [
+      "anglerProfile",
+      "editProfile",
+      "directory"
+    ],
+    "title": {
+      "cs": "Profil a soukromí",
+      "en": "Profile and privacy"
+    },
+    "steps": [
+      {
+        "cs": "V Profilu uprav přezdívku podle dostupných nastavení, portrét a údaje o sobě. Přepínač zveřejnění určí, zda kartu uvidí jiní přihlášení rybáři. V adresáři najdeš zveřejněné profily.",
+        "en": "Under Profile edit your available profile fields, portrait and biography. The publish switch controls visibility to other signed-in anglers. Find shared profiles in the directory."
+      },
+      {
+        "cs": "Profil rozlišuje úlovky doložené fotografií a hodnocení prodaných tipů. Zakoupené návody najdeš v tržišti na svém účtu.",
+        "en": "The profile distinguishes photo-documented catches from ratings of sold tips. Your purchased instructions are in the market on your account."
+      }
+    ]
+  },
+  "forum": {
+    "pages": [
+      "waterDiscussion",
+      "discussionComposer"
+    ],
+    "title": {
+      "cs": "Diskuse u revíru",
+      "en": "Water discussions"
+    },
+    "steps": [
+      {
+        "cs": "V detailu revíru otevři Dotazy u revíru. Založ otázku nebo otevři existující vlákno a odpověz na vybraný příspěvek. Autor dotazu může označit užitečnou odpověď.",
+        "en": "Open Water questions on a water. Ask a question or open a thread and reply to a particular post. The question author can mark a helpful answer."
+      },
+      {
+        "cs": "Vlastní text můžeš stáhnout, dokud na něj někdo neodpověděl. Pro závadný příspěvek použij Nahlásit. Pro domluvu mezi dvěma rybáři otevři soukromou odpověď.",
+        "en": "You can withdraw your own text until someone replies to it. Report a problematic post. Use a private reply to talk to one angler."
+      }
+    ]
+  },
+  "messages": {
+    "pages": [
+      "messageInbox",
+      "messageComposer",
+      "messageThread"
+    ],
+    "title": {
+      "cs": "Zprávy a reakce",
+      "en": "Messages and reactions"
+    },
+    "steps": [
+      {
+        "cs": "Z Profilu otevři Soukromé zprávy. Nový rozhovor můžeš začít soukromou odpovědí na dotaz. Před odesláním zkontroluj příjemce.",
+        "en": "Open Private messages from Profile. Start a new conversation using a private reply to a question. Check the recipient before sending."
+      },
+      {
+        "cs": "Emoji v textu píšeš klávesnicí. Tlačítko Reagovat připojí emoji ke konkrétní zprávě. Vlastní reakci můžeš změnit nebo odebrat. Ve vlákně můžeš účastníka blokovat nebo zprávu nahlásit.",
+        "en": "Type emoji in the text with your keyboard. React attaches an emoji to a particular message. Change or remove your own reaction. Block a participant or report a message in the thread."
+      }
+    ]
+  },
+  "groups": {
+    "pages": [
+      "weeklyGroups",
+      "weeklyBoard"
+    ],
+    "title": {
+      "cs": "Party a úlovek týdne",
+      "en": "Groups and catch of the week"
+    },
+    "steps": [
+      {
+        "cs": "V Profilu otevři Účet a správa part. Vytvoř partu nebo vlož pozvánku. Vlastník vydává kód pro jedno přijetí. Nový kód nahrazuje předchozí. Po odchodu ztratíš přístup ke skupinovým tipům.",
+        "en": "Open Account and group settings from Profile. Create a group or enter an invitation. An owner issues a single-use code. A new code replaces the previous one. Leaving removes access to group tips."
+      },
+      {
+        "cs": "U vyfotografovaného úlovku zvol Přihlásit do úlovku týdne a vyber partu. Člen může hlasovat pro cizí úlovek v daném kole. Starší kola otevři na nástěnce.",
+        "en": "On a photographed catch choose Enter catch of the week and select the group. Members can vote on other catches in the round. Open past rounds from the board."
+      }
+    ]
+  },
+  "activity": {
+    "pages": [
+      "activityContribution",
+      "myActivity",
+      "waterActivity"
+    ],
+    "title": {
+      "cs": "Statistika výprav",
+      "en": "Trip statistics"
+    },
+    "steps": [
+      {
+        "cs": "U ukončené výpravy zvol Výprava ve statistice. Vyber cílový druh a metodu a zkontroluj počet ryb. Přispět můžeš i nulovou výpravou.",
+        "en": "On a completed trip choose Trip contribution. Select a target and method and check the fish count. Blank trips may contribute too."
+      },
+      {
+        "cs": "V revíru otevři Aktivita na revíru a zvol měsíc. Údaje popisují sdílený vzorek výprav. Pod Profilem můžeš své příspěvky upravit nebo stáhnout.",
+        "en": "Open Water activity on a water and select the month. The figures describe contributed trips. Manage or withdraw your contributions under Profile."
+      }
+    ]
+  },
+  "evidence": {
+    "pages": [
+      "evidence",
+      "review"
+    ],
+    "title": {
+      "cs": "Kontrola fotografií",
+      "en": "Photo review"
+    },
+    "steps": [
+      {
+        "cs": "Fotografii pořízenou při lovu nejprve ulož k úlovku. Z detailu ji odešli ke kontrole a v Profilu otevři Moje odeslané fotky. Uvidíš výsledek nebo možnost žádost stáhnout.",
+        "en": "Save the capture to the catch first. Submit it from its detail and open My submitted catch photos under Profile to see the outcome or withdraw."
+      },
+      {
+        "cs": "Pověřený kontrolor rozliší délku odečtenou z měřítka a odhad podle předmětu známé velikosti. Fotka z galerie může zůstat v deníku.",
+        "en": "An assigned reviewer distinguishes a measured length from an estimate using a known-size reference. A gallery photo can stay in the journal."
+      }
+    ]
+  },
+  "accounts": {
+    "pages": [],
+    "title": {
+      "cs": "Účet, přihlášení a obnova",
+      "en": "Account, sign-in and recovery"
+    },
+    "steps": [
+      {
+        "cs": "Při registraci zadej e-mail a heslo. Potvrď zprávu na stejném telefonu a dokonči profil. Pro další přihlášení použij heslo nebo odemknutí telefonu, pokud sis ho nastavil.",
+        "en": "Register with email and password. Confirm the message on the same phone and complete your profile. Next time use the password or device unlock if you enabled it."
+      },
+      {
+        "cs": "Pro zapomenuté heslo použij obnovu a nejnovější odkaz z e-mailu. Z poštovní aplikace se můžeš vrátit systémovým tlačítkem Zpět. Správa účtu obsahuje odhlášení a smazání účtu.",
+        "en": "For a forgotten password request a reset and use the latest email link. Use Android Back to return from your mail app. Account settings include sign-out and account erasure."
+      }
+    ]
+  }
+}

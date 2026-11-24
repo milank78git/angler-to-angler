@@ -24,6 +24,10 @@ final class MarketChecks {
   JSONObject response(String op, JSONObject args) throws Exception {
     Object balance = activated ? (purchased ? 65 : 100) : JSONObject.NULL;
     switch (op) {
+      case "market_discover":
+        return new JSONObject().put("balance", balance).put("items", purchased ? new JSONArray() : new JSONArray().put(offer()))
+            .put("stats",new JSONObject().put("offers",purchased ? 0 : 1).put("authors",purchased ? 0 : 1)
+                .put("sales",0).put("ratings",0));
       case "market_list":
         JSONArray items = new JSONArray();
         if ((purchased ? "purchased" : "browse").equals(args.getString("shelf")))
@@ -58,8 +62,8 @@ final class MarketChecks {
   }
 
   static void run(Runner app) throws Exception {
-    app.clickReady("#profile");
-    app.clickReady("#tip-market");
+    app.clickReady("#tabwaters");
+    app.clickReady("#home-market");
     app.clickReady("#offer-0");
     app.waitFor("!!document.querySelector('#market-activate') && !document.querySelector('#market-technique')");
     app.clickReady("#market-activate");
