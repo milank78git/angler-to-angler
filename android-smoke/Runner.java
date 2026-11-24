@@ -143,6 +143,28 @@ public final class Runner extends Instrumentation {
     }
   }
 
+  /** Keep the accepted write visible when the first count refresh fails on an imported water. */
+  private void checkWaterReport() throws Exception {
+    setControl("#search", "401 024", "input");
+    clickReady("[data-water='CZ:CRS:4615417']");
+    String action = "button[aria-describedby='report-low_water']";
+    String status = "document.querySelector('#water-reports [role=status]').textContent";
+    clickReady(action);
+    clickReady("#confirmation-cancel");
+    clickReady(action);
+    clickReady("#confirmation-accept");
+    String receipt = org.json.JSONObject.quote(label("water_reports.recorded"));
+    waitFor(status + ".includes(" + receipt + ") && " + status + ".includes("
+        + org.json.JSONObject.quote(label("water_reports.reports_could_not_be_loaded")) + ")");
+    clickReady("#water-reports [role=status] + button");
+    waitFor(status + "===" + receipt + " && document.querySelector('#report-low_water').textContent.endsWith('(1)')");
+    clickReady(action);
+    clickReady("#confirmation-accept");
+    waitFor(status + "===" + org.json.JSONObject.quote(label("water_reports.withdrawn"))
+        + " && document.querySelector('#report-low_water').textContent.endsWith('(0)')");
+    clickReady("#back");
+  }
+
   private void form(String code) throws Exception {
     js(code + "; document.querySelector('form button.primary').click()");
   }
@@ -511,6 +533,7 @@ public final class Runner extends Instrumentation {
           + " && !!document.querySelector('#water-reports')");
       clickReady("#back");
       waitFor("document.querySelector('#search').value==='461 024'");
+      checkWaterReport();
       setControl("#water-country", "US", "change");
       waitFor("document.querySelectorAll('[data-water]').length===0");
       setControl("#search", "", "input");
