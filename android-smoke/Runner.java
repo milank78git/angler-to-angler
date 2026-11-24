@@ -63,7 +63,8 @@ public final class Runner extends Instrumentation {
     return value;
   }
 
-  void clickReady(String selector) throws Exception {
+  /** Wait for the destination's async render before sending an event to one of its controls. */
+  private String readyControl(String selector) throws Exception {
     String el = "document.querySelector(" + org.json.JSONObject.quote(selector) + ")";
     waitFor(
         "!!"
@@ -74,7 +75,17 @@ public final class Runner extends Instrumentation {
             + el
             + ".getClientRects().length>0 &&"
             + " document.querySelector('#screen').getAttribute('aria-busy')!=='true'");
-    js(el + ".click()");
+    return el;
+  }
+
+  void clickReady(String selector) throws Exception {
+    js(readyControl(selector) + ".click()");
+  }
+
+  private void setControl(String selector, String value, String event) throws Exception {
+    String el = readyControl(selector);
+    js("(() => { const field=" + el + "; field.value=" + org.json.JSONObject.quote(value)
+        + "; field.dispatchEvent(new Event(" + org.json.JSONObject.quote(event) + ",{bubbles:true})); })()");
   }
 
   void waitFor(String expr) throws Exception {
@@ -410,8 +421,8 @@ public final class Runner extends Instrumentation {
       capture("atlas");
       // Exercise the packaged guide and country rules through the same entry points as an angler.
       clickReady("#home-fish");
-      js("(() => { const country=document.querySelector('#fish-country'); country.value='CZ'; country.dispatchEvent(new Event('change')); })()");
-      js("(() => { const input=document.querySelector('#fish-query'); input.value='Alepocephalus agassizii'; input.dispatchEvent(new Event('input')); })()");
+      setControl("#fish-country", "CZ", "change");
+      setControl("#fish-query", "Alepocephalus agassizii", "input");
       waitFor("document.querySelector('#fish-results').childElementCount===0");
       clickReady("label[for=fish-query] + .field-hint");
       waitFor("document.querySelector('#guide-title').textContent===document.querySelector('label[for=fish-query]').textContent"
@@ -420,15 +431,14 @@ public final class Runner extends Instrumentation {
       waitFor("!!document.querySelector('#guide-body ol')");
       clickReady("#guide-close");
       waitFor("document.querySelector('#fish-query').value==='Alepocephalus agassizii'");
-      js("(() => { const input=document.querySelector('#fish-query'); input.value='Oncorhynchus mykiss'; input.dispatchEvent(new Event('input')); })()");
+      setControl("#fish-query", "Oncorhynchus mykiss", "input");
       clickReady("#fish-results button");
       waitFor("!!document.querySelector('#fish-rules > section article a')");
       clickReady("#back");
-      clickReady("#fish-query");
-      js("(() => { const input=document.querySelector('#fish-query'); input.value='Esox lucius'; input.dispatchEvent(new Event('input')); })()");
+      setControl("#fish-query", "Esox lucius", "input");
       clickReady("#fish-results button");
       waitFor("!!document.querySelector('#rule-country')");
-      js("(() => { const select=document.querySelector('#rule-country'); select.value='IE'; select.dispatchEvent(new Event('change')); })()");
+      setControl("#rule-country", "IE", "change");
       waitFor("!!document.querySelector('#fish-rules article a')");
       clickReady("#guide-open");
       waitFor("document.querySelector('#guide-dialog').open");
