@@ -115,6 +115,9 @@ test('catch history resolves pilot keys and scientific names without guessing fr
   const winter = catchRulesHtml(pack, directory, trout, '2027-01-01', 'Oncorhynchus mykiss');
   assert.equal((winter.match(/data-rule-status="closed"/g) || []).length, 1);
   assert.match(winter, /25 cm/);
+  const unidentified = catchRulesHtml(pack, directory, trout, '2027-01-01', undefined);
+  assert.match(unidentified, /data-rule-status="closed"/);
+  assert.doesNotMatch(unidentified, /25 cm|id="lookup-size"/);
   assert.doesNotMatch(catchRulesHtml(pack, directory, trout, '2028-01-01', 'Oncorhynchus mykiss'), /25 cm/);
   assert.doesNotMatch(catchRulesHtml(pack, directory, {...trout, country:'US'}, '2027-01-01', 'Esox lucius'), /data-rule-status/);
 });

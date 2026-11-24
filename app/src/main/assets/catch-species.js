@@ -29,7 +29,7 @@ export function catchRulesHtml(pack, directory, site, day, latin) {
   if (pilotId) {
     html += '<h3>' + esc(t('catch_picker.main_section')) + '</h3>' + localSeasonHtml(pack, pilot, 'main', pilotId, day);
   }
-  if (site.country === 'CZ' && directory && typeof site.trout === 'boolean' && latin) {
+  if (site.country === 'CZ' && directory && typeof site.trout === 'boolean') {
     return html + nationalRulesHtml(directory, site, site.trout ? 'cztrout' : 'nontrout', latin, day);
   }
   return html + '<p>' + esc(t('dated_rules.local')) + ' ' + link(site.source, site.name) + '</p>';

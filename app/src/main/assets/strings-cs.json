@@ -132,6 +132,7 @@
   "catch_picker.rules": "Pravidla pro tento úlovek",
   "catch_picker.scope": "Oblast hledání",
   "catch_picker.unavailable": "Katalog ryb se nepodařilo načíst. Název druhu můžeš zadat ručně.",
+  "catch_picker.unidentified_rules": "Lovnou míru a dobu hájení lze dohledat po určení druhu podle katalogu.",
   "catch_position.cancel_location_request": "Zrušit hledání polohy",
   "common.account_settings": "Nastavení účtu",
   "common.all": "Všechny",

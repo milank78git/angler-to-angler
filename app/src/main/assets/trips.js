@@ -121,7 +121,7 @@ export async function tripScreen({ view, nav, pack, waterDirectory }) {
     return;
   }
   const water = tripWater(waterDirectory, trip);
-  const fishes = catches.some(c => c.speciesId) ? await fishDirectory().catch(() => null) : null;
+  const fishes = catches.length ? await fishDirectory().catch(() => null) : null;
   if (!view.active()) return;
   const images = [];
   view.dispose = () => images.forEach((url) => URL.revokeObjectURL(url));
@@ -169,7 +169,7 @@ export async function tripScreen({ view, nav, pack, waterDirectory }) {
     const latin = catchLatin(c, pack, fishes);
     const name = fishes?.names.get(latin)?.label || (pack.species[c.speciesId] ? loc(pack.species[c.speciesId]) : c.speciesName || c.speciesId);
     article.innerHTML = catchDetails(c, name);
-    if (water && latin) {
+    if (water) {
       const details = document.createElement('details');
       details.className = 'fold';
       const summary = document.createElement('summary');

@@ -4,7 +4,7 @@ import { today, validDay } from './domain.js';
 import { bind, button, by, displayDay, esc, field, link, selectField, t } from './ui.js';
 
 /** Render one dated national reference in both the lookup screen and a private catch draft. */
-export function nationalRulesHtml(data, site, type, latin, day, withIds = false) {
+export function nationalRulesHtml(data, site, type, latin, day, lookup = false) {
   function entry(rule) {
     const source = data.rules.sources[rule.source];
     const status = forFishingDate(rule, source, day);
@@ -18,7 +18,7 @@ export function nationalRulesHtml(data, site, type, latin, day, withIds = false)
   }
 
   function section(id, title, rows, missing) {
-    return '<section class="surface"' + (withIds ? ' id="' + id + '"' : '') + '><h3>' + esc(t(title)) + '</h3>' +
+    return '<section class="surface"' + (lookup ? ' id="' + id + '"' : '') + '><h3>' + esc(t(title)) + '</h3>' +
       (rows.length ? rows.map(entry).join('') : '<p>' + esc(t(missing)) + '</p>') + '</section>';
   }
 
@@ -32,7 +32,7 @@ export function nationalRulesHtml(data, site, type, latin, day, withIds = false)
     if (latin) {
       result += section('lookup-size', 'fish_rules.size', rules.species.filter(rule => sizeTerms(rule).length), 'fish_rules.size_unverified') +
         section('lookup-closure', 'fish_rules.species_conditions', rules.species.filter(rule => rule.closed), 'fish_rules.no_species_conditions');
-    } else result += '<p>' + esc(t('dated_rules.choose_species')) + '</p>';
+    } else result += '<p>' + esc(t(lookup ? 'dated_rules.choose_species' : 'catch_picker.unidentified_rules')) + '</p>';
   }
   return result + '<p>' + esc(t('dated_rules.local')) + ' ' +
     link(site.source, site.name) + '</p>';

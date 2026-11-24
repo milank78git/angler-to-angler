@@ -132,6 +132,7 @@
   "catch_picker.rules": "Rules for this catch",
   "catch_picker.scope": "Search area",
   "catch_picker.unavailable": "The fish catalogue could not be loaded. You can still enter a species name.",
+  "catch_picker.unidentified_rules": "For species-specific sizes and closed seasons, the fish must be identified in the catalogue.",
   "catch_position.cancel_location_request": "Cancel location request",
   "common.account_settings": "Account settings",
   "common.all": "All",
