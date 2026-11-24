@@ -1300,4 +1300,5 @@ textarea {
 .guide-tools { display: flex; justify-content: space-between; gap: .5rem; }
 #guide-body li { margin-bottom: .8rem; line-height: 1.5; }
 #guide-body > div { display: grid; gap: .35rem; margin-top: .7rem; }
-.field-hint { min-height: 44px; min-width: 44px; margin: .2rem 0; padding: 2px 8px; border: 1px solid var(--border); border-radius: 12px; color: var(--primary); background: var(--surface); }
+/* Field help shares the 48px Android touch target defined for every button above. */
+.field-hint { margin: .2rem 0; padding: 2px 8px; border: 1px solid var(--border); border-radius: 12px; color: var(--primary); background: var(--surface); }
