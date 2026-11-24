@@ -1,3 +1,4 @@
+import { createWaterDirectory } from './water-directory.js';
 import { fishCatalogue, fishDetail } from './fish-catalogue.js';
 import { openGuide, closeGuide, attachHints } from './guide.js';
 import { contentLanguage } from './i18n.js';
@@ -143,13 +144,15 @@ async function start() {
     setTheme(mode);
   });
   try {
-    [catalog.pack, catalog.rivers, catalog.hints] = await Promise.all(
-      ['catalog.json', 'rivers.json', 'field-hints.json'].map(async (path) => {
+    const [pack, rivers, hints, snapshot] = await Promise.all(
+      ['catalog.json', 'rivers.json', 'field-hints.json', 'czech-waters.json'].map(async (path) => {
         const response = await fetch(path);
         if (!response.ok) throw Error(path);
         return response.json();
       }),
     );
+
+    Object.assign(catalog, { pack, rivers, hints, waterDirectory: createWaterDirectory(pack, snapshot) });
 
     const destinations = [
       ['waters', t('Revíry', 'Waters'), 'map'],

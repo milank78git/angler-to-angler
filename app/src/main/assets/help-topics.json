@@ -13,6 +13,10 @@
         "en": "From the home screen open the tip market, open the fish catalogue or search for a water by name, number or town. Bookmark a water to save it on this phone."
       },
       {
+        "cs": "V atlasu vyber zemi nebo zvol Seřadit podle polohy. Telefon spočítá vzdálenost k mapovanému revíru nebo jeho nejbližšímu známému bodu. Revíry bez souřadnic zůstanou na konci seznamu.",
+        "en": "In the atlas, select a country or choose Sort by location. Your phone measures the distance to the mapped water or its nearest known point. Waters without coordinates stay at the end."
+      },
+      {
         "cs": "Spodní nabídka přepíná atlas, hájení a osobní deník. Profil otevírá účet, skupiny a soukromé zprávy. Toto tlačítko nápovědy je dostupné i uvnitř formuláře.",
         "en": "Use the bottom bar for the atlas, seasons and your journal. Profile opens your account, groups and messages. Help also works while filling in a form."
       }
@@ -54,12 +58,16 @@
     },
     "steps": [
       {
-        "cs": "Otevři revír v atlasu. Mapa ukazuje hranice a vyznačené úseky. V nabídkách na revíru najdeš tipy, pro které autor zveřejnil tento revír.",
-        "en": "Open a water in the atlas. The map shows boundaries and marked sections. Offers on this water lists tips whose author published this water."
+        "cs": "Na kartě revíru najdeš odkaz na správce. V českém atlasu otevřeš také nabídky na revíru, příspěvky rybářů a hlášení od vody. Podrobné pilotní karty navíc obsahují mapu a místní hájení.",
+        "en": "Open a water to find its official source. Czech entries also link to local offers, angler contributions and water reports. The detailed pilot entries include a map and local seasons."
       },
       {
         "cs": "V Hájení a míry vyber revír, úsek, druh a den lovu. Otevři odkaz správce pro místní omezení. Upozornění vyžaduje povolení oznámení v Androidu.",
         "en": "In Seasons and sizes select the water, section, species and fishing date. Follow the manager link for local restrictions. Reminders need notification permission in Android."
+      },
+      {
+        "cs": "Nízký stav vody, úhyn ryb a pozorované uzavření se počítají pro každý revír zvlášť. Tři různé účty se stejným pozorováním během 24 hodin zvýrazní upozornění. Vlastní hlášení můžeš stáhnout. Aktuální omezení lovu ověř u správce.",
+        "en": "Low water, fish deaths and reported closures are counted separately for each water. Three distinct accounts reporting the same issue within 24 hours highlight the alert. You can withdraw your own report. Check current fishing restrictions with the manager."
       }
     ]
   },

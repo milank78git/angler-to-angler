@@ -444,6 +444,19 @@ public final class Runner extends Instrumentation {
       waitFor("document.querySelector('#guide-dialog').open");
       clickReady("#guide-close");
       clickReady("#tabwaters");
+      // Follow an imported fishery through country filtering, official details and restored atlas state.
+      setControl("#water-country", "CZ", "change");
+      setControl("#search", "461 024", "input");
+      clickReady("[data-water='CZ:MRS:1']");
+      waitFor("!!document.querySelector(\"a[href='https://mrsbrno.cz/reviry/1']\")"
+          + " && !!document.querySelector('#water-reports')");
+      clickReady("#back");
+      waitFor("document.querySelector('#search').value==='461 024'");
+      setControl("#water-country", "US", "change");
+      waitFor("document.querySelectorAll('[data-water]').length===0");
+      setControl("#search", "", "input");
+      waitFor("document.querySelectorAll('[data-water]').length===3");
+      setControl("#water-country", "", "change");
       runOnMainSync(() -> web.getSettings().setTextZoom(200));
       waitFor("document.documentElement.scrollWidth<=window.innerWidth+1");
       runOnMainSync(() -> web.getSettings().setTextZoom(100));

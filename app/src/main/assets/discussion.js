@@ -1,4 +1,3 @@
-import { internationalWaters } from './international-waters.js';
 import { languageTag } from './i18n.js';
 import { today, validDay } from './domain.js';
 import { newJournalId } from './journal.js';
@@ -108,10 +107,11 @@ function action(card, label, callback, style = 'secondary') {
 }
 
 /** Read a water feed or a single question. The atlas itself remains usable without a connection. */
-export async function waterDiscussion({ view, nav, pack }) {
+export async function waterDiscussion({ view, nav, waterDirectory }) {
   const { id, questionId = null } = view.route;
-  const water = pack.waters.find((w) => w.id === id) || internationalWaters.find(w => w.id === id);
-  const key = water.zone ? water.id : pack.country + ':' + id;
+  const water = waterDirectory.byId.get(id);
+  if (!water) return nav.back();
+  const key = water.key;
   screen.innerHTML =
     back(t('Zpět', 'Back')) +
     '<div class="page-intro"><p class="meta">' +
@@ -297,9 +297,10 @@ export async function waterDiscussion({ view, nav, pack }) {
 }
 
 /** The composer contains only newly authored text and an optional, explicit trip date. */
-export function discussionComposer({ view, nav, pack }) {
+export function discussionComposer({ view, nav, waterDirectory }) {
   const { id, questionId = null } = view.route;
-  const water = pack.waters.find((w) => w.id === id) || internationalWaters.find(w => w.id === id);
+  const water = waterDirectory.byId.get(id);
+  if (!water) return nav.back();
   const publish = questionId ? t('Zveřejnit odpověď', 'Post answer') : t('Zveřejnit dotaz', 'Post question');
   screen.innerHTML =
     back(t('Zpět', 'Back')) +
@@ -328,7 +329,7 @@ export function discussionComposer({ view, nav, pack }) {
       ? field(
           'discussion-day',
           t('Datum výpravy (nepovinné)', 'Trip date (optional)'),
-          '<input id="discussion-day" type="date" max="' + esc(today(water.zone || pack.zone)) + '">',
+          '<input id="discussion-day" type="date" max="' + esc(today(water.zone)) + '">',
         )
       : '') +
     '<p class="meta">' +
@@ -349,7 +350,7 @@ export function discussionComposer({ view, nav, pack }) {
     const message = by('discussion-text').value.trim(),
       day = by('discussion-day')?.value || null;
     const error = by('discussion-error');
-    if (!message || (day && (!validDay(day) || day > today(water.zone || pack.zone)))) {
+    if (!message || (day && (!validDay(day) || day > today(water.zone)))) {
       error.textContent = t('Zkontroluj text a datum výpravy.', 'Check your text and trip date.');
       return;
     }
@@ -365,7 +366,7 @@ export function discussionComposer({ view, nav, pack }) {
     if (!confirmed || !view.active()) return;
     if (!attempt || attempt.message !== message || attempt.trip_day !== day)
       attempt = {
-        water_key: water.zone ? water.id : pack.country + ':' + id,
+        water_key: water.key,
         question_id: questionId,
         ...(view.route.replyToId ? { reply_to_id: view.route.replyToId } : {}),
         request_id: newJournalId(),

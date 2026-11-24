@@ -41,6 +41,18 @@ An offline-first Android field journal for anglers. The Czech launcher name is *
 - International expansion should add regional packs, local authorities, languages and corresponding rule tests. The first pilot ships one pack. Unlisted waters work worldwide as user-named journal entries.
 - Paid location tips, payouts, rankings, document verification and automated photo measurement belong to later releases. A future competition, record claim or prize would need a separate evidence standard, such as a continuous in-app clip with a randomized camera movement.
 
+## Czech water directory
+
+The offline atlas includes the published ČRS and MRS directories. The waters come with links to their official cards. A country filter and an on-device location search also cover the Montana pilot. On Czech waters the app measures approximate distance to a generalized RIS outline or the nearest published location. An unlocated water remains searchable by name or number. The original Berounka and Sázava entries retain their journal IDs, local seasons and map details.
+
+A monthly workflow prepares a candidate dataset and additive database migration. Review source coverage before releasing an APK. Run the importer locally with Python 3 and the distribution's GDAL Python bindings. Use a fresh cache directory to fetch a new snapshot, or omit `--download` to reproduce a snapshot from the same inputs.
+
+```sh
+/usr/bin/python3 scripts/import-czech-waters.py ./water-cache --download --as-of YYYY-MM-DD --sql ./candidate.sql
+```
+
+The importer matches source record IDs, keeps distinct waters that share a number and preserves past discussion targets. ČRS outlines use S-JTSK (EPSG:5514), simplified at 35 metres before conversion to WGS84. MRS points come from named locations and active parts of the fishery. Source pages provide current access and fishing conditions.
+
 ## Sources
 
 Water facts are individually summarized from the official cards for [Berounka 1](https://www.rybsvaz.cz/karta-reviru/-/401001-berounka-1-h) and [Sázava 1](https://www.rybsvaz.cz/karta-reviru/-/401009-sazava-1-h). National seasons come from the [Ministry of Agriculture, § 13](https://mze.gov.cz/public/portal/mze/legislativa/vap57781-6415). The Sázava access point is documented by [Posázaví](https://tourist.posazavi.com/cz/Service/Service.aspx?Id=1235). The pack was reviewed on 2026-11-23 and expires on 2026-12-31.
