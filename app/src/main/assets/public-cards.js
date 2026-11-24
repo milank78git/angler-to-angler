@@ -1,3 +1,4 @@
+import { languageTag } from './i18n.js';
 import { Journal, newJournalId } from './journal.js';
 import { photoPayload, rpc } from './profile-api.js';
 import { competitionPhoto } from './photo.js';
@@ -9,7 +10,6 @@ import {
   button,
   by,
   confirmAction,
-  cs,
   esc,
   link,
   loc,
@@ -193,7 +193,7 @@ export async function publicCardEditor({ view, nav, pack }) {
     const host = by('public-preview'),
       status = by('public-status');
     let photo = null;
-    renderPublicCard(host, draft, cs ? 'cs' : 'en');
+    renderPublicCard(host, draft, languageTag, t);
     status.textContent = '';
     if (by('public-photo')?.checked) {
       status.textContent = t('Připravuji fotku…', 'Preparing photo…');
@@ -210,7 +210,7 @@ export async function publicCardEditor({ view, nav, pack }) {
         return;
       }
       if (!view.active() || update !== revision) return;
-      renderPublicCard(host, { ...draft, photo }, cs ? 'cs' : 'en');
+      renderPublicCard(host, { ...draft, photo }, languageTag, t);
       status.textContent = '';
     }
     latest = { draft, water_key: includeWater ? waterKey : null, photo };

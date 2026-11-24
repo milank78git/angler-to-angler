@@ -12,7 +12,7 @@ import sys
 root = Path(__file__).resolve().parents[1]
 assets = root/"app/src/main/assets"
 literal = r"""('(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*")"""
-call = re.compile(r"\b(?:t|text|translate)\(\s*" + literal + r"\s*,\s*" + literal + r"\s*,?\s*\)", re.S)
+call = re.compile(r"\b(?:t|text|translate|words)\(\s*" + literal + r"\s*,\s*" + literal + r"\s*,?\s*\)", re.S)
 messages = {}
 for path in sorted([*assets.glob("*.js"), *(root/"app/src/main/java").rglob("*.java")]):
     for match in call.finditer(path.read_text()):

@@ -1,9 +1,9 @@
+import { languageTag } from './i18n.js';
 import { addVerificationAction } from './verification.js';
 import { Journal, newJournalId } from './journal.js';
 import * as Domain from './domain.js';
 import {
   screen,
-  cs,
   t,
   loc,
   esc,
@@ -36,7 +36,7 @@ export async function listTrips({ view, nav }) {
       trips
         .map((trip) => {
           const d = new Date(trip.day + 'T12:00:00Z'),
-            locale = cs ? 'cs-CZ' : 'en-GB',
+            locale = languageTag,
             count = trip.catchCount;
           return `<button class="trip-row" data-trip="${esc(trip.id)}"><span class="date-stamp" aria-hidden="true"><strong>${d.getUTCDate()}</strong>${esc(d.toLocaleString(locale, { month: 'short', timeZone: 'UTC' }))}</span>
         <span class="row-main"><span class="number">${esc(displayDay(trip.day))}</span><strong>${esc(trip.waterName)}</strong><span class="sub">${t('Úlovky', 'Catches')} · ${count}${trip.notes ? ' · ' + esc(trip.notes.slice(0, 90)) : ''}</span></span>${icon('chevron-right')}</button>`;
@@ -203,7 +203,7 @@ function catchDetails(record, species) {
     : record.speciesName || record.speciesId;
   const lines = [`<h3>${esc(name)}</h3>`];
   if (record.lengthMm) {
-    const length = new Intl.NumberFormat(cs ? 'cs-CZ' : 'en-GB', { maximumFractionDigits: 1 }).format(
+    const length = new Intl.NumberFormat(languageTag, { maximumFractionDigits: 1 }).format(
       record.lengthMm / 10,
     );
     lines.push(`<p>${length} cm · ${t('ruční zápis', 'manually entered')}</p>`);

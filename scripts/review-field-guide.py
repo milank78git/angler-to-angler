@@ -64,6 +64,12 @@ def validate():
         if not rule['species'] and not rule.get('allFreshwater'): raise ValueError(rule)
         if not rules['sources'][rule['source']]['url'].startswith('https://'): raise ValueError(rule)
         for day in rule.get('closed',[])+rule.get('retentionClosed',[]): datetime.date.fromisoformat('2000-'+day)
+        for field in ('validFrom','validUntil'):
+            if field in rule: datetime.date.fromisoformat(rule[field])
+        if 'validFrom' in rule and 'validUntil' in rule and rule['validFrom']>rule['validUntil']:
+            raise ValueError(rule)
+        if not any(k in rule for k in ('minCm','overCm','maxCm','daily','dailyKg','closed','retentionClosed','permitRequired')):
+            raise ValueError(rule)
         if 'maxCm' in rule and rule['maxCm'] < rule.get('minCm',0): raise ValueError(rule)
     return rules
 

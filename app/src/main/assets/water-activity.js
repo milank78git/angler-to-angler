@@ -1,3 +1,4 @@
+import { languageTag } from './i18n.js';
 import { waterMap } from './waters.js';
 import { Journal } from './journal.js';
 import { today } from './domain.js';
@@ -9,7 +10,6 @@ import {
   button,
   by,
   confirmAction,
-  cs,
   esc,
   loc,
   screen,
@@ -28,7 +28,7 @@ const targetLabel = () => t('Cílový druh výpravy', 'Trip target species');
 const methodLabel = () => t('Hlavní způsob lovu', 'Main fishing method');
 const mineLabel = () => t('Moje výpravy ve statistice', 'My activity contributions');
 const monthLabel = (month) =>
-  new Intl.DateTimeFormat(cs ? 'cs-CZ' : 'en-GB', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(
+  new Intl.DateTimeFormat(languageTag, { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(
     new Date(month + 'T12:00:00Z'),
   );
 

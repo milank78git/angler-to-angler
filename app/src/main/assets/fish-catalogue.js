@@ -156,11 +156,17 @@ export async function fishDetail({view, nav, pack}) {
           r.minCm != null && t('Nejmenší míra','Minimum size') + ' · ' + r.minCm + ' cm',
           r.maxCm != null && t('Největší ponechaná ryba','Maximum retained size') + ' · ' + r.maxCm + ' cm',
           r.daily != null && t('Denní limit','Daily limit') + ' · ' + r.daily,
+          r.dailyKg != null && t('Denní limit','Daily limit') + ' · ' + r.dailyKg + ' kg',
+          r.permitRequired && t('Vyžaduje se rybářská licence','Fishing licence required'),
           r.retentionClosed && t('Zákaz ponechání úlovku','No retention') + ' · ' + r.retentionClosed.map(seasonalDay).join(' – '),
           r.closed && t('Doba hájení','Closed season') + ' · ' + r.closed.map(seasonalDay).join(' – '),
         ].filter(Boolean);
+        // A fixed-season regulation must never be presented as current in a later season.
+        const inForce = (!r.validFrom || today >= r.validFrom) && (!r.validUntil || today <= r.validUntil);
+        const status = !inForce ? t('Mimo období platnosti. Ověř aktuální předpis.', 'Outside the period of validity. Check the current regulation.') :
+          today > source.reviewBy ? t('Uplynul termín kontroly. Ověř aktuální znění přímo u zdroje.', 'Review overdue. Check the current source.') : terms.join(' · ');
         return '<article class="surface"><strong>' + esc(words(data.rules.scopes[r.scope])) + '</strong><p>' +
-          (today > source.reviewBy ? t('Uplynul termín kontroly. Ověř aktuální znění přímo u zdroje.', 'Review overdue. Check the current source.') : esc(terms.join(' · '))) +
+          esc(status) +
           '</p>' + link(source.url,source.title) + ' · ' + t('Kontrola zdroje','Source checked') + ' ' + esc(source.checked) + '</article>';
       }).join('') + (!relevant.length ? '<p>' + t('Pro tento druh a stát zatím chybí ověřené pravidlo.', 'No reviewed rule for this species and country yet.') + '</p>' : '') +
       '<p>' + [region.authority && link(region.authority,t('Místní zdroj pravidel','Local rules and permits')),link(region.url,'FAOLEX')].filter(Boolean).join(' · ') + '</p>' +

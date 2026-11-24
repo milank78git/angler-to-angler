@@ -1,6 +1,6 @@
 import { fishCatalogue, fishDetail } from './fish-catalogue.js';
 import { openGuide, closeGuide, attachHints } from './guide.js';
-import { languageTag } from './i18n.js';
+import { contentLanguage } from './i18n.js';
 import { by, screen, t, cs, bind, button, icon, confirmAction, dismissConfirmation } from './ui.js';
 import { marketShelf, marketDetail, marketEditor } from './market.js';
 import { Navigation } from './navigation.js';
@@ -113,7 +113,7 @@ function setTheme(mode) {
     Device.systemBars(dark, !!localStorage.getItem('ui.theme'));
 }
 async function start() {
-  document.documentElement.lang = languageTag;
+  document.documentElement.lang = contentLanguage;
   by('guide-open').ariaLabel = by('guide-open').title = t('Nápověda', 'Help');
   bind('guide-open', () => openGuide(nav.current?.route.page));
   by('profile').textContent = t('Profil', 'Profile');

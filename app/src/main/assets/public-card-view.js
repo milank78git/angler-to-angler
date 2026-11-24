@@ -1,7 +1,7 @@
 /** Render the same allowlisted document in the journal preview and the anonymous reader. */
-export function renderPublicCard(host, card, locale) {
+export function renderPublicCard(host, card, locale, translate) {
   const cz = locale.toLowerCase().startsWith('cs');
-  const words = (cs, en) => cz ? cs : en;
+  const words = translate || ((cs, en) => cz ? cs : en);
   const make = (tag, text) => {
     const el = document.createElement(tag);
     if (text !== undefined) el.textContent = text;
@@ -29,7 +29,7 @@ export function renderPublicCard(host, card, locale) {
   };
   const monthOnly = card.precision === 'month';
   const date = new Date(card.date + (monthOnly ? '-01' : '') + 'T12:00:00Z');
-  const time = make('time', new Intl.DateTimeFormat(cz ? 'cs-CZ' : 'en-GB',
+  const time = make('time', new Intl.DateTimeFormat(locale,
     {year:'numeric',month:'long',day:monthOnly ? undefined : 'numeric',timeZone:'UTC'}).format(date));
   time.dateTime = card.date;
   row(monthOnly ? words('Měsíc úlovku','Catch month') : words('Datum úlovku','Catch date'), time);
@@ -37,7 +37,7 @@ export function renderPublicCard(host, card, locale) {
   if (card.length) {
     const measured = card.length.kind === 'measured';
     row(measured ? words('Délka podle měřidla','Length from ruler') : words('Odhad podle reference','Reference-based estimate'),
-      new Intl.NumberFormat(cz ? 'cs-CZ' : 'en-GB').format(card.length.mm / 10) + ' cm');
+      new Intl.NumberFormat(locale).format(card.length.mm / 10) + ' cm');
   }
   body.append(details);
   article.append(body);

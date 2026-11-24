@@ -1,8 +1,8 @@
+import { languageTag } from './i18n.js';
 import * as Domain from './domain.js';
 import {
   by,
   screen,
-  cs,
   t,
   loc,
   esc,
@@ -29,7 +29,7 @@ function ruleResult(pack, w) {
   const valid = status === 'closed' || status === 'outside';
   const windowLabel = pack.species[speciesId].window
     .map((d) =>
-      new Intl.DateTimeFormat(cs ? 'cs-CZ' : 'en-GB', {
+      new Intl.DateTimeFormat(languageTag, {
         day: 'numeric',
         month: 'short',
         timeZone: 'UTC',
