@@ -55,6 +55,8 @@ def build(output, cache, stamp, refresh):
     previous = output / "atlas.json.gz"
     atlas = json.loads(gzip.decompress(previous.read_bytes())) if previous.exists() else bundled()
     sources = read(ASSETS / "water-sources.json")
+    # Additional providers are distributed as data. A new country does not require a new APK.
+    sources["providers"].update(read(ROOT / "data/europe/water-providers.json"))
     failures = []
     if refresh:
         try:
@@ -79,7 +81,9 @@ def build(output, cache, stamp, refresh):
                 failures.append(key + ": " + str(err))
     # A new provider with a checked-in baseline remains usable during its first upstream outage.
     baseline = read(ASSETS / "europe-waters.json")
-    atlas["europe"] = {k: atlas["europe"].get(k, baseline[k]) for k in sources["providers"]}
+    editions = {**baseline, **atlas["europe"]}
+    atlas["europe"] = {k: editions[k] for k in sources["providers"] if k in editions}
+    sources["providers"] = {k: sources["providers"][k] for k in atlas["europe"]}
     atlas["sources"] = sources
     raw = encode(atlas)
     if len(raw) > 48 * 1024 * 1024:

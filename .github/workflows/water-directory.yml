@@ -8,6 +8,7 @@ on:
     paths:
       - '.github/workflows/water-directory.yml'
       - 'scripts/*water*.py'
+      - 'data/europe/water-providers.json'
       - 'app/src/main/assets/*waters.json'
       - 'app/src/main/assets/water-sources.json'
 permissions:
