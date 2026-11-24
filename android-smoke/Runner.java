@@ -178,6 +178,26 @@ public final class Runner extends Instrumentation {
   /**
    * Exercise rejection, retry, duplicate submission and native Back against a real WebView form.
    */
+  private void checkCatchSpecies() throws Exception {
+    waitFor("document.querySelector('#catch-country-scope').value==='CZ'");
+    String marineFish = "Alepocephalus agassizii";
+    setControl("#catch-search", marineFish, "input");
+    waitFor("document.querySelector('#fish').options.length===2");
+    setControl("#catch-country-scope", "", "change");
+    setControl("#fish", marineFish, "change");
+    waitFor("document.querySelector('#fish').value==='Alepocephalus agassizii'");
+    setControl("#catch-country-scope", "CZ", "change");
+    waitFor("document.querySelector('#fish').value==='' && document.querySelector('#catch-rules').hidden");
+    setControl("#catch-search", "Esox", "input");
+    setControl("#fish", "Esox lucius", "change");
+    setControl("#length", "50", "input");
+    clickReady("#catch-rules summary");
+    waitFor("!!document.querySelector('#catch-rule-body .result') && !!document.querySelector('#catch-rule-body a[href]')");
+    clickReady("#catch-rules summary");
+    waitFor("document.querySelector('#length').value==='50' && document.querySelector('#fish').value==='Esox lucius'");
+    setControl("#catch-search", "", "input");
+  }
+
   private void saveTripWithRetry() throws Exception {
     script("trip-write.js");
     waitFor("!!window.writeProbe");
@@ -332,6 +352,7 @@ public final class Runner extends Instrumentation {
     js("document.querySelector('#confirmation-cancel').click()");
     js("document.querySelector('#add').click()");
     waitFor("!!document.querySelector('#fish-name')");
+    setControl("#fish", "manual", "change");
     js(
         "const"
             + " field=document.querySelector('#fish-name');field.value='Draft';field.dispatchEvent(new"
@@ -624,6 +645,10 @@ public final class Runner extends Instrumentation {
                 + " document.querySelector('#tabs').hidden");
         if (n == 1) {
           capture("catch");
+          checkCatchSpecies();
+        }
+        setControl("#fish", "manual", "change");
+        if (n == 1) {
           form(
               "document.querySelector('#fish-name').value='Perch';document.querySelector('#length').value='0x20'");
           waitFor(
