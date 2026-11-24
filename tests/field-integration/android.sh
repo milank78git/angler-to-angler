@@ -25,4 +25,5 @@ adb reverse tcp:58443 tcp:58443
 adb install -r build/preview/angler-journal-debug.apk
 adb shell wm size 1080x2200
 adb shell wm density 320
+python3 -m unittest discover -s tests/field-integration -p 'test_registration_ui.py'
 python3 tests/field-integration/registration.py "$stage"
