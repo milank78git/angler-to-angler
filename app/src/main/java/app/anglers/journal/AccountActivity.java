@@ -176,6 +176,15 @@ public final class AccountActivity extends Activity {
               String secret = password.getText().toString();
               run(() -> service.signIn(email, secret), this::verified);
             });
+    // Keep the original confirmation usable if password sign-in happens before verification.
+    SharedPreferences pending = AccountStore.prefs(this);
+    if (pendingIsFresh(pending) && "signup".equals(pending.getString("pkcePurpose", ""))
+        && pending.getBoolean("pkceMailAccepted", true)) {
+      action(text("account.return_to_confirmation"), AccountLayout.Action.LINK, () -> {
+        email = pending.getString("pkceEmail", "");
+        inbox();
+      });
+    }
     send.setEnabled(ready);
     password.setImeOptions(android.view.inputmethod.EditorInfo.IME_ACTION_GO);
     password.setOnEditorActionListener(
@@ -413,9 +422,11 @@ public final class AccountActivity extends Activity {
   }
 
   private void inbox() {
+    String purpose = AccountStore.prefs(this).getString("pkcePurpose", "");
+    boolean signup = "signup".equals(purpose);
     ui.page(text("account.check_your_email"), false);
-    ui.label(
-        text("account.open_the_latest_message_sent_to")
+    ui.label(signup ? text("account.signup_confirmation_help").replace("{email}", email)
+        : text("account.open_the_latest_message_sent_to")
             + email
             + text("account.and_tap_the_link_on_this_phone"));
     action(
@@ -431,19 +442,21 @@ public final class AccountActivity extends Activity {
                 text("account.open_your_webmail_in_the_browser_on"));
           }
         });
-    String purpose = AccountStore.prefs(this).getString("pkcePurpose", "");
-    if ("recovery".equals(purpose) || "signup".equals(purpose))
+    if (signup)
+      action(text("account.confirmed_sign_in"), AccountLayout.Action.SECONDARY, this::login);
+    if (signup || "recovery".equals(purpose))
       action(
           text("account.request_another_link"),
           AccountLayout.Action.SECONDARY,
           () -> resendEmail(purpose));
-    action(
-        text("account.back_to_sign_in"),
-        AccountLayout.Action.LINK,
-        () -> {
-          clearPending();
-          login();
-        });
+    if (!signup)
+      action(
+          text("account.back_to_sign_in"),
+          AccountLayout.Action.LINK,
+          () -> {
+            clearPending();
+            login();
+          });
   }
 
   /** Reissue the pending link with the same address, callback and device verifier. */

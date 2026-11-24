@@ -1,7 +1,7 @@
 {
   "confirmation.title": "Potvrď svůj e-mail",
   "brand": "Rybáři sobě",
-  "confirmation.instruction": "Pro dokončení registrace otevři tento odkaz na telefonu, kde sis účet založil/a. Pak se můžeš přihlásit zvoleným heslem.",
+  "confirmation.instruction": "Potvrď svůj e-mail pomocí odkazu. Pokud ho otevřeš na jiném zařízení, vrať se do aplikace a přihlas se heslem z registrace.",
   "confirmation.action": "Potvrdit e-mail",
   "expiry": "Odkaz je jednorázový. Pokud jsi o něj nežádal/a, můžeš tuto zprávu smazat.",
   "fallback": "Pokud tlačítko nefunguje, zkopíruj odkaz do prohlížeče na stejném telefonu.",

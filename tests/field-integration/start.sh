@@ -17,8 +17,8 @@ assert 'enable_confirmations = true' in email
 s=s[:a]+email+s[b:]
 start=s.index('[auth]'); end=s.index('\n[',start+1)
 import re
-section=re.sub(r'^additional_redirect_urls\s*=.*$', 'additional_redirect_urls = ["https://horistum.com/account/app.anglers.journal.preview/callback"]',s[start:end],flags=re.M)
-assert 'horistum.com/account' in section
+section=re.sub(r'^additional_redirect_urls\s*=.*$', 'additional_redirect_urls = ["https://milank78git.github.io/angler-to-angler/account/"]',s[start:end],flags=re.M)
+assert 'milank78git.github.io/angler-to-angler/account/' in section
 p.write_text(s[:start]+section+s[end:])
 PY
 supabase start -x studio,storage-api,imgproxy,realtime,edge-runtime,postgres-meta,logflare,vector,supavisor >/dev/null

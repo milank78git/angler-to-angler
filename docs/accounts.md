@@ -110,25 +110,34 @@ The APK and static reader render the same allowlisted snapshot using `public-car
 
 The pilot reader is at https://rybari-sobe-ulovky.richpopcorn17.chatgpt.site/. To rebuild it, run `python3 scripts/build-public-reader.py /path/to/public-account-config.json /path/to/dist` and deploy that directory to the same HTTPS origin. It requires only the project's public URL and publishable key. An independent deployment must also change the origin returned by `angler_public_cards.owner_item` in its database. The normal Android build does not publish the website.
 
-## Verified mobile email return
+## Android email return through the project's GitHub Pages site
 
-The release callback is https://horistum.com/account/app.anglers.journal/callback.
-Each installation accepts its exact callback path and existing custom-scheme links.
-Until HTTPS delivery is enabled in the build, registration continues to issue the
-existing callback. The account and parking support address is info@horistum.com.
+The release callback is `https://milank78git.github.io/angler-to-angler/account/`.
+Keep the final slash. The page offers an explicit **Open the app** action on Android.
+It forwards only a single PKCE code or a recognized expiration notice to the fixed
+pilot package. The app exchanges the code with Auth using the verifier stored on
+the requesting phone. No access tokens or refresh tokens are accepted by the page.
+The initial PKCE query is visible to the static hosting provider. The page clears it
+from browser history, loads no external resources, and uses no analytics or storage.
 
-Build the hosting files with python3 scripts/build-account-links.py build/account-links
-or download the horistum-account-links CI artifact. The default fingerprint is the
-public certificate checked by scripts/sign-pilot.sh. Serve .well-known/assetlinks.json
-as application/json directly on horistum.com over HTTPS (no redirect to www).
-Serve account/app.anglers.journal/callback.html at the exact extensionless callback
-URL as text/html. Send Cache-Control: no-store and Referrer-Policy: no-referrer;
-disable query-string logging on this path. The fallback does not consume codes.
+After confirming a new account on a computer, open the app and choose **I confirmed
+my email · Sign in**, then enter the original password. For password recovery,
+open the new link on the phone that requested it. Support is at info@horistum.com.
 
-Add the exact release URL to the Supabase Auth redirect allowlist and keep the
-custom scheme during rollout. Verify against the signed release using adb shell
-pm verify-app-links --re-verify app.anglers.journal and adb shell pm get-app-links
-app.anglers.journal. Then set the release build environment ANGLER_APP_LINK_HOST
-to horistum.com. Keep preview builds on their independent custom scheme unless
-their own package, certificate and path are deployed. An email opened on another
-device provides instructions for continuing on the device holding the PKCE verifier.
+1. In repository Settings → Pages, select GitHub Actions. The Publish account
+   page workflow deploys only the generated static account pages after a merge to main.
+2. In the pilot project's Supabase Authentication → URL Configuration, add the **exact**
+   release callback above to Redirect URLs. Keep the existing app-scheme entry for
+   installed versions. Other Supabase projects and preview packages have their own configuration.
+3. Run `python3 scripts/check-account-pages.py`. Once the public page passes and
+   the Auth redirect is configured, enable the Actions repository variable
+   `ANGLER_ACCOUNT_PAGES=true` for an Android release. The default build continues
+   to use the existing app scheme. Preview builds keep their own package.
+4. Confirm signup from a phone and from a desktop. Recover a password on the
+   requesting phone. Existing journal data remain tied to the original account ID.
+
+A project site lives under the repository path and cannot serve an Android association
+file from the owner domain root. The project handoff uses a user-initiated Android
+intent. Direct verified HTTPS links on a separately managed domain remain available
+through `ANGLER_APP_LINK_HOST`, the direct-android-app-links build artifact and
+`scripts/check-account-links.py`. Choose only one HTTPS mode per build.

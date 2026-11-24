@@ -8,7 +8,10 @@ import android.os.Bundle;
 
 /** Deliver external links to the journal task even when a mail app opens them in its own task. */
 public final class AccountCallbackActivity extends Activity {
+  static final String PROJECT_CALLBACK = "https://milank78git.github.io/angler-to-angler/account/";
+
   static String redirect(Context app) {
+    if (app.getResources().getBoolean(R.bool.use_project_pages)) return PROJECT_CALLBACK;
     return app.getResources().getBoolean(R.bool.use_verified_links) ? webCallback(app)
         : app.getPackageName() + "://account/callback";
   }
