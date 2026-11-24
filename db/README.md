@@ -20,13 +20,15 @@ active angler-water-directory cron job after deployment.
 
 ## Taking over the existing pilot
 
-The pilot-0.18 tag covers exactly the original 21 migrations. Build a reference
-database with update-to-tag --tag=pilot-0.18 first. Compare the migration
-identifiers and the actual app schemas, functions, grants, policies, cron job
-and extensions with the target. Back up the target. Only if equivalent, review
-changelog-sync-to-tag-sql --tag=pilot-0.18 and use changelog-sync-to-tag with the
-same tag before update. Never mark the full current manifest as applied. For a
-partially migrated target, reconcile against its actual prefix first.
+Choose the tag matching the verified installation. The pilot-0.18 tag covers the
+original 21 migrations. The pilot-0.19 tag also includes water reviews, monthly
+group participation and voluntary species counts (24 migrations in total).
+Build a reference with `update-to-tag --tag=<tag>` and compare its migration
+identifiers, app schemas, functions, grants, policies, cron job and extensions
+with the live target. Back up the target. Only for an equivalent installation,
+review `changelog-sync-to-tag-sql --tag=<tag>` and apply
+`changelog-sync-to-tag --tag=<tag>` before update. For a partially migrated
+target, reconcile its actual prefix first.
 
 ## Transferring existing users and community data
 

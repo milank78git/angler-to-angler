@@ -1,4 +1,4 @@
-\ir ../supabase/migrations/20261124115256_water_reviews_and_visit_statistics.sql
+\ir ../supabase/migrations/20261124122638_water_reviews_and_visit_statistics.sql
 set local role authenticated;
 select pg_temp.as_user(71);
 do $$

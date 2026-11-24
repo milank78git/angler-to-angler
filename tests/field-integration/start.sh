@@ -33,7 +33,7 @@ lb update
 before=$(psql "$url" -XAtc 'select count(*) from liquibase.databasechangelog')
 lb update
 after=$(psql "$url" -XAtc 'select count(*) from liquibase.databasechangelog')
-[[ "$before" -eq "$after" && "$after" -eq $(($(find supabase/migrations -name '*.sql' | wc -l)+1)) ]]
+[[ "$before" -eq "$after" && "$after" -eq $(($(find supabase/migrations -name '*.sql' | wc -l) + $(grep -c '<tagDatabase ' db/changelog.xml))) ]]
 psql "$url" -XAtc "select count(*) from cron.job where jobname='angler-water-directory' and active" | grep -qx 1
 psql "$url" -Xq -c "notify pgrst, 'reload schema'"
 echo "Database install, upgrade, repeat update and atlas schedule verified."

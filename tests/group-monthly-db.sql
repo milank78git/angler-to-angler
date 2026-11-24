@@ -1,4 +1,4 @@
-\ir ../supabase/migrations/20261124120626_optional_group_monthly_challenge.sql
+\ir ../supabase/migrations/20261124122642_optional_group_monthly_challenge.sql
 set local role authenticated;
 do $$
 declare g uuid:=gen_random_uuid(); invite uuid; e uuid:=gen_random_uuid(); who integer;

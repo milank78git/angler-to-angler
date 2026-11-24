@@ -67,13 +67,14 @@
     <sqlFile path="../supabase/migrations/20261124101500_post_notifications.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
   </changeSet>
   <changeSet id="pilot-0.18" author="angler"><tagDatabase tag="pilot-0.18"/></changeSet>
-  <changeSet id="20261124115256" author="angler" dbms="postgresql">
-    <sqlFile path="../supabase/migrations/20261124115256_water_reviews_and_visit_statistics.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  <changeSet id="20261124122638" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261124122638_water_reviews_and_visit_statistics.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
   </changeSet>
-  <changeSet id="20261124120626" author="angler" dbms="postgresql">
-    <sqlFile path="../supabase/migrations/20261124120626_optional_group_monthly_challenge.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  <changeSet id="20261124122642" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261124122642_optional_group_monthly_challenge.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
   </changeSet>
-  <changeSet id="20261124120754" author="angler" dbms="postgresql">
-    <sqlFile path="../supabase/migrations/20261124120754_volunteered_species_counts.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  <changeSet id="20261124122648" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261124122648_volunteered_species_counts.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
   </changeSet>
+  <changeSet id="pilot-0.19" author="angler"><tagDatabase tag="pilot-0.19"/></changeSet>
 </databaseChangeLog>

@@ -1,4 +1,4 @@
-\ir ../supabase/migrations/20261124120754_volunteered_species_counts.sql
+\ir ../supabase/migrations/20261124122648_volunteered_species_counts.sql
 set local role authenticated;
 do $$
 declare period date := (date_trunc('month',(timezone('Europe/Prague',now())::date-7)::timestamp)-interval '1 month')::date;
