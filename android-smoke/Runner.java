@@ -124,6 +124,32 @@ public final class Runner extends Instrumentation {
     js(readyControl(selector) + ".click()");
   }
 
+  /** Exercise combined parking filters and route to the second car park on a catalog water. */
+  private void checkParkingFilter() throws Exception {
+    setControl("#search", "", "input");
+    clickReady("#water-parking");
+    waitFor("!!document.querySelector('[data-water=\"CZ:CRS:4615396\"]')"
+        + " && !!document.querySelector('[data-water=\"401009\"]')");
+    setControl("#water-country", "US", "change");
+    waitFor("document.querySelectorAll('[data-water]').length===0");
+    clickReady("#map-toggle");
+    waitFor("document.querySelector('#map-count')?.textContent.includes('0 / 0')");
+    setControl("#water-country", "CZ", "change");
+    setControl("#search", "421 200", "input");
+    waitFor("document.querySelectorAll('#world-map [data-group]').length===1"
+        + " && document.querySelector('#map-count').textContent.includes('1 / 1')");
+    js("document.querySelector('#world-map [data-group]').dispatchEvent(new MouseEvent('click',{bubbles:true}))");
+    waitFor("!!document.querySelector('#drive-1')");
+    ShareChecks.parking(this, "#drive-1", "48.6594239,14.1710583");
+    clickReady("#back");
+    waitFor("document.querySelector('#water-parking')?.checked && document.querySelector('#search').value==='421 200'"
+        + " && document.querySelector('#map-toggle').getAttribute('aria-pressed')==='true'");
+    clickReady("#map-toggle");
+    clickReady("#water-parking");
+    setControl("#search", "461 024", "input");
+    waitFor("!!document.querySelector('[data-water=\"CZ:MRS:1\"]')");
+  }
+
   private void setControl(String selector, String value, String event) throws Exception {
     String el = readyControl(selector);
     js("(() => { const field=" + el + "; field.value=" + org.json.JSONObject.quote(value)
@@ -586,6 +612,7 @@ public final class Runner extends Instrumentation {
       clickReady("#back");
       waitFor("document.querySelector('#search').value==='461 024'");
       checkWaterReport();
+      checkParkingFilter();
       setControl("#water-country", "US", "change");
       waitFor("document.querySelectorAll('[data-water]').length===0");
       setControl("#search", "", "input");
@@ -617,7 +644,7 @@ public final class Runner extends Instrumentation {
       waitFor("document.querySelectorAll('#world-map [data-group]').length===1");
       js("document.querySelector('#world-map [data-group]').dispatchEvent(new MouseEvent('click',{bubbles:true}))");
       waitFor("!!document.querySelector('#navigate')");
-      ShareChecks.parking(this);
+      ShareChecks.parking(this, "#drive-0", "49.8770658,14.4263203");
       clickReady("#back");
       waitFor("document.querySelector('#map-toggle')?.getAttribute('aria-pressed')==='true'");
       clickReady("#map-toggle");

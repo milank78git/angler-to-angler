@@ -1,4 +1,4 @@
-import { waterParking, waterRating } from './water-community.js';
+import { parkingPoints, waterParking, waterRating } from './water-community.js';
 import { atlasMap } from './world-map.js';
 import { attachAtlasMap } from './atlas-map.js';
 import { countryName } from './fish-catalogue.js';
@@ -101,9 +101,15 @@ function coverage(directory, country) {
     + links.map(l => '<p>' + l + '</p>').join('');
 }
 
-export function listWaters({ view, pack, nav, waterDirectory }) {
+export async function listWaters({ view, pack, nav, waterDirectory }) {
+  const parking = await parkingPoints().catch(() => null);
+  if (!view.active()) return;
   const atlas = { ...pack, waters: waterDirectory.waters };
   const { route } = view;
+  if (!parking && route.parkingOnly) {
+    route.parkingOnly = false;
+    route.filtersOpen = true;
+  }
   if (route.geography !== waterDirectory.geography) {
     delete route.distances;
     route.geography = waterDirectory.geography;
@@ -120,7 +126,10 @@ export function listWaters({ view, pack, nav, waterDirectory }) {
     ${button('nearby',t('waters.sort_by_location'),'secondary','navigation')}<p id="nearby-status" role="status"></p>
     ${selectField('water-country', t('waters.fishery_country'), [
       ['', t('waters.all_countries')], ...countries
-    ], route.country || '')}<details id="atlas-sources"><summary>${t('seasons.coverage_and_sources')}</summary><div id="water-coverage"></div></details></div>
+    ], route.country || '')}
+    <label class="card-option"><input id="water-parking" type="checkbox"${route.parkingOnly ? ' checked' : ''}${parking ? '' : ' disabled'}>${esc(t('parking.filter'))}</label>
+    ${parking ? '' : '<p role="status">' + esc(t('parking.unavailable')) + '</p>' + button('retry-parking',t('common.retry'),'secondary')}
+    <details id="atlas-sources"><summary>${t('seasons.coverage_and_sources')}</summary><div id="water-coverage"></div></details></div>
     <div class="filter-row"><div class="segments">${button('all', t('common.all'))}${button('saved', t('waters.favorites'), '', 'bookmark')}</div><span class="count" id="found" role="status"></span></div></div>
     ${route.additions ? '<p class="meta">'+t('alerts.waters')+' · '+button('clear-additions',t('common.all'),'secondary')+'</p>' : ''}<section id="atlas-world" class="surface" hidden></section><div id="waters" class="water-list"></div>${button('more-waters', t('waters.show_more_waters'), 'secondary')}${credits(...pack.waters)}`;
   if (route.additions) bind('clear-additions', () => { delete route.additions; nav.show(); });
@@ -128,11 +137,20 @@ export function listWaters({ view, pack, nav, waterDirectory }) {
   function syncFilters() {
     filters.hidden = !(route.filtersOpen ?? matchMedia('(min-width: 600px)').matches);
     toggle.setAttribute('aria-expanded',String(!filters.hidden));
-    toggle.querySelector('span').textContent=t('settings.filters')+(route.country ? ' · '+countryName(route.country) : '');
+    toggle.querySelector('span').textContent = [
+      t('settings.filters'), route.country && countryName(route.country), route.parkingOnly && t('parking.filter')
+    ].filter(Boolean).join(' · ');
   }
   toggle.setAttribute('aria-controls',filters.id);
   toggle.onclick=() => { route.filtersOpen=filters.hidden; syncFilters(); };
   syncFilters();
+  if (!parking) bind('retry-parking', () => nav.show());
+  by('water-parking').onchange = event => {
+    route.parkingOnly = event.target.checked;
+    route.limit = pageSize;
+    syncFilters();
+    results();
+  };
   bind('atlas-settings', () => window.Device?.openWaterSettings?.());
   bind('home-market', () => nav.open('marketShelf'));
   bind('home-fish', () => nav.open('fishCatalogue'));
@@ -182,7 +200,7 @@ export function listWaters({ view, pack, nav, waterDirectory }) {
       (w) =>
         (!route.additions || route.additions.has(w.code ? w.provider + ':' + w.code : w.key)) &&
         (!route.country || route.country === w.country) && (!route.favorites || isFavorite(pack, w)) &&
-        matchesWater(w, q),
+        (!route.parkingOnly || parking[w.key]?.length > 0) && matchesWater(w, q),
     );
     if (distances) matches.sort((a, b) => (distances.get(a.id) ?? Infinity) - (distances.get(b.id) ?? Infinity));
     const generation=++mapGeneration;
@@ -195,7 +213,7 @@ export function listWaters({ view, pack, nav, waterDirectory }) {
       shapes ||= waterDirectory.geography().catch(()=>{shapes=null;return {};});
       shapes.then(geometry=>{
         if(view.active() && generation===mapGeneration)
-          map.update(matches,geometry,JSON.stringify([q,route.country,route.favorites]));
+          map.update(matches,geometry,JSON.stringify([q,route.country,route.favorites,!!route.parkingOnly]));
       });
     }
     by('more-waters').hidden = !!route.mapOpen || matches.length <= limit;
@@ -213,12 +231,11 @@ export function listWaters({ view, pack, nav, waterDirectory }) {
         .join('') ||
       emptyState(
         route.favorites ? 'bookmark' : 'search',
-        route.favorites && !q
+        route.favorites && !q && !route.parkingOnly
           ? t('waters.no_favorites_yet')
           : t('waters.no_matching_water'),
-        route.favorites && !q
-          ? t('waters.use_the_bookmark_beside_a_water_to')
-          : t('waters.try_another_number_name_or_town'),
+        route.parkingOnly ? t('parking.filter_empty') :
+          route.favorites && !q ? t('waters.use_the_bookmark_beside_a_water_to') : t('waters.try_another_number_name_or_town'),
       );
     by('waters')
       .querySelectorAll('[data-water]')

@@ -27,7 +27,7 @@ export function atlasMap(host, route, openWater) {
     '</div><svg id="world-map" role="group" tabindex="0" aria-label="'+esc(t('atlas.map'))+'"></svg>'+
     '<p id="map-count" role="status"></p><div id="map-selection" class="water-list"></div>';
   const svg=by('world-map'), selected=by('map-selection');
-  let rows=[], missing=0, camera=route.camera, groups=[], filter, index=0, down;
+  let rows=[], missing=0, camera=route.camera, groups=[], index=0, down;
   const pointers=new Map();
   const width=()=>svg.clientWidth || 320, height=()=>svg.clientHeight || 300;
   const unit=()=>Math.min(width()/360,height()/180)*camera.zoom;
@@ -59,7 +59,8 @@ export function atlasMap(host, route, openWater) {
         return '<g role="button" tabindex="0" aria-label="'+esc(label)+'" data-group="'+i+'" transform="translate('+g.x/n+' '+g.y/n+')"><circle r="17"/><text y="4">'+(n===1?'•':n)+'</text></g>';
       }).join('');
     by('zoom-out').disabled=camera.zoom<=1;by('zoom-in').disabled=camera.zoom>=65536;
-    by('map-count').textContent=t('atlas.mapped')+' · '+rows.length+' / '+(rows.length+missing);
+    by('map-count').textContent=t('atlas.mapped')+' · '+rows.length+' / '+(rows.length+missing)
+      + (route.parkingOnly && !rows.length && !missing ? ' · '+t('parking.filter_empty') : '');
   }
   function pick(target) {
     const el=target.closest('[data-group]');if(!el)return;
@@ -102,6 +103,8 @@ export function atlasMap(host, route, openWater) {
   return {update(waters,shapes,key){
     rows=waters.map(water=>({water,point:waterPoint(water,shapes)})).filter(row=>row.point);
     missing=waters.length-rows.length;selected.replaceChildren();
-    if(!camera || (filter!==undefined && filter!==key))fit();else draw();filter=key;
+    if (!camera || route.cameraFilter !== key) fit();
+    else draw();
+    route.cameraFilter = key;
   },dispose(){observer.disconnect();}};
 }

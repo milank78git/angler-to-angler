@@ -2,7 +2,7 @@ import { rpc, failure } from './profile-api.js';
 import { button, displayDay, esc, link, selectField, t } from './ui.js';
 
 let parking;
-async function parkingPoints() {
+export async function parkingPoints() {
   parking ||= fetch('parking.json').then(r=>{if(!r.ok)throw Error('parking');return r.json();})
     .catch(e=>{parking=null;throw e;});
   return parking;
