@@ -282,5 +282,13 @@
   "lookup-class": {
     "topic": "waters",
     "message": "field-hints.lookup-class"
+  },
+  "catch-search": {
+    "topic": "catch",
+    "message": "field-hints.catch-search"
+  },
+  "catch-country-scope": {
+    "topic": "catch",
+    "message": "field-hints.catch-country-scope"
   }
 }

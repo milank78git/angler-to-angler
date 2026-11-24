@@ -1,3 +1,5 @@
+import { catchLatin, catchRulesHtml } from './catch-species.js';
+import { fishDirectory } from './fish-catalogue.js';
 import { waterPicker, bindWaterPicker } from './water-picker.js';
 import { localRuleWater, tripWater } from './water-directory.js';
 import { languageTag } from './i18n.js';
@@ -119,6 +121,8 @@ export async function tripScreen({ view, nav, pack, waterDirectory }) {
     return;
   }
   const water = tripWater(waterDirectory, trip);
+  const fishes = catches.some(c => c.speciesId) ? await fishDirectory().catch(() => null) : null;
+  if (!view.active()) return;
   const images = [];
   view.dispose = () => images.forEach((url) => URL.revokeObjectURL(url));
   screen.innerHTML = `${back(t('trips.my_journal'))}
@@ -162,7 +166,23 @@ export async function tripScreen({ view, nav, pack, waterDirectory }) {
     const article = document.createElement('article');
     article.className = 'surface catch-card';
     by('catch-list').append(article);
-    article.innerHTML = catchDetails(c, pack.species);
+    const latin = catchLatin(c, pack, fishes);
+    const name = fishes?.names.get(latin)?.label || (pack.species[c.speciesId] ? loc(pack.species[c.speciesId]) : c.speciesName || c.speciesId);
+    article.innerHTML = catchDetails(c, name);
+    if (water && latin) {
+      const details = document.createElement('details');
+      details.className = 'fold';
+      const summary = document.createElement('summary');
+      summary.textContent = t('catch_picker.rules');
+      const body = document.createElement('div');
+      body.className = 'fold-body';
+      // Build only an opened card; a trip may contain many catches of the same species.
+      details.ontoggle = () => {
+        if (details.open && !body.hasChildNodes()) body.innerHTML = catchRulesHtml(pack, fishes, water, trip.day, latin);
+      };
+      details.append(summary, body);
+      article.append(details);
+    }
     const share = document.createElement('button');
     share.className = 'secondary';
     share.type = 'button';
@@ -202,10 +222,7 @@ export async function tripScreen({ view, nav, pack, waterDirectory }) {
 }
 
 /** Render user-entered notes and private positions from the stored catch snapshot. */
-function catchDetails(record, species) {
-  const name = species[record.speciesId]
-    ? loc(species[record.speciesId])
-    : record.speciesName || record.speciesId;
+function catchDetails(record, name) {
   const lines = [`<h3>${esc(name)}</h3>`];
   if (record.lengthMm) {
     const length = new Intl.NumberFormat(languageTag, { maximumFractionDigits: 1 }).format(

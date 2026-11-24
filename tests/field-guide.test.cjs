@@ -95,3 +95,26 @@ test('dated Czech water rules distinguish water, species, inclusive boundaries a
   }
   assert.equal(scopedFishRules(rules,'CZ','nontrout','Huso huso').species.some(r=>r.minCm),false);
 });
+
+test('catch history resolves pilot keys and scientific names without guessing from manual entries', async () => {
+  global.document = { querySelector: () => null };
+  const { catchLatin, catchRulesHtml } = await import('../app/src/main/assets/catch-species.js');
+  const pack = json('catalog');
+  const directory = { names: new Map(json('europe-fish').species.map(f => [f.latin, f])), rules: json('europe-rules') };
+  assert.equal(catchLatin({speciesId:'pike'}, pack, null), 'Esox lucius');
+  assert.equal(catchLatin({speciesId:'Perca fluviatilis'}, pack, directory), 'Perca fluviatilis');
+  assert.equal(catchLatin({speciesId:null, speciesName:'Esox lucius'}, pack, directory), undefined);
+  assert.equal(catchLatin({speciesId:'withdrawn-id', speciesName:'Pike'}, pack, directory), undefined);
+
+  const water = {...pack.waters[0], country:'CZ', trout:false};
+  const local = catchRulesHtml(pack, directory, water, '2026-11-30', 'Esox lucius');
+  assert.match(local, /60 cm/);
+  assert.match(local, /50 cm/);
+  assert.doesNotMatch(local, /id="lookup-/);
+  const trout = {...water, id:'new-trout-water', trout:true};
+  const winter = catchRulesHtml(pack, directory, trout, '2027-01-01', 'Oncorhynchus mykiss');
+  assert.equal((winter.match(/data-rule-status="closed"/g) || []).length, 1);
+  assert.match(winter, /25 cm/);
+  assert.doesNotMatch(catchRulesHtml(pack, directory, trout, '2028-01-01', 'Oncorhynchus mykiss'), /25 cm/);
+  assert.doesNotMatch(catchRulesHtml(pack, directory, {...trout, country:'US'}, '2027-01-01', 'Esox lucius'), /data-rule-status/);
+});

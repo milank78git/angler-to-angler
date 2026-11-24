@@ -1,5 +1,7 @@
 import { languageTag } from './i18n.js';
-import { fishDirectory, fishOption } from './fish-catalogue.js';
+import { fishDirectory } from './fish-catalogue.js';
+import { bindCatchSpecies, catchSpeciesFields } from './catch-species.js';
+import { tripWater } from './water-directory.js';
 import { pixelJpeg } from './photo.js';
 import { Journal, newJournalId } from './journal.js';
 import { bindCatchPosition } from './catch-position.js';
@@ -7,7 +9,6 @@ import * as Domain from './domain.js';
 import {
   screen,
   t,
-  loc,
   by,
   button,
   icon,
@@ -56,11 +57,17 @@ function bindPhotoPreview() {
 }
 
 /** Capture the draft once and commit the catch and its photograph together. */
-export function catchForm({ view, nav, pack }) {
+export async function catchForm({ view, nav, pack, waterDirectory }) {
   const { id } = view.route,
     catchId = newJournalId(),
     created = Date.now();
-  screen.innerHTML = catchFields(pack);
+  const [trip, directory] = await Promise.all([Journal.trip(id), fishDirectory().catch(() => null)]);
+  if (!view.active()) return;
+  if (!trip) return nav.journalAfterWrite(null);
+  screen.innerHTML = catchFields();
+  const species = bindCatchSpecies(pack, trip, directory);
+  view.refreshWaters = edition => species.setWater(tripWater(edition, trip));
+  view.refreshWaters(waterDirectory);
   const positionInput = bindCatchPosition(view);
   const photoInput = bindPhotoPreview();
   by('camera-photo').onclick = (event) => {
@@ -75,21 +82,6 @@ export function catchForm({ view, nav, pack }) {
   };
   bindBack(nav);
   trackEdits(by('form'), view);
-  const fishSelect = by('fish');
-  const known = new Set(Object.values(pack.species).map(s => s.latin));
-  fishDirectory().then(directory => {
-    if (!view.active()) return;
-    const group = document.createElement('optgroup');
-    group.label = t('fish_catalogue.title');
-    directory.species.filter(f => !known.has(f.latin)).sort((a,b) => a.label.localeCompare(b.label))
-      .forEach(f => group.append(new Option(fishOption(f), f.latin)));
-    fishSelect.append(group);
-  }).catch(() => { /* A private catch can always use a locally entered name. */ });
-  by('fish-name').required = true;
-  by('fish').onchange = () => {
-    by('custom-fish').hidden = !!by('fish').value;
-    by('fish-name').required = !by('fish').value;
-  };
   by('form').onsubmit = async (e) => {
     e.preventDefault();
     if (view.saving) return;
@@ -102,9 +94,8 @@ export function catchForm({ view, nav, pack }) {
       invalid.removeAttribute('aria-invalid');
       invalid.removeAttribute('aria-describedby');
     }
-    const speciesId = by('fish').value,
-      speciesName = by('fish-name').value.trim();
-    if (!speciesId && !speciesName) {
+    const fish = species.record();
+    if (!fish.speciesName) {
       toast(t('catch_form.enter_a_fish_species'));
       return;
     }
@@ -130,8 +121,7 @@ export function catchForm({ view, nav, pack }) {
       id: catchId,
       tripId: id,
       created,
-      speciesId: speciesId || null,
-      speciesName: speciesId ? (pack.species[speciesId] ? loc(pack.species[speciesId]) : fishSelect.selectedOptions[0].textContent) : speciesName,
+      ...fish,
       lengthMm,
       position,
       capture: photoInput.capture() || null,
@@ -155,11 +145,7 @@ export function catchForm({ view, nav, pack }) {
     );
   };
 }
-function catchFields(pack) {
-  const fish = [
-    ['', t('catch-form.other.species')],
-    ...Object.entries(pack.species).map(([id, species]) => [id, loc(species)]),
-  ];
+function catchFields() {
   const kinds = [
     ['stand', t('common.angler_position')],
     ['strike', t('common.strike_location')],
@@ -167,9 +153,9 @@ function catchFields(pack) {
   return (
     back(t('common.trip')) +
     `<div class="page-intro"><div class="title-mark">${icon('fish')}</div><h1>${t('catch_form.new_catch')}</h1></div>
-  <form id="form" class="entry-form"><section class="surface">${selectField('fish', t('common.fish_species'), fish, '')}
-    <div id="custom-fish">${textInput('fish-name', t('catch_form.species_name'), '', 'maxlength="100"')}</div>
+  <form id="form" class="entry-form"><section class="surface">${catchSpeciesFields()}
     ${textInput('length', t('catch_form.measured_length_cm'), '', 'inputmode="decimal" placeholder="' + exampleNumber.format(64.5) + '"')}
+    <details id="catch-rules" class="fold" hidden><summary>${t('catch_picker.rules')}</summary><div class="fold-body" id="catch-rule-body"></div></details>
     <div class="photo-field"><input type="file" id="camera-photo" accept="image/*" capture="environment"><label for="camera-photo">${icon('camera')}${t('catch_form.photograph_catch_at_the_water')}</label>
     <small>${t('catch_form.photograph_the_whole_fish_with_a_ruler')}</small>
     <input type="file" id="photo" accept="image/*"><label for="photo">${icon('camera')}<span id="photo-label">${t('catch_form.add_photo')}</span></label><small id="capture-state" role="status"></small><img id="photo-preview" class="preview" hidden alt=""></div></section>

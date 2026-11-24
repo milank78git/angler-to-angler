@@ -18,10 +18,7 @@ import {
   link,
   displayDay,
 } from './ui.js';
-function ruleResult(pack, w) {
-  const section = by('section').value,
-    speciesId = by('species').value,
-    day = by('rule-date').value;
+export function localSeasonHtml(pack, w, section, speciesId, day) {
   const status = Domain.season(pack, speciesId, section, day);
   const labels = {
     closed: t('seasons.closed_season'),
@@ -48,9 +45,13 @@ function ruleResult(pack, w) {
   const minimum = w.size[speciesId]
     ? ' · ' + t('seasons.minimum_size') + ' ' + w.size[speciesId] + ' cm'
     : '';
-  by('status').innerHTML =
-    `<div class="panel result ${status}"><strong>${icon(glyph)}${labels[status]}</strong>
+  return `<div class="panel result ${status}"><strong>${icon(glyph)}${labels[status]}</strong>
     ${valid ? `<p>${windowLabel}${minimum}</p>` : ''}</div>`;
+}
+
+function ruleResult(pack, w) {
+  const section = by('section').value, speciesId = by('species').value;
+  by('status').innerHTML = localSeasonHtml(pack, w, section, speciesId, by('rule-date').value);
   const key = pack.id + '/' + w.id + '/' + speciesId;
   by('watch').innerHTML = '';
   if (!window.Device || section !== 'main') return;
