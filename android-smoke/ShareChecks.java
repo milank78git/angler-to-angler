@@ -27,6 +27,10 @@ final class ShareChecks {
   }
 
   private static Intent outgoing(Runner app) throws Exception {
+    return outgoing(app, "#card-send");
+  }
+
+  static Intent outgoing(Runner app, String selector) throws Exception {
     ArrayBlockingQueue<Intent> captured = new ArrayBlockingQueue<>(1);
     ActivityMonitor monitor =
         new ActivityMonitor() {
@@ -39,11 +43,12 @@ final class ShareChecks {
         };
     app.addMonitor(monitor);
     try {
-      app.js("document.querySelector('#card-send').click()");
+      app.clickReady(selector);
       Intent chooser = captured.poll(10, TimeUnit.SECONDS);
       check(chooser != null, "System chooser was not requested");
       Intent send = chooser.getParcelableExtra(Intent.EXTRA_INTENT);
-      check(send != null && Intent.ACTION_SEND.equals(send.getAction()), "Expected a send intent");
+      check(send != null, "Chooser has no target intent");
+      if ("#card-send".equals(selector)) check(Intent.ACTION_SEND.equals(send.getAction()), "Expected a send intent");
       app.waitForIdleSync();
       return send;
     } finally {

@@ -48,3 +48,25 @@ test('all packaged market species can round-trip through the versioned database 
   const stored=new Set(migration.split('$fish$')[1].split('\n'));
   for (const row of json('europe-fish').species) assert.ok(stored.has(row.latin),row.latin);
 });
+
+test('CZ trout and non-trout sizes are distinct from whole-water closures', () => {
+  const rules = json('europe-rules').entries.filter(r => r.country === 'CZ');
+  const sizes = (name, waterClass) => rules.filter(r => r.species.includes(name) && r.minCm != null &&
+    [waterClass, 'czall'].includes(r.scope)).map(r => r.minCm);
+  assert.deepEqual(sizes('Cyprinus carpio','cztrout'),[40]);
+  assert.deepEqual(sizes('Esox lucius','cztrout'),[]);
+  assert.deepEqual(sizes('Esox lucius','nontrout'),[50]);
+  assert.ok(rules.some(r => r.scope==='cztrout' && r.allFreshwater && !r.species.length));
+  assert.ok(!rules.some(r => r.species.includes('Oncorhynchus mykiss') && r.closed));
+});
+
+test('map navigation uses published coordinates and distinguishes unknown locations', async () => {
+  global.document = {querySelector:()=>null};
+  const {mapFeature} = await import('../app/src/main/assets/atlas-map.js');
+  const outline = [[[[14,49],[15,49],[15,50],[14,49]]]];
+  assert.deepEqual(mapFeature({},outline).target,[14,49]);
+  assert.deepEqual(mapFeature({lines:[[[3,4],[5,6]]]}).target,[3,4]);
+  assert.deepEqual(mapFeature({access:{pt:[1,2]},points:[[3,4]]},outline).target,[1,2]);
+  assert.deepEqual(mapFeature({points:[[0,0]]}).target,[0,0]);
+  assert.equal(mapFeature({points:[[null,0],[0,100]]}),null);
+});

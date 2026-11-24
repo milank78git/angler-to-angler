@@ -115,6 +115,15 @@ final class AccountChecks {
                           }
                           JSONObject body = new JSONObject(request.toString("UTF-8"));
                           switch (u.getPath()) {
+                            case "/rest/v1/rpc/angler_register_post_watch":
+                              if (!"Bearer fixture-session".equals(getRequestProperty("Authorization"))) return 401;
+                              java.util.UUID.fromString(body.getString("device_key"));
+                              response = new JSONObject().put("position","7").put("water","CZ:401009").toString();
+                              return 200;
+                            case "/rest/v1/rpc/angler_end_post_watch":
+                              java.util.UUID.fromString(body.getString("device_key"));
+                              response = "{}";
+                              return 200;
                             case "/rest/v1/rpc/angler_water_manifest":
                               response = atlas.manifest;
                               return 200;
@@ -799,6 +808,38 @@ final class AccountChecks {
   void atlasSettings() throws Exception {
     app.clickReady("#atlas-settings");
     String daily = tr("atlas_settings.check_automatically_every_day");
+    for (String option : new String[]{"alerts.posts","alerts.waters","alerts.nearby","settings.large","settings.screen_on"}) {
+      if (((CheckBox)find(tr(option))).isChecked()) throw new AssertionError("Unexpected default for " + option);
+    }
+    android.content.Context target = app.getTargetContext();
+    app.getUiAutomation().grantRuntimePermission(target.getPackageName(), android.Manifest.permission.POST_NOTIFICATIONS);
+    click(tr("alerts.posts"));
+    android.content.SharedPreferences alerts = target.getSharedPreferences("field-alerts", 0);
+    long activation = android.os.SystemClock.elapsedRealtime() + 10000;
+    while (!alerts.contains("cursor") && android.os.SystemClock.elapsedRealtime() < activation) Thread.sleep(100);
+    if (alerts.getLong("cursor", -1) != 7) throw new AssertionError("Post subscription did not establish its baseline");
+    android.app.job.JobScheduler jobs = target.getSystemService(android.app.job.JobScheduler.class);
+    if (jobs.getAllPendingJobs().stream().noneMatch(j -> j.getService().getClassName().endsWith(".FieldAlertJob") && j.isPersisted()
+        && j.getIntervalMillis() == TimeUnit.HOURS.toMillis(1))) throw new AssertionError("Hourly post check unavailable");
+    click(tr("alerts.posts"));
+    if (alerts.contains("key") || jobs.getAllPendingJobs().stream().anyMatch(j -> j.getService().getClassName().endsWith(".FieldAlertJob")))
+      throw new AssertionError("Post subscription survived switching off");
+    click(tr("settings.screen_on"));
+    click(tr("settings.large"));
+    app.waitForIdleSync();
+    click(tr("common.back"));
+    app.waitForIdleSync();
+    int expectedZoom = Math.round(130 * target.getResources().getConfiguration().fontScale);
+    long zoomDeadline = android.os.SystemClock.elapsedRealtime() + 6000;
+    while (app.textZoom() != expectedZoom && android.os.SystemClock.elapsedRealtime() < zoomDeadline) Thread.sleep(100);
+    if (app.textZoom() != expectedZoom)
+      throw new AssertionError("Journal text zoom " + app.textZoom() + ", expected " + expectedZoom);
+    app.clickReady("#atlas-settings");
+    if (!((CheckBox)find(tr("settings.screen_on"))).isChecked() || !((CheckBox)find(tr("settings.large"))).isChecked())
+      throw new AssertionError("Reading preferences were not retained");
+    click(tr("settings.screen_on"));
+    click(tr("settings.large"));
+    app.waitForIdleSync();
     String manual = tr("atlas_settings.check_now");
     CheckBox automatic = (CheckBox)find(daily);
     if (!automatic.isChecked()) throw new AssertionError("Daily atlas updates disabled by default");

@@ -270,5 +270,9 @@
   "rule-water-search": {
     "topic": "waters",
     "message": "field-hints.rule-water-search"
+  },
+  "fish-water-class": {
+    "topic": "catalog",
+    "message": "field-hints.fish-water-class"
   }
 }

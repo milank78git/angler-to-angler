@@ -102,6 +102,11 @@ export function rulesScreen({ view, pack, nav, waterDirectory }) {
     by('status').innerHTML = `<div class="panel result unknown"><strong>${icon('circle-help')}${t('seasons.no_verified_rule_for_this_selection')}</strong>
       <div class="rulesrc">${link(site.source, t('waters.official_fishery_record'))}
       ${authority ? link(authority, t('waters.national_fishing_information')) : ''}</div></div>`;
+    if (waterDirectory.countries[site.country] && !route.latin) {
+      by('rule-fields').innerHTML = button('water-fish-rules',t('fish_rules.for_water'),'secondary');
+      bind('water-fish-rules', () => nav.open('fishCatalogue', { country:site.country, siteId:site.id,
+        waterClass:typeof site.trout === 'boolean' ? (site.trout ? 'cztrout' : 'nontrout') : undefined }));
+    }
     return;
   }
   const species = Object.entries(pack.species).map(([key, v]) => [key, loc(v)]);

@@ -77,6 +77,7 @@ public final class AccountActivity extends Activity {
     // A launcher tap only brings the current screen forward, including a pending mail callback.
     if (Intent.ACTION_MAIN.equals(intent.getAction()) && intent.getData() == null) return;
     setIntent(intent);
+    if (intent.hasExtra("fieldAlert") && !AccountStore.active(this).isEmpty()) { enter(); return; }
     if ((intent.getBooleanExtra("groupsSignIn", false)
             || intent.getBooleanExtra("profileSignIn", false))
         && intent.getData() == null) {
@@ -665,10 +666,12 @@ public final class AccountActivity extends Activity {
   }
 
   private void enter() {
-    startActivity(
-        new Intent(this, FishingActivity.class)
-            .putExtra("openProfile", profileLogin)
-            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+    Intent journal=new Intent(this,FishingActivity.class).putExtra("openProfile",profileLogin)
+        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    if (AccountStore.active(this).equals(getIntent().getStringExtra("fieldOwner")))
+      journal.putExtra("fieldAlert",getIntent().getStringExtra("fieldAlert"))
+          .putExtra("fieldWater",getIntent().getStringExtra("fieldWater"));
+    startActivity(journal);
     finish();
   }
 
