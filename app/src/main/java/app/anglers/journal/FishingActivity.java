@@ -51,6 +51,7 @@ public final class FishingActivity extends Activity {
   private long cameraStarted, cameraReturned;
   private volatile String captureInfo = "";
   private String subject;
+  private PlayStore playStore;
   private String pendingReminder;
 
   @Override
@@ -91,6 +92,7 @@ public final class FishingActivity extends Activity {
         + " AnglerToAngler (+https://github.com/milank78git/angler-to-angler)");
     settings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
     web.addJavascriptInterface(new Device(), "Device");
+    playStore = new PlayStore(this, web, subject);
     shares = new CatchShare(this);
     position = new PositionRequest(this, this::positionResult);
     nearbyPosition = new PositionRequest(this, (id,fix) -> {
@@ -235,6 +237,8 @@ public final class FishingActivity extends Activity {
         case "public_card_publish":
         case "public_card_withdraw":
         case "public_cards":
+        case "commerce":
+        case "journal_sync":
         case "parking_waters":
         case "parking_list":
         case "parking_save":
@@ -634,6 +638,7 @@ public final class FishingActivity extends Activity {
   protected void onResume() {
     super.onResume();
     foreground=true;
+    if (playStore!=null) playStore.resume();
     if (web!=null) {
       applyReadingPreferences();
       signal("window.refreshFieldSettings?.()");
@@ -663,6 +668,7 @@ public final class FishingActivity extends Activity {
   protected void onDestroy() {
     WaterCatalogue.prefs(this).unregisterOnSharedPreferenceChangeListener(atlasListener);
     getSharedPreferences("appearance", MODE_PRIVATE).unregisterOnSharedPreferenceChangeListener(appearanceListener);
+    if (playStore!=null) playStore.close();
     profileIo.shutdownNow();
     discardDeliveredPhoto();
     CameraPhotoProvider.discard(this, cameraUri);

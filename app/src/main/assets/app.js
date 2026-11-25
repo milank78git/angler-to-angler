@@ -135,6 +135,7 @@ async function start() {
   }
   by('mark').innerHTML = icon('fish-symbol');
   by('offline').innerHTML = icon('check') + t('journal.offline_pack');
+  window.addEventListener('journal-restored', () => { if (nav.current?.route.page === 'trips') nav.show(); });
   const system = matchMedia('(prefers-color-scheme: dark)');
   const sync = () =>
     setTheme(
@@ -147,6 +148,7 @@ async function start() {
   bind('theme', () => {
     const mode = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
     localStorage.setItem('ui.theme', mode);
+    window.dispatchEvent(new Event('journal-edited'));
     setTheme(mode);
   });
   try {

@@ -116,7 +116,44 @@ export function createJournal(factory = globalThis.indexedDB, name = 'angler-fie
       };
     });
   }
+  const lock = operation => globalThis.navigator?.locks
+    ? navigator.locks.request(name + ':write', operation) : operation();
+  const change = operation => (...args) => lock(async () => {
+    const result = await operation(...args);
+    globalThis.dispatchEvent?.(new Event('journal-edited'));
+    return result;
+  });
+
+  // Replace all members of a remote trip in one IndexedDB transaction.
+  function restoreTrip(id, document) {
+    return transaction(['trips','catches','photos'], 'readwrite', tx => {
+      const trips = tx.objectStore('trips'), catches = tx.objectStore('catches'), photos = tx.objectStore('photos');
+      const previous = catches.index('tripId').getAllKeys(id);
+      previous.onsuccess = () => {
+        for (const key of previous.result) { catches.delete(key); photos.delete(key); }
+        if (!document) { trips.delete(id); return; }
+        trips.put(document.trip);
+        for (const { record, photo } of document.catches) {
+          const found = catches.get(record.id);
+          found.onsuccess = () => {
+            if (found.result && found.result.tripId !== id) { tx.abort(); return; }
+            catches.put(record);
+            if (photo) photos.put(photo, record.id);
+          };
+        }
+      };
+    });
+  }
+  function writeWaterPhoto(key, blob) {
+    return transaction(['photos'], 'readwrite', tx => {
+      const store = tx.objectStore('photos'), id = ['water', key];
+      if (blob) store.put(blob, id);
+      else store.delete(id);
+    });
+  }
   return {
+    lock, restoreTrip, writeWaterPhoto,
+    waterPhotoKeys: () => read('photos', store => store.getAllKeys(IDBKeyRange.bound(['water'], ['water', []]))),
     listTrips,
     statEntries: () => transaction(['trips','catches'], 'readonly', (tx, result) => {
       const snapshot = {};
@@ -126,20 +163,16 @@ export function createJournal(factory = globalThis.indexedDB, name = 'angler-fie
       }
       result(snapshot);
     }),
-    saveCatch,
-    removeTrip,
+    saveCatch: change(saveCatch),
+    removeTrip: change(removeTrip),
     trip: (id) => read('trips', (s) => s.get(id)),
     catchById: (id) => read('catches', (store) => store.get(id)),
     catches: (id) => read('catches', (s) => s.index('tripId').getAll(id)),
     photo: (id) => read('photos', (s) => s.get(id)),
     // Array keys cannot collide with the string catch IDs in existing journals.
     waterPhoto: (key) => read('photos', (store) => store.get(['water', key])),
-    setWaterPhoto: (key, blob) => transaction(['photos'], 'readwrite', (tx) => {
-      const store = tx.objectStore('photos'), id = ['water', key];
-      if (blob) store.put(blob, id);
-      else store.delete(id);
-    }),
-    saveTrip: (trip) => transaction(['trips'], 'readwrite', (tx) => tx.objectStore('trips').put(trip)),
+    setWaterPhoto: change(writeWaterPhoto),
+    saveTrip: change(trip => transaction(['trips'], 'readwrite', tx => tx.objectStore('trips').put(trip))),
   };
 }
 export const Journal = createJournal(globalThis.indexedDB,globalThis.Device?.journalName?.());

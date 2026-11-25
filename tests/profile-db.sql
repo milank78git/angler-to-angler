@@ -48,4 +48,6 @@ do $$begin if exists(select from angler_private.acceptances) or exists(select fr
 \ir group-monthly-db.sql
 \ir shared-species-db.sql
 \ir parking-db.sql
+\ir private-journal-db.sql
+\ir play-commerce-db.sql
 rollback;

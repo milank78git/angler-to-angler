@@ -121,6 +121,10 @@ final class IdentityService {
     return request("/rest/v1/rpc/angler_" + operation, token, args);
   }
 
+  void verifyPlay(String bearer, String purchaseToken) throws Exception {
+    request("/functions/v1/play-purchase", bearer, new JSONObject().put("token", purchaseToken));
+  }
+
   private JSONObject request(String path, String token, JSONObject data) throws Exception {
     return request(path, token, data, data == null ? "GET" : "POST");
   }

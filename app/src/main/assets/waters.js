@@ -72,6 +72,7 @@ function toggleFavorite(pack, id) {
   const key = `water.${window.Device.subjectId()}.${pack.id}.${id}`;
   if (isFavorite(pack, w)) localStorage.removeItem(key);
   else localStorage.setItem(key, '1');
+  window.dispatchEvent(new Event('journal-edited'));
 }
 let locationRequest = 2000000;
 
@@ -191,11 +192,13 @@ export async function listWaters({ view, pack, nav, waterDirectory }) {
     if (offer) {
       offer.hidden = true;
       localStorage.setItem(locationChoice, '1');
+      window.dispatchEvent(new Event('journal-edited'));
     }
   }
   function setCountry(code) {
     route.country = code;
     localStorage.setItem(countryPreference, code);
+    window.dispatchEvent(new Event('journal-edited'));
     by('water-country').value = code;
     by('atlas-sources').hidden = !code;
     by('water-coverage').innerHTML = coverage(waterDirectory, code);
