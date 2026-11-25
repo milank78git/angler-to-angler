@@ -120,7 +120,11 @@ async function onPhone(action, fixture) {
     try {await rpc('journal_sync',{op:'get',args:{hash:fixture.part}});} catch {denied=true;}
     assert(denied && !(await rpc('my_details')).expiry,'Other user accessed private bytes or profile');
     // Reproduce an upgrade from a local-only journal, while another device already syncs this account.
-    if (el('#journal-sync').dataset.state !== 'disabled') { await state('done'); await confirm('pause'); }
+    const initial = await until(() => {
+      const value = el('#journal-sync').dataset.state;
+      return ['disabled', 'done'].includes(value) && value;
+    }, 'initial sync decision');
+    if (initial === 'done') await confirm('pause');
     await state('disabled');
     await Journal.saveTrip({id:'historical',day:'2025-07-01',waterName:'Old private water',created:1});
     await rpc('journal_sync',{op:'enable',args:{}});

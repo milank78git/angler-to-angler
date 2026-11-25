@@ -8,7 +8,9 @@ const subject=window.Device?.subjectId?.();
 const prefix='journal.sync.v1.'+subject+'.';
 const call=(op,args)=>rpc('journal_sync',{op,args});
 const same=(a,b)=>a.length===b.length && a.every((v,i)=>v===b[i]);
+const choiceKey = prefix + 'enabled';
 let status = enabled() ? 'waiting' : 'disabled';
+let checking = false;
 let timer, busy = false, again = false, conflicts = [];
 const lastSyncKey = prefix + 'lastSuccess';
 function online() { return navigator.onLine !== false; }
@@ -16,7 +18,7 @@ function notify(value) {
   status=value;
   window.dispatchEvent(new Event('journal-sync-status'));
 }
-function enabled() { return !!subject && localStorage.getItem(prefix+'enabled')==='1'; }
+function enabled() { return !!subject && localStorage.getItem(choiceKey)==='1'; }
 function schedule() {
   if (!enabled()) return;
   clearTimeout(timer);
@@ -156,16 +158,16 @@ export function bindJournalSync(panel, waters) {
       el.dataset.action=labelKey;el.textContent=t(labelKey);el.onclick=action;panel.append(el);
     };
     if (!enabled() && status === 'check_failed') button('sync.retry', start);
-    if (!enabled()) button('sync.enable',async()=>{
+    if (!enabled() && status !== 'checking') button('sync.enable',async()=>{
       if (await confirmAction({title:t('sync.enable'),message:t('sync.consent'),accept:t('sync.enable')})) {
-        localStorage.setItem(prefix+'enabled','1');schedule();
+        localStorage.setItem(choiceKey,'1');schedule();
       }
     });
-    else if (status!=='working') {
+    else if (enabled() && status!=='working') {
       button('sync.retry',()=>run());
       button('sync.pause',async()=>{
         if (await confirmAction({title:t('sync.pause'),message:t('sync.pause_info'),accept:t('sync.pause')})) {
-          clearTimeout(timer);localStorage.setItem(prefix+'enabled','0');conflicts=[];notify('disabled');
+          clearTimeout(timer);localStorage.setItem(choiceKey,'0');conflicts=[];notify('disabled');
         }
       });
     }
@@ -188,23 +190,35 @@ function resume() {
   else schedule();
 }
 document.addEventListener('visibilitychange',()=>{ if (!document.hidden) resume(); });
+/** A cloud-enabled account may restore automatically only into an empty private journal. */
 async function start() {
-  if (!subject || localStorage.getItem(prefix+'enabled')==='0') return;
-  if (!enabled()) {
-    if (!window.Device?.journalCloudDefault?.()) {
-      // Previously local records need an explicit migration decision, even on a second handset.
-      try {
-        if (!(await call('settings',{})).enabled) { if (!enabled()) notify('disabled'); return; }
-        const keys=await documentKeys(Journal,localStorage,subject);
-        if (keys.some(key=>key.startsWith('trip/') || key.startsWith('photo/') || key.startsWith('pref/water/'))) {
-          if (!enabled()) notify('disabled');
-          return;
-        }
-      } catch { if (!enabled() && localStorage.getItem(prefix+'enabled') === null) notify('check_failed'); return; }
-    }
-    if (localStorage.getItem(prefix+'enabled')===null) localStorage.setItem(prefix+'enabled','1');
+  if (!subject || checking) return;
+  const choice = localStorage.getItem(choiceKey);
+  if (choice !== null) {
+    if (enabled()) schedule();
+    return;
   }
-  schedule();
+  checking = true;
+  notify('checking');
+  try {
+    const canRestore = window.Device?.journalCloudDefault?.() || (await call('settings', {})).enabled;
+    if (canRestore) {
+      // Use the journal writer lock so the empty check and local opt-in cannot straddle a trip edit.
+      await Journal.lock(async () => {
+        const keys = await documentKeys(Journal, localStorage, subject);
+        if (localStorage.getItem(choiceKey) !== null) return;
+        const hasHistory = keys.some(key =>
+          key.startsWith('trip/') || key.startsWith('photo/') || key.startsWith('pref/water/'));
+        localStorage.setItem(choiceKey, hasHistory ? '0' : '1');
+      });
+    }
+    if (enabled()) schedule();
+    else notify('disabled');
+  } catch {
+    if (localStorage.getItem(choiceKey) === null) notify('check_failed');
+  } finally {
+    checking = false;
+  }
 }
 window.addEventListener('online',start);
 start();

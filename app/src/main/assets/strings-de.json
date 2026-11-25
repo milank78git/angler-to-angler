@@ -1104,5 +1104,6 @@
  "sync.saved_at": "Im Konto gespeichert · {time}",
  "sync.last_success": "Zuletzt erfolgreich synchronisiert · {time}",
  "sync.trip": "Angelausflug",
+ "sync.checking": "Synchronisierungseinstellungen für das Tagebuch werden geprüft…",
  "sync.check_failed": "Auf diesem Gerät gespeichert. Es konnte nicht geprüft werden, ob dein Konto ein Online-Tagebuch enthält."
 }

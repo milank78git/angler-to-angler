@@ -1104,5 +1104,6 @@
   "sync.saved_at": "Saved to your account · {time}",
   "sync.last_success": "Last successful sync · {time}",
   "sync.trip": "Fishing trip",
+  "sync.checking": "Checking journal synchronization settings…",
   "sync.check_failed": "Saved on this device. Could not check whether your account has an online journal."
 }

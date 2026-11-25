@@ -1104,5 +1104,6 @@
   "sync.saved_at": "Uloženo v účtu · {time}",
   "sync.last_success": "Poslední úspěšná synchronizace · {time}",
   "sync.trip": "Rybářská výprava",
+  "sync.checking": "Ověřuji nastavení synchronizace deníku…",
   "sync.check_failed": "Uloženo v telefonu. Nepodařilo se ověřit, zda máš v účtu uložený deník."
 }
