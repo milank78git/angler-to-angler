@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.function.Consumer;
 
 /**
- * Serves only bundled files on the private journal origin. User-activated HTTPS links open
+ * Serves the private journal origin and permits public topographic tile images. HTTPS links open
  * externally.
  */
 final class LocalAssetClient extends WebViewClient {
@@ -35,6 +35,13 @@ final class LocalAssetClient extends WebViewClient {
   public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
     Uri uri = request.getUrl();
     String path = uri.getPath();
+    // Let WebView use its normal HTTP image cache. The map provider receives only tile coordinates.
+    if (context != null && !request.isForMainFrame() && "GET".equals(request.getMethod())
+        && "https".equals(uri.getScheme()) && "tile.openmaps.fr".equals(uri.getEncodedAuthority())
+        && uri.getEncodedQuery() == null && path != null
+        && path.matches("/opentopomap/(?:[0-9]|1[0-7])/[0-9]{1,6}/[0-9]{1,6}\\.png")) {
+      return null;
+    }
     if ("https".equals(uri.getScheme())
         && HOST.equals(uri.getHost())
         && path != null

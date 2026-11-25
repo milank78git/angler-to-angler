@@ -353,17 +353,6 @@ main {
   width: 17px;
   height: 17px;
 }
-.photo-place {
-  position: absolute;
-  right: 13px;
-  top: 12px;
-  color: white;
-  font-size: 0.72rem;
-  font-weight: 600;
-  background: #12382cdb;
-  border-radius: 14px;
-  padding: 0.25rem 0.63rem;
-}
 .catalog-tools {
   margin: 16px 0 10px;
 }
@@ -470,13 +459,6 @@ small {
   min-width: 0;
   padding: 5px;
   gap: 12px;
-}
-.thumb {
-  width: clamp(65px, 18vw, 114px);
-  height: 76px;
-  object-fit: cover;
-  border-radius: 12px;
-  flex: none;
 }
 .water-copy,
 .row-main {
@@ -1056,10 +1038,6 @@ textarea {
   .topinner {
     gap: 0.3rem;
   }
-  .thumb {
-    width: 60px;
-    height: 68px;
-  }
   .water-open {
     gap: 7px;
   }
@@ -1132,10 +1110,6 @@ textarea {
   #notice {
     bottom: 18px;
   }
-  .photo-place {
-    right: 20px;
-    top: 18px;
-  }
 }
 @media (min-width: 900px) {
   .hero {
@@ -1143,9 +1117,6 @@ textarea {
   }
   .water-open {
     padding: 8px;
-  }
-  .thumb {
-    height: 91px;
   }
   .water-copy strong {
     font-size: 1.32rem;
@@ -1373,13 +1344,9 @@ label.label-with-hint { display: inline-block; margin-inline-end: .45rem; }
 #nearby-status:empty { display: none; }
 #atlas-sources { margin: .4rem 0; }
 @media (max-width: 599px) {
-  .atlas-hero { min-height: 0; }
-  .atlas-hero .hero-copy { padding: .65rem 1rem; }
   .topinner .offline { display: none; }
   .topinner .brand-text { min-width: 0; flex: 1; }
   .topinner .icon-btn { flex: 0 0 44px; }
-  .atlas-hero h1 { font-size: 1.65rem; }
-  .atlas-hero .photo-place, .atlas-hero .hero-meta { display: none; }
   .home-features, .atlas-actions { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); }
   .home-features button, .atlas-actions button { padding: .45rem; }
   .topinner { flex-wrap: wrap; gap: .25rem; }
@@ -1392,7 +1359,10 @@ label.label-with-hint { display: inline-block; margin-inline-end: .45rem; }
 .fish-list-item small { font-weight: 400; color: var(--muted); }
 
 #world-map { display: block; width: 100%; height: clamp(260px, 55vh, 620px); background: #e0edf0; touch-action: none; border-radius: 12px; }
-#world-map g { cursor: pointer; }
+#world-map [data-group] { cursor: pointer; }
+#map-land, #map-tiles, #map-shapes { pointer-events: none; }
+#map-shapes path { fill: none; stroke: #156781; stroke-width: 2; vector-effect: non-scaling-stroke; }
+#map-attribution { margin: .4rem 0; }
 #world-map circle { fill: #245740; stroke: white; stroke-width: 2px; }
 #world-map text { fill: white; font: bold 12px sans-serif; text-anchor: middle; pointer-events: none; }
 #world-map g:focus circle { stroke: #cf641a; stroke-width: 4px; }

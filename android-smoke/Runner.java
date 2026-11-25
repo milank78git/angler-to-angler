@@ -168,7 +168,14 @@ public final class Runner extends Instrumentation {
     setControl("#search", "421 200", "input");
     waitFor("document.querySelectorAll('#world-map [data-group]').length===1"
         + " && document.querySelector('#map-count').textContent.includes('1 / 1')"
-        + " && !document.querySelector('#atlas-photo-credits .credits')");
+        + " && !document.querySelector('#waters img')");
+    waitFor("!!document.querySelector('#map-tiles image[href*=\"tile.openmaps.fr/opentopomap/\"]')");
+    clickReady("#map-online");
+    waitFor("!document.querySelector('#map-tiles image') && !!document.querySelector('#map-markers [data-group]')");
+    clickReady("#zoom-in");
+    waitFor("!!document.querySelector('#map-shapes path') || !!document.querySelector('#map-markers [data-group]')");
+    clickReady("#map-fit");
+    clickReady("#map-online");
     js("document.querySelector('#world-map [data-group]').dispatchEvent(new MouseEvent('click',{bubbles:true}))");
     waitFor("!!document.querySelector('#drive-1')");
     ShareChecks.parking(this, "#drive-1", "48.6594239,14.1710583");
@@ -581,10 +588,15 @@ public final class Runner extends Instrumentation {
           "getComputedStyle(document.querySelector('#tabs')).flexDirection==='"
               + ("wide".equals(scenario) ? "column" : "row")
               + "'");
+      waitFor("!document.querySelector('#waters img') && !document.querySelector('.atlas-hero')"
+          + " && !['401001','401009'].includes(document.querySelector('[data-water]').dataset.water)");
       capture("atlas");
       // Exercise the packaged guide and country rules through the same entry points as an angler.
       clickReady("#home-fish");
       setControl("#fish-country", "CZ", "change");
+      setControl("#fish-query", "Alburnus alburnus", "input");
+      waitFor("(() => {const label=document.querySelector('#fish-results button')?.textContent;"
+          + "return !!label && label[0]===label[0].toLocaleUpperCase() && label.includes('Alburnus alburnus')})()");
       setControl("#fish-query", "Alepocephalus agassizii", "input");
       waitFor("document.querySelector('#fish-results').childElementCount===0");
       clickReady("label[for=fish-query] + .field-hint");

@@ -87,6 +87,8 @@ public final class FishingActivity extends Activity {
     settings.setAllowFileAccess(false);
     settings.setAllowContentAccess(false);
     settings.setGeolocationEnabled(false);
+    settings.setUserAgentString(settings.getUserAgentString()
+        + " AnglerToAngler (+https://github.com/milank78git/angler-to-angler)");
     settings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
     web.addJavascriptInterface(new Device(), "Device");
     shares = new CatchShare(this);

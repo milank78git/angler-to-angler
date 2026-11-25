@@ -18,7 +18,9 @@ export function fishDirectory() {
     .then(([data, english, local, rules, checklists]) => {
       const names = new Map();
       for (const fish of data.species) {
-        fish.label = local[fish.latin] || english[fish.latin] || fish.latin;
+        const common = local[fish.latin] || english[fish.latin];
+        fish.label = common ? common.replace(/^\p{Ll}/u, letter =>
+          letter.toLocaleUpperCase(local[fish.latin] ? languageTag : 'en')) : fish.latin;
         fish.search = fold([fish.latin,fish.label,english[fish.latin],...(fish.aliases || [])].filter(Boolean).join(' '));
         names.set(fish.latin, fish);
       }

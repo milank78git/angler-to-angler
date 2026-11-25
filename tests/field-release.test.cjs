@@ -48,3 +48,23 @@ test('local rankings use actual catches, count blank trips and update after trip
   ranked=personalTotals(data.trips,data.catches,asset('catalog'),null);
   assert.deepEqual(ranked.species,[]);assert.deepEqual(ranked.waters.map(r=>r.count),[1,1]);
 });
+
+test('atlas markers and visible topographic tiles agree at Lipno, across zoom levels and at the poles', async () => {
+  const {mercator,visibleTiles} = await import('../app/src/main/assets/atlas-basemap.js');
+  assert.deepEqual(mercator([0,0]), [.5,.5]);
+  const [x,y] = mercator([14.16,48.66]);
+  assert.equal(Math.floor(x*8192),4418);
+  assert.equal(Math.floor(y*8192),2825);
+  for (const level of [13,13.25,13.75]) {
+    const tiles=visibleTiles({x,y,level},360,480);
+    const center=tiles.filter(t=>t.x<=180 && t.x+t.size>180 && t.y<=240 && t.y+t.size>240);
+    const z=Math.round(level), n=2**z;
+    assert.deepEqual(center.map(t=>t.key),[z+'/'+Math.floor(x*n)+'/'+Math.floor(y*n)]);
+    assert.equal(new Set(tiles.map(t=>t.key)).size,tiles.length);
+  }
+  for (const lat of [90,-90]) {
+    const [x,y]=mercator([180,lat]);
+    assert.ok(y>=-1e-12 && y<=1+1e-12);
+    assert.deepEqual(visibleTiles({x,y,level:0},360,480).map(t=>t.key),['0/0/0']);
+  }
+});
