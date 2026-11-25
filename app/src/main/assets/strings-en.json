@@ -644,6 +644,7 @@
   "parking.copy": "Copy coordinates",
   "parking.drive": "Drive to parking",
   "parking.edit": "Edit parking point",
+  "parking.feedback_action": "Rate or add a note",
   "parking.filter": "With parking",
   "parking.filter_empty": "Turn off the parking filter or change the search area.",
   "parking.filter_offline": "The shared parking list could not be refreshed. Available points are still shown.",

@@ -644,6 +644,7 @@
   "parking.copy": "Zkopírovat souřadnice",
   "parking.drive": "Navigovat na parkoviště",
   "parking.edit": "Upravit parkovací bod",
+  "parking.feedback_action": "Ohodnotit nebo přidat poznámku",
   "parking.filter": "S parkovištěm",
   "parking.filter_empty": "Vypni filtr parkování nebo změň oblast vyhledávání.",
   "parking.filter_offline": "Seznam sdílených parkovišť se nepodařilo obnovit. Dostupná místa zůstávají zobrazená.",

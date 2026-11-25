@@ -16,14 +16,17 @@ function score(row) {
 async function parkingFeedback(host, point, onSummary) {
   host.textContent=t('parking.loading');
   let data;
-  try { data=await rpc('parking_feedback',{point_id:point.id}); }
+  try {
+    data=await rpc('parking_feedback',{point_id:point.id});
+    if (!Array.isArray(data?.items)) throw Error('Invalid parking feedback');
+  }
   catch(e) {
     if (!host.isConnected) return;
     host.innerHTML='<p role="status">'+esc(failure(e))+'</p>'+button('retry-'+point.id,t('common.retry'),'secondary');
     host.querySelector('button').onclick=()=>parkingFeedback(host,point,onSummary);
     return;
   }
-  if (!host.isConnected || !Array.isArray(data?.items)) return;
+  if (!host.isConnected) return;
   const key=point.id, starsId='stars-'+key, noteId='note-'+key;
   host.innerHTML=selectField(starsId,t('rating.mine'),[['',t('parking.no_score')],...[1,2,3,4,5].map(n=>[String(n),n+' / 5'])],String(data.myStars??''))+
     '<label for="'+noteId+'">'+esc(t('parking.note'))+'</label><textarea id="'+noteId+'" maxlength="500" rows="2"></textarea>'+
@@ -94,8 +97,10 @@ export async function waterParking(host,water,nav) {
       correct.onclick=()=>edit(p);
       if (online) {
         const details=document.createElement('details'),summary=document.createElement('summary'),body=document.createElement('div');
-        details.className='parking-feedback';
-        const update=row=>{summary.textContent=score(row)+' · '+t('parking.notes')+' ('+row.notes+')';};
+        details.className='parking-feedback fold';body.className='fold-body';
+        summary.textContent=t('parking.feedback_action');
+        const stats=document.createElement('p');stats.className='meta';card.append(stats);
+        const update=row=>{stats.textContent=score(row)+' · '+t('parking.notes')+' ('+row.notes+')';};
         update(p);details.append(summary,body);card.append(details);
         details.ontoggle=()=>{if(details.open && !body.hasChildNodes()) parkingFeedback(body,p,update);};
       }
