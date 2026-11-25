@@ -1071,6 +1071,8 @@
  "commerce.split": "Vom Erlös nach Abzug von Mehrwertsteuer und Google-Gebühren gehen 85 % an den Autor, 10 % an die App und 5 % an die Renaturierung. Das Willkommensguthaben finanziert der Betreiber.",
  "commerce.pack": "{count} Credits kaufen · {price}",
  "commerce.unavailable": "Google-Play-Guthabenpakete sind derzeit nicht verfügbar.",
+ "commerce.checkout_unavailable": "Der Google-Play-Kauf konnte nicht gestartet werden. Wähle das Paket erneut aus.",
+ "commerce.balance_unavailable": "Das Guthaben konnte nicht aktualisiert werden.",
  "commerce.payment_pending": "Die Zahlungsbestätigung von Google Play steht noch aus.",
  "commerce.delivery_retry": "Die Gutschrift konnte nicht bestätigt werden. Versuche es erneut, ohne nochmals zu bezahlen.",
  "commerce.purchase_unavailable": "Der Kaufstatus konnte nicht abgerufen werden. Versuche es erneut.",

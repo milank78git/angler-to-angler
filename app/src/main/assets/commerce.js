@@ -4,7 +4,6 @@ import { languageTag } from './i18n.js';
 
 const dispatch=(op,args={})=>rpc('commerce',{op,args});
 const money=halers=>new Intl.NumberFormat(languageTag,{style:'currency',currency:'CZK'}).format(halers/100);
-const packs=['credits_50_czk','credits_100_czk'];
 export const playEdition=()=>!!window.PlayMarket;
 export const commerceStatus=offer=>dispatch('status',offer?{offer}:{});
 export const commerceDiscover=(water,cursor)=>dispatch('discover',{water,cursor});
@@ -20,57 +19,130 @@ export function enrollment(view,nav,item) {
     catch(error) { toast(failure(error)); }
   };
 }
+const balanceText = amount => t('commerce.balance').replace('{amount}', String(amount));
+
+/** Billing, inventory and account balance arrive independently. Each updates its own message. */
+function bindPlayCheckout(panel, view, balanceLine) {
+  const prices = document.createElement('div');
+  const status = document.createElement('p');
+  status.setAttribute('role', 'status');
+  const retry = document.createElement('button');
+  retry.type = 'button';
+  retry.className = 'secondary';
+  retry.textContent = t('common.retry');
+  retry.hidden = true;
+  panel.append(prices, status, retry);
+
+  const messages = { catalog: '', inventory: '', receipts: '', checkout: '', balance: '' };
+  let retryReceipt = false;
+  let balanceRequest = 0;
+  function render() {
+    status.textContent = Object.values(messages).filter(Boolean).join(' ');
+    retry.hidden = !(messages.catalog || messages.inventory || retryReceipt || messages.balance);
+  }
+
+  async function refreshBalance() {
+    const request = ++balanceRequest;
+    try {
+      const wallet = await commerceStatus();
+      if (!view.active() || request !== balanceRequest) return;
+      balanceLine.textContent = balanceText(wallet.balance);
+      messages.balance = '';
+    } catch {
+      if (!view.active() || request !== balanceRequest) return;
+      messages.balance = t('commerce.balance_unavailable');
+    }
+    render();
+  }
+
+  function showPrices(items) {
+    prices.replaceChildren();
+    for (const [sku, quote] of Object.entries(items).sort((a, b) => a[1].credits - b[1].credits)) {
+      const buy = document.createElement('button');
+      buy.type = 'button';
+      buy.textContent = t('commerce.pack').replace('{count}', String(quote.credits)).replace('{price}', quote.price);
+      buy.onclick = () => {
+        messages.checkout = '';
+        render();
+        window.PlayMarket.buy(sku);
+      };
+      prices.append(buy);
+    }
+  }
+
+  function report(event, items) {
+    if (!view.active()) return;
+    switch (event) {
+      case 'prices':
+        messages.catalog = '';
+        showPrices(items);
+        break;
+      case 'unavailable':
+        messages.catalog = t('commerce.unavailable');
+        prices.replaceChildren();
+        break;
+      case 'inventoryUnavailable':
+        messages.inventory = t('commerce.purchase_unavailable');
+        break;
+      case 'inventoryLoaded':
+        messages.inventory = '';
+        refreshBalance();
+        break;
+      case 'purchases':
+        retryReceipt = items.retry;
+        messages.receipts = [
+          items.pending && t('commerce.payment_pending'),
+          items.verifying && t('commerce.verifying'),
+          items.retry && t('commerce.delivery_retry'),
+        ].filter(Boolean).join(' ');
+        break;
+      case 'balanceChanged':
+        refreshBalance();
+        break;
+      case 'checkoutUnavailable':
+        messages.checkout = t('commerce.checkout_unavailable');
+        break;
+      case 'cancelled':
+        messages.checkout = t('commerce.cancelled');
+        break;
+      default:
+        return;
+    }
+    render();
+  }
+
+  retry.onclick = () => {
+    if (messages.balance) refreshBalance();
+    window.PlayMarket.refresh();
+  };
+  window.playMarketResult = report;
+  const dispose = view.dispose;
+  view.dispose = () => {
+    if (window.playMarketResult === report) delete window.playMarketResult;
+    dispose();
+  };
+  window.PlayMarket.refresh();
+}
+
 export function walletPanel(view,nav,data) {
   const panel=by('commerce-wallet');
   if (!panel) return;
-  const line=text=>{const p=document.createElement('p');p.textContent=text;panel.append(p);};
+  const line = text => {
+    const paragraph = document.createElement('p');
+    paragraph.textContent = text;
+    panel.append(paragraph);
+    return paragraph;
+  };
   line(t('commerce.'+(data.mode==='test'?'test':data.mode==='off'?'off':'live')));
   if (data.mode==='off') return;
   line(t('commerce.welcome'));
-  line(t('commerce.balance').replace('{amount}',String(data.balance)));
+  const balanceLine = line(balanceText(data.balance));
   line(t('commerce.earned').replace('{amount}',money(data.earned)));
   line(t('commerce.pending').replace('{amount}',String(data.pendingCredits)));
   line(t('commerce.requested').replace('{amount}',money(data.requested)));
   line(t('commerce.paid').replace('{amount}',money(data.paid)));
   line(t('commerce.split'));
-  const prices=document.createElement('div');panel.append(prices);
-  const result=document.createElement('p');result.setAttribute('role','status');panel.append(result);
-  const catalogStatus=document.createElement('p');catalogStatus.setAttribute('role','status');panel.append(catalogStatus);
-  const checkout=document.createElement('p');checkout.setAttribute('role','status');panel.append(checkout);
-  const retry=document.createElement('button');retry.type='button';retry.className='secondary';retry.hidden=true;
-  retry.textContent=t('common.retry');retry.onclick=()=>window.PlayMarket.refresh();panel.append(retry);
-  let catalogUnavailable=false, receiptRetry=false;
-  window.playMarketResult=(state,items)=>{
-    if (!view.active()) return;
-    if (state==='credited' || state==='refreshBalance') { nav.show();return; }
-    if (state==='prices') {
-      prices.replaceChildren();
-      for (const sku of packs) if (items[sku]) {
-        const buy=document.createElement('button');
-        buy.type='button';buy.textContent=t('commerce.pack').replace('{count}',sku.split('_')[1]).replace('{price}',items[sku]);
-        buy.onclick=()=>{ checkout.textContent='';window.PlayMarket.buy(sku); };prices.append(buy);
-      }
-      catalogUnavailable=false;
-      catalogStatus.textContent='';
-    } else if (state==='unavailable') {
-      catalogUnavailable=true;
-      prices.replaceChildren();
-      catalogStatus.textContent=t('commerce.unavailable');
-    } else if (state==='purchases') {
-      receiptRetry=items.retry;
-      result.textContent=[items.pending && t('commerce.payment_pending'),items.verifying && t('commerce.verifying'),
-        items.retry && t('commerce.delivery_retry')].filter(Boolean).join(' ');
-      if (checkout.dataset.error) { checkout.textContent='';delete checkout.dataset.error; }
-    } else if (state==='purchaseUnavailable') {
-      checkout.dataset.error='1';
-      checkout.textContent=t('commerce.purchase_unavailable');
-    } else if (state==='cancelled') {
-      delete checkout.dataset.error;
-      checkout.textContent=t('commerce.cancelled');
-    }
-    retry.hidden=!(catalogUnavailable || receiptRetry || checkout.dataset.error);
-  };
-  window.PlayMarket.refresh();
+  bindPlayCheckout(panel, view, balanceLine);
   line(t('commerce.threshold').replace('{count}',String(data.published)));
   if (data.earned>=10000 && !data.requested && (data.priorPayout || data.published>=3)) {
     panel.insertAdjacentHTML('beforeend',button('commerce-payout',t('commerce.payout'),'secondary'));

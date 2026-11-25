@@ -1052,6 +1052,8 @@
   "commerce.split": "Po odečtení DPH a poplatků Googlu připadá 85 % autorovi, 10 % na provoz aplikace a 5 % na obnovu přírody. Uvítací kredity hradí provozovatel.",
   "commerce.pack": "Koupit {count} kreditů · {price}",
   "commerce.unavailable": "Balíčky kreditů Google Play jsou momentálně nedostupné.",
+  "commerce.checkout_unavailable": "Nákup přes Google Play se nepodařilo zahájit. Zkus balíček vybrat znovu.",
+  "commerce.balance_unavailable": "Zůstatek kreditů se nepodařilo načíst.",
   "commerce.payment_pending": "Čeká se na potvrzení platby od Google Play.",
   "commerce.delivery_retry": "Připsání kreditů se nepodařilo potvrdit. Zkus ověření znovu bez další platby.",
   "commerce.purchase_unavailable": "Stav nákupu se nepodařilo zjistit. Zkus jej načíst znovu.",
