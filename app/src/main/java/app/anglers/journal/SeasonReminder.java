@@ -147,7 +147,7 @@ public final class SeasonReminder extends BroadcastReceiver {
     }
     if (event != null && notificationsEnabled(c)) {
       if (AccountStore.remainingMillis(c) == 0) {
-        post(c, key, AppLanguage.localized(c).getString(R.string.season), AppLanguage.text(c, "rules.open_season_reminder"));
+        postGeneric(c, now.atZone(ZoneId.of(pack.getString("zone"))).toLocalDate());
         return;
       }
       String name = AppLanguage.text(c, fish.getString("message"));
@@ -159,6 +159,15 @@ public final class SeasonReminder extends BroadcastReceiver {
                   : R.string.season_ends;
       post(c, key, water.getString("name") + " · " + name, AppLanguage.localized(c).getString(message));
     }
+  }
+
+  /** Deliver one generic reminder per local day across all expired-session watches. */
+  static void postGeneric(Context context, LocalDate day) {
+    SharedPreferences alerts = context.getSharedPreferences("season-alerts", Context.MODE_PRIVATE);
+    if (day.toString().equals(alerts.getString("generic-day", ""))) return;
+    post(context, "season-generic", AppLanguage.localized(context).getString(R.string.season),
+        AppLanguage.text(context, "rules.open_season_reminder"));
+    alerts.edit().putString("generic-day", day.toString()).apply();
   }
 
   private static void post(Context c, String key, String title, String body) {

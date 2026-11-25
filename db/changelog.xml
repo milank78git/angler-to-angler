@@ -101,4 +101,7 @@
   <changeSet id="20261125154159" author="angler" dbms="postgresql">
     <sqlFile path="../supabase/migrations/20261125154159_public_card_reader.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
   </changeSet>
+  <changeSet id="20261125165309" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261125165309_market_purchase_funding.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
 </databaseChangeLog>

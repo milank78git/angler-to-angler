@@ -50,6 +50,13 @@ for scenario in compact wide; do
   grep -Fq ANGLER_SMOKE_PASS "$out/$scenario.txt"
 done
 
+# Exercise notifications after the ordinary scenarios, which start with fresh permissions.
+if (( $(adb shell getprop ro.build.version.sdk | tr -d '\r') >= 33 )); then
+  adb shell pm grant "$app_id" android.permission.POST_NOTIFICATIONS
+fi
+adb shell am instrument -w -e scenario season app.anglers.journal.smoke/.Runner | tee "$out/season.txt"
+grep -Fq ANGLER_SEASON_PASS "$out/season.txt"
+
 if $secure_emulator; then
   adb shell am force-stop "$app_id"
   adb shell am instrument -w -e scenario unlock app.anglers.journal.smoke/.Runner | tee "$out/unlock.txt"

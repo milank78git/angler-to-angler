@@ -90,3 +90,61 @@ select public.angler_play_receipt('void',jsonb_build_object('hash',repeat('a',64
 select pg_temp.check_that(not exists(select from angler_market.offers where id=md5('commercial tip 2')::uuid),
   'Archived content retained after final refund');
 rollback to seller_erasure;
+
+-- Existing sales were created under the original allocation rules. Retain their
+-- purchased revisions and separate promotional activity from commercial totals.
+update angler_market.orders set rating_accuracy=5,rating_technique=5,rating_match=5
+  where offer=md5('promotional tip')::uuid;
+\ir ../supabase/migrations/20261125165309_market_purchase_funding.sql
+update angler_commerce.settings set mode='test';
+select pg_temp.as_user(74);
+do $$declare item jsonb:=public.angler_market_detail(md5('promotional tip')::uuid); begin
+  perform pg_temp.check_that(item->>'technique'='Use a slow retrieve' and item->>'sold'='0'
+    and not (item ? 'myRating') and item#>>'{offerRating,count}'='0' and item#>>'{authorRating,count}'='0',
+    'Historic promotional access or commercial totals incorrect');
+  begin perform public.angler_market_rate(md5('promotional tip')::uuid,4,4,4);
+    raise exception 'Promotional unlock can rate'; exception when sqlstate 'PT403' then null; end;
+end $$;
+select pg_temp.as_user(73);
+select public.angler_market_rate(md5('commercial tip 2')::uuid,4,4,4);
+select pg_temp.check_that(public.angler_commerce('discover')#>>'{stats,ratings}'='1'
+  and public.angler_market_detail(md5('commercial tip 2')::uuid)#>>'{authorRating,average}'='4.0',
+  'Historical mixed purchase missing from commercial ratings');
+
+do $$declare limited uuid:=md5('limited funding fixture')::uuid; unlimited uuid:=md5('unlimited funding fixture')::uuid;
+  draft jsonb:='{"title":"Retrieve speed","species":"Pike","access":"shore","day":"2026-01-01","water":null,"technique":"Use a slow retrieve","price":6,"limit":1}';
+  args jsonb; wallet jsonb; receipt jsonb;
+begin
+  perform pg_temp.as_user(71);
+  perform public.angler_commerce('publish',jsonb_build_object('offer_id',limited,'expected_revision',0,'draft',draft));
+  perform public.angler_commerce('publish',jsonb_build_object('offer_id',unlimited,'expected_revision',0,'draft',draft||'{"price":2,"limit":null}'));
+  perform pg_temp.as_user(72);
+  args:=jsonb_build_object('offer',unlimited,'revision',1,'price',2,'paid',0);
+  wallet:=public.angler_commerce('buy',args);
+  perform pg_temp.check_that(wallet->>'balance'='8' and public.angler_market_detail(unlimited)->>'sold'='0'
+    and not (public.angler_market_detail(unlimited) ? 'myRating'),'Welcome-only unlock counted as a sale');
+  args:=jsonb_build_object('offer',limited,'revision',1,'price',6);
+  begin perform public.angler_commerce('buy',args||'{"paid":1}'); raise exception 'Limited copy used no paid credit';
+    exception when sqlstate 'PT402' then null; end;
+  receipt:=jsonb_build_object('holder',auth.uid(),'sku','credits_50_czk','mode','test','order','limited-funding-fixture','hash',repeat('c',64));
+  perform public.angler_play_receipt('credit',receipt);
+  begin perform public.angler_commerce('buy',args); raise exception 'Legacy confirmation charged extra paid credits';
+    exception when sqlstate 'PT409' then null; end;
+  begin perform public.angler_commerce('buy',args||'{"paid":2}'); raise exception 'Changed quote accepted';
+    exception when sqlstate 'PT409' then null; end;
+  wallet:=public.angler_commerce('buy',args||'{"paid":1}');
+  perform public.angler_commerce('buy',args||'{"paid":1}');
+  perform pg_temp.check_that(wallet->>'balance'='52' and public.angler_commerce('status')->>'welcomeBalance'='3'
+    and public.angler_market_detail(limited)->>'sold'='1','Mixed reservation or retry incorrect');
+  perform public.angler_market_rate(limited,5,4,3);
+  perform pg_temp.as_user(73);
+  begin perform public.angler_commerce('buy',args); raise exception 'Sold out offer unlocked';
+    exception when sqlstate 'PT409' then null; end;
+  perform public.angler_play_receipt('void',receipt);
+  perform pg_temp.check_that(public.angler_market_detail(limited)->>'sold'='0' and
+    public.angler_market_detail(limited)#>>'{offerRating,count}'='0','Refund did not release stock and rating');
+  wallet:=public.angler_commerce('buy',args||'{"paid":6}');
+  perform pg_temp.check_that(wallet->>'balance'='4' and public.angler_market_detail(limited)->>'sold'='1',
+    'Paid-only purchase after refund failed');
+end $$;
+update angler_commerce.settings set mode='off';

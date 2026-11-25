@@ -1,4 +1,4 @@
-import { playEdition, commerceStatus, commerceBuy, commerceDiscover, commercePublish, enrollment, walletPanel, estimate } from './commerce.js';
+import { playEdition, commerceStatus, commerceBuy, purchaseFunding, commerceDiscover, commercePublish, enrollment, walletPanel, estimate } from './commerce.js';
 import { waterPicker, bindWaterPicker } from './water-picker.js';
 import { countryOptions, fishDirectory, fishOption, matchingSpecies, preferredCountry } from './fish-catalogue.js';
 import { by, screen, esc, bind, back, bindBack, button, t, displayDay, field, textInput, selectField,
@@ -107,6 +107,10 @@ export async function marketDetail({ view, nav, waterDirectory }) {
   catch (err) { return loadError(view, nav, err); }
   if (!view.active()) return;
   if (wallet) item.balance=wallet.balance;
+  const funding = purchaseFunding(wallet, item.price, item.limit);
+  const affordable = funding ? funding.available : item.balance >= item.price;
+  const payment = funding ? t('commerce.purchase_funding')
+    .replace('{welcome}', String(funding.welcome)).replace('{paid}', String(funding.paid)) : '';
   const available = (!wallet || (wallet.mode!=='off' && wallet.enrolled)) && !item.withdrawn && (item.limit == null || item.limit > item.sold);
   screen.innerHTML = heading(item.title) + '<article class="surface"><h2>' + t('market.fishing_technique') +
     '</h2>' + offerFacts(item, waterDirectory, directory) + '</article>' +
@@ -122,8 +126,8 @@ export async function marketDetail({ view, nav, waterDirectory }) {
       button('market-edit', editLabel(), 'secondary') + button('market-withdraw', t('market.withdraw_offer'), 'danger') :
       !item.mine && !item.purchased && available ? (item.balance == null ? button('market-activate', activate(), 'secondary') :
         '<p>' + t('market.balance') + ' · ' + credits(item.balance) + '</p>' +
-        (item.balance >= item.price ? button('market-buy', t('market.unlock_tip'), 'primary') :
-          '<p>' + (wallet?t('commerce.insufficient'):errorText(402)) + '</p>')) : '') + '</div>';
+        (affordable ? button('market-buy', t('market.unlock_tip'), 'primary') :
+          '<p>' + (wallet ? (item.limit != null && item.balance >= item.price ? t('commerce.limited_paid') : t('commerce.insufficient')) : errorText(402)) + '</p>')) : '') + '</div>';
   bindBack(nav);
   enrollment(view,nav,item);
   bindPurchaseRating(view, nav, id);
@@ -137,8 +141,8 @@ export async function marketDetail({ view, nav, waterDirectory }) {
   });
   if (by('market-buy')) bind('market-buy', async () => {
     if (!await confirmAction({ title: t('market.confirm_tip_purchase'),
-      message: item.title + ' · ' + credits(item.price), accept: t('market.buy_for') + credits(item.price) })) return;
-    await submitChange(view, () => wallet ? commerceBuy(id,item.revision,item.price) : rpc('market_buy', { offer_id: id, expected_revision: item.revision, expected_price: item.price }),
+      message: [item.title, credits(item.price), payment].filter(Boolean).join(' · '), accept: t('market.buy_for') + credits(item.price) })) return;
+    await submitChange(view, () => wallet ? commerceBuy(id, item.revision, item.price, funding?.paid) : rpc('market_buy', { offer_id: id, expected_revision: item.revision, expected_price: item.price }),
       () => nav.show(), err => {
         toast(errorText(err.status));
         if ([402, 404, 409].includes(err.status)) nav.show();

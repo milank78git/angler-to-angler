@@ -702,6 +702,45 @@ public final class Runner extends Instrumentation {
     }
   }
 
+  /** Observe real Android notifications, including dismissal and the next day's delivery. */
+  private void genericSeasonPrompt() throws Exception {
+    android.content.Context target = getTargetContext();
+    android.app.NotificationManager manager = target.getSystemService(android.app.NotificationManager.class);
+    android.content.SharedPreferences state = target.getSharedPreferences("season-alerts", 0);
+    java.lang.reflect.Method post = target.getClassLoader().loadClass("app.anglers.journal.SeasonReminder")
+        .getDeclaredMethod("postGeneric", android.content.Context.class, java.time.LocalDate.class);
+    post.setAccessible(true);
+    java.time.LocalDate today = java.time.LocalDate.now();
+    state.edit().clear().commit();
+    try {
+      post.invoke(null, target, today);
+      waitForGenericSeason(manager, true);
+      manager.cancel("season-generic", 1);
+      waitForGenericSeason(manager, false);
+      post.invoke(null, target, today);
+      // Give the notification service time to process a mistakenly repeated post.
+      android.os.SystemClock.sleep(350);
+      waitForGenericSeason(manager, false);
+      post.invoke(null, target, today.plusDays(1));
+      waitForGenericSeason(manager, true);
+    } finally {
+      manager.cancel("season-generic", 1);
+      state.edit().clear().commit();
+    }
+  }
+
+  private static void waitForGenericSeason(android.app.NotificationManager manager, boolean expected) {
+    long deadline = android.os.SystemClock.elapsedRealtime() + 3000;
+    do {
+      boolean present = false;
+      for (android.service.notification.StatusBarNotification entry : manager.getActiveNotifications())
+        if ("season-generic".equals(entry.getTag())) present = true;
+      if (present == expected) return;
+      android.os.SystemClock.sleep(50);
+    } while (android.os.SystemClock.elapsedRealtime() < deadline);
+    throw new AssertionError("Unexpected generic season notification state: " + expected);
+  }
+
   @Override
   public void onStart() {
     Bundle outcome = new Bundle();
@@ -709,6 +748,12 @@ public final class Runner extends Instrumentation {
       if ("unlock".equals(scenario)) {
         coldUnlock();
         outcome.putString("stream", "ANGLER_UNLOCK_PASS\n");
+        finish(Activity.RESULT_OK, outcome);
+        return;
+      }
+      if ("season".equals(scenario)) {
+        genericSeasonPrompt();
+        outcome.putString("stream", "ANGLER_SEASON_PASS\n");
         finish(Activity.RESULT_OK, outcome);
         return;
       }

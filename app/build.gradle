@@ -20,8 +20,8 @@ android {
         resValue 'string', 'app_link_host', appLinkHost
         resValue 'bool', 'use_project_pages', projectPages
         resValue 'bool', 'use_verified_links', (System.getenv('ANGLER_APP_LINK_HOST')?.trim() ? 'true' : 'false')
-        versionCode Integer.parseInt(System.getenv('ANGLER_VERSION_CODE') ?: '41')
-        versionName '0.26.2'
+        versionCode Integer.parseInt(System.getenv('ANGLER_VERSION_CODE') ?: '42')
+        versionName '0.26.3'
     }
 }
 

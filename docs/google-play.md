@@ -61,7 +61,11 @@ also covers missed void notifications.
 Pilot tips can be enrolled by their author on their detail screen. Earlier
 buyers keep their entitlements. New Play purchases use a separate ledger.
 The ten promotional credits can unlock tips and have zero monetary value for
-all three recipients. Mixed purchases distribute only the paid portion.
+all three recipients. A welcome-only unlock is available on unlimited offers
+and does not count as a sale or qualify for a commercial rating. For a limited
+offer at least one purchased credit is required. The confirmation shows the
+split before checkout. Mixed purchases distribute only the paid portion.
+Existing buyers keep their purchased revisions, including welcome-only copies.
 The migration stops if a live ledger has historical sponsored allocations.
 Reconcile existing commitments and bank instructions before changing that ledger.
 Purchased packs have no settled monetary value until the earnings statement

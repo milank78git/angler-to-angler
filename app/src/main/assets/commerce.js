@@ -8,7 +8,15 @@ export const playEdition=()=>!!window.PlayMarket;
 export const commerceStatus=offer=>dispatch('status',offer?{offer}:{});
 export const commerceDiscover=(water,cursor)=>dispatch('discover',{water,cursor});
 export const commercePublish=args=>dispatch('publish',args);
-export const commerceBuy=(offer,revision,price)=>dispatch('buy',{offer,revision,price});
+export const commerceBuy = (offer, revision, price, paid) => dispatch('buy', { offer, revision, price, paid });
+
+/** Quote the server's welcome-first allocation, preserving one paid credit for limited stock. */
+export function purchaseFunding(wallet, price, limit) {
+  if (!Number.isInteger(wallet?.welcomeBalance)) return null;
+  const welcome = Math.min(wallet.welcomeBalance, limit == null ? price : price - 1);
+  const paid = price - welcome;
+  return { welcome, paid, available: wallet.balance - wallet.welcomeBalance >= paid };
+}
 export const estimate=credits=>t('commerce.estimate').replace('{amount}',money(Math.round(credits*100/1.21*0.85*0.85)));
 export function enrollment(view,nav,item) {
   const node=by('commerce-enroll');
