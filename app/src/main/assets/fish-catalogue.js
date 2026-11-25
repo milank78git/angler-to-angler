@@ -1,3 +1,4 @@
+import { countryAt, countryBorders } from './country-lookup.js';
 import { forFishingDate, scopedFishRules } from './fish-rules.js';
 import { language, languageTag } from './i18n.js';
 import { by, screen, back, bindBack, bind, button, displayDay, esc, field, selectField, t, link, toast } from './ui.js';
@@ -34,20 +35,6 @@ export function countryName(code) {
   catch { return code; }
 }
 export const fishOption = fish => fish.label === fish.latin ? fish.latin : fish.label + ' · ' + fish.latin;
-
-/** Even/odd ray crossing; interior rings exclude enclaves and lakes in the source polygon. */
-function insideRing(x, y, ring) {
-  let inside = false;
-  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
-    const [a,b] = ring[i], [c,d] = ring[j];
-    if ((b > y) !== (d > y) && x < (c-a) * (y-b) / (d-b) + a) inside = !inside;
-  }
-  return inside;
-}
-export function countryAt(borders, { lon, lat }) {
-  return Object.keys(borders).find(code => borders[code].some(([outer,...holes]) =>
-    insideRing(lon,lat,outer) && !holes.some(hole => insideRing(lon,lat,hole)))) || '';
-}
 
 const words = entry => t(entry.message);
 const fullList = () => t('fish_catalogue.all_of_europe');
@@ -156,7 +143,7 @@ export async function fishCatalogue({view, nav}) {
   const receive = async ({detail}) => {
     if (!pending || detail.id !== pending) return;
     try {
-      const code = detail.fix && countryAt(await json('europe-borders'), detail.fix);
+      const code = detail.fix && countryAt(await countryBorders('europe'), detail.fix);
       if (!view.active() || detail.id !== pending) return;
       if (code) selectCountry(code);
       else toast(t('fish_catalogue.country_unavailable_choose_it_from_the_list'));

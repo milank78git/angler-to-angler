@@ -361,6 +361,22 @@ public final class FishingActivity extends Activity {
       return shares.open(caption, jpeg);
     }
 
+    /** A registered network can indicate the current country without requesting coordinates. */
+    @JavascriptInterface
+    public String networkCountry() {
+      android.telephony.TelephonyManager phone = getSystemService(android.telephony.TelephonyManager.class);
+      try {
+        return phone == null ? "" : phone.getNetworkCountryIso();
+      } catch (UnsupportedOperationException | SecurityException ignored) {
+        return "";
+      }
+    }
+
+    @JavascriptInterface
+    public void atlasLocation(int id) {
+      runOnUiThread(() -> position.request(id, PositionRequest.Mode.ATLAS));
+    }
+
     @JavascriptInterface
     public void location(int id) {
       runOnUiThread(() -> position.request(id));
@@ -573,7 +589,7 @@ public final class FishingActivity extends Activity {
             Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
       if (result == RESULT_OK && cameraUri != null && picker != null) {
         cameraReturned = System.currentTimeMillis();
-        position.request(CAMERA_FIX);
+        position.request(CAMERA_FIX, PositionRequest.Mode.PRECISE);
       } else finishCamera(null);
     }
     if (code == CatchShare.REQUEST) shares.finished();

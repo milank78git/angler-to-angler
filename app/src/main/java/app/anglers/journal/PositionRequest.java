@@ -23,7 +23,9 @@ final class PositionRequest {
   private final Handler handler = new Handler(Looper.getMainLooper());
   private final LocationManager manager;
   private int active;
+  enum Mode { STANDARD, ATLAS, PRECISE }
   private boolean permissionPending;
+  private Mode mode = Mode.STANDARD;
   private LocationListener listener;
   private final Runnable timeout = () -> finish(active, null);
 
@@ -35,16 +37,21 @@ final class PositionRequest {
 
   /** Superseding a request also retires its listener and all of its queued callbacks. */
   void request(int id) {
+    request(id, Mode.STANDARD);
+  }
+
+  /** Atlas lookups request coarse access only and can reuse a recent local fix. */
+  void request(int id, Mode mode) {
     if (id <= 0) return;
     stop();
     active = id;
+    this.mode = mode;
     if (hasPermission()) start(id);
     else if (!permissionPending) {
       permissionPending = true;
       activity.requestPermissions(
-          new String[] {
-            Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION
-          },
+          mode == Mode.ATLAS ? new String[] {Manifest.permission.ACCESS_COARSE_LOCATION}
+              : new String[] {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
           PERMISSION);
     }
   }
@@ -59,8 +66,8 @@ final class PositionRequest {
   private boolean hasPermission() {
     return activity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
             == PackageManager.PERMISSION_GRANTED
-        || activity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
-            == PackageManager.PERMISSION_GRANTED;
+        || (mode != Mode.PRECISE && activity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
+            == PackageManager.PERMISSION_GRANTED);
   }
 
   private void start(int id) {
@@ -69,6 +76,16 @@ final class PositionRequest {
       return;
     }
     final long started = SystemClock.elapsedRealtimeNanos();
+    String[] providers = mode == Mode.ATLAS && android.os.Build.VERSION.SDK_INT >= 31
+        ? new String[] {LocationManager.FUSED_PROVIDER, LocationManager.NETWORK_PROVIDER, LocationManager.GPS_PROVIDER}
+        : new String[] {LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER};
+    if (mode == Mode.ATLAS) {
+      Location recent = recentFix(providers, started);
+      if (recent != null) {
+        finish(id, recent);
+        return;
+      }
+    }
     listener =
         new LocationListener() {
           @Override
@@ -86,8 +103,7 @@ final class PositionRequest {
           public void onProviderEnabled(String p) {}
         };
     boolean registered = false;
-    for (String provider :
-        new String[] {LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER}) {
+    for (String provider : providers) {
       try {
         if (manager.isProviderEnabled(provider)) {
           manager.requestLocationUpdates(provider, 0, 0, listener);
@@ -99,6 +115,23 @@ final class PositionRequest {
     }
     if (registered) handler.postDelayed(timeout, 25000);
     else finish(id, null);
+  }
+
+  private Location recentFix(String[] providers, long now) {
+    Location newest = null;
+    for (String provider : providers) {
+      try {
+        if (!manager.isProviderEnabled(provider)) continue;
+        Location fix = manager.getLastKnownLocation(provider);
+        if (fix == null) continue;
+        long age = now - fix.getElapsedRealtimeNanos();
+        if (age >= 0 && age <= java.util.concurrent.TimeUnit.MINUTES.toNanos(5)
+            && (newest == null || fix.getElapsedRealtimeNanos() > newest.getElapsedRealtimeNanos())) newest = fix;
+      } catch (SecurityException | IllegalArgumentException ignored) {
+        // The device may only expose a coarse network or fused provider.
+      }
+    }
+    return newest;
   }
 
   void cancel(int id) {

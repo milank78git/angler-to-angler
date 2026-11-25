@@ -18,7 +18,7 @@ test('home, water and every navigation destination have a help chapter', () => {
 
 test('catalogue identifies inland coordinates and distinguishes sea from missing country evidence', async () => {
   global.document = { querySelector: () => null };
-  const { countryAt } = await import('../app/src/main/assets/fish-catalogue.js');
+  const { countryAt } = await import('../app/src/main/assets/country-lookup.js');
   const borders = json('europe-borders');
   assert.equal(countryAt(borders,{lon:14.42,lat:50.08}),'CZ');
   assert.equal(countryAt(borders,{lon:-6.26,lat:53.35}),'IE');
@@ -120,4 +120,18 @@ test('catch history resolves pilot keys and scientific names without guessing fr
   assert.doesNotMatch(unidentified, /25 cm|id="lookup-size"/);
   assert.doesNotMatch(catchRulesHtml(pack, directory, trout, '2028-01-01', 'Oncorhynchus mykiss'), /25 cm/);
   assert.doesNotMatch(catchRulesHtml(pack, directory, {...trout, country:'US'}, '2027-01-01', 'Esox lucius'), /data-rule-status/);
+});
+
+test('atlas country hints favour the local network and time zone over the display language', async () => {
+  const { suggestedAtlasCountry, countryAt } = await import('../app/src/main/assets/country-lookup.js');
+  const waters = [{country:'CZ',zone:'Europe/Prague'}, {country:'IE',zone:'Europe/Dublin'},
+    {country:'US',zone:'America/Denver'}, {country:'SK',zone:'Europe/Bratislava'}];
+  assert.equal(suggestedAtlasCountry(waters, 'cz', 'Europe/Dublin', 'en-US'), 'CZ');
+  assert.equal(suggestedAtlasCountry(waters, '', 'Europe/Prague', 'en-US'), 'CZ');
+  assert.equal(suggestedAtlasCountry(waters, '', 'UTC', 'en-CZ'), 'CZ');
+  assert.equal(suggestedAtlasCountry(waters, '', 'UTC', 'cs'), 'CZ');
+  assert.equal(suggestedAtlasCountry(waters, '', 'UTC', 'und'), '');
+  assert.equal(suggestedAtlasCountry(waters, 'sk', 'Europe/Prague', 'cs'), 'SK');
+  assert.equal(countryAt(json('us-borders'), {lon:-113.67,lat:46.92}), 'US');
+  assert.equal(countryAt(json('us-borders'), {lon:-114.07,lat:51.05}), '');
 });
