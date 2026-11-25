@@ -304,11 +304,11 @@ public final class Runner extends Instrumentation {
     waitFor("document.querySelector('#fish').value==='' && document.querySelector('#catch-rules').hidden");
     setControl("#catch-search", "Esox", "input");
     setControl("#fish", "Esox lucius", "change");
-    setControl("#length", "50", "input");
+    setControl("#catch-length", "50", "input");
     clickReady("#catch-rules summary");
     waitFor("!!document.querySelector('#catch-rule-body .result') && !!document.querySelector('#catch-rule-body a[href]')");
     clickReady("#catch-rules summary");
-    waitFor("document.querySelector('#length').value==='50' && document.querySelector('#fish').value==='Esox lucius'");
+    waitFor("document.querySelector('#catch-length').value==='50' && document.querySelector('#fish').value==='Esox lucius'");
     setControl("#catch-search", "", "input");
   }
 
@@ -887,7 +887,7 @@ public final class Runner extends Instrumentation {
       capture("seasons");
       js("document.querySelector('#theme').click();document.querySelector('#tabwaters').click()");
       waitFor("document.querySelector('#saved').getAttribute('aria-pressed')==='true'");
-      js("document.querySelector('#all').click()");
+      js("document.querySelector('#all-waters').click()");
       js(
           "document.getElementById('search').value='401 009';"
               + " document.getElementById('search').dispatchEvent(new Event('input'))");
@@ -938,12 +938,12 @@ public final class Runner extends Instrumentation {
         setControl("#fish", "manual", "change");
         if (n == 1) {
           form(
-              "document.querySelector('#fish-name').value='Perch';document.querySelector('#length').value='0x20'");
+              "document.querySelector('#fish-name').value='Perch';document.querySelector('#catch-length').value='0x20'");
           waitFor(
-              "document.activeElement.id==='length' &&"
+              "document.activeElement.id==='catch-length' &&"
                   + " !document.querySelector('#form-error').hidden");
           form(
-              "document.querySelector('#length').value='32.5';document.querySelector('#lat').value='2';document.querySelector('#lon').value='181'");
+              "document.querySelector('#catch-length').value='32.5';document.querySelector('#lat').value='2';document.querySelector('#lon').value='181'");
           waitFor(
               "document.activeElement.id==='lon' &&"
                   + " document.querySelector('#position-fields').open");
@@ -959,7 +959,7 @@ public final class Runner extends Instrumentation {
           waitFor("document.querySelector('#photo').files.length===1");
         }
         form(
-            "document.querySelector('#bait').value='spinner';document.querySelector('#technique').value='jigging';document.querySelector('#position-fields').open=true;document.querySelector('#fish-name').value='Perch';document.querySelector('#length').value='32.5';document.querySelector('#lat').value='-40';document.querySelector('#lon').value='0'");
+            "document.querySelector('#bait').value='spinner';document.querySelector('#technique').value='jigging';document.querySelector('#position-fields').open=true;document.querySelector('#fish-name').value='Perch';document.querySelector('#catch-length').value='32.5';document.querySelector('#lat').value='-40';document.querySelector('#lon').value='0'");
         waitFor("document.querySelectorAll('#catch-list article').length===" + n);
       }
       runOnMainSync(() -> activity.finish());

@@ -20,14 +20,17 @@ Active signatures in Liquibase deployment order. Each link opens the effective d
 | `angler_activity.top_waters()` | [20261124122638](../supabase/migrations/20261124122638_water_reviews_and_visit_statistics.sql#L33) |  |
 | `angler_atlas.install(jsonb, text)` | [20261124060000](../supabase/migrations/20261124060000_water_directory.sql#L17) |  |
 | `angler_atlas.refresh()` | [20261124060300](../supabase/migrations/20261124060300_water_directory_schedule.sql#L4) |  |
+| `angler_commerce.credit_receipt(uuid, text, angler_commerce.lots, jsonb)` | [20261125175002](../supabase/migrations/20261125175002_receipt_operations.sql#L26) |  |
 | `angler_commerce.discover(text, bigint, boolean)` | [20261125165309](../supabase/migrations/20261125165309_market_purchase_funding.sql#L112) |  |
 | `angler_commerce.enroll_offer(uuid, angler_market.offers, jsonb)` | [20261125165309](../supabase/migrations/20261125165309_market_purchase_funding.sql#L157) |  |
 | `angler_commerce.keep_environment()` | [20261125075304](../supabase/migrations/20261125075304_play_market_settlement.sql#L254) |  |
 | `angler_commerce.market(text, jsonb)` | [20261125165309](../supabase/migrations/20261125165309_market_purchase_funding.sql#L206) |  |
 | `angler_commerce.publish_offer(jsonb)` | [20261125165309](../supabase/migrations/20261125165309_market_purchase_funding.sql#L133) |  |
 | `angler_commerce.purchase_offer(uuid, angler_market.offers, jsonb)` | [20261125165309](../supabase/migrations/20261125165309_market_purchase_funding.sql#L166) |  |
-| `angler_commerce.receipt(text, jsonb)` | [20261125075304](../supabase/migrations/20261125075304_play_market_settlement.sql#L202) |  |
+| `angler_commerce.receipt(text, jsonb)` | [20261125175002](../supabase/migrations/20261125175002_receipt_operations.sql#L48) |  |
 | `angler_commerce.request_payout(uuid)` | [20261125165309](../supabase/migrations/20261125165309_market_purchase_funding.sql#L145) |  |
+| `angler_commerce.settle_receipt(angler_commerce.lots, jsonb)` | [20261125175002](../supabase/migrations/20261125175002_receipt_operations.sql#L18) |  |
+| `angler_commerce.void_receipt(text, angler_commerce.lots)` | [20261125175002](../supabase/migrations/20261125175002_receipt_operations.sql#L1) |  |
 | `angler_commerce.wallet(uuid)` | [20261125075304](../supabase/migrations/20261125075304_play_market_settlement.sql#L88) |  |
 | `angler_commerce.welcome()` | [20261125075304](../supabase/migrations/20261125075304_play_market_settlement.sql#L75) |  |
 | `angler_discussions.card(angler_discussions.posts, text, uuid)` | [20261123161727](../supabase/migrations/20261123161727_forum_reply_context.sql#L77) |  |
@@ -91,7 +94,11 @@ Active signatures in Liquibase deployment order. Each link opens the effective d
 | `angler_public_cards.publish(uuid, uuid, jsonb, text, text)` | [20261123180057](../supabase/migrations/20261123180057_public_catch_cards.sql#L45) |  |
 | `angler_public_cards.read_link(uuid)` | [20261123180057](../supabase/migrations/20261123180057_public_catch_cards.sql#L113) |  |
 | `angler_public_cards.withdraw(uuid)` | [20261123180057](../supabase/migrations/20261123180057_public_catch_cards.sql#L102) |  |
-| `angler_sync.journal(text, jsonb)` | [20261125075258](../supabase/migrations/20261125075258_private_journal_sync.sql#L28) |  |
+| `angler_sync.journal(text, jsonb)` | [20261125175001](../supabase/migrations/20261125175001_journal_operations.sql#L71) |  |
+| `angler_sync.list_documents(uuid, jsonb)` | [20261125175001](../supabase/migrations/20261125175001_journal_operations.sql#L1) |  |
+| `angler_sync.missing_chunks(uuid, jsonb)` | [20261125175001](../supabase/migrations/20261125175001_journal_operations.sql#L12) |  |
+| `angler_sync.put_chunk(uuid, jsonb)` | [20261125175001](../supabase/migrations/20261125175001_journal_operations.sql#L21) |  |
+| `angler_sync.save_document(uuid, jsonb)` | [20261125175001](../supabase/migrations/20261125175001_journal_operations.sql#L41) |  |
 | `angler_weekly.board(uuid, date, integer, text)` | [20261123163226](../supabase/migrations/20261123163226_group_catch_week.sql#L142) |  |
 | `angler_weekly.enter(uuid, uuid, uuid, date, text, text)` | [20261123163226](../supabase/migrations/20261123163226_group_catch_week.sql#L64) |  |
 | `angler_weekly.monday(date)` | [20261123163226](../supabase/migrations/20261123163226_group_catch_week.sql#L45) |  |

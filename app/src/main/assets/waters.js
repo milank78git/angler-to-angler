@@ -187,7 +187,7 @@ export async function listWaters({ view, pack, nav, waterDirectory }) {
       </span> ${button('retry-parking-index', t('common.retry'), 'secondary')}</div>
     ${parking ? '' : '<p role="status">' + esc(t('parking.unavailable')) + '</p>' + button('retry-parking', t('common.retry'), 'secondary')}
     <details id="atlas-sources"><summary>${t('seasons.coverage_and_sources')}</summary><div id="water-coverage"></div></details></div>
-    <div class="filter-row"><div class="segments">${button('all', t('common.all'))}
+    <div class="filter-row"><div class="segments">${button('all-waters', t('common.all'))}
       ${button('saved', t('waters.favorites'), '', 'bookmark')}</div><span class="count" id="found" role="status"></span></div></div>
     ${route.additions ? '<p class="meta">' + t('alerts.waters') + ' · ' + button('clear-additions', t('common.all'), 'secondary') + '</p>' : ''}
       <section id="atlas-world" class="surface" hidden></section><div id="waters" class="water-list"></div>
@@ -379,7 +379,7 @@ export async function listWaters({ view, pack, nav, waterDirectory }) {
       });
     }
     by('more-waters').hidden = !!route.mapOpen || matches.length <= limit;
-    by('all').setAttribute('aria-pressed', String(!route.favorites));
+    by('all-waters').setAttribute('aria-pressed', String(!route.favorites));
     by('saved').setAttribute('aria-pressed', String(!!route.favorites));
     by('found').textContent = t('waters.waters') + ' · ' + matches.length;
     replaceMarkup(
@@ -437,7 +437,7 @@ export async function listWaters({ view, pack, nav, waterDirectory }) {
     route.limit = pageSize;
     results();
   };
-  bind('all', () => {
+  bind('all-waters', () => {
     route.favorites = false;
     route.limit = pageSize;
     results();

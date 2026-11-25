@@ -32,3 +32,25 @@ test('rendering preserves form state, accessibility, offline icons and SVG map l
   assert.equal(panel.querySelector('p').hasAttribute('onclick'), false);
   assert.equal(panel.querySelector('form'), null);
 });
+
+test('static journal control IDs survive the browser named-property protection', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const directory = path.resolve(__dirname, '../app/src/main/assets');
+  const { window } = new JSDOM();
+  try {
+    const document = window.document;
+    const form = document.createElement('form');
+    const ids = /\b(?:button|textInput|selectField)\(\s*'([a-z][a-z0-9-]*)'|\bid="([a-z][a-z0-9-]*)"/g;
+    for (const file of fs.readdirSync(directory).filter((name) => name.endsWith('.js'))) {
+      const source = fs.readFileSync(path.join(directory, file), 'utf8');
+      for (const match of source.matchAll(ids)) {
+        const id = match[1] || match[2];
+        // Chromium exposes the legacy document.all collection even when a DOM emulator omits it.
+        assert.ok(id !== 'all' && !(id in document) && !(id in form), file + ' uses a reserved ID: ' + id);
+      }
+    }
+  } finally {
+    window.close();
+  }
+});

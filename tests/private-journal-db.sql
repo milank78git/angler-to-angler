@@ -1,4 +1,7 @@
 \ir ../supabase/migrations/20261125075258_private_journal_sync.sql
+\ir ../supabase/migrations/20261125175001_journal_operations.sql
+select pg_temp.check_that(not has_function_privilege('authenticated','angler_sync.save_document(uuid,jsonb)','execute')
+  and not has_function_privilege('anon','angler_sync.save_document(uuid,jsonb)','execute'),'Internal operation must be private');
 set local role authenticated;
 select pg_temp.as_user(71);
 do $$declare h text:=encode(sha256('journal'::bytea),'hex'); args jsonb; begin

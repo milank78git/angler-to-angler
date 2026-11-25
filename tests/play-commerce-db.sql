@@ -1,5 +1,8 @@
 create role service_role;
 \ir ../supabase/migrations/20261125075304_play_market_settlement.sql
+\ir ../supabase/migrations/20261125175002_receipt_operations.sql
+select pg_temp.check_that(not has_function_privilege('authenticated','angler_commerce.credit_receipt(uuid,text,angler_commerce.lots,jsonb)','execute')
+  and not has_function_privilege('anon','angler_commerce.credit_receipt(uuid,text,angler_commerce.lots,jsonb)','execute'),'Internal operation must be private');
 \ir ../supabase/migrations/20261125153337_promotional_credits.sql
 update angler_commerce.settings set mode='test';
 set local role authenticated;

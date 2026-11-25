@@ -104,4 +104,10 @@
   <changeSet id="20261125165309" author="angler" dbms="postgresql">
     <sqlFile path="../supabase/migrations/20261125165309_market_purchase_funding.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
   </changeSet>
+  <changeSet id="20261125175001" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261125175001_journal_operations.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
+  <changeSet id="20261125175002" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261125175002_receipt_operations.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
 </databaseChangeLog>

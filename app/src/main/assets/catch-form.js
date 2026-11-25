@@ -103,11 +103,11 @@ export async function catchForm({ view, nav, pack, waterDirectory }) {
     }
     let lengthMm, position;
     try {
-      lengthMm = Domain.lengthMm(by('length').value);
+      lengthMm = Domain.lengthMm(by('catch-length').value);
       position = positionInput.read();
     } catch (err) {
       if (err.message !== 'length') by('position-fields').open = true;
-      const invalid = by(err.message);
+      const invalid = by(err.message === 'length' ? 'catch-length' : err.message);
       invalid.setAttribute('aria-invalid', 'true');
       invalid.setAttribute('aria-describedby', 'form-error');
       by('form-error').hidden = false;
@@ -156,7 +156,7 @@ function catchFields() {
     back(t('common.trip')) +
     `<div class="page-intro"><div class="title-mark">${icon('fish')}</div><h1>${t('catch_form.new_catch')}</h1></div>
   <form id="form" class="entry-form"><section class="surface">${catchSpeciesFields()}
-    ${textInput('length', t('catch_form.measured_length_cm'), '', 'inputmode="decimal" placeholder="' + exampleNumber.format(64.5) + '"')}
+    ${textInput('catch-length', t('catch_form.measured_length_cm'), '', 'inputmode="decimal" placeholder="' + exampleNumber.format(64.5) + '"')}
     <details id="catch-rules" class="fold" hidden><summary>${t('catch_picker.rules')}</summary><div class="fold-body" id="catch-rule-body"></div></details>
     <div class="photo-field"><input type="file" id="camera-photo" accept="image/*" capture="environment">
       <label for="camera-photo">${icon('camera')}${t('catch_form.photograph_catch_at_the_water')}</label>
