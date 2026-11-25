@@ -1,9 +1,9 @@
 {
   "asOf": "2026-11-25",
-  "bytes": 2012633,
+  "bytes": 2012621,
   "format": 1,
   "registrySha256": "99cca246d1ca867a5dbce248969a6dd63a36fce3965562d972bbec73bc40d6e2",
-  "sha256": "0d7f7752504328236273f32ee2c3566a1b175671f097791a5d00f46b86365fed",
-  "unpacked": 8166944,
-  "commit": "4c90b28b68f2551be3084d08a125bc6114d2893d"
+  "sha256": "c038d64f22a295db5e915d65fe172ddcea4faa6641c44e1e06d8b3382f0ad954",
+  "unpacked": 8166880,
+  "commit": "89e91b8862a4fad2dee08c17760630f5371405bf"
 }
