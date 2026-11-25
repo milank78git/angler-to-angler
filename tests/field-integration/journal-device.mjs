@@ -82,6 +82,14 @@ async function onPhone(action, fixture) {
     const saved=await rpc('my_details');
     assert(saved.expiry===expiry && saved.reminder===lead,'Licence does not match the saved form');
   }
+  // Report only facts about this synthetic trip; never log account IDs, credentials or journal contents.
+  const historyState = async () => ({
+    local: !!await Journal.trip('historical'),
+    remote: (await rpc('journal_sync', {op:'list', args:{}})).rows.some(row => row.key === 'trip/historical'),
+    deviceChoice: localStorage.getItem('journal.sync.v1.' + Device.subjectId() + '.enabled'),
+    registrationDefault: Device.journalCloudDefault(),
+    state: el('#journal-sync')?.dataset.state
+  });
   if (!el('#journal-sync')) await openJournal();
   if (action==='ready') { await state('done'); return; }
   if (action==='offline') {
@@ -117,10 +125,18 @@ async function onPhone(action, fixture) {
     await Journal.saveTrip({id:'historical',day:'2025-07-01',waterName:'Old private water',created:1});
     await rpc('journal_sync',{op:'enable',args:{}});
     localStorage.removeItem('journal.sync.v1.'+Device.subjectId()+'.enabled');
-    return;
+    const prepared = await historyState();
+    assert(prepared.local && !prepared.remote && prepared.deviceChoice === null,
+      'Invalid pre-upgrade fixture: ' + JSON.stringify(prepared));
+    return {prepared};
   }
   if (action==='consent') {
-    await state('disabled');
+    try {
+      await state('disabled');
+    } catch (error) {
+      throw Error(error.message + '; before restart ' + JSON.stringify(fixture.prepared)
+        + '; after restart ' + JSON.stringify(await historyState()));
+    }
     const list=async()=>(await rpc('journal_sync',{op:'list',args:{}})).rows;
     assert(await Journal.trip('historical') && !(await list()).some(r=>r.key==='trip/historical'),'Historical journal uploaded before consent');
     await click(button('enable')); await click('#confirmation[open] #confirmation-cancel');
@@ -183,7 +199,7 @@ try {
     adb('reverse','tcp:58443','tcp:58443'); disconnected=false;
     await step('upload');
   } else await step(stage);
-  if (stage==='seed' || stage==='renew') await writeFile(fixtureFile,JSON.stringify(fixture),{mode:0o600});
+  if (stage==='seed' || stage==='renew' || stage==='isolation') await writeFile(fixtureFile,JSON.stringify(fixture),{mode:0o600});
 } finally {
   if (disconnected) adb('reverse','tcp:58443','tcp:58443');
   socket.close(); adb('forward','--remove','tcp:'+port);
