@@ -1,3 +1,4 @@
+import { parkingEditor } from './parking-editor.js';
 import { journalStatistics } from './journal-statistics.js';
 import { createWaterDirectory, waterDistances } from './water-directory.js';
 import { fishCatalogue, fishDetail } from './fish-catalogue.js';
@@ -21,6 +22,7 @@ import { evidenceScreen, reviewScreen } from './verification.js';
 const tabs = by('tabs'),
   catalog = {};
 const views = {
+  parkingEditor,
   journalStatistics,
   marketShelf, marketDetail, marketEditor, fishCatalogue, fishDetail,
   waters: listWaters,
@@ -71,7 +73,7 @@ window.positionResult = (id, fix) =>
 async function render(view, area) {
   dismissConfirmation();
   const { page } = view.route;
-  const editing = ['newTrip', 'newCatch', 'editProfile', 'discussionComposer', 'messageComposer', 'marketEditor'].includes(page);
+  const editing = ['parkingEditor', 'newTrip', 'newCatch', 'editProfile', 'discussionComposer', 'messageComposer', 'marketEditor'].includes(page);
   tabs.hidden = editing;
   document.body.classList.toggle('editing', editing);
   for (const key of ['waters', 'rules', 'trips'])

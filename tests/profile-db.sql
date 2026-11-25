@@ -47,4 +47,5 @@ do $$begin if exists(select from angler_private.acceptances) or exists(select fr
 \ir water-ratings-db.sql
 \ir group-monthly-db.sql
 \ir shared-species-db.sql
+\ir parking-db.sql
 rollback;

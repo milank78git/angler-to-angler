@@ -77,4 +77,7 @@
     <sqlFile path="../supabase/migrations/20261124122648_volunteered_species_counts.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
   </changeSet>
   <changeSet id="pilot-0.19" author="angler"><tagDatabase tag="pilot-0.19"/></changeSet>
+  <changeSet id="20261125045854" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261125045854_community_parking.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
 </databaseChangeLog>

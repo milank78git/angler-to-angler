@@ -235,6 +235,11 @@ public final class FishingActivity extends Activity {
         case "public_card_publish":
         case "public_card_withdraw":
         case "public_cards":
+        case "parking_waters":
+        case "parking_list":
+        case "parking_save":
+        case "parking_feedback":
+        case "parking_review":
         case "water_rating":
         case "water_rate":
         case "top_waters":
