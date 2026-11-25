@@ -44,6 +44,11 @@ android.sourceSets.main.assets.srcDir(accountAssets)
 if (System.getenv('ANDROID_DEBUG_KEYSTORE')) {
     android.signingConfigs.debug.storeFile = file(System.getenv('ANDROID_DEBUG_KEYSTORE'))
 }
+// Instrumentation must use the same development certificate as its target APK.
+tasks.register('printDebugKeystore') {
+    dependsOn 'validateSigningPreviewDebug'
+    doLast { println android.signingConfigs.debug.storeFile.absolutePath }
+}
 tasks.named('preBuild').configure { dependsOn(generateAccountConfig) }
 
 dependencies { playImplementation 'com.android.billingclient:billing:8.3.0' }

@@ -13,7 +13,8 @@ java -m jdk.jartool/sun.tools.jar.Main cf "$out/test.jar" -C "$out/classes" .
 "$bt/aapt2" link -A android-smoke/assets -o "$out/test.apk" --manifest android-smoke/AndroidManifest.xml --rename-instrumentation-target-package "$app_id" -I "$platform"
 zip -q -j "$out/test.apk" "$out/dex/classes.dex"
 "$bt/zipalign" -f 4 "$out/test.apk" "$out/aligned.apk"
-"$bt/apksigner" sign --ks "${ANDROID_DEBUG_KEYSTORE:-$HOME/.android/debug.keystore}" --ks-pass pass:android --out "$out/test-signed.apk" "$out/aligned.apk"
+development_key=$(./gradlew --quiet :app:printDebugKeystore)
+"$bt/apksigner" sign --ks "$development_key" --ks-pass pass:android --out "$out/test-signed.apk" "$out/aligned.apk"
 if [[ "${1:-}" == "--build-only" ]]; then exit 0; fi
 ANGLER_ACCOUNT_CONFIG_FILE=android-smoke/account-config.json ANGLER_TEST_OUTPUT=1 bash scripts/build-debug.sh --preview
 adb install -r build/smoke-app/angler-journal-debug.apk
