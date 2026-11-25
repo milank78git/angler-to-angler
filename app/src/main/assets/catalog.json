@@ -40,6 +40,57 @@
       "message": "catalog.species.roach"
     }
   },
+  "waterPhotos": {
+    "CZ:CRS:4615396": {
+      "asset": "water-orlik.webp",
+      "author": "MarusK2",
+      "source": "https://commons.wikimedia.org/wiki/File:Orlick%C3%A1_p%C5%99ehrada_u_Podolsk%C3%A9ho_mostu.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "CZ:CRS:4615409": {
+      "asset": "water-slapy.webp",
+      "author": "Hynek Moravec",
+      "source": "https://commons.wikimedia.org/wiki/File:Slapy_prehrada_7179.JPG",
+      "license": "CC BY 2.5",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.5"
+    },
+    "CZ:CRS:4615686": {
+      "asset": "water-lipno.webp",
+      "author": "Ludmila Zellner Rotbauerová",
+      "source": "https://commons.wikimedia.org/wiki/File:Odkryt%C3%BD_b%C5%99eh_vodn%C3%AD_n%C3%A1dr%C5%BEe_Lipno_v_Doln%C3%AD_Vltavici_v_roce_2026.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+    },
+    "CZ:CRS:4615778": {
+      "asset": "water-rozkos.webp",
+      "author": "Honza Groh (Jagro)",
+      "source": "https://commons.wikimedia.org/wiki/File:Vodn%C3%AD_n%C3%A1dr%C5%BE_Rozko%C5%A1_od_kempu.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+    },
+    "CZ:CRS:4616271": {
+      "asset": "water-jesenice.webp",
+      "author": "Jan Geier",
+      "source": "https://commons.wikimedia.org/wiki/File:Vodn%C3%AD_n%C3%A1dr%C5%BE_Jesenice,_star%C3%BD_most_ve_vod%C4%9B.JPG",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+    },
+    "CZ:CRS:4616673": {
+      "asset": "water-nechranice.webp",
+      "author": "Petr Kinšt",
+      "source": "https://commons.wikimedia.org/wiki/File:VD_Nechranice_-_v%C4%9B%C5%BEov%C3%BD_objekt.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+    },
+    "CZ:CRS:4616698": {
+      "asset": "water-pastviny.webp",
+      "author": "Bohemianroots",
+      "source": "https://commons.wikimedia.org/wiki/File:Pastvinska_prehrada.JPG",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/"
+    }
+  },
   "waters": [
     {
       "id": "401001",
@@ -140,6 +191,5 @@
   "id": "cz-crs-prague",
   "label": {
     "message": "catalog.label"
-  },
-  "coverWater": "401009"
+  }
 }

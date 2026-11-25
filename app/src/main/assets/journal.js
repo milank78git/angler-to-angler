@@ -132,6 +132,13 @@ export function createJournal(factory = globalThis.indexedDB, name = 'angler-fie
     catchById: (id) => read('catches', (store) => store.get(id)),
     catches: (id) => read('catches', (s) => s.index('tripId').getAll(id)),
     photo: (id) => read('photos', (s) => s.get(id)),
+    // Array keys cannot collide with the string catch IDs in existing journals.
+    waterPhoto: (key) => read('photos', (store) => store.get(['water', key])),
+    setWaterPhoto: (key, blob) => transaction(['photos'], 'readwrite', (tx) => {
+      const store = tx.objectStore('photos'), id = ['water', key];
+      if (blob) store.put(blob, id);
+      else store.delete(id);
+    }),
     saveTrip: (trip) => transaction(['trips'], 'readwrite', (tx) => tx.objectStore('trips').put(trip)),
   };
 }

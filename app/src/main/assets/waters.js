@@ -1,6 +1,8 @@
 import { parkingPoints, waterParking, waterRating } from './water-community.js';
 import { atlasMap } from './world-map.js';
-import { attachAtlasMap } from './atlas-map.js';
+import { attachWaterPhoto } from './water-photo.js';
+import { attachAtlasMap, waterFeature } from './atlas-map.js';
+import { languageTag } from './i18n.js';
 import { countryName } from './fish-catalogue.js';
 import { localRuleWater, matchesWater, waterDistances } from './water-directory.js';
 import { waterReports } from './water-reports.js';
@@ -70,18 +72,6 @@ function toggleFavorite(pack, id) {
   if (isFavorite(pack, w)) localStorage.removeItem(key);
   else localStorage.setItem(key, '1');
 }
-function photo(w, cls = '') {
-  return w?.photo ? `<img class="${cls}" src="${esc(w.photo.asset)}" alt="">` : '';
-}
-function credits(...waters) {
-  const photos = waters.filter((w) => w?.photo);
-  if (!photos.length) return '';
-  const rows = photos.map((w) => {
-    const p = w.photo;
-    return `<p>${esc(w.name)} · ${link(p.source, p.author)} · ${link(p.licenseUrl, p.license)}</p>`;
-  });
-  return `<details class="credits"><summary>${icon('image')}${t('waters.photo_credits')}</summary>${rows.join('')}<p>${t('waters.resized_and_cropped')}</p></details>`;
-}
 let locationRequest = 2000000;
 
 /** Describe the published geographic scope even for countries without an offline edition. */
@@ -104,7 +94,10 @@ function coverage(directory, country) {
 export async function listWaters({ view, pack, nav, waterDirectory }) {
   const parking = await parkingPoints().catch(() => null);
   if (!view.active()) return;
-  const atlas = { ...pack, waters: waterDirectory.waters };
+  const collator = new Intl.Collator(languageTag, { numeric: true, sensitivity: 'base', ignorePunctuation: true });
+  const ordered = [...waterDirectory.waters].sort((a, b) => collator.compare(a.name, b.name) ||
+    collator.compare(a.number || '', b.number || '') || collator.compare(a.key, b.key));
+  const atlas = { ...pack, waters: ordered };
   const { route } = view;
   if (!parking && route.parkingOnly) {
     route.parkingOnly = false;
@@ -116,8 +109,12 @@ export async function listWaters({ view, pack, nav, waterDirectory }) {
   }
   const countries = [...new Set([...Object.keys(waterDirectory.countries),'CZ','US'])]
     .map(code => [code, countryName(code)]).sort((a,b) => a[1].localeCompare(b[1]));
-  const cover = waterDirectory.byId.get(pack.coverWater) || pack.waters[0];
-  screen.innerHTML = `<section id="atlas-heading"></section>
+  const countryPreference = 'atlas.country.' + window.Device.subjectId();
+  if (route.country === undefined && !route.additions) {
+    const previous = localStorage.getItem(countryPreference);
+    route.country = countries.some(([code]) => code === previous) ? previous : '';
+  }
+  screen.innerHTML = `<div class="page-intro"><div class="title-mark">${icon('map')}</div><h1>${t('atlas.title')}</h1></div>
     <div class="quick-actions home-features">${button('home-market', t('market.title'), 'primary')}${button('home-fish', t('fish_catalogue.title'), 'secondary', 'fish-symbol')}</div>
     <div class="catalog-tools"><div class="search-box">${icon('search')}<label class="sr" for="search">${t('waters.name_water_number_or_town')}</label><input type="search" id="search" value="${esc(route.query || '')}" placeholder="${t('waters.search_waters_numbers_or_towns')}"></div>
     <div class="atlas-actions">${button('atlas-filter-toggle',t('settings.filters'),'secondary','sliders-horizontal')}${button('atlas-settings',t('settings.title'),'secondary')}${button('map-toggle',t('atlas.map'),'secondary','map')}</div>
@@ -130,7 +127,7 @@ export async function listWaters({ view, pack, nav, waterDirectory }) {
     ${parking ? '' : '<p role="status">' + esc(t('parking.unavailable')) + '</p>' + button('retry-parking',t('common.retry'),'secondary')}
     <details id="atlas-sources"><summary>${t('seasons.coverage_and_sources')}</summary><div id="water-coverage"></div></details></div>
     <div class="filter-row"><div class="segments">${button('all', t('common.all'))}${button('saved', t('waters.favorites'), '', 'bookmark')}</div><span class="count" id="found" role="status"></span></div></div>
-    ${route.additions ? '<p class="meta">'+t('alerts.waters')+' · '+button('clear-additions',t('common.all'),'secondary')+'</p>' : ''}<section id="atlas-world" class="surface" hidden></section><div id="waters" class="water-list"></div>${button('more-waters', t('waters.show_more_waters'), 'secondary')}<div id="atlas-photo-credits"></div>`;
+    ${route.additions ? '<p class="meta">'+t('alerts.waters')+' · '+button('clear-additions',t('common.all'),'secondary')+'</p>' : ''}<section id="atlas-world" class="surface" hidden></section><div id="waters" class="water-list"></div>${button('more-waters', t('waters.show_more_waters'), 'secondary')}`;
   if (route.additions) bind('clear-additions', () => { delete route.additions; nav.show(); });
   const filters=by('atlas-filters'), toggle=by('atlas-filter-toggle');
   function syncFilters() {
@@ -203,24 +200,12 @@ export async function listWaters({ view, pack, nav, waterDirectory }) {
     );
     if (distances) matches.sort((a, b) => (distances.get(a.id) ?? Infinity) - (distances.get(b.id) ?? Infinity));
     const shown = matches.slice(0, limit);
-    const filtered = q || route.country || route.favorites || route.parkingOnly || route.additions;
-    const picture = filtered ? shown.find(water => water.photo) : cover;
-    const heading = by('atlas-heading');
-    if (heading.dataset.picture !== (picture?.id || '')) {
-      heading.dataset.picture = picture?.id || '';
-      heading.className = picture ? 'hero atlas-hero' : 'page-intro';
-      heading.innerHTML = picture ?
-        `${photo(picture, 'hero-img')}<div class="hero-copy"><div class="hero-meta">${icon('map-pin')}${t('waters.czechia_and_abroad')}</div><h1>${t('atlas.title')}</h1></div><span class="photo-place">${esc(picture.name)}</span>` :
-        '<h1>' + esc(t('atlas.title')) + '</h1>';
-    }
-    const picturedWaters = new Set(route.mapOpen ? [] : shown.filter(water => water.photo));
-    if (picture?.photo) picturedWaters.add(picture);
-    by('atlas-photo-credits').innerHTML = credits(...picturedWaters);
     const generation=++mapGeneration;
     mapHost.hidden=!route.mapOpen;
     by('waters').hidden=!!route.mapOpen;
     by('map-toggle').setAttribute('aria-pressed',String(!!route.mapOpen));
     by('map-toggle').querySelector('span').textContent=t(route.mapOpen?'atlas.list':'atlas.map');
+    if (!route.mapOpen) map?.pause();
     if(route.mapOpen){
       map ||= atlasMap(mapHost,route,id=>nav.open('water',{id}));
       shapes ||= waterDirectory.geography().catch(()=>{shapes=null;return {};});
@@ -235,7 +220,7 @@ export async function listWaters({ view, pack, nav, waterDirectory }) {
     by('found').textContent = t('waters.waters') + ' · ' + matches.length;
     by('waters').innerHTML =
       shown.map(w => `<article class="water-card"><button type="button" class="water-open" data-water="${esc(w.id)}">
-      ${photo(w, 'thumb')}<span class="water-copy"><span class="number">${esc(w.number)}</span><strong>${esc(w.name)}</strong><span class="sub">${esc(w.area)}${distances?.has(w.id) ? ' · ' + distances.get(w.id).toFixed(1) + ' km' : ''}</span></span></button>${favoriteButton(pack, w)}</article>`).join('') ||
+      <span class="water-copy"><span class="number">${esc([w.number || w.code, w.country].filter(Boolean).join(' · '))}</span><strong>${esc(w.name)}</strong><span class="sub">${esc(w.area)}${distances?.has(w.id) ? ' · ' + distances.get(w.id).toFixed(1) + ' km' : ''}</span></span></button>${favoriteButton(pack, w)}</article>`).join('') ||
       emptyState(
         route.favorites ? 'bookmark' : 'search',
         route.favorites && !q && !route.parkingOnly
@@ -269,6 +254,7 @@ export async function listWaters({ view, pack, nav, waterDirectory }) {
   });
   by('water-country').onchange = event => {
     route.country = event.target.value;
+    localStorage.setItem(countryPreference, route.country);
     syncFilters();
     by('atlas-sources').hidden = !route.country;
   by('water-coverage').innerHTML = coverage(waterDirectory, route.country);
@@ -318,6 +304,10 @@ export function waterScreen({ view, pack, rivers, nav, waterDirectory }) {
   const site = waterDirectory.byId.get(route.id);
   if (!site) return nav.back();
   const w = localRuleWater(pack, site);
+  const bundled = site.photo || pack.waterPhotos?.[site.key];
+  const feature = !w || !bundled ? waterFeature(site, waterDirectory) : null;
+  const heading = '<header class="water-heading"><h1>' + esc(site.name) + '</h1>' +
+    (w ? favoriteButton(pack, w) : '') + '</header><section id="water-photo"></section>';
   if (!w) {
     const us = site.provider === 'FWP';
     const publisher = site.publisher || { CRS: t('sources.crs.name'), MRS: t('sources.mrs.name'), FWP: 'Montana Fish, Wildlife & Parks' }[site.provider];
@@ -327,7 +317,7 @@ export function waterScreen({ view, pack, rivers, nav, waterDirectory }) {
         site.scope, site.status, site.area !== site.scope && site.publisher && site.area, site.licence,
         site.region, site.manager && t('waters.organisation') + ' · ' + site.manager,
         site.acreage && site.acreage + ' ha', site.length && site.length + ' km'];
-    screen.innerHTML = back(t('atlas.title')) + '<h1>' + esc(site.name) + '</h1><section class="surface" id="atlas-map"></section><section class="surface">' +
+    screen.innerHTML = back(t('atlas.title')) + heading + '<section class="surface" id="atlas-map"></section><section class="surface">' +
       sectionTitle('map', t('waters.official_details')) +
       facts.filter(Boolean).map(value => '<p>' + esc(value) + '</p>').join('') + link(site.source, publisher) +
       (us ? '' : '<p class="meta">' + t('waters.imported_on') + ' · ' + esc(site.asOf || waterDirectory.asOf) + '</p>' +
@@ -340,7 +330,8 @@ export function waterScreen({ view, pack, rivers, nav, waterDirectory }) {
       '<section class="surface"><h2>' + t('waters.water_reports') + '</h2><div id="water-reports"></div></section>';
     bindBack(nav);
     bindWaterActions(nav, site);
-    attachAtlasMap(by('atlas-map'), site, waterDirectory, view);
+    attachWaterPhoto(by('water-photo'), site, bundled, feature, view);
+    attachAtlasMap(by('atlas-map'), site, waterDirectory, view, feature);
     waterReports(by('water-reports'), site.key, view);
     return;
   }
@@ -348,12 +339,13 @@ export function waterScreen({ view, pack, rivers, nav, waterDirectory }) {
     `<li><span class="point p${mark === '!' ? 'danger' : mark}">${mark}</span>${esc(text)}</li>`;
   screen.innerHTML =
     back(t('atlas.title')) +
-    `<section class="hero detail-hero">${photo(w, 'hero-img')}<div class="hero-copy"><div class="hero-meta">${icon('map-pin')}${esc(w.number)} · ${esc(loc(pack.label))}</div><h1>${esc(w.name)}</h1></div>${favoriteButton(pack, w)}</section><p class="area-line">${icon('route')}${esc(w.area)}</p>
+    heading + `<p class="area-line">${icon('map-pin')}${esc(w.number)} · ${esc(loc(pack.label))} · ${esc(w.area)}</p>
     ${waterActions()}
     <div class="columns"><section class="surface">${sectionTitle('map', t('waters.water_map'))}${waterMap(w, rivers, false, true)}<ul class="legend">${landmark('1', loc(w.ends[0]))}${landmark('2', loc(w.ends[1]))}${landmark('!', loc(w.restriction))}${w.access ? landmark('A', loc(w.access)) : ''}</ul></section>
-    <section class="surface">${sectionTitle('navigation', t('waters.getting_to_the_water'))}${w.access ? `<p>${esc(loc(w.access))}</p><div class="actions">${button('navigate', t('waters.open_directions'), 'secondary', 'navigation')}</div><div class="rulesrc">${link(w.access.source, t('waters.access_point_source'))}</div>` : `<p class="muted">${t('waters.this_pack_has_no_verified_access_point')}</p>`}</section></div>${credits(w)}`;
+    <section class="surface">${sectionTitle('navigation', t('waters.getting_to_the_water'))}${w.access ? `<p>${esc(loc(w.access))}</p><div class="actions">${button('navigate', t('waters.open_directions'), 'secondary', 'navigation')}</div><div class="rulesrc">${link(w.access.source, t('waters.access_point_source'))}</div>` : `<p class="muted">${t('waters.this_pack_has_no_verified_access_point')}</p>`}</section></div>`;
   bindBack(nav);
   bindWaterActions(nav, site);
+  attachWaterPhoto(by('water-photo'), site, bundled, feature, view);
   const waterKey = site.key;
   screen.insertAdjacentHTML('beforeend','<section class="surface"><h2>'+t('waters.water_reports')+'</h2><div id="water-reports"></div></section>');
   waterReports(by('water-reports'),waterKey,view);

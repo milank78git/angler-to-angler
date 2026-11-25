@@ -1,4 +1,5 @@
-import { by, button, esc, t } from './ui.js';
+import { maxLevel, mercator, topographicLayer } from './atlas-basemap.js';
+import { by, button, esc, link, t } from './ui.js';
 
 // Use a documented point on each water; some records only have a published outline.
 export function waterPoint(water, shapes) {
@@ -20,48 +21,104 @@ export function clusterWaters(rows, project, width, height) {
   return Array.from(cells.values());
 }
 
+/** Preproject published water geometry once, so panning does not reprocess every polygon vertex. */
+function waterGeometry(water, shapes) {
+  const extent = [1,1,0,0];
+  function path(line) {
+    return line.map((point, index) => {
+      const [x,y] = mercator(point);
+      extent[0]=Math.min(extent[0],x); extent[1]=Math.min(extent[1],y);
+      extent[2]=Math.max(extent[2],x); extent[3]=Math.max(extent[3],y);
+      return (index ? 'L' : 'M') + (x*65536).toFixed(3) + ' ' + (y*65536).toFixed(3);
+    }).join('');
+  }
+  const polygons = (shapes[water.key] || []).flat().map(ring => path(ring)+'Z');
+  const lines = (water.lines || []).map(path);
+  return polygons.length || lines.length ? {extent, path:polygons.concat(lines).join('')} : {};
+}
+
 /** Keep camera and selection in the route so Back returns to the same area. */
 export function atlasMap(host, route, openWater) {
   host.innerHTML = '<div class="actions">'+button('zoom-in',t('atlas.zoom_in'),'secondary')+
     button('zoom-out',t('atlas.zoom_out'),'secondary')+button('map-fit',t('atlas.fit'),'secondary')+
-    '</div><svg id="world-map" role="group" tabindex="0" aria-label="'+esc(t('atlas.map'))+'"></svg>'+
+    '</div><label class="card-option"><input id="map-online" type="checkbox">' + esc(t('atlas.topographic')) + '</label>' +
+    '<svg id="world-map" role="group" tabindex="0" aria-label="'+esc(t('atlas.map'))+'">' +
+    '<image id="map-land" href="world-land.svg" aria-hidden="true"/><g id="map-tiles" aria-hidden="true"></g>' +
+    '<g id="map-shapes" aria-hidden="true"></g><g id="map-markers"></g></svg>' +
+    '<p id="map-attribution" class="meta">' + link('https://github.com/sletuffe/OpenTopoMap','© OpenTopoMap-R') + ' · ' +
+    link('https://www.openstreetmap.org/copyright','© OpenStreetMap') + ' · ' +
+    link('https://openmaps.fr/donate',t('atlas.support_maps')) + '</p>' +
+    '<div id="map-tile-error" hidden><span role="status">' + esc(t('atlas.tiles_unavailable')) + '</span> ' +
+    button('map-retry',t('common.retry'),'secondary') + '</div>' +
     '<p id="map-count" role="status"></p><div id="map-selection" class="water-list"></div>';
-  const svg=by('world-map'), selected=by('map-selection');
-  let rows=[], missing=0, camera=route.camera, groups=[], index=0, down;
-  const pointers=new Map();
+  const svg=by('world-map'), selected=by('map-selection'), markers=by('map-markers'), land=by('map-land');
+  const online=by('map-online'), attribution=by('map-attribution'), error=by('map-tile-error'), shapesLayer=by('map-shapes');
+  online.checked = localStorage.getItem('atlas.topographic') !== 'off';
+  attribution.hidden = !online.checked;
+  const tiles = topographicLayer(by('map-tiles'), failed => { error.hidden = !failed; });
+  let rows=[], missing=0, camera=route.camera, groups=[], index=0, down, frame;
+  const pointers=new Map(), visibleShapes=new Map();
   const width=()=>svg.clientWidth || 320, height=()=>svg.clientHeight || 300;
-  const unit=()=>Math.min(width()/360,height()/180)*camera.zoom;
-  function zoom(value, x=width()/2,y=height()/2) {
+  const unit=()=>256 * 2 ** camera.level;
+  function zoom(level, x=width()/2, y=height()/2) {
     const before=unit();
-    camera.zoom=Math.min(65536,Math.max(1,value));
-    camera.lon+=(x-width()/2)*(1/before-1/unit());
-    camera.lat-=(y-height()/2)*(1/before-1/unit());
+    camera.level=Math.min(maxLevel, Math.max(0, level));
+    camera.x+=(x-width()/2)*(1/before-1/unit());
+    camera.y+=(y-height()/2)*(1/before-1/unit());
     draw();
   }
   function fit() {
-    let left=180,right=-180,bottom=90,top=-90;
-    for(const {point:[x,y]} of rows) {
-      left=Math.min(left,x);right=Math.max(right,x);bottom=Math.min(bottom,y);top=Math.max(top,y);
+    let left=1,right=0,top=1,bottom=0;
+    for (const {point:[x,y], extent} of rows) {
+      left=Math.min(left,x,extent?.[0] ?? x); right=Math.max(right,x,extent?.[2] ?? x);
+      top=Math.min(top,y,extent?.[1] ?? y); bottom=Math.max(bottom,y,extent?.[3] ?? y);
     }
-    camera=route.camera=rows.length ? {lon:(right+left)/2,lat:(top+bottom)/2,
-      zoom:Math.min(65536,Math.max(1,.82*Math.min(width()/Math.max(.01,right-left),height()/Math.max(.01,top-bottom))/Math.min(width()/360,height()/180)))} :
-      {lon:0,lat:0,zoom:1};
+    const scale = Math.min(width()/Math.max(1e-8,right-left),height()/Math.max(1e-8,bottom-top));
+    camera=route.camera=rows.length ? {x:(right+left)/2,y:(top+bottom)/2,
+      level:Math.min(14,Math.max(0,Math.log2(.82*scale/256)))} : {x:.5,y:.5,level:0};
     draw();
   }
   function draw() {
-    if(!camera || host.hidden) return;
-    camera.lon=Math.min(180,Math.max(-180,camera.lon)); camera.lat=Math.min(90,Math.max(-90,camera.lat));
-    const w=width(),h=height(),s=unit(),project=([lon,lat])=>[w/2+(lon-camera.lon)*s,h/2-(lat-camera.lat)*s];
-    const [x,y]=project([-180,90]);groups=clusterWaters(rows,project,w,h);
+    if (!camera || host.hidden) return;
+    camera.x=Math.min(1,Math.max(0,camera.x)); camera.y=Math.min(1,Math.max(0,camera.y));
+    const w=width(),h=height(),s=unit(),project=([x,y])=>[w/2+(x-camera.x)*s,h/2+(y-camera.y)*s];
+    const [x,y]=project([0,0]);
     svg.setAttribute('viewBox',[0,0,w,h].join(' '));
-    svg.innerHTML='<image href="world-land.svg" x="'+x+'" y="'+y+'" width="'+360*s+'" height="'+180*s+'"/>'+
-      groups.map((g,i)=>{const n=g.waters.length;const label=n===1 ? g.waters[0].water.name : t('waters.waters')+' · '+n;
-        return '<g role="button" tabindex="0" aria-label="'+esc(label)+'" data-group="'+i+'" transform="translate('+g.x/n+' '+g.y/n+')"><circle r="17"/><text y="4">'+(n===1?'•':n)+'</text></g>';
-      }).join('');
-    by('zoom-out').disabled=camera.zoom<=1;by('zoom-in').disabled=camera.zoom>=65536;
+    land.setAttribute('x',x); land.setAttribute('y',y);
+    land.setAttribute('width',s); land.setAttribute('height',s);
+    if (online.checked) tiles.update(camera,w,h);
+    // Published outlines remain available without the online topography.
+    const visible = new Set(camera.level < 10 ? [] : rows.filter(row => row.extent &&
+      row.extent[0] <= camera.x+w/(2*s) && row.extent[2] >= camera.x-w/(2*s) &&
+      row.extent[1] <= camera.y+h/(2*s) && row.extent[3] >= camera.y-h/(2*s)));
+    for (const [row, element] of visibleShapes) {
+      if (!visible.has(row)) { element.remove(); visibleShapes.delete(row); }
+    }
+    for (const row of visible) {
+      if (visibleShapes.has(row)) continue;
+      const element=document.createElementNS(svg.namespaceURI,'path');
+      element.setAttribute('d',row.path);
+      shapesLayer.append(element);
+      visibleShapes.set(row,element);
+    }
+    shapesLayer.setAttribute('transform','translate('+x+' '+y+') scale('+s/65536+')');
+    groups=clusterWaters(rows,project,w,h);
+    markers.innerHTML=groups.map((g,i)=>{const n=g.waters.length;const label=n===1 ? g.waters[0].water.name : t('waters.waters')+' · '+n;
+      return '<g role="button" tabindex="0" aria-label="'+esc(label)+'" data-group="'+i+'" transform="translate('+g.x/n+' '+g.y/n+')"><circle r="17"/><text y="4">'+(n===1?'•':n)+'</text></g>';
+    }).join('');
+    by('zoom-out').disabled=camera.level<=0;by('zoom-in').disabled=camera.level>=maxLevel;
     by('map-count').textContent=t('atlas.mapped')+' · '+rows.length+' / '+(rows.length+missing)
       + (route.parkingOnly && !rows.length && !missing ? ' · '+t('parking.filter_empty') : '');
   }
+  online.onchange = () => {
+    localStorage.setItem('atlas.topographic',online.checked?'on':'off');
+    attribution.hidden=!online.checked;
+    tiles.clear();
+    draw();
+  };
+  const retry = () => { tiles.clear(); draw(); };
+  by('map-retry').onclick = retry;
+  window.addEventListener('online',retry);
   function pick(target) {
     const el=target.closest('[data-group]');if(!el)return;
     const group=groups[Number(el.dataset.group)];if(!group)return;
@@ -77,12 +134,12 @@ export function atlasMap(host, route, openWater) {
       index+=40;
       if(index<choices.length){const b=document.createElement('button');b.textContent=t('waters.show_more_waters');b.onclick=()=>{b.remove();more();};selected.append(b);}
     }
-    more();zoom(camera.zoom*2,group.x/choices.length,group.y/choices.length);
+    more();zoom(camera.level+1,group.x/choices.length,group.y/choices.length);
   }
   svg.onkeydown=e=>{
     if(e.key==='Enter' || e.key===' '){e.preventDefault();pick(e.target);return;}
     const offset={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,1],ArrowDown:[0,-1]}[e.key];
-    if(offset){e.preventDefault();camera.lon+=offset[0]*65/unit();camera.lat+=offset[1]*65/unit();draw();}
+    if(offset){e.preventDefault();camera.x+=offset[0]*65/unit();camera.y-=offset[1]*65/unit();draw();}
   };
   svg.onclick=e=>{if(!down?.moved)pick(e.target);};
   svg.onpointerdown=e=>{pointers.set(e.pointerId,[e.clientX,e.clientY]);down={x:e.clientX,y:e.clientY,moved:pointers.size>1};};
@@ -92,19 +149,37 @@ export function atlasMap(host, route, openWater) {
     if(!down.moved && Math.hypot(now[0]-down.x,now[1]-down.y)<5)return;
     down.moved=true;svg.setPointerCapture(e.pointerId);pointers.set(e.pointerId,now);
     if(other){const old=Math.hypot(prev[0]-other[0],prev[1]-other[1]),gap=Math.hypot(now[0]-other[0],now[1]-other[1]);
-      if(old && gap){const r=svg.getBoundingClientRect();zoom(camera.zoom*gap/old,(now[0]+other[0])/2-r.left,(now[1]+other[1])/2-r.top);} }
-    else{camera.lon-=(now[0]-prev[0])/unit();camera.lat+=(now[1]-prev[1])/unit();draw();}
+      if (old && gap) {
+        const r=svg.getBoundingClientRect();
+        camera.x -= (now[0]-prev[0]) / (2*unit());
+        camera.y -= (now[1]-prev[1]) / (2*unit());
+        zoom(camera.level+Math.log2(gap/old),(now[0]+other[0])/2-r.left,(now[1]+other[1])/2-r.top);
+      }
+    }
+    else{camera.x-=(now[0]-prev[0])/unit();camera.y-=(now[1]-prev[1])/unit();cancelAnimationFrame(frame); frame=requestAnimationFrame(draw);}
   };
   svg.onpointercancel=svg.onpointerup=e=>pointers.delete(e.pointerId);
   svg.onpointerleave=e=>{if(!svg.hasPointerCapture(e.pointerId))pointers.delete(e.pointerId);};
-  svg.onwheel=e=>{e.preventDefault();const r=svg.getBoundingClientRect();zoom(camera.zoom*(e.deltaY<0?1.5:1/1.5),e.clientX-r.left,e.clientY-r.top);};
-  by('zoom-in').onclick=()=>zoom(camera.zoom*2);by('zoom-out').onclick=()=>zoom(camera.zoom/2);by('map-fit').onclick=fit;
+  svg.onwheel=e=>{e.preventDefault();const r=svg.getBoundingClientRect();zoom(camera.level + (e.deltaY < 0 ? .5 : -.5),e.clientX-r.left,e.clientY-r.top);};
+  by('zoom-in').onclick=()=>zoom(camera.level+1);by('zoom-out').onclick=()=>zoom(camera.level-1);by('map-fit').onclick=fit;
   const observer=new ResizeObserver(draw);observer.observe(svg);
+  let cache = new WeakMap(), geometry;
   return {update(waters,shapes,key){
-    rows=waters.map(water=>({water,point:waterPoint(water,shapes)})).filter(row=>row.point);
+    if (shapes !== geometry) { cache = new WeakMap(); geometry = shapes; }
+    rows=[];
+    for (const water of waters) {
+      if (!cache.has(water)) {
+        const location=waterPoint(water,shapes);
+        cache.set(water, location ? {water, point:mercator(location), ...waterGeometry(water,shapes)} : null);
+      }
+      const row=cache.get(water);
+      if (row) rows.push(row);
+    }
     missing=waters.length-rows.length;selected.replaceChildren();
     if (!camera || route.cameraFilter !== key) fit();
     else draw();
     route.cameraFilter = key;
-  },dispose(){observer.disconnect();}};
+  },pause(){ tiles.clear(); },dispose(){
+    observer.disconnect(); cancelAnimationFrame(frame); tiles.clear(); window.removeEventListener('online',retry);
+  }};
 }

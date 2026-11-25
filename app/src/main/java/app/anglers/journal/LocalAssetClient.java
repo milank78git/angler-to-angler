@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.function.Consumer;
 
 /**
- * Serves only bundled files on the private journal origin. User-activated HTTPS links open
+ * Serves the private journal origin and permits published map and water imagery. HTTPS links open
  * externally.
  */
 final class LocalAssetClient extends WebViewClient {
@@ -35,6 +35,11 @@ final class LocalAssetClient extends WebViewClient {
   public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
     Uri uri = request.getUrl();
     String path = uri.getPath();
+    // Only display images from the map services; all other subresources stay on the private origin.
+    if (context != null && !request.isForMainFrame() && "GET".equals(request.getMethod())
+        && "https".equals(uri.getScheme()) && publishedMapImage(uri)) {
+      return null;
+    }
     if ("https".equals(uri.getScheme())
         && HOST.equals(uri.getHost())
         && path != null
@@ -54,6 +59,23 @@ final class LocalAssetClient extends WebViewClient {
     }
     return new WebResourceResponse(
         "text/plain", "utf-8", 404, "Missing", null, new ByteArrayInputStream(new byte[0]));
+  }
+
+  private static boolean publishedMapImage(Uri uri) {
+    String path = uri.getEncodedPath();
+    if (path == null) return false;
+    String authority = uri.getEncodedAuthority();
+    if ("tile.openmaps.fr".equals(authority)) {
+      return uri.getEncodedQuery() == null
+          && path.matches("/opentopomap/(?:[0-9]|1[0-7])/[0-9]{1,6}/[0-9]{1,6}\\.png");
+    }
+    if ("ags.cuzk.gov.cz".equals(authority)) {
+      return "/arcgis1/rest/services/ORTOFOTO_WM/MapServer/export".equals(path)
+          && "image".equals(uri.getQueryParameter("f"));
+    }
+    return "tiles.maps.eox.at".equals(authority) && "/wms".equals(path)
+        && "GetMap".equals(uri.getQueryParameter("request"))
+        && "s2cloudless_3857".equals(uri.getQueryParameter("layers"));
   }
 
   private static String contentType(String path) {

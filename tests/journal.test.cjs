@@ -70,3 +70,21 @@ test('journals on one device keep trips, catches and photos scoped to their owne
   await visitor.removeTrip('river');
   assert.equal(await (await owner.photo('perch')).text(), 'private photo');
 });
+
+test('water photographs survive trip deletion and stay isolated by water and device journal', async () => {
+  const factory = new IDBFactory(), name = 'first';
+  const j = createJournal(factory, name), key = 'CZ:CRS:123';
+  const photo = new Blob(['shore'], { type: 'image/jpeg' });
+  await j.saveTrip({id:'trip'});
+  await j.saveCatch({id:key, tripId:'trip'}, photo);
+  await j.setWaterPhoto(key, photo);
+  await j.removeTrip('trip');
+  assert.equal(await j.photo(key), undefined);
+  assert.equal(await (await createJournal(factory, name).waterPhoto(key)).text(), 'shore');
+  assert.equal(await j.waterPhoto('CZ:MRS:123'), undefined);
+  assert.equal(await createJournal(factory, 'second').waterPhoto(key), undefined);
+  await j.setWaterPhoto(key, new Blob(['updated']));
+  assert.equal(await (await j.waterPhoto(key)).text(), 'updated');
+  await j.setWaterPhoto(key, null);
+  assert.equal(await j.waterPhoto(key), undefined);
+});
