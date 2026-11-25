@@ -117,18 +117,19 @@ def main():
     countries={}; boundaries={}
     for feat in geography["features"]:
         prop=feat["properties"]; code=prop["ISO_A2_EH"]
-        if code not in COUNTRIES: continue
-        countries[code]=NAMES.get(code,prop["ADMIN"])
+        if code not in COUNTRIES and code != "US": continue
+        if code in COUNTRIES: countries[code]=NAMES.get(code,prop["ADMIN"])
         geom=feat["geometry"]; polys=geom["coordinates"] if geom["type"]=="MultiPolygon" else [geom["coordinates"]]
         boundaries[code]=[]
         for poly in polys:
-            if not any(-34<=p[0]<=71 and 26<=p[1]<=84 for p in poly[0]): continue
+            if code != "US" and not any(-34<=p[0]<=71 and 26<=p[1]<=84 for p in poly[0]): continue
             rings=[]
             for ring in poly:
                 small=reduce_line(ring)
                 rings.append([[round(x,4),round(y,4)] for x,y in (small if len(small)>=4 else ring)])
             boundaries[code].append(rings)
     assert set(countries)==set(COUNTRIES)
+    write("us-borders.json", {"US": boundaries.pop("US")})
     write("europe-borders.json",boundaries)
     places=json.loads((ROOT/"data/europe/places.json").read_text())
     for code in COUNTRIES:

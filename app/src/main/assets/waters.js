@@ -4,6 +4,7 @@ import { attachWaterPhoto } from './water-photo.js';
 import { attachAtlasMap, waterFeature } from './atlas-map.js';
 import { languageTag } from './i18n.js';
 import { countryName } from './fish-catalogue.js';
+import { atlasCountryAt, suggestedAtlasCountry } from './country-lookup.js';
 import { localRuleWater, matchesWater, waterDistances } from './water-directory.js';
 import { waterReports } from './water-reports.js';
 import { rpc } from './profile-api.js';
@@ -109,17 +110,27 @@ export async function listWaters({ view, pack, nav, waterDirectory }) {
   }
   const countries = [...new Set([...Object.keys(waterDirectory.countries),'CZ','US'])]
     .map(code => [code, countryName(code)]).sort((a,b) => a[1].localeCompare(b[1]));
-  const countryPreference = 'atlas.country.' + window.Device.subjectId();
+  const subject = window.Device.subjectId();
+  const countryPreference = 'atlas.country.' + subject;
+  const locationChoice = 'atlas.location-choice.' + subject;
+  const previous = localStorage.getItem(countryPreference);
+  const savedCountry = previous === '' || countries.some(([code]) => code === previous);
   if (route.country === undefined && !route.additions) {
-    const previous = localStorage.getItem(countryPreference);
-    route.country = countries.some(([code]) => code === previous) ? previous : '';
+    route.country = savedCountry ? previous : suggestedAtlasCountry(ordered, window.Device.networkCountry?.(),
+      Intl.DateTimeFormat().resolvedOptions().timeZone, languageTag);
   }
+  const offerLocation = !route.additions && !savedCountry && !localStorage.getItem(locationChoice);
   screen.innerHTML = `<div class="page-intro"><div class="title-mark">${icon('map')}</div><h1>${t('atlas.title')}</h1></div>
+    ${offerLocation ? `<aside id="atlas-location-offer" class="surface" aria-labelledby="atlas-location-title">
+      <h2 id="atlas-location-title">${t('atlas.location_title')}</h2><p>${t('atlas.location_explanation')}</p>
+      <div class="quick-actions">${button('atlas-location-use',t('atlas.location_use'),'primary','navigation')}${button('atlas-location-skip',t('atlas.location_skip'),'secondary')}</div></aside>` : ''}
+    <p id="nearby-status" role="status"></p>
     <div class="quick-actions home-features">${button('home-market', t('market.title'), 'primary')}${button('home-fish', t('fish_catalogue.title'), 'secondary', 'fish-symbol')}</div>
     <div class="catalog-tools"><div class="search-box">${icon('search')}<label class="sr" for="search">${t('waters.name_water_number_or_town')}</label><input type="search" id="search" value="${esc(route.query || '')}" placeholder="${t('waters.search_waters_numbers_or_towns')}"></div>
     <div class="atlas-actions">${button('atlas-filter-toggle',t('settings.filters'),'secondary','sliders-horizontal')}${button('atlas-settings',t('settings.title'),'secondary')}${button('map-toggle',t('atlas.map'),'secondary','map')}</div>
     <div id="atlas-filters">
-    ${button('nearby',t('waters.sort_by_location'),'secondary','navigation')}<p id="nearby-status" role="status"></p>
+    ${button('atlas-locate-country',t('atlas.location_use'),'secondary','navigation')}
+    ${button('nearby',t('waters.sort_by_location'),'secondary','navigation')}
     ${selectField('water-country', t('waters.fishery_country'), [
       ['', t('waters.all_countries')], ...countries
     ], route.country || '')}
@@ -151,39 +162,89 @@ export async function listWaters({ view, pack, nav, waterDirectory }) {
   bind('home-market', () => nav.open('marketShelf'));
   bind('home-fish', () => nav.open('fishCatalogue'));
   const pageSize = 40;
-  let pending;
+  let pending = 0, locatingCountry = false;
   const distanceNote = t('waters.approximate_distance_to_the_mapped_water_section');
-  if (route.distances) by('nearby-status').textContent = distanceNote;
+  const status = by('nearby-status');
+  if (route.distances) status.textContent = distanceNote;
+
+  function dismissOffer() {
+    const offer = by('atlas-location-offer');
+    if (offer) {
+      offer.hidden = true;
+      localStorage.setItem(locationChoice, '1');
+    }
+  }
+  function setCountry(code) {
+    route.country = code;
+    localStorage.setItem(countryPreference, code);
+    by('water-country').value = code;
+    by('atlas-sources').hidden = !code;
+    by('water-coverage').innerHTML = coverage(waterDirectory, code);
+    syncFilters();
+  }
+  function setLocationBusy(busy) {
+    by('nearby').disabled = busy;
+    by('atlas-locate-country').disabled = busy;
+  }
+  function cancelLocation() {
+    if (pending) window.Device.cancelLocation(pending);
+    pending = 0;
+  }
+  function requestLocation(findCountry) {
+    if (pending) return;
+    if (!window.Device?.atlasLocation) return toast(t('waters.location_unavailable'));
+    dismissOffer();
+    locatingCountry = findCountry;
+    pending = ++locationRequest;
+    setLocationBusy(true);
+    status.textContent = t('atlas.locating');
+    window.Device.atlasLocation(pending);
+  }
   const receive = async ({ detail }) => {
     if (!pending || detail.id !== pending) return;
-    pending = null;
     try {
       if (!Number.isFinite(detail.fix?.lat) || !Number.isFinite(detail.fix?.lon)) {
-        by('nearby-status').textContent = t('waters.location_unavailable');
+        status.textContent = t('atlas.location_failed');
         return;
       }
+      if (locatingCountry) {
+        const code = await atlasCountryAt(detail.fix);
+        if (!view.active() || detail.id !== pending) return;
+        if (!code) {
+          status.textContent = t('fish_catalogue.country_unavailable_choose_it_from_the_list');
+          route.filtersOpen = true;
+          syncFilters();
+          return;
+        }
+        setCountry(code);
+        route.limit = pageSize;
+        results();
+      }
       const shapes = await waterDirectory.geography();
-      if (!view.active()) return;
+      if (!view.active() || detail.id !== pending) return;
       route.distances = waterDistances(atlas.waters, shapes, detail.fix);
       route.limit = pageSize;
-      by('nearby-status').textContent = distanceNote;
+      status.textContent = distanceNote;
       results();
     } catch {
-      if (view.active()) by('nearby-status').textContent = t('waters.could_not_load_the_water_outlines');
+      if (view.active() && detail.id === pending) status.textContent = t('atlas.location_failed');
     } finally {
-      if (view.active()) by('nearby').disabled = false;
+      if (view.active() && detail.id === pending) {
+        pending = 0;
+        setLocationBusy(false);
+      }
     }
   };
   window.addEventListener('angler-position',receive);
-  bind('nearby', () => {
-    if (!window.Device?.location) return toast(t('waters.location_unavailable'));
-    pending = ++locationRequest;
-    by('nearby').disabled = true;
-    window.Device.location(pending);
-  });
+  if (offerLocation) {
+    bind('atlas-location-use', () => requestLocation(true));
+    bind('atlas-location-skip', dismissOffer);
+  }
+  bind('atlas-locate-country', () => requestLocation(true));
+  bind('nearby', () => requestLocation(false));
   view.dispose = () => {
     window.removeEventListener('angler-position',receive);
-    if (pending) window.Device.cancelLocation(pending);
+    cancelLocation();
     map?.dispose();
   };
   let map, shapes, mapGeneration=0;
@@ -253,11 +314,11 @@ export async function listWaters({ view, pack, nav, waterDirectory }) {
     by('waters').querySelectorAll('[data-water]')[previous]?.focus();
   });
   by('water-country').onchange = event => {
-    route.country = event.target.value;
-    localStorage.setItem(countryPreference, route.country);
-    syncFilters();
-    by('atlas-sources').hidden = !route.country;
-  by('water-coverage').innerHTML = coverage(waterDirectory, route.country);
+    cancelLocation();
+    setLocationBusy(false);
+    dismissOffer();
+    status.textContent = route.distances ? distanceNote : '';
+    setCountry(event.target.value);
     route.limit = pageSize;
     results();
   };

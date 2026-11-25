@@ -124,6 +124,41 @@ public final class Runner extends Instrumentation {
     js(readyControl(selector) + ".click()");
   }
 
+  /** Check the actual one-shot OS request on the phone, and the skip path on the wide layout. */
+  private void checkAtlasLocationOffer() throws Exception {
+    waitFor("!!document.querySelector('#atlas-location-use') && !document.querySelector('#atlas-location-offer').hidden");
+    String initialCountry = js("document.querySelector('#water-country').value");
+    if ("compact".equals(scenario)) {
+      android.accessibilityservice.AccessibilityServiceInfo info = getUiAutomation().getServiceInfo();
+      info.flags |= android.accessibilityservice.AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS;
+      getUiAutomation().setServiceInfo(info);
+      clickReady("#atlas-location-use");
+      boolean denied = false;
+      long end = android.os.SystemClock.elapsedRealtime() + 10000;
+      while (!denied && android.os.SystemClock.elapsedRealtime() < end) {
+        android.view.accessibility.AccessibilityNodeInfo root = getUiAutomation().getRootInActiveWindow();
+        if (root != null && root.getPackageName() != null && root.getPackageName().toString().endsWith("permissioncontroller")) {
+          for (String pkg : new String[] {root.getPackageName().toString(), "com.android.permissioncontroller"}) {
+            for (android.view.accessibility.AccessibilityNodeInfo node :
+                root.findAccessibilityNodeInfosByViewId(pkg + ":id/permission_deny_button")) {
+              denied = node.performAction(android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK);
+              if (denied) break;
+            }
+            if (denied) break;
+          }
+        }
+        if (!denied) Thread.sleep(100);
+      }
+      if (!denied) throw new AssertionError("Missing location permission dialog");
+      waitFor("!document.querySelector('#atlas-locate-country').disabled && document.querySelector('#nearby-status').textContent.length>0");
+    } else {
+      clickReady("#atlas-location-skip");
+    }
+    waitFor("document.querySelector('#water-country').value===" + initialCountry);
+    clickReady("#tabwaters");
+    waitFor("!document.querySelector('#atlas-location-offer') && !!document.querySelector('[data-water]')");
+  }
+
   /** Type into the lookup without opening its select or dismissing the Android keyboard. */
   private void checkLiveRuleSearch() throws Exception {
     js("document.querySelector('#rule-water-search').focus()");
@@ -581,6 +616,7 @@ public final class Runner extends Instrumentation {
       }
       AccountChecks accounts = new AccountChecks(this, !"wide".equals(scenario));
       bindJournal(accounts.register());
+      checkAtlasLocationOffer();
       bindJournal(accounts.groups());
       if ("compact".equals(scenario)) {
         waitFor("document.documentElement.dataset.theme === 'dark'");

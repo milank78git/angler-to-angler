@@ -1,3 +1,4 @@
+import { countryBorders } from './country-lookup.js';
 import { by, esc, t, toast } from './ui.js';
 
 const valid = p => Array.isArray(p) && p.length === 2 && p.every(Number.isFinite) &&
@@ -28,12 +29,10 @@ function projection(points, width, height, padding) {
 }
 
 const path = (line, xy) => 'M' + line.map(p => xy(p).join(' ')).join('L');
-let borders;
 async function countryOutline(country) {
   if (country === 'US') return [];
-  borders ??= fetch('europe-borders.json').then(r => r.json()).catch(() => { borders = undefined; return {}; });
-  const polygons = (await borders)[country] || [];
-  return polygons.filter(p => p.length && p[0].length);
+  const borders = await countryBorders('europe').catch(() => ({}));
+  return (borders[country] || []).filter(p => p.length && p[0].length);
 }
 
 /** Draw the published extent or points offline, plus a regional locator for isolated points. */
