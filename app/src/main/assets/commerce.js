@@ -35,21 +35,40 @@ export function walletPanel(view,nav,data) {
   line(t('commerce.split'));
   const prices=document.createElement('div');panel.append(prices);
   const result=document.createElement('p');result.setAttribute('role','status');panel.append(result);
+  const catalogStatus=document.createElement('p');catalogStatus.setAttribute('role','status');panel.append(catalogStatus);
+  const checkout=document.createElement('p');checkout.setAttribute('role','status');panel.append(checkout);
+  const retry=document.createElement('button');retry.type='button';retry.className='secondary';retry.hidden=true;
+  retry.textContent=t('common.retry');retry.onclick=()=>window.PlayMarket.refresh();panel.append(retry);
+  let catalogUnavailable=false, receiptRetry=false;
   window.playMarketResult=(state,items)=>{
     if (!view.active()) return;
-    if (state==='credited') { nav.show();return; }
+    if (state==='credited' || state==='refreshBalance') { nav.show();return; }
     if (state==='prices') {
       prices.replaceChildren();
       for (const sku of packs) if (items[sku]) {
         const buy=document.createElement('button');
         buy.type='button';buy.textContent=t('commerce.pack').replace('{count}',sku.split('_')[1]).replace('{price}',items[sku]);
-        buy.onclick=()=>window.PlayMarket.buy(sku);prices.append(buy);
+        buy.onclick=()=>{ checkout.textContent='';window.PlayMarket.buy(sku); };prices.append(buy);
       }
-      result.textContent='';
-    } else if (state==='pending' || state==='unavailable') {
-      result.textContent=t(state==='pending'?'commerce.verifying':'commerce.unavailable');
-      if (state==='unavailable') prices.replaceChildren();
+      catalogUnavailable=false;
+      catalogStatus.textContent='';
+    } else if (state==='unavailable') {
+      catalogUnavailable=true;
+      prices.replaceChildren();
+      catalogStatus.textContent=t('commerce.unavailable');
+    } else if (state==='purchases') {
+      receiptRetry=items.retry;
+      result.textContent=[items.pending && t('commerce.payment_pending'),items.verifying && t('commerce.verifying'),
+        items.retry && t('commerce.delivery_retry')].filter(Boolean).join(' ');
+      if (checkout.dataset.error) { checkout.textContent='';delete checkout.dataset.error; }
+    } else if (state==='purchaseUnavailable') {
+      checkout.dataset.error='1';
+      checkout.textContent=t('commerce.purchase_unavailable');
+    } else if (state==='cancelled') {
+      delete checkout.dataset.error;
+      checkout.textContent=t('commerce.cancelled');
     }
+    retry.hidden=!(catalogUnavailable || receiptRetry || checkout.dataset.error);
   };
   window.PlayMarket.refresh();
   line(t('commerce.threshold').replace('{count}',String(data.published)));

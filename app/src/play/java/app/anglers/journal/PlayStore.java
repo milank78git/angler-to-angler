@@ -16,17 +16,25 @@ final class PlayStore implements PurchasesUpdatedListener {
   private final FishingActivity activity;
   private final WebView web;
   private final String subject;
+  private final String accountBinding;
   private final Handler handler = new Handler(Looper.getMainLooper());
   private final ExecutorService worker = Executors.newSingleThreadExecutor();
   private final BillingClient client;
   private final Map<String,ProductDetails> products = new HashMap<>();
   private final Map<String,ProductDetails.OneTimePurchaseOfferDetails> offers = new HashMap<>();
   private boolean connecting,closed;
+  // Access receipt state only on the main thread. The WebView never receives a token.
+  private final Set<String> verifying = new HashSet<>();
+  private final Set<String> confirmed = new HashSet<>();
+  private final Set<String> retry = new HashSet<>();
+  private boolean pending;
+  private long ownershipQuery;
 
   PlayStore(FishingActivity activity, WebView web, String subject) {
     this.activity=activity;
     this.web=web;
     this.subject=subject;
+    this.accountBinding=binding(subject);
     client=BillingClient.newBuilder(activity).setListener(this)
         .enablePendingPurchases(PendingPurchasesParams.newBuilder().enableOneTimeProducts().build())
         .enableAutoServiceReconnection().build();
@@ -79,40 +87,101 @@ final class PlayStore implements PurchasesUpdatedListener {
         }
         emit(prices.length()>0?"prices":"unavailable",prices);
       }));
+    refreshPurchases();
+  }
+  private void refreshPurchases() {
+    long request = ++ownershipQuery;
     client.queryPurchasesAsync(QueryPurchasesParams.newBuilder().setProductType(BillingClient.ProductType.INAPP).build(),
-        (result,purchases)->{ if (result.getResponseCode()==0) deliver(purchases); });
+        (result, purchases) -> handler.post(() -> {
+          if (!active() || request != ownershipQuery) return;
+          if (result.getResponseCode() != BillingClient.BillingResponseCode.OK) {
+            emit("purchaseUnavailable");
+            return;
+          }
+          pending = false;
+          Set<String> current = new HashSet<>();
+          for (Purchase purchase : purchases) {
+            AccountIdentifiers owner = purchase.getAccountIdentifiers();
+            if (owner == null || !accountBinding.equals(owner.getObfuscatedAccountId())) continue;
+            if (purchase.getPurchaseState() == Purchase.PurchaseState.PENDING) {
+              pending = true;
+            } else if (purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
+              String token = purchase.getPurchaseToken();
+              current.add(token);
+              if (!confirmed.contains(token) && verifying.add(token)) {
+                retry.remove(token);
+                worker.execute(() -> verify(token));
+              }
+            }
+          }
+          confirmed.retainAll(current);
+          retry.retainAll(current);
+          emitPurchaseStatus();
+        }));
+  }
+
+  private static String binding(String subject) {
+    try {
+      StringBuilder hash = new StringBuilder();
+      for (byte b : MessageDigest.getInstance("SHA-256").digest(subject.getBytes(StandardCharsets.UTF_8)))
+        hash.append(String.format(Locale.ROOT, "%02x", b & 255));
+      return hash.toString();
+    } catch (java.security.NoSuchAlgorithmException impossible) {
+      throw new IllegalStateException(impossible);
+    }
+  }
+
+  private void emitPurchaseStatus() {
+    JSONObject states = new JSONObject();
+    try {
+      states.put("pending", pending);
+      states.put("verifying", !verifying.isEmpty());
+      states.put("retry", !retry.isEmpty());
+    } catch (JSONException unexpected) { throw new IllegalStateException(unexpected); }
+    emit("purchases", states);
+  }
+
+  private void verify(String token) {
+    boolean success = false;
+    try {
+      IdentityService service = new IdentityService(activity);
+      IdentityService.Session auth = AccountStore.online(activity, service, subject, null);
+      service.verifyPlay(auth.access, token);
+      success = true;
+    } catch (Exception failure) { /* The next ownership query retries incomplete delivery. */ }
+    final boolean credited = success;
+    handler.post(() -> {
+      if (!active()) return;
+      verifying.remove(token);
+      if (credited) confirmed.add(token);
+      else retry.add(token);
+      emitPurchaseStatus();
+      if (credited) emit("credited");
+    });
   }
   private void launch(String sku) {
     if (!active() || !client.isReady() || !products.containsKey(sku)) { emit("unavailable"); return; }
     try {
-      StringBuilder account=new StringBuilder();
-      for (byte b:MessageDigest.getInstance("SHA-256").digest(subject.getBytes(StandardCharsets.UTF_8)))
-        account.append(String.format(Locale.ROOT,"%02x",b & 255));
       BillingFlowParams.ProductDetailsParams item=BillingFlowParams.ProductDetailsParams.newBuilder()
           .setProductDetails(products.get(sku)).setOfferToken(offers.get(sku).getOfferToken()).build();
       BillingResult result=client.launchBillingFlow(activity,BillingFlowParams.newBuilder()
-          .setObfuscatedAccountId(account.toString()).setProductDetailsParamsList(Collections.singletonList(item)).build());
-      if (result.getResponseCode()!=0) emit("unavailable");
+          .setObfuscatedAccountId(accountBinding).setProductDetailsParamsList(Collections.singletonList(item)).build());
+      if (result.getResponseCode()==BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED) refreshPurchases();
+      else if (result.getResponseCode()!=BillingClient.BillingResponseCode.OK) emit("purchaseUnavailable");
     } catch (Exception error) { emit("unavailable"); }
   }
   public void onPurchasesUpdated(BillingResult result,List<Purchase> purchases) {
-    if (result.getResponseCode()==0 && purchases!=null) deliver(purchases);
-    else if (result.getResponseCode()!=BillingClient.BillingResponseCode.USER_CANCELED) emit("unavailable");
-  }
-  private void deliver(List<Purchase> purchases) {
-    handler.post(()->{
+    handler.post(() -> {
       if (!active()) return;
-      for (Purchase purchase:purchases) {
-        if (purchase.getPurchaseState()!=Purchase.PurchaseState.PURCHASED) { emit("pending"); continue; }
-        worker.execute(()->{
-          try {
-            IdentityService service=new IdentityService(activity);
-            IdentityService.Session auth=AccountStore.online(activity,service,subject,null);
-            service.verifyPlay(auth.access,purchase.getPurchaseToken());
-            emit("credited");
-          } catch (Exception error) { emit("pending"); }
-        });
-      }
+      int code = result.getResponseCode();
+      if (code == BillingClient.BillingResponseCode.OK) {
+        // A server notification may already have consumed the purchase. Read the durable balance again.
+        if (purchases != null && purchases.stream().anyMatch(p -> p.getPurchaseState() == Purchase.PurchaseState.PURCHASED))
+          emit("refreshBalance");
+        refreshPurchases();
+      } else if (code == BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED) refreshPurchases();
+      else if (code == BillingClient.BillingResponseCode.USER_CANCELED) emit("cancelled");
+      else emit("purchaseUnavailable");
     });
   }
   void close() {
