@@ -6,22 +6,55 @@ concurrency:
   group: account-pages
   cancel-in-progress: false
 jobs:
-  publish:
+  build:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
     permissions:
       contents: read
+      pages: read
+    outputs:
+      artifact-id: ${{ steps.upload.outputs.artifact_id }}
+      artifact-name: ${{ steps.name.outputs.value }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d
+      - run: python3 scripts/build-account-pages.py build/account-pages
+      - id: name
+        run: echo "value=account-pages-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" >> "$GITHUB_OUTPUT"
+      - id: upload
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9
+        with:
+          name: ${{ steps.name.outputs.value }}
+          path: build/account-pages
+
+  publish:
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: read
       pages: write
       id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d
-      - run: python3 scripts/build-account-pages.py build/account-pages
-      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9
-        with:
-          path: build/account-pages
+      - name: Wait until this run lists the uploaded Pages artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARTIFACT_NAME: ${{ needs.build.outputs.artifact-name }}
+          ARTIFACT_ID: ${{ needs.build.outputs.artifact-id }}
+        run: |
+          endpoint="repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts?name=$ARTIFACT_NAME"
+          for delay in 0 1 2 4 8 16 32; do
+            sleep "$delay"
+            if found=$(gh api "$endpoint" --jq '.artifacts[] | select(.expired == false) | .id') &&
+                [[ -n "$ARTIFACT_ID" && "$found" == "$ARTIFACT_ID" ]]; then
+              exit 0
+            fi
+          done
+          echo "::error::Artifact $ARTIFACT_NAME (ID $ARTIFACT_ID) was not visible in run $GITHUB_RUN_ID."
+          exit 1
       - id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346
+        with:
+          artifact_name: ${{ needs.build.outputs.artifact-name }}
