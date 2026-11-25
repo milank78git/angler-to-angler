@@ -25,14 +25,14 @@ function schedule() {
   notify('waiting');
   timer=setTimeout(()=>run(),700);
 }
-async function run(resolution) {
+async function run(resolution, retryRevision = true) {
   if (busy || !enabled()) return;
   clearTimeout(timer);
   if (!online()) { notify('offline'); return; }
   busy=true;
   const detected = [];
   notify('working');
-  let changed=false, uploaded=false;
+  let changed=false, uploaded=false, reread=false;
   try {
     if (localStorage.getItem(prefix+'registered')!=='1') {
       await call('enable',{});
@@ -95,14 +95,17 @@ async function run(resolution) {
     }
   } catch (error) {
     if (enabled()) {
-      const state = !online() ? 'offline' : error.status === 413 ? 'full'
-        : [401,403].includes(error.status) ? 'signin' : 'failed';
-      notify(state);
+      if (!online()) notify('offline');
+      else if (error.status === 409 && retryRevision) reread = true;
+      else if (error.status === 413) notify('full');
+      else if (error.status === 401 || error.status === 403) notify('signin');
+      else notify('failed');
     }
   } finally {
     busy = false;
     if (changed) window.dispatchEvent(new Event('journal-restored'));
     if (again) { again=false; schedule(); }
+    else if (reread) await run(undefined, false);
   }
 }
 /** Prefer the fishing date and water over an internal record identifier. */
@@ -180,7 +183,11 @@ export function bindJournalSync(panel, waters) {
 window.addEventListener('offline', () => { if (enabled()) { clearTimeout(timer); notify('offline'); } });
 window.addEventListener('journal-edited',schedule);
 
-document.addEventListener('visibilitychange',()=>{ if (!document.hidden) schedule(); });
+function resume() {
+  if (status === 'check_failed') start();
+  else schedule();
+}
+document.addEventListener('visibilitychange',()=>{ if (!document.hidden) resume(); });
 async function start() {
   if (!subject || localStorage.getItem(prefix+'enabled')==='0') return;
   if (!enabled()) {
@@ -201,4 +208,8 @@ async function start() {
 }
 window.addEventListener('online',start);
 start();
-setInterval(()=>{ if (enabled() && online() && !document.hidden && !busy && status !== 'conflict') run(); },60000);
+setInterval(() => {
+  if (!online() || document.hidden || busy) return;
+  if (status === 'check_failed') start();
+  else if (enabled() && status !== 'conflict') run();
+}, 60000);

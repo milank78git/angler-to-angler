@@ -11,9 +11,9 @@ const fixtureFile = join(dir,'journal-device.json');
 async function connect() {
   let port;
   for (let attempt=0; attempt<90; attempt++) {
-    const pid = adb('shell','pidof',pkg);
-    if (!port) port = adb('forward','tcp:0','localabstract:webview_devtools_remote_'+pid);
     try {
+      const pid = adb('shell','pidof',pkg);
+      if (!port) port = adb('forward','tcp:0','localabstract:webview_devtools_remote_'+pid);
       const targets = await (await fetch('http://127.0.0.1:'+port+'/json/list')).json();
       const target = targets.find(t => t.url === 'https://journal.invalid/index.html');
       if (target) {
@@ -110,7 +110,24 @@ async function onPhone(action, fixture) {
     assert(!rows.some(r=>r.key==='trip/'+id) && !(await Journal.trip(id)),'Other user saw the trip');
     let denied=false;
     try {await rpc('journal_sync',{op:'get',args:{hash:fixture.part}});} catch {denied=true;}
-    assert(denied && !(await rpc('my_details')).expiry,'Other user accessed private bytes or profile'); return;
+    assert(denied && !(await rpc('my_details')).expiry,'Other user accessed private bytes or profile');
+    // Reproduce an upgrade from a local-only journal, while another device already syncs this account.
+    if (el('#journal-sync').dataset.state !== 'disabled') { await state('done'); await confirm('pause'); }
+    await state('disabled');
+    await Journal.saveTrip({id:'historical',day:'2025-07-01',waterName:'Old private water',created:1});
+    await rpc('journal_sync',{op:'enable',args:{}});
+    localStorage.removeItem('journal.sync.v1.'+Device.subjectId()+'.enabled');
+    return;
+  }
+  if (action==='consent') {
+    await state('disabled');
+    const list=async()=>(await rpc('journal_sync',{op:'list',args:{}})).rows;
+    assert(await Journal.trip('historical') && !(await list()).some(r=>r.key==='trip/historical'),'Historical journal uploaded before consent');
+    await click(button('enable')); await click('#confirmation[open] #confirmation-cancel');
+    assert(!(await list()).some(r=>r.key==='trip/historical'),'Cancel uploaded a private trip');
+    await confirm('enable'); await state('done');
+    assert((await list()).some(r=>r.key==='trip/historical'),'Consent did not enable migration');
+    return;
   }
   if (action==='restore') {
     await state('done');
@@ -124,6 +141,10 @@ async function onPhone(action, fixture) {
     assert(details.expiry===fixture.expiry && details.reminder==='week' && details.age===48,'Licence did not restore');
     await Journal.saveTrip({...await Journal.trip(id),notes:'Updated on the second installation'});
     await state('done');
+    await until(()=>Device.licenseMessage(),'restored licence reminder');
+    return;
+  }
+  if (action==='renew') {
     await saveLicence(dateAfter(90),'month');
     await until(()=>!Device.licenseMessage(),'rescheduled licence');
     return {renewed:dateAfter(90)};
@@ -162,7 +183,7 @@ try {
     adb('reverse','tcp:58443','tcp:58443'); disconnected=false;
     await step('upload');
   } else await step(stage);
-  if (stage==='seed' || stage==='restore') await writeFile(fixtureFile,JSON.stringify(fixture),{mode:0o600});
+  if (stage==='seed' || stage==='renew') await writeFile(fixtureFile,JSON.stringify(fixture),{mode:0o600});
 } finally {
   if (disconnected) adb('reverse','tcp:58443','tcp:58443');
   socket.close(); adb('forward','--remove','tcp:'+port);
