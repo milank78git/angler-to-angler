@@ -114,7 +114,7 @@ create function public.angler_parking_waters() returns jsonb language sql stable
 as $$select jsonb_build_object('waters',angler_activity.parking_waters())$$;
 create function public.angler_parking_list(water_key text) returns jsonb language sql stable set search_path=''
 as $$select jsonb_build_object('points',angler_activity.parking_list(water_key))$$;
-create function public.angler_parking_save(water_key text,point_id uuid,expected_revision integer,lat numeric,lon numeric,title text)
+create function public.angler_parking_save(water_key text,point_id uuid,expected_revision integer,lat numeric,lon numeric,title text default null)
 returns jsonb language sql set search_path='' as $$select angler_activity.parking_save(water_key,point_id,expected_revision,lat,lon,title)$$;
 create function public.angler_parking_feedback(point_id uuid,before_id bigint default null) returns jsonb language sql set search_path=''
 as $$select angler_activity.parking_feedback(point_id,false,null,null,before_id)$$;

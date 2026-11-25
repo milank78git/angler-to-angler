@@ -3,7 +3,7 @@ import { atlasMap, waterPoint } from './world-map.js';
 import { countryBorders } from './country-lookup.js';
 import { rpc, failure } from './profile-api.js';
 import { newJournalId } from './journal.js';
-import { by, back, bindBack, button, confirmAction, esc, screen, submitChange, t } from './ui.js';
+import { by, back, bindBack, button, confirmAction, esc, screen, submitChange, t, toast } from './ui.js';
 
 /** When the publisher has no reference point, show the country without preselecting a parking spot. */
 async function countryCamera(code) {
@@ -60,14 +60,19 @@ export async function parkingEditor({view,nav,waterDirectory}) {
     if (!picker.point || view.saving) return;
     const [lon,lat]=picker.point, name=input.value.trim();
     const accepted=await confirmAction({title:t('parking.confirm_title'),
-      message:[water.name,name,lat.toFixed(6)+', '+lon.toFixed(6),t('parking.shared')].filter(Boolean).join(' · '),
+      message:[water.name,name || t(original?.label || 'parking.point'),lat.toFixed(6)+', '+lon.toFixed(6),t('parking.shared')].filter(Boolean).join(' · '),
       accept:t(original ? 'parking.save_edit' : 'parking.publish')});
     if (!accepted || !view.active()) return;
     await submitChange(view, async()=>{
       const result=await rpc('parking_save',{water_key:water.key,point_id:id,expected_revision:original?.revision || 0,lat,lon,title:name || null});
       if (result?.id!==id) throw Error('Unexpected parking response');
-    },()=>{view.dirty=false;nav.back();},e=>{
-      by('parking-error').textContent=e.status===409?t('parking.conflict'):failure(e);
+    },()=>{
+      view.dirty=false;
+      nav.back();
+      toast(t('parking.saved'));
+    },e=>{
+      const message={404:'parking.save_unavailable',409:'parking.conflict'}[e.status];
+      by('parking-error').textContent=message ? t(message) : failure(e);
     });
   };
 }

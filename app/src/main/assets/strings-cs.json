@@ -670,6 +670,8 @@
   "parking.review_saved": "Tvoje změny jsou uložené.",
   "parking.save_edit": "Zveřejnit opravu",
   "parking.save_review": "Uložit moje hodnocení a poznámku",
+  "parking.save_unavailable": "Uložení parkoviště pro tento revír není na serveru dostupné.",
+  "parking.saved": "Parkoviště je uložené.",
   "parking.shared": "Potvrzené místo uvidí ostatní rybáři.",
   "parking.signs": "U vjezdu zkontroluj aktuální podmínky vjezdu, provozní dobu a případné parkovné.",
   "parking.title": "Parkování u revíru",

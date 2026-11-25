@@ -221,7 +221,9 @@ public final class Runner extends Instrumentation {
     waitFor("!!document.querySelector('#world-map') && document.querySelector('#parking-confirm').disabled");
     js("document.querySelector('#world-map').dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true}))");
     clickReady("#parking-confirm");
-    waitFor("document.querySelector('#confirmation').open && document.querySelector('#parking-coordinates').textContent.includes(',')");
+    waitFor("document.querySelector('#confirmation').open && document.querySelector('#parking-name').value===''"
+        + " && document.querySelector('#confirmation-message').textContent.includes(" + org.json.JSONObject.quote(label("parking.point")) + ")"
+        + " && document.querySelector('#parking-coordinates').textContent.includes(',')");
     clickReady("#confirmation-cancel");
     clickReady("#back");
     clickReady("#confirmation-accept");

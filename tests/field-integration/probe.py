@@ -1,9 +1,10 @@
-"""Compare the same identity and rating before and after the disposable restore."""
+"""Compare the same identity, rating and unnamed parking point before and after restore."""
 import json
 import sys
 import time
 import urllib.error
 import urllib.request
+import uuid
 from pathlib import Path
 mode,stage=sys.argv[1],Path(sys.argv[2])
 settings=json.loads((stage/'local.json').read_text())
@@ -34,3 +35,19 @@ else:
     rating=post('/rest/v1/rpc/angler_water_rating',args,session['access_token'])
 assert rating['mine']==4 and rating['count']==1
 print('Login, profile identity and community rating verified ('+mode+').')
+
+
+# The API accepts an omitted title and the explicit null sent by the mobile editor.
+point_id = str(uuid.uuid5(uuid.UUID(profile['id']), 'unnamed car park'))
+point = {**args, 'point_id': point_id, 'expected_revision': 0, 'lat': 49.87654, 'lon': 14.42012}
+token = session['access_token']
+if mode == 'seed':
+    for optional in ({}, {'title': None}, {'title': '   '}):
+        saved = post('/rest/v1/rpc/angler_parking_save', {**point, **optional}, token)
+        assert saved['id'] == point_id and saved['revision'] == 1
+
+parking = post('/rest/v1/rpc/angler_parking_list', args, token)['points']
+matches = [row for row in parking if row['id'] == point_id]
+assert len(matches) == 1 and matches[0]['name'] is None
+assert (matches[0]['lat'], matches[0]['lon']) == (point['lat'], point['lon'])
+print('Unnamed car park verified (' + mode + ').')

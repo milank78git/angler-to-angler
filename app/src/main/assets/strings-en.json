@@ -670,6 +670,8 @@
   "parking.review_saved": "Your feedback has been saved.",
   "parking.save_edit": "Publish correction",
   "parking.save_review": "Save my feedback",
+  "parking.save_unavailable": "Saving parking for this water is unavailable on the server.",
+  "parking.saved": "Car park saved.",
   "parking.shared": "The confirmed location will be visible to other anglers.",
   "parking.signs": "Check signs at the entrance for current access, hours and fees.",
   "parking.title": "Parking near the water",
