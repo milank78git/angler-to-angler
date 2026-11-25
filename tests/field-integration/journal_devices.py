@@ -37,10 +37,14 @@ def verify_installations(stage, owner, other):
     ui.shell('pm', 'grant', FIRST, 'android.permission.POST_NOTIFICATIONS')
     run(FIRST, 'seed')
     notification(FIRST, True)
+    # Upgrade the installed local-only journal in place, preserving IndexedDB and account settings.
+    sign_in(SECOND, owner, fresh=True)
+    run(SECOND, 'legacy')
+    ui.adb('install', '-r', str(stage / 'client/build/standalone/angler-journal-debug.apk'))
+    sign_in(SECOND, owner)
+    run(SECOND, 'consent')
     sign_in(SECOND, other, fresh=True)
     run(SECOND, 'isolation')
-    sign_in(SECOND, other)
-    run(SECOND, 'consent')
     sign_in(SECOND, owner, fresh=True)
     run(SECOND, 'restore')
     notification(SECOND, True)
@@ -50,4 +54,4 @@ def verify_installations(stage, owner, other):
     run(FIRST, 'resolve')
     notification(FIRST, False)
     print('Two independent Android installations verified offline save, retry, exact photo restore, '
-          'conflict resolution, account isolation and licence renewal.', flush=True)
+          'upgrade consent, conflict resolution, account isolation and licence renewal.', flush=True)
