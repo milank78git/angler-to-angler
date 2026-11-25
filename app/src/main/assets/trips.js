@@ -47,7 +47,7 @@ export async function listTrips({ view, nav, waterDirectory }) {
     (trips.length ? textInput('trip-search', t('trips.find_by_water'), view.route.query, 'type="search"') +
       '<p id="trip-results" class="meta" role="status"></p><div id="trip-list" class="trip-list"></div>' :
       emptyState('notebook-pen', t('trips.log_your_first_trip'), t('trips.a_day_on_the_water_belongs_here')));
-  bindJournalSync(by('journal-sync'));
+  bindJournalSync(by('journal-sync'), waterDirectory);
   bind('trip-stats', () => nav.open('journalStatistics'));
   bind('add-trip', () => nav.open('newTrip'));
   if (!trips.length) return;

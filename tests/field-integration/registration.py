@@ -192,12 +192,17 @@ def desktop_confirmation():
     matching = [m for m in mailbox('messages')['messages'] if any(t['Address'] == address for t in m['To'])]
     assert len(matching) == 1, 'Password continuation unexpectedly requested another email'
     print('Desktop: unconfirmed login rejected, original message confirmed, password and profile accepted.', flush=True)
+    return address, password
 
 
 if __name__ == '__main__':
     address, password = phone_confirmation()
-    desktop_confirmation()
+    owner = desktop_confirmation()
     # The restore probe must find the original identity after the second account was created.
     with os.fdopen(os.open(Path(sys.argv[1]) / 'test-identity.json',
                            os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600), 'w') as out:
         json.dump({'email': address, 'password': password}, out)
+
+    # Keep credentials in memory. Both installed packages talk only to the ephemeral loopback pilot.
+    from journal_devices import verify_installations
+    verify_installations(Path(sys.argv[1]), owner, (address, password))

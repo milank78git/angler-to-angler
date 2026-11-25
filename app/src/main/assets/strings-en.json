@@ -1029,10 +1029,10 @@
   "weekly_catch.withdraw_this_entry": "Withdraw this entry?",
   "weekly_catch.you_have_not_joined_a_group_yet": "You have not joined a group yet.",
   "weekly_catch.your_photo_and_display_name_will_be": "Your photo and display name will be visible to ",
-  "sync.disabled": "Private journal backup is off.",
+  "sync.disabled": "Saved on this device. Private sync is off.",
   "sync.enable": "Enable private sync",
   "sync.consent": "Save existing and future trips, catches, exact positions, notes, photos, bookmarks and atlas settings privately to your account. A new device restores your synced journal after sign-in.",
-  "sync.waiting": "Waiting for synchronization",
+  "sync.waiting": "Saved on this device. Waiting to sync.",
   "sync.working": "Synchronizing private journal…",
   "sync.done": "Private journal synchronized",
   "sync.retry": "Sync now",
@@ -1091,5 +1091,12 @@
   "license.saved": "Private details saved",
   "license.conflict": "The profile was changed on another device. Reload the saved details before editing again.",
   "help-topics.profile.steps.3": "In your own profile, open Age and fishing licence to set an expiry reminder. In Settings, choose App language to override the phone language.",
-  "license.privacy": "You may save your age, fishing licence expiry date and reminder choice in your private account. Other anglers cannot see them. You can clear them in your profile. Android keeps the date and reminder on this device to notify you offline. Signing out clears that local reminder."
+  "license.privacy": "You may save your age, fishing licence expiry date and reminder choice in your private account. Other anglers cannot see them. You can clear them in your profile. Android keeps the date and reminder on this device to notify you offline. Signing out clears that local reminder.",
+  "sync.offline": "Saved on this device. Your journal will sync when you are online.",
+  "sync.failed": "Could not sync with your account. Your local entries are saved. Try again.",
+  "sync.signin": "Sign in again to sync. Your local entries are saved.",
+  "sync.saved_at": "Saved to your account · {time}",
+  "sync.last_success": "Last successful sync · {time}",
+  "sync.trip": "Fishing trip",
+  "sync.check_failed": "Saved on this device. Could not check whether your account has an online journal."
 }
