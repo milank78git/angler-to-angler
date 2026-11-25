@@ -1,6 +1,7 @@
 import { parkingPoints, waterParking, waterRating } from './water-community.js';
 import { atlasMap } from './world-map.js';
-import { attachAtlasMap } from './atlas-map.js';
+import { attachWaterPhoto } from './water-photo.js';
+import { attachAtlasMap, waterFeature } from './atlas-map.js';
 import { languageTag } from './i18n.js';
 import { countryName } from './fish-catalogue.js';
 import { localRuleWater, matchesWater, waterDistances } from './water-directory.js';
@@ -70,18 +71,6 @@ function toggleFavorite(pack, id) {
   const key = `water.${window.Device.subjectId()}.${pack.id}.${id}`;
   if (isFavorite(pack, w)) localStorage.removeItem(key);
   else localStorage.setItem(key, '1');
-}
-function photo(w, cls = '') {
-  return w?.photo ? `<img class="${cls}" src="${esc(w.photo.asset)}" alt="">` : '';
-}
-function credits(...waters) {
-  const photos = waters.filter((w) => w?.photo);
-  if (!photos.length) return '';
-  const rows = photos.map((w) => {
-    const p = w.photo;
-    return `<p>${esc(w.name)} · ${link(p.source, p.author)} · ${link(p.licenseUrl, p.license)}</p>`;
-  });
-  return `<details class="credits"><summary>${icon('image')}${t('waters.photo_credits')}</summary>${rows.join('')}<p>${t('waters.resized_and_cropped')}</p></details>`;
 }
 let locationRequest = 2000000;
 
@@ -315,6 +304,10 @@ export function waterScreen({ view, pack, rivers, nav, waterDirectory }) {
   const site = waterDirectory.byId.get(route.id);
   if (!site) return nav.back();
   const w = localRuleWater(pack, site);
+  const bundled = site.photo || pack.waterPhotos?.[site.key];
+  const feature = !w || !bundled ? waterFeature(site, waterDirectory) : null;
+  const heading = '<header class="water-heading"><h1>' + esc(site.name) + '</h1>' +
+    (w ? favoriteButton(pack, w) : '') + '</header><section id="water-photo"></section>';
   if (!w) {
     const us = site.provider === 'FWP';
     const publisher = site.publisher || { CRS: t('sources.crs.name'), MRS: t('sources.mrs.name'), FWP: 'Montana Fish, Wildlife & Parks' }[site.provider];
@@ -324,7 +317,7 @@ export function waterScreen({ view, pack, rivers, nav, waterDirectory }) {
         site.scope, site.status, site.area !== site.scope && site.publisher && site.area, site.licence,
         site.region, site.manager && t('waters.organisation') + ' · ' + site.manager,
         site.acreage && site.acreage + ' ha', site.length && site.length + ' km'];
-    screen.innerHTML = back(t('atlas.title')) + '<h1>' + esc(site.name) + '</h1><section class="surface" id="atlas-map"></section><section class="surface">' +
+    screen.innerHTML = back(t('atlas.title')) + heading + '<section class="surface" id="atlas-map"></section><section class="surface">' +
       sectionTitle('map', t('waters.official_details')) +
       facts.filter(Boolean).map(value => '<p>' + esc(value) + '</p>').join('') + link(site.source, publisher) +
       (us ? '' : '<p class="meta">' + t('waters.imported_on') + ' · ' + esc(site.asOf || waterDirectory.asOf) + '</p>' +
@@ -337,7 +330,8 @@ export function waterScreen({ view, pack, rivers, nav, waterDirectory }) {
       '<section class="surface"><h2>' + t('waters.water_reports') + '</h2><div id="water-reports"></div></section>';
     bindBack(nav);
     bindWaterActions(nav, site);
-    attachAtlasMap(by('atlas-map'), site, waterDirectory, view);
+    attachWaterPhoto(by('water-photo'), site, bundled, feature, view);
+    attachAtlasMap(by('atlas-map'), site, waterDirectory, view, feature);
     waterReports(by('water-reports'), site.key, view);
     return;
   }
@@ -345,12 +339,13 @@ export function waterScreen({ view, pack, rivers, nav, waterDirectory }) {
     `<li><span class="point p${mark === '!' ? 'danger' : mark}">${mark}</span>${esc(text)}</li>`;
   screen.innerHTML =
     back(t('atlas.title')) +
-    `<section class="hero detail-hero">${photo(w, 'hero-img')}<div class="hero-copy"><div class="hero-meta">${icon('map-pin')}${esc(w.number)} · ${esc(loc(pack.label))}</div><h1>${esc(w.name)}</h1></div>${favoriteButton(pack, w)}</section><p class="area-line">${icon('route')}${esc(w.area)}</p>
+    heading + `<p class="area-line">${icon('map-pin')}${esc(w.number)} · ${esc(loc(pack.label))} · ${esc(w.area)}</p>
     ${waterActions()}
     <div class="columns"><section class="surface">${sectionTitle('map', t('waters.water_map'))}${waterMap(w, rivers, false, true)}<ul class="legend">${landmark('1', loc(w.ends[0]))}${landmark('2', loc(w.ends[1]))}${landmark('!', loc(w.restriction))}${w.access ? landmark('A', loc(w.access)) : ''}</ul></section>
-    <section class="surface">${sectionTitle('navigation', t('waters.getting_to_the_water'))}${w.access ? `<p>${esc(loc(w.access))}</p><div class="actions">${button('navigate', t('waters.open_directions'), 'secondary', 'navigation')}</div><div class="rulesrc">${link(w.access.source, t('waters.access_point_source'))}</div>` : `<p class="muted">${t('waters.this_pack_has_no_verified_access_point')}</p>`}</section></div>${credits(w)}`;
+    <section class="surface">${sectionTitle('navigation', t('waters.getting_to_the_water'))}${w.access ? `<p>${esc(loc(w.access))}</p><div class="actions">${button('navigate', t('waters.open_directions'), 'secondary', 'navigation')}</div><div class="rulesrc">${link(w.access.source, t('waters.access_point_source'))}</div>` : `<p class="muted">${t('waters.this_pack_has_no_verified_access_point')}</p>`}</section></div>`;
   bindBack(nav);
   bindWaterActions(nav, site);
+  attachWaterPhoto(by('water-photo'), site, bundled, feature, view);
   const waterKey = site.key;
   screen.insertAdjacentHTML('beforeend','<section class="surface"><h2>'+t('waters.water_reports')+'</h2><div id="water-reports"></div></section>');
   waterReports(by('water-reports'),waterKey,view);

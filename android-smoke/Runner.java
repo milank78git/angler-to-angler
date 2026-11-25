@@ -178,6 +178,9 @@ public final class Runner extends Instrumentation {
     clickReady("#map-online");
     js("document.querySelector('#world-map [data-group]').dispatchEvent(new MouseEvent('click',{bubbles:true}))");
     waitFor("!!document.querySelector('#drive-1')");
+    waitFor("document.querySelector('#water-photo img[src=\"water-lipno.webp\"]')?.naturalWidth > 0"
+        + " && !!document.querySelector('#water-photo figcaption a[href*=\"commons.wikimedia.org\"]')"
+        + " && document.querySelector('#water-photo-file')?.disabled === false");
     ShareChecks.parking(this, "#drive-1", "48.6594239,14.1710583");
     clickReady("#back");
     waitFor("document.querySelector('#water-parking')?.checked && document.querySelector('#search').value==='421 200'"

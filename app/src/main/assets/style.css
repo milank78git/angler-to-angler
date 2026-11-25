@@ -488,16 +488,25 @@ small {
 .favorite[aria-pressed='true'] svg {
   fill: currentColor;
 }
-.detail-hero .favorite {
-  position: absolute;
-  right: 12px;
-  top: 12px;
-  background: #163b34cf;
-  color: white;
+.water-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
-.detail-hero .favorite[aria-pressed='true'] {
-  background: #f1c477;
-  color: #14332c;
+.water-photo img {
+  display: block;
+  width: 100%;
+  max-height: 44vh;
+  object-fit: contain;
+  border-radius: 16px;
+  background: var(--surface);
+}
+.water-photo .credits {
+  margin: 6px 0;
+}
+#water-photo {
+  margin-bottom: 16px;
 }
 .primary {
   background: var(--primary);

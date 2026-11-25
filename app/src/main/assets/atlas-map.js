@@ -91,9 +91,13 @@ function nearbyLabels(water, directory, target) {
   return nearby.sort((a,b) => a.km-b.km).slice(0,4);
 }
 
-export async function attachAtlasMap(host, water, directory, view) {
+export async function waterFeature(water, directory) {
   const outlines = water.mapped ? await directory.geography().catch(() => ({})) : {};
-  const feature = mapFeature(water, outlines[water.key]);
+  return mapFeature(water, outlines[water.key]);
+}
+
+export async function attachAtlasMap(host, water, directory, view, featurePromise) {
+  const feature = await featurePromise;
   const country = !feature || (!feature.lines.length && !feature.polygons.length) ? await countryOutline(water.country) : [];
   if (!view.active()) return;
   const action = feature ? t('atlas_map.open') : t('atlas_map.search');
