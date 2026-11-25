@@ -1051,8 +1051,14 @@
   "commerce.paid": "Paid to date: {amount}",
   "commerce.split": "From proceeds after VAT and Google fees, 85% goes to the author, 10% to the app and 5% to nature restoration. The operator funds the welcome credits.",
   "commerce.pack": "Buy {count} credits · {price}",
-  "commerce.unavailable": "Google Play products are unavailable. Reopen the market to retry.",
-  "commerce.verifying": "Google Play purchase pending verification. Reopen the market to retry.",
+  "commerce.unavailable": "Google Play credit packs are currently unavailable.",
+  "commerce.checkout_unavailable": "Could not open Google Play checkout. Try selecting the pack again.",
+  "commerce.balance_unavailable": "Could not refresh your credit balance.",
+  "commerce.payment_pending": "Waiting for Google Play to confirm payment.",
+  "commerce.delivery_retry": "Credit delivery could not be confirmed. Retry without paying again.",
+  "commerce.purchase_unavailable": "Could not check the purchase with Google Play. Retry to refresh its status.",
+  "commerce.cancelled": "Checkout cancelled.",
+  "commerce.verifying": "Checking the purchase and updating your credit balance…",
   "commerce.threshold": "Monthly payouts start at CZK 100. Your first payout requires three published tips. Published: {count}.",
   "commerce.payout": "Request payout",
   "commerce.enroll": "Offer this tip for Play credits",
@@ -1098,5 +1104,6 @@
   "sync.saved_at": "Saved to your account · {time}",
   "sync.last_success": "Last successful sync · {time}",
   "sync.trip": "Fishing trip",
+  "sync.checking": "Checking journal synchronization settings…",
   "sync.check_failed": "Saved on this device. Could not check whether your account has an online journal."
 }

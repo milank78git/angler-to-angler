@@ -122,7 +122,8 @@ final class IdentityService {
   }
 
   void verifyPlay(String bearer, String purchaseToken) throws Exception {
-    request("/functions/v1/play-purchase", bearer, new JSONObject().put("token", purchaseToken));
+    JSONObject receipt = request("/functions/v1/play-purchase", bearer, new JSONObject().put("token", purchaseToken));
+    if (!Boolean.TRUE.equals(receipt.opt("verified"))) throw new IOException("Purchase verification incomplete");
   }
 
   private JSONObject request(String path, String token, JSONObject data) throws Exception {

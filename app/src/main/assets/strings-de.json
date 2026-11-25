@@ -1070,8 +1070,14 @@
  "commerce.paid": "Bisher ausgezahlt: {amount}",
  "commerce.split": "Vom Erlös nach Abzug von Mehrwertsteuer und Google-Gebühren gehen 85 % an den Autor, 10 % an die App und 5 % an die Renaturierung. Das Willkommensguthaben finanziert der Betreiber.",
  "commerce.pack": "{count} Credits kaufen · {price}",
- "commerce.unavailable": "Google-Play-Produkte sind derzeit nicht verfügbar. Öffne den Marktplatz für einen neuen Versuch erneut.",
- "commerce.verifying": "Der Google-Play-Kauf wartet auf Bestätigung. Öffne den Marktplatz erneut, um es noch einmal zu versuchen.",
+ "commerce.unavailable": "Google-Play-Guthabenpakete sind derzeit nicht verfügbar.",
+ "commerce.checkout_unavailable": "Der Google-Play-Kauf konnte nicht gestartet werden. Wähle das Paket erneut aus.",
+ "commerce.balance_unavailable": "Das Guthaben konnte nicht aktualisiert werden.",
+ "commerce.payment_pending": "Die Zahlungsbestätigung von Google Play steht noch aus.",
+ "commerce.delivery_retry": "Die Gutschrift konnte nicht bestätigt werden. Versuche es erneut, ohne nochmals zu bezahlen.",
+ "commerce.purchase_unavailable": "Der Kaufstatus konnte nicht abgerufen werden. Versuche es erneut.",
+ "commerce.cancelled": "Kauf abgebrochen.",
+ "commerce.verifying": "Der Kauf wird geprüft und das Guthaben aktualisiert…",
  "commerce.threshold": "Monatliche Auszahlungen sind ab 100 CZK möglich. Für die erste Auszahlung sind drei veröffentlichte Tipps erforderlich. Veröffentlicht: {count}.",
  "commerce.payout": "Auszahlung beantragen",
  "commerce.enroll": "Diesen Tipp für Play-Credits anbieten",
@@ -1098,5 +1104,6 @@
  "sync.saved_at": "Im Konto gespeichert · {time}",
  "sync.last_success": "Zuletzt erfolgreich synchronisiert · {time}",
  "sync.trip": "Angelausflug",
+ "sync.checking": "Synchronisierungseinstellungen für das Tagebuch werden geprüft…",
  "sync.check_failed": "Auf diesem Gerät gespeichert. Es konnte nicht geprüft werden, ob dein Konto ein Online-Tagebuch enthält."
 }

@@ -44,6 +44,24 @@ function command(method,params) {
   });
 }
 
+/** The target can advertise the journal URL while its initial blank document is still active. */
+async function waitForJournal() {
+  const deadline = Date.now() + 30000;
+  while (Date.now() < deadline) {
+    try {
+      const result = await command('Runtime.evaluate', {
+        expression: "document.readyState === 'complete' && document.visibilityState === 'visible' && !!document.querySelector('#tabtrips') && !!window.Device?.subjectId?.()",
+        returnByValue: true
+      });
+      if (result.result?.value === true) return;
+    } catch (error) {
+      if (!/execution context (was destroyed|with given id)|cannot find context/i.test(error.message)) throw error;
+    }
+    await delay(100);
+  }
+  throw Error('Authenticated journal did not finish loading for ' + pkg);
+}
+
 /** Run against the same entry points used by the journal and the private profile form. */
 async function onPhone(action, fixture) {
   const until=async(test,label)=>{
@@ -61,6 +79,12 @@ async function onPhone(action, fixture) {
   const assert=(test,message)=>{if(!test) throw Error(message);};
   await until(()=>el('#tabtrips'),'journal navigation');
   const {Journal}=await import('./journal.js');
+  if (action === 'legacy') {
+    assert(typeof Device.journalCloudDefault === 'undefined', 'Expected the pre-sync APK');
+    await Journal.saveTrip({id:'historical', day:'2025-07-01', waterName:'Old private water', created:1});
+    assert(await Journal.trip('historical'), 'Local-only APK did not retain the trip');
+    return;
+  }
   const {rpc}=await import('./profile-api.js');
   const {label}=await import('./i18n.js');
   const id='device-restore', fish='device-catch';
@@ -111,22 +135,29 @@ async function onPhone(action, fixture) {
     let denied=false;
     try {await rpc('journal_sync',{op:'get',args:{hash:fixture.part}});} catch {denied=true;}
     assert(denied && !(await rpc('my_details')).expiry,'Other user accessed private bytes or profile');
-    // Reproduce an upgrade from a local-only journal, while another device already syncs this account.
-    if (el('#journal-sync').dataset.state !== 'disabled') { await state('done'); await confirm('pause'); }
-    await state('disabled');
-    await Journal.saveTrip({id:'historical',day:'2025-07-01',waterName:'Old private water',created:1});
-    await rpc('journal_sync',{op:'enable',args:{}});
-    localStorage.removeItem('journal.sync.v1.'+Device.subjectId()+'.enabled');
+    assert(!rows.some(row => row.key === 'trip/historical') && !await Journal.trip('historical'),
+      'Other account could read the upgraded journal');
     return;
   }
   if (action==='consent') {
-    await state('disabled');
-    const list=async()=>(await rpc('journal_sync',{op:'list',args:{}})).rows;
-    assert(await Journal.trip('historical') && !(await list()).some(r=>r.key==='trip/historical'),'Historical journal uploaded before consent');
+    const historicalRows = async () => (await rpc('journal_sync', {op:'list', args:{}}))
+      .rows.filter(row => row.key === 'trip/historical');
+    assert((await rpc('journal_sync', {op:'settings', args:{}})).enabled, 'Owner account must already sync');
+    assert((await Journal.trip('historical'))?.waterName === 'Old private water', 'Upgrade lost the local trip');
+    const settled = await until(() => {
+      const value = el('#journal-sync').dataset.state;
+      return ['disabled', 'done'].includes(value) && value;
+    }, 'upgrade sync decision');
+    const initial = await historicalRows();
+    assert(settled === 'disabled' && initial.length === 0,
+      'Upgraded journal before consent: state=' + settled + ', server rows=' + initial.length);
     await click(button('enable')); await click('#confirmation[open] #confirmation-cancel');
-    assert(!(await list()).some(r=>r.key==='trip/historical'),'Cancel uploaded a private trip');
+    window.dispatchEvent(new Event('online'));
+    await state('disabled');
+    assert((await historicalRows()).length === 0, 'Cancel uploaded a private trip');
     await confirm('enable'); await state('done');
-    assert((await list()).some(r=>r.key==='trip/historical'),'Consent did not enable migration');
+    const uploaded = await historicalRows();
+    assert(uploaded.length === 1 && uploaded[0].revision === 1, 'Accepted trip was not uploaded exactly once');
     return;
   }
   if (action==='restore') {
@@ -166,6 +197,7 @@ async function onPhone(action, fixture) {
 
 let disconnected=false;
 try {
+  await waitForJournal();
   const fixture=stage==='seed'?{}:JSON.parse(await readFile(fixtureFile,'utf8'));
   async function step(action) {
     const expression='('+onPhone.toString()+')('+JSON.stringify(action)+','+JSON.stringify(fixture)+')';
