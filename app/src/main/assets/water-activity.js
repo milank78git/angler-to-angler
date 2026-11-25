@@ -1,3 +1,4 @@
+import { insertMarkup, replaceMarkup } from './markup.js';
 import { bindSharedSpecies } from './shared-species.js';
 import { tripWater } from './water-directory.js';
 import { languageTag } from './i18n.js';
@@ -55,22 +56,23 @@ function choices(pack) {
 function problem(err) {
   if (err.status === 401 || err.status === 403)
     return t('water_activity.sign_in_again_to_use_water_activity');
-  if (err.status === 409)
-    return t('water_activity.the_contribution_changed_refresh_the_screen');
+  if (err.status === 409) return t('water_activity.the_contribution_changed_refresh_the_screen');
   if (err.status === 422) return t('water_activity.check_the_period_and_fish_count');
   return t('common.service_unavailable_check_your_connection_and_retry');
 }
 
 function failed(view, nav, err) {
   if (!view.active()) return;
-  screen.innerHTML =
+  replaceMarkup(
+    screen,
     back(t('common.back')) +
-    '<h1>' +
-    title() +
-    '</h1><p role="alert">' +
-    problem(err) +
-    '</p>' +
-    button('activity-retry', t('common.refresh'), 'secondary');
+      '<h1>' +
+      title() +
+      '</h1><p role="alert">' +
+      problem(err) +
+      '</p>' +
+      button('activity-retry', t('common.refresh'), 'secondary'),
+  );
   bindBack(nav);
   bind('activity-retry', () => nav.show());
 }
@@ -108,6 +110,7 @@ async function withdraw(view, nav, item) {
 }
 
 /** Only the fields displayed in the confirmation are projected out of the local journal. */
+/** @param {import('../../../../types/screens.js').ScreenContext} context */
 export async function activityContribution({ view, nav, pack, waterDirectory }) {
   const id = view.route.id;
   let trip, catches, state;
@@ -125,50 +128,64 @@ export async function activityContribution({ view, nav, pack, waterDirectory }) 
   const water = tripWater(waterDirectory, trip);
   const options = choices(pack);
   const allowed = water && trip.day >= '1900-01-01' && trip.day <= today(water.zone);
-  screen.innerHTML =
+  replaceMarkup(
+    screen,
     back(t('common.trip')) +
-    '<h1>' +
-    t('common.trip_contribution') +
-    '</h1>' +
-    (state.entry
-      ? '<section class="surface"><h2>' +
-        t('water_activity.shared_details') +
-        '</h2><p>' +
-        esc(entryText(state.entry, waterDirectory, options)) +
-        '</p>' +
-        button('withdraw-activity', t('water_activity.withdraw_from_statistics'), 'danger') +
-        '</section>'
-      : '') +
-    (allowed
-      ? '<section class="surface"><h2>' +
-        esc(water.name) +
-        '</h2><p>' +
-        esc(monthLabel(trip.day.slice(0, 7) + '-01')) +
-        ' · ' +
-        fishLabel() +
-        ' · ' +
-        catches.length +
-        '</p>' +
-        selectField('activity-target', targetLabel(), options.targets, state.entry?.target || 'unspecified') +
-        selectField('activity-method', methodLabel(), options.methods, state.entry?.method || 'unspecified') +
-        '<p>' +
-        t('water_activity.contribute_for_the_entire_water_and_month') +
-        '</p>' +
-        button(
-          'activity-submit',
-          state.entry
-            ? t('water_activity.update_details')
-            : t('water_activity.contribute_to_statistics'),
-          'primary',
-        ) +
-        '</section>'
-      : '<p>' +
-        t('water_activity.only_completed_trips_on_a_catalog_water') +
-        '</p>');
+      '<h1>' +
+      t('common.trip_contribution') +
+      '</h1>' +
+      (state.entry
+        ? '<section class="surface"><h2>' +
+          t('water_activity.shared_details') +
+          '</h2><p>' +
+          esc(entryText(state.entry, waterDirectory, options)) +
+          '</p>' +
+          button('withdraw-activity', t('water_activity.withdraw_from_statistics'), 'danger') +
+          '</section>'
+        : '') +
+      (allowed
+        ? '<section class="surface"><h2>' +
+          esc(water.name) +
+          '</h2><p>' +
+          esc(monthLabel(trip.day.slice(0, 7) + '-01')) +
+          ' · ' +
+          fishLabel() +
+          ' · ' +
+          catches.length +
+          '</p>' +
+          selectField(
+            'activity-target',
+            targetLabel(),
+            options.targets,
+            state.entry?.target || 'unspecified',
+          ) +
+          selectField(
+            'activity-method',
+            methodLabel(),
+            options.methods,
+            state.entry?.method || 'unspecified',
+          ) +
+          '<p>' +
+          t('water_activity.contribute_for_the_entire_water_and_month') +
+          '</p>' +
+          button(
+            'activity-submit',
+            state.entry ? t('water_activity.update_details') : t('water_activity.contribute_to_statistics'),
+            'primary',
+          ) +
+          '</section>'
+        : '<p>' + t('water_activity.only_completed_trips_on_a_catalog_water') + '</p>'),
+  );
   bindBack(nav);
-  if(state.entry && water) {
-    screen.insertAdjacentHTML('beforeend','<details id="species-share" class="fold"><summary>'+t('stats.publish_species')+'</summary><div class="fold-body"></div></details>');
-    bindSharedSpecies(by('species-share'),pack,trip,catches,state);
+  if (state.entry && water) {
+    insertMarkup(
+      screen,
+      'beforeend',
+      '<details id="species-share" class="fold"><summary>' +
+        t('stats.publish_species') +
+        '</summary><div class="fold-body"></div></details>',
+    );
+    bindSharedSpecies(by('species-share'), pack, trip, catches, state);
   }
   if (state.entry) bind('withdraw-activity', () => withdraw(view, nav, state));
   if (!allowed) return;
@@ -211,6 +228,7 @@ export async function activityContribution({ view, nav, pack, waterDirectory }) 
 }
 
 /** Keep withdrawals reachable after a local trip is deleted or on a new phone. */
+/** @param {import('../../../../types/screens.js').ScreenContext} context */
 export async function myActivity({ view, nav, pack, waterDirectory }) {
   let page;
   try {
@@ -221,30 +239,33 @@ export async function myActivity({ view, nav, pack, waterDirectory }) {
   }
   if (!view.active()) return;
   const options = choices(pack);
-  screen.innerHTML =
+  replaceMarkup(
+    screen,
     back(t('common.back')) +
-    '<h1>' +
-    mineLabel() +
-    '</h1>' +
-    (page.items.length
-      ? page.items
-          .map(
-            (item, i) =>
-              '<article class="surface"><p>' +
-              esc(entryText(item.entry, waterDirectory, options)) +
-              '</p>' +
-              button('withdraw-' + i, t('water_activity.withdraw_from_statistics'), 'secondary') +
-              '</article>',
-          )
-          .join('')
-      : '<p>' + t('water_activity.no_more_contributed_trips') + '</p>') +
-    (page.next ? button('activity-older', t('water_activity.older_contributions'), 'secondary') : '');
+      '<h1>' +
+      mineLabel() +
+      '</h1>' +
+      (page.items.length
+        ? page.items
+            .map(
+              (item, i) =>
+                '<article class="surface"><p>' +
+                esc(entryText(item.entry, waterDirectory, options)) +
+                '</p>' +
+                button('withdraw-' + i, t('water_activity.withdraw_from_statistics'), 'secondary') +
+                '</article>',
+            )
+            .join('')
+        : '<p>' + t('water_activity.no_more_contributed_trips') + '</p>') +
+      (page.next ? button('activity-older', t('water_activity.older_contributions'), 'secondary') : ''),
+  );
   bindBack(nav);
   page.items.forEach((item, i) => bind('withdraw-' + i, () => withdraw(view, nav, item)));
   if (page.next) bind('activity-older', () => nav.open('myActivity', { cursor: page.next }));
 }
 
 /** All sample counts and suppression decisions come from the same server-side snapshot. */
+/** @param {import('../../../../types/screens.js').ScreenContext} context */
 export async function waterActivity({ view, nav, pack, rivers, waterDirectory }) {
   const route = view.route;
   const water = waterDirectory.byId.get(route.id);
@@ -266,59 +287,59 @@ export async function waterActivity({ view, nav, pack, rivers, waterDirectory })
   const sample = report.sample;
   const withAll = (rows) => [['', all()], ...rows];
   const metric = (label, value) => '<p>' + esc(label) + ' · <strong>' + esc(value) + '</strong></p>';
-  screen.innerHTML =
+  replaceMarkup(
+    screen,
     back(water.name) +
-    '<h1>' +
-    title() +
-    '</h1><p>' +
-    esc(water.name) +
-    ' · ' +
-    t('water_activity.entire_water') +
-    '</p>' +
-    (rivers[water.id] ? '<details class="fold"><summary>' +
-    t('water_activity.summary_area_on_the_map') +
-    '</summary>' +
-    waterMap(water, rivers, true) +
-    '</details>' : '') +
-    '<form id="activity-filters" class="surface">' +
-    textInput(
-      'activity-month',
-      t('water_activity.calendar_month'),
-      report.month.slice(0, 7),
-      'type="month" required min="1900-01" max="' + esc(report.latest.slice(0, 7)) + '"',
-    ) +
-    selectField('activity-target', targetLabel(), withAll(options.targets), route.target || '') +
-    selectField('activity-method', methodLabel(), withAll(options.methods), route.method || '') +
-    '<button class="secondary">' +
-    t('water_activity.show_period') +
-    '</button></form>' +
-    '<section class="surface" id="activity-result"><h2>' +
-    esc(monthLabel(report.month)) +
-    '</h2>' +
-    (sample
-      ? metric(t('common.trips'), sample.trips) +
-        metric(t('water_activity.distinct_anglers'), sample.anglers) +
-        metric(fishLabel(), sample.fish) +
-        (sample.successfulTrips === null
-          ? '<p>' +
-            t('water_activity.success_rate_is_shown_when_the_sample') +
-            '</p>'
-          : metric(
-              t('water_activity.trips_with_at_least_one_fish'),
-              sample.successfulTrips +
-                ' / ' +
-                sample.trips +
-                ' (' +
-                Math.round((100 * sample.successfulTrips) / sample.trips) +
-                ' %)',
-            ))
-      : '<p>' +
-        t('water_activity.too_little_data_for_this_selection_try') +
-        '</p>') +
-    '</section><p class="meta">' +
-    t('water_activity.voluntary_trip_summaries_are_released_seven_days') +
-    '</p>' +
-    button('activity-questions', t('common.observations_and_questions'), 'secondary');
+      '<h1>' +
+      title() +
+      '</h1><p>' +
+      esc(water.name) +
+      ' · ' +
+      t('water_activity.entire_water') +
+      '</p>' +
+      (rivers[water.id]
+        ? '<details class="fold"><summary>' +
+          t('water_activity.summary_area_on_the_map') +
+          '</summary>' +
+          waterMap(water, rivers, true) +
+          '</details>'
+        : '') +
+      '<form id="activity-filters" class="surface">' +
+      textInput(
+        'activity-month',
+        t('water_activity.calendar_month'),
+        report.month.slice(0, 7),
+        'type="month" required min="1900-01" max="' + esc(report.latest.slice(0, 7)) + '"',
+      ) +
+      selectField('activity-target', targetLabel(), withAll(options.targets), route.target || '') +
+      selectField('activity-method', methodLabel(), withAll(options.methods), route.method || '') +
+      '<button class="secondary">' +
+      t('water_activity.show_period') +
+      '</button></form>' +
+      '<section class="surface" id="activity-result"><h2>' +
+      esc(monthLabel(report.month)) +
+      '</h2>' +
+      (sample
+        ? metric(t('common.trips'), sample.trips) +
+          metric(t('water_activity.distinct_anglers'), sample.anglers) +
+          metric(fishLabel(), sample.fish) +
+          (sample.successfulTrips === null
+            ? '<p>' + t('water_activity.success_rate_is_shown_when_the_sample') + '</p>'
+            : metric(
+                t('water_activity.trips_with_at_least_one_fish'),
+                sample.successfulTrips +
+                  ' / ' +
+                  sample.trips +
+                  ' (' +
+                  Math.round((100 * sample.successfulTrips) / sample.trips) +
+                  ' %)',
+              ))
+        : '<p>' + t('water_activity.too_little_data_for_this_selection_try') + '</p>') +
+      '</section><p class="meta">' +
+      t('water_activity.voluntary_trip_summaries_are_released_seven_days') +
+      '</p>' +
+      button('activity-questions', t('common.observations_and_questions'), 'secondary'),
+  );
   bindBack(nav);
   by('activity-filters').onsubmit = (event) => {
     event.preventDefault();

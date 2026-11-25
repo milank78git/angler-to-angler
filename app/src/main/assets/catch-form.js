@@ -1,3 +1,4 @@
+import { replaceMarkup } from './markup.js';
 import { languageTag } from './i18n.js';
 import { fishDirectory } from './fish-catalogue.js';
 import { bindCatchSpecies, catchSpeciesFields } from './catch-species.js';
@@ -21,7 +22,9 @@ import {
   writeEntry,
 } from './ui.js';
 const exampleNumber = new Intl.NumberFormat(languageTag, {
-  maximumFractionDigits: 4, useGrouping: false, numberingSystem: 'latn',
+  maximumFractionDigits: 4,
+  useGrouping: false,
+  numberingSystem: 'latn',
 });
 function bindPhotoPreview() {
   let preview, file, capture;
@@ -40,9 +43,7 @@ function bindPhotoPreview() {
     img.hidden = !file;
     if (file) img.src = preview;
     else img.removeAttribute('src');
-    by('photo-label').textContent = file
-      ? t('catch_form.change_photo')
-      : t('catch_form.add_photo');
+    by('photo-label').textContent = file ? t('catch_form.change_photo') : t('catch_form.add_photo');
   }
   by('photo').onchange = (e) => choose(e.target, false);
   by('camera-photo').onchange = (e) => choose(e.target, true);
@@ -57,6 +58,7 @@ function bindPhotoPreview() {
 }
 
 /** Capture the draft once and commit the catch and its photograph together. */
+/** @param {import('../../../../types/screens.js').ScreenContext} context */
 export async function catchForm({ view, nav, pack, waterDirectory }) {
   const { id } = view.route,
     catchId = newJournalId(),
@@ -64,9 +66,9 @@ export async function catchForm({ view, nav, pack, waterDirectory }) {
   const [trip, directory] = await Promise.all([Journal.trip(id), fishDirectory().catch(() => null)]);
   if (!view.active()) return;
   if (!trip) return nav.journalAfterWrite(null);
-  screen.innerHTML = catchFields();
+  replaceMarkup(screen, catchFields());
   const species = bindCatchSpecies(pack, trip, directory);
-  view.refreshWaters = edition => species.setWater(tripWater(edition, trip));
+  view.refreshWaters = (edition) => species.setWater(tripWater(edition, trip));
   view.refreshWaters(waterDirectory);
   const positionInput = bindCatchPosition(view);
   const photoInput = bindPhotoPreview();
@@ -156,13 +158,23 @@ function catchFields() {
   <form id="form" class="entry-form"><section class="surface">${catchSpeciesFields()}
     ${textInput('length', t('catch_form.measured_length_cm'), '', 'inputmode="decimal" placeholder="' + exampleNumber.format(64.5) + '"')}
     <details id="catch-rules" class="fold" hidden><summary>${t('catch_picker.rules')}</summary><div class="fold-body" id="catch-rule-body"></div></details>
-    <div class="photo-field"><input type="file" id="camera-photo" accept="image/*" capture="environment"><label for="camera-photo">${icon('camera')}${t('catch_form.photograph_catch_at_the_water')}</label>
+    <div class="photo-field"><input type="file" id="camera-photo" accept="image/*" capture="environment">
+      <label for="camera-photo">${icon('camera')}${t('catch_form.photograph_catch_at_the_water')}</label>
     <small>${t('catch_form.photograph_the_whole_fish_with_a_ruler')}</small>
-    <input type="file" id="photo" accept="image/*"><label for="photo">${icon('camera')}<span id="photo-label">${t('catch_form.add_photo')}</span></label><small id="capture-state" role="status"></small><img id="photo-preview" class="preview" hidden alt=""></div></section>
-  <details class="fold"><summary>${icon('fish-symbol')}${t('catch_form.bait_and_technique')}</summary><div class="fold-body">${textInput('bait', t('catch_form.bait_or_lure'), '', 'maxlength="300"')}${textInput('technique', t('catch-form.fishing.technique'), '', 'maxlength="500"')}</div></details>
-  <details id="position-fields" class="fold"><summary>${icon('lock-keyhole')}${t('catch_form.private_location')}</summary><div class="fold-body">${selectField('kind', t('catch_form.point_represents'), kinds, 'stand')}
-  <div class="pair"><div>${textInput('lat', t('catch_form.latitude'), '', 'placeholder="' + exampleNumber.format(49.8783) + '"')}</div><div>${textInput('lon', t('catch_form.longitude'), '', 'placeholder="' + exampleNumber.format(14.4282) + '"')}</div></div>
-  <div class="actions">${button('gps', t('catch_form.use_current_location'), 'secondary', 'locate-fixed')}</div><small>${t('catch_form.for_older_photos_enter_the_location_manually')}</small></div></details>
-  <p class="field-error" id="form-error" role="alert" hidden></p><div class="savebar"><button class="primary">${icon('check')}${t('catch_form.save_catch')}</button></div></form>`
+    <input type="file" id="photo" accept="image/*"><label for="photo">${icon('camera')}<span id="photo-label">
+      ${t('catch_form.add_photo')}</span></label><small id="capture-state" role="status"></small><img id="photo-preview"
+      class="preview" hidden alt=""></div></section>
+  <details class="fold"><summary>${icon('fish-symbol')}${t('catch_form.bait_and_technique')}</summary>
+    <div class="fold-body">${textInput('bait', t('catch_form.bait_or_lure'), '', 'maxlength="300"')}
+    ${textInput('technique', t('catch-form.fishing.technique'), '', 'maxlength="500"')}</div></details>
+  <details id="position-fields" class="fold"><summary>${icon('lock-keyhole')}${t('catch_form.private_location')}</summary>
+    <div class="fold-body">${selectField('kind', t('catch_form.point_represents'), kinds, 'stand')}
+  <div class="pair"><div>
+    ${textInput('lat', t('catch_form.latitude'), '', 'placeholder="' + exampleNumber.format(49.8783) + '"')}</div><div>
+    ${textInput('lon', t('catch_form.longitude'), '', 'placeholder="' + exampleNumber.format(14.4282) + '"')}</div></div>
+  <div class="actions">${button('gps', t('catch_form.use_current_location'), 'secondary', 'locate-fixed')}</div><small>
+    ${t('catch_form.for_older_photos_enter_the_location_manually')}</small></div></details>
+  <p class="field-error" id="form-error" role="alert" hidden></p><div class="savebar"><button class="primary">
+    ${icon('check')}${t('catch_form.save_catch')}</button></div></form>`
   );
 }

@@ -1,10 +1,11 @@
-import {renderPublicCard} from './public-card-view.js';
-import {apiOrigin, publishableKey} from './reader-config.js';
+import { renderPublicCard } from './public-card-view.js';
+import { apiOrigin, publishableKey } from './reader-config.js';
 
 import { label as t, languageTag, contentLanguage, loadDictionary } from './i18n.js';
 
 await loadDictionary();
-const content = document.querySelector('#content'), retry = document.querySelector('#retry');
+const content = document.querySelector('#content'),
+  retry = /** @type {HTMLButtonElement} */ (document.querySelector('#retry'));
 const title = t('app.name');
 document.documentElement.lang = contentLanguage;
 document.querySelector('#brand').textContent = title;
@@ -33,20 +34,31 @@ async function refresh() {
     status(t('public_reader.open_the_full_link_the_angler_shared'));
     return;
   }
-  if (!/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/i.test(id)) { status(missing); return; }
+  if (!/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/i.test(id)) {
+    status(missing);
+    return;
+  }
   status(t('public_reader.loading_catch'));
   try {
     const response = await fetch(apiOrigin + '/rest/v1/rpc/angler_open_catch_card', {
-      method:'POST', headers:{apikey:publishableKey,'Content-Type':'application/json'},
-      body:JSON.stringify({link_id:id}), credentials:'omit', cache:'no-store', referrerPolicy:'no-referrer', signal:current.signal,
+      method: 'POST',
+      headers: { apikey: publishableKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ link_id: id }),
+      credentials: 'omit',
+      cache: 'no-store',
+      referrerPolicy: 'no-referrer',
+      signal: current.signal,
     });
     if (!response.ok) throw Error('Service unavailable');
     // PostgREST can represent a scalar SQL NULL with an empty response body.
     const body = await response.text();
     const card = body.trim() ? JSON.parse(body) : null;
     if (current.signal.aborted) return;
-    if (!card) { status(missing); return; }
-    renderPublicCard(content,card,languageTag,t);
+    if (!card) {
+      status(missing);
+      return;
+    }
+    renderPublicCard(content, card, languageTag, t);
     document.title = card.species + ' · ' + title;
   } catch {
     if (current.signal.aborted) return;
@@ -55,8 +67,10 @@ async function refresh() {
   }
 }
 retry.onclick = refresh;
-window.addEventListener('hashchange',refresh);
-window.addEventListener('pageshow', event => { if (event.persisted) refresh(); });
-document.addEventListener('visibilitychange',refresh);
+window.addEventListener('hashchange', refresh);
+window.addEventListener('pageshow', (event) => {
+  if (event.persisted) refresh();
+});
+document.addEventListener('visibilitychange', refresh);
 // Dictionary loading can finish after the initial pageshow has already fired.
 refresh();

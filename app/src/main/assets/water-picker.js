@@ -4,25 +4,51 @@ import { matchesWater } from './water-directory.js';
 
 export function waterPicker(id, label, emptyLabel, { suggestions = false } = {}) {
   const select = selectField(id, label, emptyLabel ? [['', emptyLabel]] : [], '');
-  const footer = button(id + '-more', t('waters.show_more_waters'), 'secondary') +
-    '<p id="' + id + '-empty" role="status" hidden>' + esc(t('waters.no_matching_water')) + '</p>';
-  const attrs = suggestions ? 'type="search" role="combobox" autocomplete="off" aria-autocomplete="list" ' +
-    'aria-expanded="false" aria-controls="' + id + '-suggestions" enterkeyhint="search"' : 'type="search"';
+  const footer =
+    button(id + '-more', t('waters.show_more_waters'), 'secondary') +
+    '<p id="' +
+    id +
+    '-empty" role="status" hidden>' +
+    esc(t('waters.no_matching_water')) +
+    '</p>';
+  const attrs = suggestions
+    ? 'type="search" role="combobox" autocomplete="off" aria-autocomplete="list" ' +
+      'aria-expanded="false" aria-controls="' +
+      id +
+      '-suggestions" enterkeyhint="search"'
+    : 'type="search"';
   const search = textInput(id + '-search', t('market.find_a_water_by_name_or_number'), '', attrs);
   if (!suggestions) return search + select + footer;
-  return '<div class="water-lookup">' + search +
-    '<div id="' + id + '-suggestions" class="water-suggestions" role="listbox" aria-label="' + esc(label) + '" hidden></div>' +
-    '<div id="' + id + '-browse">' + select + '</div>' + footer + '</div>';
+  return (
+    '<div class="water-lookup">' +
+    search +
+    '<div id="' +
+    id +
+    '-suggestions" class="water-suggestions" role="listbox" aria-label="' +
+    esc(label) +
+    '" hidden></div>' +
+    '<div id="' +
+    id +
+    '-browse">' +
+    select +
+    '</div>' +
+    footer +
+    '</div>'
+  );
 }
 
 export function waterOption(water) {
-  return [water.name, water.number, water.country, water.code !== water.number ? water.code : ''].filter(Boolean).join(' · ');
+  return [water.name, water.number, water.country, water.code !== water.number ? water.code : '']
+    .filter(Boolean)
+    .join(' · ');
 }
 
 /** Present the same filtered identities as the native picker while the user edits the query. */
 function bindSuggestions(id, search, select) {
-  const list = by(id + '-suggestions'), browse = by(id + '-browse');
-  let open = false, active;
+  const list = by(id + '-suggestions'),
+    browse = by(id + '-browse');
+  let open = false,
+    active;
 
   function close() {
     open = false;
@@ -37,15 +63,17 @@ function bindSuggestions(id, search, select) {
     if (!open || !search.value.trim()) return close();
     active = undefined;
     search.removeAttribute('aria-activedescendant');
-    const rows = Array.from(select.options).filter(option => option.value).map((option, i) => {
-      const row = document.createElement('div');
-      row.id = list.id + '-' + i;
-      row.dataset.key = option.value;
-      row.setAttribute('role', 'option');
-      row.setAttribute('aria-selected', 'false');
-      row.textContent = option.text;
-      return row;
-    });
+    const rows = Array.from(select.options)
+      .filter((option) => option.value)
+      .map((option, i) => {
+        const row = document.createElement('div');
+        row.id = list.id + '-' + i;
+        row.dataset.key = option.value;
+        row.setAttribute('role', 'option');
+        row.setAttribute('aria-selected', 'false');
+        row.textContent = option.text;
+        return row;
+      });
     list.replaceChildren(...rows);
     list.hidden = !rows.length;
     browse.hidden = true;
@@ -66,17 +94,20 @@ function bindSuggestions(id, search, select) {
   }
 
   search.onfocus = show;
-  search.onclick = () => { if (!open) show(); };
-  search.parentElement.onfocusout = event => {
+  search.onclick = () => {
+    if (!open) show();
+  };
+  search.parentElement.onfocusout = (event) => {
     if (!search.parentElement.contains(event.relatedTarget)) close();
   };
   // Keep the input focused until the click commits, including a synthesized touch click.
-  list.onmousedown = event => event.preventDefault();
-  list.onclick = event => {
-    const row = event.target.closest('[role="option"]');
+  list.onmousedown = (event) => event.preventDefault();
+  list.onclick = (event) => {
+    const row =
+      event.target instanceof Element && /** @type {HTMLElement} */ (event.target.closest('[role="option"]'));
     if (row) choose(row);
   };
-  search.onkeydown = event => {
+  search.onkeydown = (event) => {
     if (event.isComposing) return;
     if (event.key === 'Escape' && open) {
       event.preventDefault();
@@ -90,8 +121,11 @@ function bindSuggestions(id, search, select) {
       if (list.hidden) return;
       event.preventDefault();
       const down = event.key === 'ArrowDown';
-      const next = active ? (down ? active.nextElementSibling : active.previousElementSibling) || active
-        : (down ? list.firstElementChild : list.lastElementChild);
+      const next = active
+        ? (down ? active.nextElementSibling : active.previousElementSibling) || active
+        : down
+          ? list.firstElementChild
+          : list.lastElementChild;
       active?.setAttribute('aria-selected', 'false');
       active = next;
       active.setAttribute('aria-selected', 'true');
@@ -104,19 +138,23 @@ function bindSuggestions(id, search, select) {
 
 /** Search the whole edition, while keeping the native list small and the selected identity visible. */
 export function bindWaterPicker(id, view, directory, selectedKey, country, onSearch) {
-  const search = by(id + '-search'), select = by(id), more = by(id + '-more');
+  const search = /** @type {HTMLInputElement} */ (by(id + '-search'));
+  const select = /** @type {HTMLSelectElement} */ (by(id));
+  const more = by(id + '-more');
   const suggestions = by(id + '-suggestions') && bindSuggestions(id, search, select);
   // A form commits an identity on selection. Only a live rule lookup previews a unique match.
   const confirmChoice = suggestions && !onSearch;
   let confirmedKey = selectedKey;
   const empty = select.options[0]?.text;
   const pageSize = 60;
-  let limit = pageSize, retained;
+  let limit = pageSize,
+    retained;
   function populate(key, typing = false) {
     const query = fold(search.value);
     const selected = directory.byKey.get(key) || (retained?.key === key ? retained : undefined);
     const options = empty ? [new Option(empty, '')] : [];
-    let matches = 0, visible = false;
+    let matches = 0,
+      visible = false;
     for (const water of directory.waters) {
       if ((country && water.country !== country) || !matchesWater(water, query)) continue;
       if (++matches > limit) break;
@@ -146,13 +184,17 @@ export function bindWaterPicker(id, view, directory, selectedKey, country, onSea
     populate(confirmChoice ? confirmedKey : select.value, true);
     if (onSearch) onSearch(directory.byKey.get(select.value), search.value);
   };
-  if (confirmChoice) select.addEventListener('change', () => {
-    confirmedKey = select.value;
-    search.value = '';
-    populate(confirmedKey);
-  });
-  more.onclick = () => { limit += pageSize; populate(select.value); };
-  view.refreshWaters = updated => {
+  if (confirmChoice)
+    select.addEventListener('change', () => {
+      confirmedKey = select.value;
+      search.value = '';
+      populate(confirmedKey);
+    });
+  more.onclick = () => {
+    limit += pageSize;
+    populate(select.value);
+  };
+  view.refreshWaters = (updated) => {
     retained = directory.byKey.get(select.value) || retained;
     directory = updated;
     populate(select.value);

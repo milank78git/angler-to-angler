@@ -44,8 +44,7 @@ public final class FishingActivity extends LocalizedActivity {
   private CatchShare shares;
   private final Handler sessionTimer = new Handler(Looper.getMainLooper());
   private final Runnable sessionCheck = this::checkSession;
-  private final java.util.concurrent.ExecutorService profileIo =
-      java.util.concurrent.Executors.newSingleThreadExecutor();
+  private JournalProfileRequests profileRequests;
   private Uri cameraUri, deliveredCameraUri;
   private long cameraStarted, cameraReturned;
   private volatile String captureInfo = "";
@@ -62,6 +61,7 @@ public final class FishingActivity extends LocalizedActivity {
       return;
     }
     if (state != null) pendingReminder = state.getString("reminder");
+    profileRequests = new JournalProfileRequests(this, subject, this::signal);
     web = new WebView(this);
     setContentView(web);
     getSharedPreferences("appearance", MODE_PRIVATE).registerOnSharedPreferenceChangeListener(appearanceListener);
@@ -228,100 +228,7 @@ public final class FishingActivity extends LocalizedActivity {
 
     @JavascriptInterface
     public void profileRequest(int id, String operation, String body) {
-      switch (operation) {
-        case "my_details":
-        case "profile":
-        case "card":
-        case "directory":
-        case "water_discussion":
-        case "discussion_post":
-        case "discussion_reply":
-        case "discussion_withdraw":
-        case "discussion_helpful":
-        case "discussion_report":
-        case "public_card_options":
-        case "public_card_publish":
-        case "public_card_withdraw":
-        case "public_cards":
-        case "commerce":
-        case "journal_sync":
-        case "parking_waters":
-        case "parking_list":
-        case "parking_save":
-        case "parking_feedback":
-        case "parking_review":
-        case "water_rating":
-        case "water_rate":
-        case "top_waters":
-        case "trip_species":
-        case "top_species":
-        case "water_report":
-        case "water_alerts":
-        case "market_discover":
-        case "market_list":
-        case "market_detail":
-        case "market_activate":
-        case "market_publish":
-        case "market_withdraw":
-        case "market_buy":
-        case "market_rate":
-        case "activity_state":
-        case "activity_change":
-        case "activity_summary":
-        case "activity_mine":
-        case "weekly_enter":
-        case "weekly_board":
-        case "group_monthly":
-        case "weekly_vote":
-        case "weekly_report":
-        case "weekly_withdraw":
-        case "message_inbox":
-        case "message_history":
-        case "message_send":
-        case "message_block":
-        case "message_report":
-        case "message_react":
-        case "groups":
-        case "group_tip_post":
-        case "save_card":
-        case "evidence_submit":
-        case "evidence_list":
-        case "evidence_review":
-        case "evidence_decide":
-        case "evidence_remove":
-          break;
-        default:
-          return;
-      }
-      profileIo.execute(
-          () -> {
-            int status = 200;
-            org.json.JSONObject result = null;
-            try {
-              if (body.length() > 260000) throw new IdentityService.HttpFailure(413);
-              result =
-                  AccountStore.rpc(
-                      FishingActivity.this,
-                      new IdentityService(FishingActivity.this),
-                      subject,
-                      operation,
-                      new org.json.JSONObject(body));
-              if ("my_details".equals(operation)) LicenseReminder.remember(FishingActivity.this, subject, result);
-            } catch (IdentityService.HttpFailure error) {
-              status = error.status;
-            } catch (Exception error) {
-              status = 503;
-            }
-            final int code = status;
-            final String payload = result == null ? "null" : result.toString();
-            runOnUiThread(
-                () -> {
-                  if (!isFinishing()
-                      && !isDestroyed()
-                      && subject.equals(AccountStore.active(FishingActivity.this)))
-                    signal("window.profileReply?.(" + id + "," + code + "," + payload + ")");
-                });
-          });
+      profileRequests.request(id, operation, body);
     }
 
     @JavascriptInterface
@@ -704,7 +611,7 @@ public final class FishingActivity extends LocalizedActivity {
     WaterCatalogue.prefs(this).unregisterOnSharedPreferenceChangeListener(atlasListener);
     getSharedPreferences("appearance", MODE_PRIVATE).unregisterOnSharedPreferenceChangeListener(appearanceListener);
     if (playStore!=null) playStore.close();
-    profileIo.shutdownNow();
+    if (profileRequests != null) profileRequests.close();
     discardDeliveredPhoto();
     CameraPhotoProvider.discard(this, cameraUri);
     if (position != null) position.stop();

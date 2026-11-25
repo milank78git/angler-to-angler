@@ -54,11 +54,7 @@ export function bindGroupTip(view, nav, tripId, getText) {
       if (!view.active()) return;
       for (const group of groups) select.add(new Option(group.name, group.id));
       destination.hidden = !groups.length;
-      report(
-        groups.length
-          ? ''
-          : t('group_tip.create_a_group_or_join_with_an'),
-      );
+      report(groups.length ? '' : t('group_tip.create_a_group_or_join_with_an'));
       if (groups.length) select.focus();
     } catch (error) {
       if (view.active()) reportError(error);

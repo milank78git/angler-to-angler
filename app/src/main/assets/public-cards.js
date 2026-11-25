@@ -1,3 +1,4 @@
+import { insertMarkup, replaceMarkup } from './markup.js';
 import { tripWater } from './water-directory.js';
 import { languageTag } from './i18n.js';
 import { Journal, newJournalId } from './journal.js';
@@ -26,10 +27,8 @@ const checkbox = (id, label) =>
   '<label class="card-option"><input type="checkbox" id="' + id + '">' + esc(label) + '</label>';
 
 function message(error) {
-  if (error.status === 409)
-    return t('public_cards.the_details_or_link_changed_refresh_the');
-  if (error.status === 401 || error.status === 403)
-    return t('public_cards.sign_in_again_to_manage_cards');
+  if (error.status === 409) return t('public_cards.the_details_or_link_changed_refresh_the');
+  if (error.status === 401 || error.status === 403) return t('public_cards.sign_in_again_to_manage_cards');
   if (error.status === 422 || error.status === 400)
     return t('public_cards.check_the_date_species_and_selected_photo');
   return t('common.service_unavailable_check_your_connection_and_retry');
@@ -37,14 +36,16 @@ function message(error) {
 
 function failed(view, nav, error) {
   if (!view.active()) return;
-  screen.innerHTML =
+  replaceMarkup(
+    screen,
     back(t('common.back')) +
-    '<h1>' +
-    title() +
-    '</h1><p role="alert">' +
-    message(error) +
-    '</p>' +
-    button('refresh-public', t('common.refresh'), 'secondary');
+      '<h1>' +
+      title() +
+      '</h1><p role="alert">' +
+      message(error) +
+      '</p>' +
+      button('refresh-public', t('common.refresh'), 'secondary'),
+  );
   bindBack(nav);
   bind('refresh-public', () => nav.show());
 }
@@ -55,7 +56,7 @@ function linkControls(host, item, view, nav) {
     throw Error('Invalid public link');
   const group = document.createElement('div');
   group.className = 'actions';
-  group.innerHTML = link(url.href, t('public_cards.open_public_card'));
+  replaceMarkup(group, link(url.href, t('public_cards.open_public_card')));
   const add = (label, cls, action) => {
     const btn = document.createElement('button');
     btn.type = 'button';
@@ -65,8 +66,7 @@ function linkControls(host, item, view, nav) {
     group.append(btn);
   };
   add(t('public_cards.share_link'), 'secondary', () => {
-    if (!window.Device.shareCatch(url.href, ''))
-      toast(t('public_cards.could_not_open_sharing'));
+    if (!window.Device.shareCatch(url.href, '')) toast(t('public_cards.could_not_open_sharing'));
   });
   const remove = t('public_cards.revoke_link');
   add(remove, 'danger', async () => {
@@ -94,6 +94,7 @@ function linkControls(host, item, view, nav) {
 }
 
 /** Source data stay in the journal until the user confirms the exact preview. */
+/** @param {import('../../../../types/screens.js').ScreenContext} context */
 export async function publicCardEditor({ view, nav, pack, waterDirectory }) {
   const { tripId, catchId } = view.route;
   let trip, entry, options, waterKey;
@@ -111,17 +112,19 @@ export async function publicCardEditor({ view, nav, pack, waterDirectory }) {
     return;
   }
   if (!view.active()) return;
-  screen.innerHTML = back(t('common.trip')) + '<h1>' + title() + '</h1>';
+  replaceMarkup(screen, back(t('common.trip')) + '<h1>' + title() + '</h1>');
   bindBack(nav);
   if (options.active) {
     const host = document.createElement('section');
     host.className = 'surface';
-    host.innerHTML =
+    replaceMarkup(
+      host,
       '<h2>' +
-      esc(options.active.species) +
-      '</h2><p>' +
-      t('public_cards.this_card_has_an_active_link') +
-      '</p>';
+        esc(options.active.species) +
+        '</h2><p>' +
+        t('public_cards.this_card_has_an_active_link') +
+        '</p>',
+    );
     screen.append(host);
     linkControls(host, options.active, view, nav);
     return;
@@ -131,29 +134,31 @@ export async function publicCardEditor({ view, nav, pack, waterDirectory }) {
     : entry.speciesName || entry.speciesId;
   const settings = document.createElement('section');
   settings.className = 'surface';
-  settings.innerHTML =
+  replaceMarkup(
+    settings,
     '<p>' +
-    t('public_cards.anyone_with_the_link_can_see_this') +
-    '</p>' +
-    checkbox('public-day', t('public_cards.include_exact_date')) +
-    (options.water
-      ? checkbox('public-water', t('public_cards.include_water') + ' · ' + options.water)
-      : '') +
-    (entry.hasPhoto ? checkbox('public-photo', t('public_cards.include_photo')) : '') +
-    (options.proof
-      ? checkbox('public-length', t('public_cards.include_reviewed_length'))
-      : '') +
-    '<p class="meta">' +
-    t('public_cards.the_surroundings_in_a_photo_may_reveal') +
-    '</p>';
+      t('public_cards.anyone_with_the_link_can_see_this') +
+      '</p>' +
+      checkbox('public-day', t('public_cards.include_exact_date')) +
+      (options.water
+        ? checkbox('public-water', t('public_cards.include_water') + ' · ' + options.water)
+        : '') +
+      (entry.hasPhoto ? checkbox('public-photo', t('public_cards.include_photo')) : '') +
+      (options.proof ? checkbox('public-length', t('public_cards.include_reviewed_length')) : '') +
+      '<p class="meta">' +
+      t('public_cards.the_surroundings_in_a_photo_may_reveal') +
+      '</p>',
+  );
   screen.append(settings);
   const output = document.createElement('div');
-  output.innerHTML =
+  replaceMarkup(
+    output,
     '<h2>' +
-    t('common.recipient_preview') +
-    '</h2><div id="public-preview"></div>' +
-    '<p role="status" id="public-status"></p>' +
-    button('public-publish', t('public_cards.create_public_link'), 'primary');
+      t('common.recipient_preview') +
+      '</h2><div id="public-preview"></div>' +
+      '<p role="status" id="public-status"></p>' +
+      button('public-publish', t('public_cards.create_public_link'), 'primary'),
+  );
   screen.append(output);
   let latest,
     photoTask,
@@ -230,6 +235,7 @@ export async function publicCardEditor({ view, nav, pack, waterDirectory }) {
 }
 
 /** Revocation remains available on another phone or after deletion of the original local trip. */
+/** @param {import('../../../../types/screens.js').ScreenContext} context */
 export async function myPublicCards({ view, nav }) {
   let page;
   try {
@@ -239,25 +245,24 @@ export async function myPublicCards({ view, nav }) {
     return;
   }
   if (!view.active()) return;
-  screen.innerHTML =
+  replaceMarkup(
+    screen,
     back(t('common.back')) +
-    '<h1>' +
-    mine() +
-    '</h1>' +
-    (page.items.length ? '' : '<p>' + t('public_cards.no_more_public_cards') + '</p>');
+      '<h1>' +
+      mine() +
+      '</h1>' +
+      (page.items.length ? '' : '<p>' + t('public_cards.no_more_public_cards') + '</p>'),
+  );
   bindBack(nav);
   for (const item of page.items) {
     const host = document.createElement('article');
     host.className = 'surface';
-    host.innerHTML = '<h2>' + esc(item.species) + '</h2><p>' + esc(item.date) + '</p>';
+    replaceMarkup(host, '<h2>' + esc(item.species) + '</h2><p>' + esc(item.date) + '</p>');
     screen.append(host);
     linkControls(host, item, view, nav);
   }
   if (page.next) {
-    screen.insertAdjacentHTML(
-      'beforeend',
-      button('older-public', t('public_cards.older_cards'), 'secondary'),
-    );
+    insertMarkup(screen, 'beforeend', button('older-public', t('public_cards.older_cards'), 'secondary'));
     bind('older-public', () => nav.open('myPublicCards', { cursor: page.next }));
   }
 }

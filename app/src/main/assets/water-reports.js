@@ -53,13 +53,21 @@ export async function waterReports(host, water, view) {
         item.mine = mine;
         item.row.hidden = false;
         item.row.classList.toggle('water-alert', count >= 3);
-        const level = count >= 3 ? t('water_reports.multiple_reports') :
-          count ? t('water_reports.unconfirmed') : t('water_reports.no_reports');
+        const level =
+          count >= 3
+            ? t('water_reports.multiple_reports')
+            : count
+              ? t('water_reports.unconfirmed')
+              : t('water_reports.no_reports');
         item.summary.textContent = labels[kind] + ' · ' + level + ' (' + count + ')';
-        item.button.textContent = mine ? t('water_reports.withdraw_report') : t('water_reports.report_my_observation');
+        item.button.textContent = mine
+          ? t('water_reports.withdraw_report')
+          : t('water_reports.report_my_observation');
       }
       status.textContent = uncertainKind
-        ? (rows.get(uncertainKind).mine ? t('water_reports.own_report_active') : t('water_reports.no_own_report'))
+        ? rows.get(uncertainKind).mine
+          ? t('water_reports.own_report_active')
+          : t('water_reports.no_own_report')
         : receipt;
       refresh.hidden = true;
       setActionsDisabled(false);
@@ -69,7 +77,9 @@ export async function waterReports(host, water, view) {
       }
     } catch {
       if (!view.active()) return;
-      status.textContent = [receipt, t('water_reports.reports_could_not_be_loaded')].filter(Boolean).join(' ');
+      status.textContent = [receipt, t('water_reports.reports_could_not_be_loaded')]
+        .filter(Boolean)
+        .join(' ');
       offerRefresh(() => loadReports(receipt, uncertainKind));
     }
   }
@@ -97,8 +107,12 @@ export async function waterReports(host, water, view) {
     } catch (error) {
       if (!view.active()) return;
       if (error.status === 401 || error.status === 403 || error.status === 422) {
-        status.textContent = error.status === 401 ? t('profile_api.sign_in_again_to_use_the_online') :
-          error.status === 403 ? t('profile_api.you_do_not_have_access_to_this') : t('water_reports.not_accepted');
+        status.textContent =
+          error.status === 401
+            ? t('profile_api.sign_in_again_to_use_the_online')
+            : error.status === 403
+              ? t('profile_api.you_do_not_have_access_to_this')
+              : t('water_reports.not_accepted');
         setActionsDisabled(false);
       } else {
         summary.textContent = labels[kind];

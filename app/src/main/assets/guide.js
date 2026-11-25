@@ -4,7 +4,7 @@ import { fold } from './domain.js';
 let chapters;
 let previousFocus;
 let request = 0;
-const get = id => document.getElementById(id);
+const get = (id) => document.getElementById(id);
 const node = (tag, value) => Object.assign(document.createElement(tag), { textContent: value });
 
 function action(label, click) {
@@ -16,9 +16,10 @@ function action(label, click) {
 }
 
 /** Keep field help, page chapters and the searchable index in the current editing session. */
+/** @param {{page?: string, topic?: string, field?: {name: string, hint: {message: string, topic: string}}}} options */
 export async function openGuide({ page, topic, field } = {}) {
   const current = ++request;
-  const dialog = get('guide-dialog');
+  const dialog = /** @type {HTMLDialogElement} */ (get('guide-dialog'));
   const standalone = !!document.body.dataset.nativeGuide;
   if (!standalone && !dialog.open) {
     previousFocus = document.activeElement;
@@ -44,8 +45,10 @@ export async function openGuide({ page, topic, field } = {}) {
   dialog.scrollTop = 0;
   title.focus({ preventScroll: true });
   if (field) {
-    body.append(node('p', t(field.hint.message)),
-      action(t('guide.read_related_chapter'), () => openGuide({ topic: field.hint.topic })));
+    body.append(
+      node('p', t(field.hint.message)),
+      action(t('guide.read_related_chapter'), () => openGuide({ topic: field.hint.topic })),
+    );
     return;
   }
 
@@ -60,7 +63,7 @@ export async function openGuide({ page, topic, field } = {}) {
     return;
   }
   if (request !== current || (!standalone && !dialog.open)) return;
-  const chapter = topic ? chapters[topic] : Object.values(chapters).find(ch => ch.pages.includes(page));
+  const chapter = topic ? chapters[topic] : Object.values(chapters).find((ch) => ch.pages.includes(page));
   index.hidden = !chapter;
   if (chapter) {
     title.textContent = t(chapter.title);
@@ -88,7 +91,7 @@ export async function openGuide({ page, topic, field } = {}) {
 }
 
 export function closeGuide() {
-  const dialog = get('guide-dialog');
+  const dialog = /** @type {HTMLDialogElement} */ (get('guide-dialog'));
   if (!dialog?.open) return false;
   dialog.close();
   return true;
@@ -97,7 +100,8 @@ export function closeGuide() {
 /** The hint button is outside the label so opening help never changes a form value. */
 export function attachHints(root, page, hints) {
   for (const label of root.querySelectorAll('label, fieldset.rating-criterion > legend')) {
-    const id = label.tagName === 'LEGEND' ? label.parentElement.querySelector('input')?.name : label.control?.id;
+    const id =
+      label.tagName === 'LEGEND' ? label.parentElement.querySelector('input')?.name : label.control?.id;
     const hint = hints[page + '.' + id] || hints[id];
     if (!hint || label.nextElementSibling?.classList.contains('field-hint')) continue;
     const name = label.textContent.trim();

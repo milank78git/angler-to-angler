@@ -22,6 +22,7 @@ export ANGLER_ACCOUNT_PAGES=true
 python3 scripts/build-account-pages.py "$stage/account-pages" --preview
 export ANGLER_ACCOUNT_CONFIG='{"url":"https://localhost:58443","publishableKey":"sb_publishable_loopback","deploymentNotices":{"cs":"Test","en":"Test"}}'
 bash "$stage/legacy/scripts/build-debug.sh" >/dev/null
+export ANGLER_INTEGRATION_BUILD=true
 bash scripts/build-debug.sh --preview >/dev/null
 bash scripts/build-debug.sh >/dev/null
 python3 tests/field-integration/proxy.py "$stage" &

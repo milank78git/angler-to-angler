@@ -4,12 +4,19 @@ def projectPages = System.getenv('ANGLER_ACCOUNT_PAGES') ?: 'false'
 if (!(projectPages in ['true', 'false']) || (projectPages == 'true' && System.getenv('ANGLER_APP_LINK_HOST')?.trim())) {
     throw new GradleException('Choose one account callback mode and set ANGLER_ACCOUNT_PAGES to true or false')
 }
+def manifest = new groovy.xml.XmlSlurper(false, false).parse(file('src/main/AndroidManifest.xml'))
+def buildCode = System.getenv('ANGLER_VERSION_CODE') ?: manifest.@'android:versionCode'.text()
+if (!(buildCode ==~ /[1-9][0-9]{0,9}/) || buildCode.toLong() > 2100000000L) {
+    throw new GradleException('Invalid Android version code')
+}
 android {
     namespace 'app.anglers.journal'
     compileSdk 36
     flavorDimensions += 'channel'
     productFlavors {
-        pilot { dimension 'channel' }
+        // These installable candidates are re-signed with the pinned pilot certificate for distribution.
+        pilot { dimension 'channel'; signingConfig signingConfigs.debug }
+        preview { dimension 'channel'; applicationIdSuffix '.preview'; signingConfig signingConfigs.debug }
         play { dimension 'channel'; targetSdk 36 }
     }
     defaultConfig {
@@ -20,8 +27,8 @@ android {
         resValue 'string', 'app_link_host', appLinkHost
         resValue 'bool', 'use_project_pages', projectPages
         resValue 'bool', 'use_verified_links', (System.getenv('ANGLER_APP_LINK_HOST')?.trim() ? 'true' : 'false')
-        versionCode Integer.parseInt(System.getenv('ANGLER_VERSION_CODE') ?: '42')
-        versionName '0.26.3'
+        versionCode buildCode.toInteger()
+        versionName manifest.@'android:versionName'.text()
     }
 }
 
@@ -32,7 +39,11 @@ def generateAccountConfig = tasks.register('generateAccountConfig', Exec) {
     outputs.upToDateWhen { false }
     commandLine 'python3', rootProject.file('scripts/account-config.py'), output
 }
+android.sourceSets.preview.java.srcDir('src/pilot/java')
 android.sourceSets.main.assets.srcDir(accountAssets)
+if (System.getenv('ANDROID_DEBUG_KEYSTORE')) {
+    android.signingConfigs.debug.storeFile = file(System.getenv('ANDROID_DEBUG_KEYSTORE'))
+}
 tasks.named('preBuild').configure { dependsOn(generateAccountConfig) }
 
 dependencies { playImplementation 'com.android.billingclient:billing:8.3.0' }

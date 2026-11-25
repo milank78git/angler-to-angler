@@ -1,3 +1,4 @@
+import { replaceMarkup } from './markup.js';
 import { screen, by, t, esc, button, back, bindBack, bind, toast, confirmAction } from './ui.js';
 import { today } from './domain.js';
 import { Journal } from './journal.js';
@@ -107,6 +108,7 @@ function localTime(value) {
   return new Date(value).toLocaleString(document.documentElement.lang);
 }
 
+/** @param {import('../../../../types/screens.js').ScreenContext} context */
 export async function evidenceScreen({ view, nav }) {
   let page;
   try {
@@ -119,42 +121,42 @@ export async function evidenceScreen({ view, nav }) {
     return showError(view, nav, error);
   }
   if (!view.active()) return;
-  screen.innerHTML =
+  replaceMarkup(
+    screen,
     back(t('common.back')) +
-    '<h1>' +
-    (view.route.onlyId
-      ? t('verification.catch_photo_review')
-      : t('common.my_submitted_catch_photos')) +
-    '</h1>' +
-    '<p>' +
-    t('verification.a_catch_counts_once_a_reviewer_can') +
-    '</p>' +
-    (page.reviewer ? button('review', t('verification.review_submitted_photos'), 'primary') : '') +
-    '<div class="profile-directory">' +
-    (page.items
-      .map(
-        (item) =>
-          '<article class="surface"><h2>' +
-          esc(item.species) +
-          '</h2><p>' +
-          esc(localTime(item.captured)) +
-          '</p>' +
-          reviewResult(item) +
-          '<div><button class="secondary" data-remove="' +
-          esc(item.id) +
-          '">' +
-          labels.withdraw +
-          '</button></div></article>',
-      )
-      .join('') ||
+      '<h1>' +
+      (view.route.onlyId ? t('verification.catch_photo_review') : t('common.my_submitted_catch_photos')) +
+      '</h1>' +
       '<p>' +
-        (view.route.onlyId
-          ? t('verification.there_is_no_submission_for_this_catch')
-          : t('verification.no_submitted_photos_you_can_send_a')) +
-        '</p>') +
-    '</div>' +
-    (page.more ? button('more', t('verification.older_records'), 'secondary') : '') +
-    button('refresh-evidence', t('common.refresh'), 'secondary');
+      t('verification.a_catch_counts_once_a_reviewer_can') +
+      '</p>' +
+      (page.reviewer ? button('review', t('verification.review_submitted_photos'), 'primary') : '') +
+      '<div class="profile-directory">' +
+      (page.items
+        .map(
+          (item) =>
+            '<article class="surface"><h2>' +
+            esc(item.species) +
+            '</h2><p>' +
+            esc(localTime(item.captured)) +
+            '</p>' +
+            reviewResult(item) +
+            '<div><button class="secondary" data-remove="' +
+            esc(item.id) +
+            '">' +
+            labels.withdraw +
+            '</button></div></article>',
+        )
+        .join('') ||
+        '<p>' +
+          (view.route.onlyId
+            ? t('verification.there_is_no_submission_for_this_catch')
+            : t('verification.no_submitted_photos_you_can_send_a')) +
+          '</p>') +
+      '</div>' +
+      (page.more ? button('more', t('verification.older_records'), 'secondary') : '') +
+      button('refresh-evidence', t('common.refresh'), 'secondary'),
+  );
   bindBack(nav);
   bind('refresh-evidence', () => nav.show());
   if (page.reviewer) bind('review', () => nav.open('review'));
@@ -163,7 +165,7 @@ export async function evidenceScreen({ view, nav }) {
       const last = page.items[page.items.length - 1];
       nav.open('evidence', { time: last.submitted, id: last.id });
     });
-  screen.querySelectorAll('[data-remove]').forEach(
+  /** @type {NodeListOf<HTMLButtonElement>} */ (screen.querySelectorAll('[data-remove]')).forEach(
     (b) =>
       (b.onclick = async () => {
         const confirmed = await confirmAction({
@@ -185,6 +187,7 @@ export async function evidenceScreen({ view, nav }) {
   );
 }
 
+/** @param {import('../../../../types/screens.js').ScreenContext} context */
 export async function reviewScreen({ view, nav }) {
   let item;
   try {
@@ -193,48 +196,48 @@ export async function reviewScreen({ view, nav }) {
     return showError(view, nav, error);
   }
   if (!view.active()) return;
-  screen.innerHTML =
+  replaceMarkup(
+    screen,
     back(t('common.back')) +
-    '<h1>' +
-    t('verification.photo.review') +
-    '</h1>' +
-    (item
-      ? '<article class="surface"><h2>' +
-        esc(item.species) +
-        '</h2><p>' +
-        esc(localTime(item.captured)) +
-        ' · ' +
-        esc(item.water) +
-        ' · ' +
-        esc(item.lat100 / 100) +
-        ', ' +
-        esc(item.lon100 / 100) +
-        '</p><img class="review-image" alt="' +
-        t('verification.catch_photograph') +
-        '" src="data:image/jpeg;base64,' +
-        esc(item.photo) +
-        '"></article>' +
-        '<form id="decision" class="entry-form"><section class="surface"><label for="outcome">' +
-        t('verification.review_outcome') +
-        '</label><select id="outcome" required><option value="">—</option><option value="measured">' +
-        outcomes.measured +
-        '</option><option value="estimated">' +
-        outcomes.estimated +
-        '</option><option value="unverified">' +
-        outcomes.unverified +
-        '</option></select>' +
-        '<small>' +
-        t('verification.compare_the_capture_location_with_the_reported') +
-        '</small>' +
-        '<label for="review-length">' +
-        t('verification.length_from_photo_cm') +
-        '</label><input id="review-length" type="number" min="0.1" max="2000" step="0.1" required></section>' +
-        '<button class="primary">' +
-        t('verification.save_decision') +
-        '</button></form>'
-      : '<p>' +
-        t('verification.no_other_anglers_photos_are_awaiting_review') +
-        '</p>');
+      '<h1>' +
+      t('verification.photo.review') +
+      '</h1>' +
+      (item
+        ? '<article class="surface"><h2>' +
+          esc(item.species) +
+          '</h2><p>' +
+          esc(localTime(item.captured)) +
+          ' · ' +
+          esc(item.water) +
+          ' · ' +
+          esc(item.lat100 / 100) +
+          ', ' +
+          esc(item.lon100 / 100) +
+          '</p><img class="review-image" alt="' +
+          t('verification.catch_photograph') +
+          '" src="data:image/jpeg;base64,' +
+          esc(item.photo) +
+          '"></article>' +
+          '<form id="decision" class="entry-form"><section class="surface"><label for="outcome">' +
+          t('verification.review_outcome') +
+          '</label><select id="outcome" required><option value="">—</option><option value="measured">' +
+          outcomes.measured +
+          '</option><option value="estimated">' +
+          outcomes.estimated +
+          '</option><option value="unverified">' +
+          outcomes.unverified +
+          '</option></select>' +
+          '<small>' +
+          t('verification.compare_the_capture_location_with_the_reported') +
+          '</small>' +
+          '<label for="review-length">' +
+          t('verification.length_from_photo_cm') +
+          '</label><input id="review-length" type="number" min="0.1" max="2000" step="0.1" required></section>' +
+          '<button class="primary">' +
+          t('verification.save_decision') +
+          '</button></form>'
+        : '<p>' + t('verification.no_other_anglers_photos_are_awaiting_review') + '</p>'),
+  );
   bindBack(nav);
   if (!item) return;
   const length = by('review-length');

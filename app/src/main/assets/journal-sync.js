@@ -1,92 +1,128 @@
 import { Journal } from './journal.js';
-import { documentKeys, localDocument, uploadDocument, downloadDocument, restoreDocument } from './journal-transfer.js';
+import {
+  documentKeys,
+  localDocument,
+  uploadDocument,
+  downloadDocument,
+  restoreDocument,
+} from './journal-transfer.js';
 import { rpc } from './profile-api.js';
 import { t, confirmAction, displayDay } from './ui.js';
 import { languageTag } from './i18n.js';
 
-const subject=window.Device?.subjectId?.();
-const prefix='journal.sync.v1.'+subject+'.';
-const call=(op,args)=>rpc('journal_sync',{op,args});
-const same=(a,b)=>a.length===b.length && a.every((v,i)=>v===b[i]);
+const subject = window.Device?.subjectId?.();
+const prefix = 'journal.sync.v1.' + subject + '.';
+const call = (op, args) => rpc('journal_sync', { op, args });
+const same = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
 const choiceKey = prefix + 'enabled';
 let status = enabled() ? 'waiting' : 'disabled';
 let checking = false;
-let timer, busy = false, again = false, conflicts = [];
+let timer,
+  busy = false,
+  again = false,
+  conflicts = [];
 const lastSyncKey = prefix + 'lastSuccess';
-function online() { return navigator.onLine !== false; }
+function online() {
+  return navigator.onLine !== false;
+}
 function notify(value) {
-  status=value;
+  status = value;
   window.dispatchEvent(new Event('journal-sync-status'));
 }
-function enabled() { return !!subject && localStorage.getItem(choiceKey)==='1'; }
+function enabled() {
+  return !!subject && localStorage.getItem(choiceKey) === '1';
+}
 function schedule() {
   if (!enabled()) return;
   clearTimeout(timer);
-  if (!online()) { notify('offline'); return; }
-  if (busy) { again=true; return; }
+  if (!online()) {
+    notify('offline');
+    return;
+  }
+  if (busy) {
+    again = true;
+    return;
+  }
   notify('waiting');
-  timer=setTimeout(()=>run(),700);
+  timer = setTimeout(() => run(), 700);
 }
 async function run(resolution, retryRevision = true) {
   if (busy || !enabled()) return;
   clearTimeout(timer);
-  if (!online()) { notify('offline'); return; }
-  busy=true;
+  if (!online()) {
+    notify('offline');
+    return;
+  }
+  busy = true;
   const detected = [];
   notify('working');
-  let changed=false, uploaded=false, reread=false;
+  let changed = false,
+    uploaded = false,
+    reread = false;
   try {
-    if (localStorage.getItem(prefix+'registered')!=='1') {
-      await call('enable',{});
-      localStorage.setItem(prefix+'registered','1');
+    if (localStorage.getItem(prefix + 'registered') !== '1') {
+      await call('enable', {});
+      localStorage.setItem(prefix + 'registered', '1');
     }
-    const remote=new Map();
-    let after='';
+    const remote = new Map();
+    let after = '';
     while (true) {
-      const {rows}=await call('list',{after});
+      const { rows } = await call('list', { after });
       if (!rows.length) break;
-      for (const row of rows) remote.set(row.key,row);
-      after=rows.at(-1).key;
+      for (const row of rows) remote.set(row.key, row);
+      after = rows.at(-1).key;
     }
-    const keys=new Set([...await documentKeys(Journal,localStorage,subject),...remote.keys()]);
+    const keys = new Set([...(await documentKeys(Journal, localStorage, subject)), ...remote.keys()]);
     for (const key of keys) {
       if (!enabled()) return;
-      const row=remote.get(key)||{revision:0,parts:[]};
-      const checkpoint=prefix+'base.'+key;
-      const saved=localStorage.getItem(checkpoint);
-      const base=JSON.parse(saved||'[]');
-      const local=await Journal.lock(()=>localDocument(Journal,localStorage,subject,key));
-      if (same(local.hashes,row.parts)) {
-        if (!same(base,row.parts)) localStorage.setItem(checkpoint,JSON.stringify(row.parts));
+      const row = remote.get(key) || { revision: 0, parts: [] };
+      const checkpoint = prefix + 'base.' + key;
+      const saved = localStorage.getItem(checkpoint);
+      const base = JSON.parse(saved || '[]');
+      const local = await Journal.lock(() => localDocument(Journal, localStorage, subject, key));
+      if (same(local.hashes, row.parts)) {
+        if (!same(base, row.parts)) localStorage.setItem(checkpoint, JSON.stringify(row.parts));
         continue;
       }
-      const choice=resolution?.key===key && resolution.revision===row.revision &&
-        same(resolution.local,local.hashes) ? resolution.choice : '';
-      const unknownDeletion=saved===null && row.revision>0 && !row.parts.length;
-      if ((!unknownDeletion && same(base,row.parts)) || choice==='local') {
-        const upload = local.blocks ? local : await Journal.lock(() =>
-          localDocument(Journal, localStorage, subject, key, true));
-        if (!same(local.hashes, upload.hashes)) { again=true; continue; }
-        await uploadDocument(call,key,upload,row.revision);
-        uploaded=true;
-        localStorage.setItem(checkpoint,JSON.stringify(local.hashes));
-      } else if (same(base,local.hashes) || choice==='cloud') {
-        const data=await downloadDocument(call,row.parts);
-        await Journal.lock(async()=>{
+      const choice =
+        resolution?.key === key &&
+        resolution.revision === row.revision &&
+        same(resolution.local, local.hashes)
+          ? resolution.choice
+          : '';
+      const unknownDeletion = saved === null && row.revision > 0 && !row.parts.length;
+      if ((!unknownDeletion && same(base, row.parts)) || choice === 'local') {
+        const upload = local.blocks
+          ? local
+          : await Journal.lock(() => localDocument(Journal, localStorage, subject, key, true));
+        if (!same(local.hashes, upload.hashes)) {
+          again = true;
+          continue;
+        }
+        await uploadDocument(call, key, upload, row.revision);
+        uploaded = true;
+        localStorage.setItem(checkpoint, JSON.stringify(local.hashes));
+      } else if (same(base, local.hashes) || choice === 'cloud') {
+        const data = await downloadDocument(call, row.parts);
+        await Journal.lock(async () => {
           if (!enabled()) return;
-          const latest=await localDocument(Journal,localStorage,subject,key);
-          if (!same(local.hashes,latest.hashes)) { again=true; return; }
-          await restoreDocument(Journal,localStorage,subject,key,data);
-          localStorage.setItem(checkpoint,JSON.stringify(row.parts)); changed=true;
+          const latest = await localDocument(Journal, localStorage, subject, key);
+          if (!same(local.hashes, latest.hashes)) {
+            again = true;
+            return;
+          }
+          await restoreDocument(Journal, localStorage, subject, key, data);
+          localStorage.setItem(checkpoint, JSON.stringify(row.parts));
+          changed = true;
         });
       } else {
         // A locally deleted trip can still be identified from its verified account copy.
         let trip;
         if (key.startsWith('trip/')) {
           trip = await Journal.trip(key.slice(5));
-          if (!trip && row.parts.length) trip = (await downloadDocument(call,row.parts))?.trip;
+          if (!trip && row.parts.length) trip = (await downloadDocument(call, row.parts))?.trip;
         }
-        detected.push({key, revision:row.revision, local:local.hashes, trip});
+        detected.push({ key, revision: row.revision, local: local.hashes, trip });
       }
     }
     if (!enabled()) return;
@@ -109,8 +145,10 @@ async function run(resolution, retryRevision = true) {
   } finally {
     busy = false;
     if (changed) window.dispatchEvent(new Event('journal-restored'));
-    if (again) { again=false; schedule(); }
-    else if (reread) await run(undefined, false);
+    if (again) {
+      again = false;
+      schedule();
+    } else if (reread) await run(undefined, false);
   }
 }
 /** Prefer the fishing date and water over an internal record identifier. */
@@ -118,18 +156,18 @@ function conflictLabel(conflict, waters) {
   const { key, trip } = conflict;
   if (key.startsWith('trip/')) {
     const fields = [];
-    if (trip?.day && Number.isFinite(Date.parse(trip.day+'T12:00:00Z'))) fields.push(displayDay(trip.day));
+    if (trip?.day && Number.isFinite(Date.parse(trip.day + 'T12:00:00Z'))) fields.push(displayDay(trip.day));
     if (trip?.waterName) fields.push(trip.waterName);
     if (trip?.waterNumber) fields.push(trip.waterNumber);
     return fields.join(' · ') || t('sync.trip');
   }
   if (key.startsWith('photo/')) {
     const id = key.slice(6);
-    return t('water_photo.personal')+' · '+(waters?.byKey.get(id)?.name || id);
+    return t('water_photo.personal') + ' · ' + (waters?.byKey.get(id)?.name || id);
   }
   if (key.startsWith('pref/water/')) {
     const id = key.slice(11);
-    return t('waters.favorites')+' · '+(waters?.byId.get(id.slice(id.indexOf('.')+1))?.name || id);
+    return t('waters.favorites') + ' · ' + (waters?.byId.get(id.slice(id.indexOf('.') + 1))?.name || id);
   }
   if (key === 'pref/atlas.topographic') return t('atlas.topographic');
   if (key === 'pref/country' || key === 'pref/fish.country') return t('fish_catalogue.fishing_country');
@@ -139,16 +177,21 @@ function conflictLabel(conflict, waters) {
 export function bindJournalSync(panel, waters) {
   if (!panel || !subject) return;
   function render() {
-    if (!panel.isConnected) { window.removeEventListener('journal-sync-status',render); return; }
+    if (!panel.isConnected) {
+      window.removeEventListener('journal-sync-status', render);
+      return;
+    }
     panel.replaceChildren();
-    const label=document.createElement('p');
-    label.setAttribute('role','status');
+    const label = document.createElement('p');
+    label.setAttribute('role', 'status');
     panel.dataset.state = status;
     const last = Number(localStorage.getItem(lastSyncKey));
-    const stamp = last > 0 && Number.isFinite(new Date(last).getTime())
-      ? new Intl.DateTimeFormat(languageTag,{dateStyle:'short',timeStyle:'short'}).format(last) : '';
-    label.textContent = status === 'done' && stamp
-      ? t('sync.saved_at').replace('{time}', stamp) : t('sync.'+status);
+    const stamp =
+      last > 0 && Number.isFinite(new Date(last).getTime())
+        ? new Intl.DateTimeFormat(languageTag, { dateStyle: 'short', timeStyle: 'short' }).format(last)
+        : '';
+    label.textContent =
+      status === 'done' && stamp ? t('sync.saved_at').replace('{time}', stamp) : t('sync.' + status);
     panel.append(label);
     if (stamp && status !== 'done') {
       const previous = document.createElement('p');
@@ -156,43 +199,83 @@ export function bindJournalSync(panel, waters) {
       previous.textContent = t('sync.last_success').replace('{time}', stamp);
       panel.append(previous);
     }
-    const button=(labelKey,action)=>{
-      const el=document.createElement('button'); el.type='button';el.className='secondary';
-      el.dataset.action=labelKey;el.textContent=t(labelKey);el.onclick=action;panel.append(el);
+    const button = (labelKey, action) => {
+      const el = document.createElement('button');
+      el.type = 'button';
+      el.className = 'secondary';
+      el.dataset.action = labelKey;
+      el.textContent = t(labelKey);
+      el.onclick = action;
+      panel.append(el);
     };
     if (!enabled() && status === 'check_failed') button('sync.retry', start);
-    if (!enabled() && status !== 'checking') button('sync.enable',async()=>{
-      if (await confirmAction({title:t('sync.enable'),message:t('sync.consent'),accept:t('sync.enable')})) {
-        localStorage.setItem(choiceKey,'1');schedule();
-      }
-    });
-    else if (enabled() && status!=='working') {
-      button('sync.retry',()=>run());
-      button('sync.pause',async()=>{
-        if (await confirmAction({title:t('sync.pause'),message:t('sync.pause_info'),accept:t('sync.pause')})) {
-          clearTimeout(timer);localStorage.setItem(choiceKey,'0');conflicts=[];notify('disabled');
+    if (!enabled() && status !== 'checking')
+      button('sync.enable', async () => {
+        if (
+          await confirmAction({
+            title: t('sync.enable'),
+            message: t('sync.consent'),
+            accept: t('sync.enable'),
+          })
+        ) {
+          localStorage.setItem(choiceKey, '1');
+          schedule();
+        }
+      });
+    else if (enabled() && status !== 'working') {
+      button('sync.retry', () => run());
+      button('sync.pause', async () => {
+        if (
+          await confirmAction({
+            title: t('sync.pause'),
+            message: t('sync.pause_info'),
+            accept: t('sync.pause'),
+          })
+        ) {
+          clearTimeout(timer);
+          localStorage.setItem(choiceKey, '0');
+          conflicts = [];
+          notify('disabled');
         }
       });
     }
     if (status !== 'conflict') return;
     for (const c of conflicts) {
-      const name=document.createElement('p'); name.textContent=conflictLabel(c, waters); panel.append(name);
-      for (const choice of ['cloud','local']) button('sync.'+choice,async()=>{
-        if (await confirmAction({title:t('sync.'+choice),message:t('sync.replace'),accept:t('sync.'+choice),destructive:true}))
-          run({...c,choice});
-      });
+      const name = document.createElement('p');
+      name.textContent = conflictLabel(c, waters);
+      panel.append(name);
+      for (const choice of ['cloud', 'local'])
+        button('sync.' + choice, async () => {
+          if (
+            await confirmAction({
+              title: t('sync.' + choice),
+              message: t('sync.replace'),
+              accept: t('sync.' + choice),
+              destructive: true,
+            })
+          )
+            run({ ...c, choice });
+        });
     }
   }
-  window.addEventListener('journal-sync-status',render); render();
+  window.addEventListener('journal-sync-status', render);
+  render();
 }
-window.addEventListener('offline', () => { if (enabled()) { clearTimeout(timer); notify('offline'); } });
-window.addEventListener('journal-edited',schedule);
+window.addEventListener('offline', () => {
+  if (enabled()) {
+    clearTimeout(timer);
+    notify('offline');
+  }
+});
+window.addEventListener('journal-edited', schedule);
 
 function resume() {
   if (status === 'check_failed') start();
   else schedule();
 }
-document.addEventListener('visibilitychange',()=>{ if (!document.hidden) resume(); });
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) resume();
+});
 /** A cloud-enabled account may restore automatically only into an empty private journal. */
 async function start() {
   if (!subject || checking) return;
@@ -210,8 +293,9 @@ async function start() {
       await Journal.lock(async () => {
         const keys = await documentKeys(Journal, localStorage, subject);
         if (localStorage.getItem(choiceKey) !== null) return;
-        const hasHistory = keys.some(key =>
-          key.startsWith('trip/') || key.startsWith('photo/') || key.startsWith('pref/water/'));
+        const hasHistory = keys.some(
+          (key) => key.startsWith('trip/') || key.startsWith('photo/') || key.startsWith('pref/water/'),
+        );
         localStorage.setItem(choiceKey, hasHistory ? '0' : '1');
       });
     }
@@ -223,7 +307,7 @@ async function start() {
     checking = false;
   }
 }
-window.addEventListener('online',start);
+window.addEventListener('online', start);
 start();
 setInterval(() => {
   if (!online() || document.hidden || busy) return;

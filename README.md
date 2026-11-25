@@ -73,7 +73,7 @@ The bundled river geometry in `app/src/main/assets/rivers.json` is © OpenStreet
 
 ## Build and verify
 
-Use a JDK 17 or 21, Node.js 22+, Android SDK Platform 35, Build Tools 35.0.0, and zip. Set `ANDROID_HOME` to the SDK directory. The standalone build uses stock Android tools, generates a local Android debug key if needed, and checks the signature of the finished APK.
+Use a JDK 17 or 21, Node.js 22+, Android SDK Platform 35, Build Tools 35.0.0, and zip. Set `ANDROID_HOME` to the SDK directory. The wrapper downloads the pinned Gradle distribution and builds an installable candidate with a local development key. The release job signs the pilot APK separately.
 
 ```sh
 npm ci --ignore-scripts
@@ -82,7 +82,7 @@ bash scripts/build-debug.sh
 adb install -r build/standalone/angler-journal-debug.apk
 ```
 
-Open the project in Android Studio with Gradle 8.13 for IDE development. The standalone build and CI do not require Gradle or application dependencies.
+Open the project in Android Studio with the checked-in Gradle 8.13 wrapper for IDE development. The wrapper also builds the standalone APKs and the Play bundle in CI. With Node.js 22.13+ or 24, run `npm ci --ignore-scripts`, `npm run check` and `npm test` to validate the journal scripts.
 
 Build the preview first. `bash scripts/android-smoke.sh` runs instrumentation on a disposable **Android 15 test emulator**. It clears the preview application, sets its size and language, selects a water, checks a season, saves two catches, reopens the activity and verifies the records and photo. CI runs both Czech phone and English wide layouts and publishes their screenshots. The emulator also rejects a write, retries it, sends Android Back during a pending write and checks which coordinate field receives focus after invalid input. Unit tests cover navigation history, atomic photo replacement and native alarm scheduling across daylight saving time and pack expiry.
 

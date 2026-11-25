@@ -199,3 +199,13 @@ begin
 end $$;
 reset role;
 update angler_commerce.settings set mode='off';
+
+-- Only the transaction dispatcher may enter locked, actor-bound commerce operations.
+select pg_temp.check_that(not exists (
+  select from (values ('anon'), ('authenticated')) as roles(name)
+  cross join (values ('angler_commerce.request_payout(uuid)'),
+                     ('angler_commerce.publish_offer(jsonb)'),
+                     ('angler_commerce.enroll_offer(uuid,angler_market.offers,jsonb)'),
+                     ('angler_commerce.purchase_offer(uuid,angler_market.offers,jsonb)')) as helpers(signature)
+  where has_function_privilege(roles.name, helpers.signature, 'EXECUTE')
+), 'Internal commerce operations must not be callable by API roles');

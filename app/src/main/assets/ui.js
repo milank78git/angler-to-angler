@@ -1,14 +1,21 @@
+import { replaceMarkup } from './markup.js';
 import { languageTag, label } from './i18n.js';
-const screen = document.querySelector('#screen');
+const screen = /** @type {HTMLElement} */ (document.querySelector('#screen'));
 let noticeTimer;
 let finishConfirmation;
-const t = label, loc = entry => label(entry.message);
+const t = label,
+  loc = (entry) => label(entry.message);
 const esc = (s) =>
   String(s ?? '').replace(
     /[&<>"']/g,
     (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c],
   );
-const by = (id) => document.getElementById(id);
+/** @template {string} I @param {I} id @returns {import('../../../../types/ui-elements.js').JournalElement<I>} */
+function by(id) {
+  return /** @type {import('../../../../types/ui-elements.js').JournalElement<I>} */ (
+    document.getElementById(id)
+  );
+}
 function selectField(id, label, items, selected) {
   const options = items.map(
     ([value, text]) =>
@@ -33,11 +40,11 @@ function dismissConfirmation() {
   return closeConfirmation(false);
 }
 
-function confirmAction({ title, message, accept, destructive = false, catchPreview }) {
+function confirmAction({ title, message, accept, destructive = false, catchPreview = undefined }) {
   const dialog = by('confirmation');
   if (dialog.open) return Promise.resolve(false);
   finishConfirmation?.(false);
-  by('confirmation-icon').innerHTML = icon(catchPreview ? 'camera' : 'triangle-alert');
+  replaceMarkup(by('confirmation-icon'), icon(catchPreview ? 'camera' : 'triangle-alert'));
   by('confirmation-title').textContent = title;
   by('confirmation-catch').hidden = !catchPreview;
   const image = by('confirmation-photo');
@@ -108,9 +115,11 @@ function textInput(id, label, value = '', attrs = '') {
 async function submitChange(view, write, onSuccess, onError) {
   if (!view.active() || view.saving) return;
   view.saving = true;
-  const controls = Array.from(screen.querySelectorAll('button,input,select,textarea')).filter(
-    (el) => !el.disabled,
-  );
+  const controls = Array.from(
+    /** @type {NodeListOf<HTMLButtonElement | HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>} */ (
+      screen.querySelectorAll('button,input,select,textarea')
+    ),
+  ).filter((el) => !el.disabled);
   controls.forEach((el) => {
     el.disabled = true;
   });

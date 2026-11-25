@@ -130,47 +130,45 @@ begin
       and r.funding=case when commercial then 'paid' else 'pilot' end))) from live);
 end$$;
 
-create or replace function angler_commerce.market(op text,args jsonb) returns jsonb
-language plpgsql security definer set search_path='' as $$
-declare actor uuid:=angler_groups_private.subject(); cfg angler_commerce.settings;
- target uuid:=(args->>'offer')::uuid; o angler_market.offers; v angler_market.versions;
- fund record; sale_id bigint; needed integer; used integer; paid_units integer:=0; welcome_available integer; wallet jsonb;
+create function angler_commerce.publish_offer(args jsonb) returns jsonb
+language plpgsql security invoker set search_path='' as $$
+declare target uuid; wallet jsonb;
 begin
- select * into strict cfg from angler_commerce.settings;
- if op='status' then return angler_commerce.wallet(actor)||jsonb_build_object(
-   'welcomeBalance',coalesce((select sum(available) from angler_commerce.remaining where holder=actor and source='welcome'),0),
-   'enrolled',
-   exists(select from angler_commerce.offers where offer=target)); end if;
- if op='discover' then
-   return angler_commerce.discover(args->>'water',(args->>'cursor')::bigint,true);
- end if;
- if cfg.mode='off' then raise exception 'Store unavailable' using errcode='PT503'; end if;
- perform pg_advisory_xact_lock(hashtextextended(actor::text,37));
- if op='publish' then
    if (args->>'expected_revision')::int is distinct from 0 then raise exception 'Expected a new offer' using errcode='PT422'; end if;
    target:=(args->>'offer_id')::uuid;
    wallet:=public.angler_market_publish(target,0,args->'draft');
    insert into angler_commerce.offers(offer,pilot_copies)
      select id,sold from angler_market.offers where id=target on conflict do nothing;
    return wallet;
- end if;
- if op='payout' then
+end $$;
+
+create function angler_commerce.request_payout(actor uuid) returns jsonb
+language plpgsql security invoker set search_path='' as $$
+declare wallet jsonb;
+begin
    wallet:=angler_commerce.wallet(actor);
    if (wallet->>'requested')::numeric>0 then return wallet; end if;
    if (wallet->>'earned')::numeric<10000 or (not (wallet->>'priorPayout')::boolean and (wallet->>'published')::int<3)
      then raise exception 'Payout threshold not met' using errcode='PT422'; end if;
    insert into angler_commerce.payouts(author,halers) values(actor,(wallet->>'earned')::bigint);
    return angler_commerce.wallet(actor);
- end if;
- select * into o from angler_market.offers where id=target for update;
- if not found then raise exception 'Offer unavailable' using errcode='PT404'; end if;
- if op='enroll' then
+end $$;
+
+create function angler_commerce.enroll_offer(actor uuid, o angler_market.offers, args jsonb) returns jsonb
+language plpgsql security invoker set search_path='' as $$
+begin
    if o.seller<>actor or o.withdrawn or o.revision is distinct from (args->>'revision')::int then
      raise exception 'Offer changed' using errcode='PT409'; end if;
-   insert into angler_commerce.offers(offer,pilot_copies) values(target,o.sold) on conflict do nothing;
+   insert into angler_commerce.offers(offer,pilot_copies) values(o.id,o.sold) on conflict do nothing;
    return jsonb_build_object('enrolled',true);
- end if;
- if op is distinct from 'buy' or o.seller=actor or not exists(select from angler_commerce.offers where offer=target)
+end $$;
+
+create function angler_commerce.purchase_offer(actor uuid, o angler_market.offers, args jsonb) returns jsonb
+language plpgsql security invoker set search_path='' as $$
+declare target uuid := o.id; v angler_market.versions; fund record; sale_id bigint;
+ needed integer; used integer; paid_units integer := 0; welcome_available integer;
+begin
+ if o.seller=actor or not exists(select from angler_commerce.offers where offer=target)
    then raise exception 'Ineligible purchase' using errcode='42501'; end if;
  if exists(select from angler_market.orders where buyer=actor and offer=target) then return angler_commerce.wallet(actor); end if;
  select * into strict v from angler_market.versions where offer=target and revision=o.revision;
@@ -199,4 +197,35 @@ begin
  values(actor,target,v.revision,case when paid_units>0 then 'paid' else 'welcome' end);
  if paid_units>0 then update angler_market.offers set sold=sold+1 where id=target; end if;
  return angler_commerce.wallet(actor);
+end $$;
+
+revoke all on function angler_commerce.publish_offer(jsonb), angler_commerce.request_payout(uuid),
+ angler_commerce.enroll_offer(uuid,angler_market.offers,jsonb),
+ angler_commerce.purchase_offer(uuid,angler_market.offers,jsonb) from public, anon, authenticated;
+
+create or replace function angler_commerce.market(op text,args jsonb) returns jsonb
+language plpgsql security definer set search_path='' as $$
+declare actor uuid:=angler_groups_private.subject(); cfg angler_commerce.settings;
+ target uuid:=(args->>'offer')::uuid; o angler_market.offers;
+begin
+ select * into strict cfg from angler_commerce.settings;
+ if op='status' then return angler_commerce.wallet(actor)||jsonb_build_object(
+   'welcomeBalance',coalesce((select sum(available) from angler_commerce.remaining where holder=actor and source='welcome'),0),
+   'enrolled',
+   exists(select from angler_commerce.offers where offer=target)); end if;
+ if op='discover' then
+   return angler_commerce.discover(args->>'water',(args->>'cursor')::bigint,true);
+ end if;
+ if cfg.mode='off' then raise exception 'Store unavailable' using errcode='PT503'; end if;
+ perform pg_advisory_xact_lock(hashtextextended(actor::text,37));
+ if op='publish' then return angler_commerce.publish_offer(args); end if;
+ if op='payout' then return angler_commerce.request_payout(actor); end if;
+ -- All operations on existing inventory acquire the offer lock after the actor lock.
+ select * into o from angler_market.offers where id=target for update;
+ if not found then raise exception 'Offer unavailable' using errcode='PT404'; end if;
+ case op
+   when 'enroll' then return angler_commerce.enroll_offer(actor,o,args);
+   when 'buy' then return angler_commerce.purchase_offer(actor,o,args);
+   else raise exception 'Ineligible purchase' using errcode='42501';
+ end case;
 end $$;

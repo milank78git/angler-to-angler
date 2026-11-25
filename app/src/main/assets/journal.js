@@ -1,9 +1,7 @@
 export const newJournalId = () =>
   typeof crypto.randomUUID === 'function'
     ? crypto.randomUUID()
-    : Array.from(crypto.getRandomValues(new Uint8Array(16)), (b) => b.toString(16).padStart(2, '0')).join(
-        '',
-      );
+    : Array.from(crypto.getRandomValues(new Uint8Array(16)), (b) => b.toString(16).padStart(2, '0')).join('');
 
 /** Opens the journal lazily and preserves existing diary records during upgrades. The atlas can run independently of this database. */
 export function createJournal(factory = globalThis.indexedDB, name = 'angler-field-journal') {
@@ -13,7 +11,7 @@ export function createJournal(factory = globalThis.indexedDB, name = 'angler-fie
     if (connection) return connection;
     connection = new Promise((resolve, reject) => {
       const req = factory.open(name, 2);
-      req.onupgradeneeded = event => {
+      req.onupgradeneeded = (event) => {
         req.result.createObjectStore('fingerprints');
         if (event.oldVersion >= 1) return;
         const trips = req.result.createObjectStore('trips', { keyPath: 'id' });
@@ -71,7 +69,7 @@ export function createJournal(factory = globalThis.indexedDB, name = 'angler-fie
 
   // Invalidate in the same transaction as the edit, including writes from another WebView.
   function invalidate(tx, key) {
-    tx.objectStore('fingerprints').put({version: newJournalId()}, key);
+    tx.objectStore('fingerprints').put({ version: newJournalId() }, key);
   }
 
   // A slow encoder cannot cache old photo hashes over a concurrent write.
@@ -81,7 +79,7 @@ export function createJournal(factory = globalThis.indexedDB, name = 'angler-fie
       const current = store.get(key);
       current.onsuccess = () => {
         const unchanged = current.result?.version === version;
-        if (unchanged) store.put({version, hashes}, key);
+        if (unchanged) store.put({ version, hashes }, key);
         result(unchanged);
       };
     });
@@ -144,28 +142,42 @@ export function createJournal(factory = globalThis.indexedDB, name = 'angler-fie
       };
     });
   }
-  const lock = operation => globalThis.navigator?.locks
-    ? navigator.locks.request(name + ':write', operation) : operation();
-  const change = operation => (...args) => lock(async () => {
-    const result = await operation(...args);
-    globalThis.dispatchEvent?.(new Event('journal-edited'));
-    return result;
-  });
+  const lock = (operation) =>
+    globalThis.navigator?.locks ? navigator.locks.request(name + ':write', operation) : operation();
+  const change =
+    (operation) =>
+    (...args) =>
+      lock(async () => {
+        const result = await operation(...args);
+        globalThis.dispatchEvent?.(new Event('journal-edited'));
+        return result;
+      });
 
   // Replace all members of a remote trip in one IndexedDB transaction.
   function restoreTrip(id, document) {
-    return transaction(['trips','catches','photos','fingerprints'], 'readwrite', tx => {
+    return transaction(['trips', 'catches', 'photos', 'fingerprints'], 'readwrite', (tx) => {
       invalidate(tx, 'trip/' + id);
-      const trips = tx.objectStore('trips'), catches = tx.objectStore('catches'), photos = tx.objectStore('photos');
+      const trips = tx.objectStore('trips'),
+        catches = tx.objectStore('catches'),
+        photos = tx.objectStore('photos');
       const previous = catches.index('tripId').getAllKeys(id);
       previous.onsuccess = () => {
-        for (const key of previous.result) { catches.delete(key); photos.delete(key); }
-        if (!document) { trips.delete(id); return; }
+        for (const key of previous.result) {
+          catches.delete(key);
+          photos.delete(key);
+        }
+        if (!document) {
+          trips.delete(id);
+          return;
+        }
         trips.put(document.trip);
         for (const { record, photo } of document.catches) {
           const found = catches.get(record.id);
           found.onsuccess = () => {
-            if (found.result && found.result.tripId !== id) { tx.abort(); return; }
+            if (found.result && found.result.tripId !== id) {
+              tx.abort();
+              return;
+            }
             catches.put(record);
             if (photo) photos.put(photo, record.id);
           };
@@ -174,27 +186,35 @@ export function createJournal(factory = globalThis.indexedDB, name = 'angler-fie
     });
   }
   function writeWaterPhoto(key, blob) {
-    return transaction(['photos', 'fingerprints'], 'readwrite', tx => {
+    return transaction(['photos', 'fingerprints'], 'readwrite', (tx) => {
       invalidate(tx, 'photo/' + key);
-      const store = tx.objectStore('photos'), id = ['water', key];
+      const store = tx.objectStore('photos'),
+        id = ['water', key];
       if (blob) store.put(blob, id);
       else store.delete(id);
     });
   }
   return {
-    lock, restoreTrip, writeWaterPhoto, cacheHashes,
-    fingerprint: key => read('fingerprints', store => store.get(key)),
-    tripKeys: () => read('trips', store => store.getAllKeys()),
-    waterPhotoKeys: () => read('photos', store => store.getAllKeys(IDBKeyRange.bound(['water'], ['water', []]))),
+    lock,
+    restoreTrip,
+    writeWaterPhoto,
+    cacheHashes,
+    fingerprint: (key) => read('fingerprints', (store) => store.get(key)),
+    tripKeys: () => read('trips', (store) => store.getAllKeys()),
+    waterPhotoKeys: () =>
+      read('photos', (store) => store.getAllKeys(IDBKeyRange.bound(['water'], ['water', []]))),
     listTrips,
-    statEntries: () => transaction(['trips','catches'], 'readonly', (tx, result) => {
-      const snapshot = {};
-      for (const name of ['trips','catches']) {
-        const request = tx.objectStore(name).getAll();
-        request.onsuccess = () => { snapshot[name] = request.result; };
-      }
-      result(snapshot);
-    }),
+    statEntries: () =>
+      transaction(['trips', 'catches'], 'readonly', (tx, result) => {
+        const snapshot = {};
+        for (const name of ['trips', 'catches']) {
+          const request = tx.objectStore(name).getAll();
+          request.onsuccess = () => {
+            snapshot[name] = request.result;
+          };
+        }
+        result(snapshot);
+      }),
     saveCatch: change(saveCatch),
     removeTrip: change(removeTrip),
     trip: (id) => read('trips', (s) => s.get(id)),
@@ -204,10 +224,12 @@ export function createJournal(factory = globalThis.indexedDB, name = 'angler-fie
     // Array keys cannot collide with the string catch IDs in existing journals.
     waterPhoto: (key) => read('photos', (store) => store.get(['water', key])),
     setWaterPhoto: change(writeWaterPhoto),
-    saveTrip: change(trip => transaction(['trips', 'fingerprints'], 'readwrite', tx => {
-      invalidate(tx, 'trip/' + trip.id);
-      tx.objectStore('trips').put(trip);
-    })),
+    saveTrip: change((trip) =>
+      transaction(['trips', 'fingerprints'], 'readwrite', (tx) => {
+        invalidate(tx, 'trip/' + trip.id);
+        tx.objectStore('trips').put(trip);
+      }),
+    ),
   };
 }
-export const Journal = createJournal(globalThis.indexedDB,globalThis.Device?.journalName?.());
+export const Journal = createJournal(globalThis.indexedDB, globalThis.Device?.journalName?.());

@@ -23,19 +23,28 @@ export function renderPublicCard(host, card, locale, words) {
   const row = (label, element) => {
     const value = make('dd');
     value.append(element);
-    details.append(make('dt',label),value);
+    details.append(make('dt', label), value);
   };
   const monthOnly = card.precision === 'month';
   const date = new Date(card.date + (monthOnly ? '-01' : '') + 'T12:00:00Z');
-  const time = make('time', new Intl.DateTimeFormat(locale,
-    {year:'numeric',month:'long',day:monthOnly ? undefined : 'numeric',timeZone:'UTC'}).format(date));
+  const time = make(
+    'time',
+    new Intl.DateTimeFormat(locale, {
+      year: 'numeric',
+      month: 'long',
+      day: monthOnly ? undefined : 'numeric',
+      timeZone: 'UTC',
+    }).format(date),
+  );
   time.dateTime = card.date;
   row(monthOnly ? words('public_card.catch_month') : words('public_card.catch_date'), time);
-  if (card.water) row(words('common.water'),card.water);
+  if (card.water) row(words('common.water'), card.water);
   if (card.length) {
     const measured = card.length.kind === 'measured';
-    row(measured ? words('public_card.length_from_ruler') : words('public_card.reference_based_estimate'),
-      new Intl.NumberFormat(locale).format(card.length.mm / 10) + ' cm');
+    row(
+      measured ? words('public_card.length_from_ruler') : words('public_card.reference_based_estimate'),
+      new Intl.NumberFormat(locale).format(card.length.mm / 10) + ' cm',
+    );
   }
   body.append(details);
   article.append(body);
