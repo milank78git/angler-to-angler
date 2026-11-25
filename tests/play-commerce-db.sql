@@ -95,6 +95,16 @@ rollback to seller_erasure;
 -- purchased revisions and separate promotional activity from commercial totals.
 update angler_market.orders set rating_accuracy=5,rating_technique=5,rating_match=5
   where offer=md5('promotional tip')::uuid;
+-- A limited offer already had a pilot buyer before commercial enrollment.
+update angler_commerce.settings set mode='test';
+select pg_temp.as_user(71);
+select public.angler_market_publish(md5('converted pilot tip')::uuid,0,
+  '{"title":"Converted pilot tip","species":"Pike","access":"shore","day":"2026-01-01","water":null,"technique":"Use a slow retrieve","price":1,"limit":2}');
+select pg_temp.as_user(74);
+select public.angler_market_activate();
+select public.angler_market_buy(md5('converted pilot tip')::uuid,1,1);
+select pg_temp.as_user(71);
+select public.angler_commerce('enroll',jsonb_build_object('offer',md5('converted pilot tip')::uuid,'revision',1));
 \ir ../supabase/migrations/20261125165309_market_purchase_funding.sql
 update angler_commerce.settings set mode='test';
 select pg_temp.as_user(74);
@@ -147,4 +157,45 @@ begin
   perform pg_temp.check_that(wallet->>'balance'='4' and public.angler_market_detail(limited)->>'sold'='1',
     'Paid-only purchase after refund failed');
 end $$;
+update angler_commerce.settings set mode='off';
+
+
+-- Exercise both historical and new enrollment through the same public endpoints as the app.
+update angler_commerce.settings set mode='test';
+set local role authenticated;
+do $$declare id uuid; item jsonb; total_before integer; draft jsonb:='{"title":"Seasonal retrieve","species":"Pike","access":"shore","day":"2026-01-01","water":null,"technique":"Use a slow retrieve","price":1,"limit":2}';
+begin
+  perform pg_temp.as_user(71);
+  total_before:=(public.angler_commerce('discover')#>>'{stats,sales}')::integer;
+  for n in 1..2 loop
+    id:=case when n=1 then md5('converted pilot tip')::uuid else md5('new enrollment')::uuid end;
+    if n=2 then
+      perform public.angler_market_publish(id,0,draft);
+      perform pg_temp.as_user(74);
+      perform public.angler_market_buy(id,1,1);
+      perform pg_temp.as_user(71);
+    end if;
+    perform public.angler_commerce('enroll',jsonb_build_object('offer',id,'revision',1));
+    item:=public.angler_market_detail(id);
+    perform pg_temp.check_that(item @> '{"commercial":true,"sales":0,"sold":1,"pilotCopies":1,"limit":2}',
+      'Pilot copy was counted as a commercial sale or lost its slot');
+    perform pg_temp.check_that((public.angler_commerce('discover')#>>'{stats,sales}')::integer=total_before,
+      'Enrollment inflated commercial discovery totals');
+    perform pg_temp.as_user(74);
+    item:=public.angler_market_detail(id);
+    perform pg_temp.check_that(item->>'technique'='Use a slow retrieve' and not (item ? 'myRating'),
+      'Pilot buyer lost access or gained a commercial vote');
+    perform pg_temp.as_user(73);
+    perform public.angler_commerce('buy',jsonb_build_object('offer',id,'price',1,'revision',1,'paid',1));
+    item:=public.angler_market_detail(id);
+    perform pg_temp.check_that(item @> '{"sales":1,"sold":2,"pilotCopies":1}' and item ? 'myRating',
+      'Last paid copy did not reserve remaining stock');
+    perform pg_temp.check_that(not exists(select from jsonb_array_elements(public.angler_commerce('discover')->'items') e
+      where e->>'id'=id::text), 'Sold-out historic offer still listed');
+    perform pg_temp.as_user(71);
+    perform public.angler_commerce('enroll',jsonb_build_object('offer',id,'revision',1));
+    perform pg_temp.check_that(public.angler_market_detail(id) @> '{"sales":1,"pilotCopies":1}', 'Enrollment retry reclassified a paid sale');
+  end loop;
+end $$;
+reset role;
 update angler_commerce.settings set mode='off';

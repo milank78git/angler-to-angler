@@ -983,7 +983,7 @@ public final class Runner extends Instrumentation {
       ShareChecks.run(this);
       WeeklyChecks.run(this);
       PublicCardChecks.run(this);
-      MarketChecks.run(this);
+      accounts.market.run(this);
       checkEvidenceSubmission(accounts);
       if ("wide".equals(scenario)) verifyLanguagePicker(accounts);
       accounts.readGroupTip(postedTip);

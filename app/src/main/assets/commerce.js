@@ -12,7 +12,8 @@ export const commerceBuy = (offer, revision, price, paid) => dispatch('buy', { o
 
 /** Quote the server's welcome-first allocation, preserving one paid credit for limited stock. */
 export function purchaseFunding(wallet, price, limit) {
-  if (!Number.isInteger(wallet?.welcomeBalance)) return null;
+  if (!Number.isSafeInteger(wallet?.balance) || !Number.isSafeInteger(wallet.welcomeBalance) ||
+      wallet.welcomeBalance < 0 || wallet.welcomeBalance > wallet.balance) return null;
   const welcome = Math.min(wallet.welcomeBalance, limit == null ? price : price - 1);
   const paid = price - welcome;
   return { welcome, paid, available: wallet.balance - wallet.welcomeBalance >= paid };

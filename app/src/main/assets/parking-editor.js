@@ -71,7 +71,7 @@ export async function parkingEditor({view,nav,waterDirectory}) {
       nav.back();
       toast(t('parking.saved'));
     },e=>{
-      const message={404:'parking.save_unavailable',409:'parking.conflict'}[e.status];
+      const message={403:'parking.owner_only',404:'parking.save_unavailable',409:'parking.conflict'}[e.status];
       by('parking-error').textContent=message ? t(message) : failure(e);
     });
   };

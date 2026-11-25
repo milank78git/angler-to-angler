@@ -1,6 +1,6 @@
 -- Identify funding from the immutable allocation ledger, including after buyer erasure.
 -- The migration changes commercial statistics without revoking access to purchased revisions.
-lock table angler_market.offers, angler_market.orders, angler_commerce.sales in share row exclusive mode;
+lock table angler_market.offers, angler_market.orders, angler_commerce.offers, angler_commerce.sales in share row exclusive mode;
 alter table angler_market.orders add column funding text not null default 'pilot'
   check (funding in ('pilot','welcome','paid'));
 
@@ -21,6 +21,19 @@ with promotional as (
 )
 update angler_market.offers o set sold=o.sold-p.copies from promotional p where p.offer=o.id;
 
+
+-- Pilot copies granted before enrollment still occupy the author's lifetime limit.
+-- Keep these separate from paid sales. The ledger survives buyer account erasure.
+alter table angler_commerce.offers add column pilot_copies integer not null default 0 check (pilot_copies>=0);
+with paid as (
+  select s.offer,count(*) as copies from angler_commerce.sales s
+  where not s.voided and exists (
+    select from angler_commerce.allocations a join angler_commerce.lots l on l.id=a.lot
+    where a.sale=s.id and l.source='google'
+  ) group by s.offer
+)
+update angler_commerce.offers c set pilot_copies=o.sold-coalesce(p.copies,0)
+from angler_market.offers o left join paid p on p.offer=o.id where c.offer=o.id;
 
 create or replace function angler_market.author_rating(author_id uuid, commercial boolean) returns jsonb
 language sql stable set search_path='' as $$
@@ -70,6 +83,7 @@ language plpgsql stable security definer set search_path='' as $$
 declare actor uuid:=angler_groups_private.subject(); result jsonb;
 begin
  select angler_market.preview(o,v) || jsonb_build_object('mine',o.seller=actor,'purchased',b.id is not null,
+   'welcomeOnly',coalesce(b.funding='welcome',false),
    'balance',(select balance from angler_market.wallets where holder=actor)) ||
    case when o.seller=actor or b.id is not null then jsonb_build_object('technique',v.technique) else '{}'::jsonb end ||
    case when b.funding=case when exists(select from angler_commerce.offers c where c.offer=o.id) then 'paid' else 'pilot' end then jsonb_build_object('myRating',case when b.rating_accuracy is not null then
@@ -84,13 +98,15 @@ end$$;
 
 create or replace function angler_market.preview(o angler_market.offers, v angler_market.versions) returns jsonb
 language sql stable set search_path='' as $$
+ with enrollment as (select (select c.pilot_copies from angler_commerce.offers c where c.offer=o.id) as pilot_copies)
  select jsonb_build_object('id',o.id,'revision',v.revision,'title',v.title,'species',v.species,'day',v.trip_day,
-   'access',v.access,'water',v.water,'price',v.price,'limit',v.sale_limit,'sold',o.sold,'withdrawn',o.withdrawn,
+   'access',v.access,'water',v.water,'price',v.price,'limit',v.sale_limit,'sold',o.sold,
+   'commercial',pilot_copies is not null,'sales',o.sold-coalesce(pilot_copies,0),'pilotCopies',coalesce(pilot_copies,0),'withdrawn',o.withdrawn,
    'offerRating',(select jsonb_build_object('count',count(*),'average',round(avg(r.rating_accuracy+r.rating_technique+r.rating_match)/3,1))
                   from angler_market.orders r where r.offer=o.id and r.rating_accuracy is not null
-                    and r.funding=case when exists(select from angler_commerce.offers c where c.offer=o.id) then 'paid' else 'pilot' end),
-   'authorRating',angler_market.author_rating(o.seller,exists(select from angler_commerce.offers c where c.offer=o.id)),
-   'author',(select display_name from angler_private.profiles where user_id=o.seller))
+                    and r.funding=case when pilot_copies is not null then 'paid' else 'pilot' end),
+   'authorRating',angler_market.author_rating(o.seller,pilot_copies is not null),
+   'author',(select display_name from angler_private.profiles where user_id=o.seller)) from enrollment
 $$;
 
 create or replace function angler_commerce.discover(water_key text, before_position bigint,commercial boolean) returns jsonb
@@ -98,9 +114,10 @@ language plpgsql stable security definer set search_path='' as $$
 declare actor uuid:=angler_groups_private.subject();
 begin
  return (with live as materialized (
-   select o.id,o.position,o.seller,o.sold,o.revision
+   select o.id,o.position,o.seller,o.sold-coalesce(c.pilot_copies,0) as sales,o.revision
    from angler_market.offers o join angler_market.versions v on (v.offer,v.revision)=(o.id,o.revision)
-   where exists(select from angler_commerce.offers c where c.offer=o.id)=commercial
+   left join angler_commerce.offers c on c.offer=o.id
+   where (c.offer is not null)=commercial
      and not o.withdrawn and (v.sale_limit is null or o.sold<v.sale_limit) and (water_key is null or v.water=water_key)),
  batch as (select * from live where before_position is null or position<before_position order by position desc limit 21),
  shown as (select * from batch order by position desc limit 20)
@@ -108,7 +125,7 @@ begin
   from shown s join angler_market.offers o on o.id=s.id join angler_market.versions v on (v.offer,v.revision)=(s.id,s.revision)),'[]'::jsonb),
   'balance',(select balance from angler_market.wallets where holder=actor),
   'next',case when (select count(*) from batch)>20 then (select min(position)::text from shown) end,
-  'stats',jsonb_build_object('offers',count(*),'authors',count(distinct seller),'sales',coalesce(sum(sold),0),
+  'stats',jsonb_build_object('offers',count(*),'authors',count(distinct seller),'sales',coalesce(sum(sales),0),
     'ratings',(select count(*) from angler_market.orders r join live l on l.id=r.offer where r.rating_accuracy is not null
       and r.funding=case when commercial then 'paid' else 'pilot' end))) from live);
 end$$;
@@ -133,7 +150,8 @@ begin
    if (args->>'expected_revision')::int is distinct from 0 then raise exception 'Expected a new offer' using errcode='PT422'; end if;
    target:=(args->>'offer_id')::uuid;
    wallet:=public.angler_market_publish(target,0,args->'draft');
-   insert into angler_commerce.offers values(target) on conflict do nothing;
+   insert into angler_commerce.offers(offer,pilot_copies)
+     select id,sold from angler_market.offers where id=target on conflict do nothing;
    return wallet;
  end if;
  if op='payout' then
@@ -149,7 +167,7 @@ begin
  if op='enroll' then
    if o.seller<>actor or o.withdrawn or o.revision is distinct from (args->>'revision')::int then
      raise exception 'Offer changed' using errcode='PT409'; end if;
-   insert into angler_commerce.offers values(target) on conflict do nothing;
+   insert into angler_commerce.offers(offer,pilot_copies) values(target,o.sold) on conflict do nothing;
    return jsonb_build_object('enrolled',true);
  end if;
  if op is distinct from 'buy' or o.seller=actor or not exists(select from angler_commerce.offers where offer=target)

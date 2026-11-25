@@ -21,7 +21,7 @@ import org.json.JSONObject;
 final class AccountChecks {
   private static final String ID = "11111111-1111-4111-8111-111111111111";
   private final AtlasFixture atlas = new AtlasFixture();
-  private final MarketChecks market = new MarketChecks();
+  final MarketChecks market = new MarketChecks();
   private final PublicCardChecks publicCards;
   private final ActivityChecks activityChecks = new ActivityChecks();
   private final WeeklyChecks weekly = new WeeklyChecks();
@@ -311,6 +311,7 @@ final class AccountChecks {
                                     .toString();
                               }
                               break;
+                            case "/rest/v1/rpc/angler_commerce":
                             case "/rest/v1/rpc/angler_market_discover":
                             case "/rest/v1/rpc/angler_market_list":
                             case "/rest/v1/rpc/angler_market_detail":

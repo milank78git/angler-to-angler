@@ -59,7 +59,11 @@ also covers missed void notifications.
 ## Operating the marketplace
 
 Pilot tips can be enrolled by their author on their detail screen. Earlier
-buyers keep their entitlements. New Play purchases use a separate ledger.
+buyers keep their entitlements. Earlier pilot copies still use a slot in the
+author's lifetime limit but do not appear in Play sales or commercial ratings.
+Purchased tips remain readable when only the wallet or offer discovery service is
+unavailable. A new Play purchase requires a verified credit breakdown.
+New Play purchases use a separate ledger.
 The ten promotional credits can unlock tips and have zero monetary value for
 all three recipients. A welcome-only unlock is available on unlimited offers
 and does not count as a sale or qualify for a commercial rating. For a limited

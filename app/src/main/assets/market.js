@@ -49,7 +49,8 @@ function offerFacts(item, waterDirectory, directory) {
     t('market.remaining') + Math.max(0, item.limit - item.sold);
   return '<p>' + [fish?.label || item.species, access()[item.access], displayDay(item.day), waterName(waterDirectory, item.water)]
     .filter(Boolean).map(esc).join(' · ') + '</p><p class="meta">' +
-    [item.author, t('market.sold') + item.sold, item.withdrawn ? t('market.withdrawn') : remaining]
+    [item.author, t('market.sold') + (item.sales ?? item.sold),
+      item.pilotCopies ? t('commerce.pilot_copies').replace('{count}', String(item.pilotCopies)) : '', item.withdrawn ? t('market.withdrawn') : remaining]
       .filter(Boolean).map(esc).join(' · ') + '</p><strong>' + credits(item.price) + '</strong>' + tipRating + authorRating(item.authorRating);
 }
 
@@ -60,20 +61,45 @@ function claim(view, nav) {
 
 export async function marketShelf({ view, nav, waterDirectory }) {
   const { shelf = 'browse', cursor = null, water = null } = view.route;
-  let data, directory, wallet;
-  try {
-    [directory,data,wallet] = await Promise.all([fishDirectory(), shelf === 'browse' ?
-      (playEdition() ? commerceDiscover(water,cursor) : rpc('market_discover', { water_key: water, before_position: cursor })) :
-      rpc('market_list', { shelf, before_position: cursor }), playEdition() ? commerceStatus() : null]);
+  const play = playEdition();
+  const tabs = '<div class="actions">' + Object.entries(shelves()).map(([key, label]) =>
+    button('shelf-' + key, label, shelf === key ? 'primary' : 'secondary')).join('') + '</div>';
+  function bindShelves() {
+    for (const key of Object.keys(shelves())) {
+      by('shelf-' + key).setAttribute('aria-pressed', String(key === shelf));
+      bind('shelf-' + key, () => { view.route.shelf = key; view.route.cursor = null; nav.show(); });
+    }
   }
-  catch (err) { return loadError(view, nav, err); }
+  // The purchased shelf remains reachable while discovery or billing is still responding.
+  screen.innerHTML = heading(market()) + tabs;
+  bindBack(nav);
+  bindShelves();
+  const catalogue = shelf === 'browse' ? (play ? commerceDiscover(water, cursor) :
+    rpc('market_discover', { water_key: water, before_position: cursor })) : rpc('market_list', { shelf, before_position: cursor });
+  const [page, directory, wallet] = await Promise.all([
+    catalogue.then(data => ({ data }), error => ({ error })),
+    fishDirectory().catch(() => ({ names: new Map() })),
+    play && shelf === 'browse' ? commerceStatus().catch(() => null) : null,
+  ]);
   if (!view.active()) return;
+  if (page.error) {
+    screen.insertAdjacentHTML('beforeend', '<p role="alert">' + esc(errorText(page.error.status)) + '</p>' +
+      button('market-reload', t('common.refresh'), 'secondary'));
+    bind('market-reload', () => nav.show());
+    return;
+  }
+  const { data } = page;
+  let walletSummary = '';
+  if (!play) {
+    walletSummary = '<p>' + t('market.fishing_techniques_for_test_credits_credits_have') + '</p>' +
+      (data.balance == null ? button('market-activate', activate(), 'secondary') :
+        '<p>' + t('market.balance') + ' · ' + credits(data.balance) + '</p>');
+  } else if (shelf === 'browse') {
+    walletSummary = wallet ? '<section class="surface" id="commerce-wallet"></section>' : walletUnavailable();
+  }
   screen.innerHTML = heading(market()) +
-    (wallet ? '<section class="surface" id="commerce-wallet"></section>' : '<p>' + t('market.fishing_techniques_for_test_credits_credits_have') + '</p>' +
-    (data.balance == null ? button('market-activate', activate(), 'secondary') :
-      '<p>' + t('market.balance') + ' · ' + credits(data.balance) + '</p>')) +
-    '<div class="actions">' + Object.entries(shelves()).map(([key, label]) =>
-      button('shelf-' + key, label, shelf === key ? 'primary' : 'secondary')).join('') + '</div>' +
+    walletSummary +
+    tabs +
     (shelf === 'browse' ? waterPicker('market-water', t('common.water'), t('market.all_waters')) +
       '<p id="market-stats">' + [[t('market.active_offers'),data.stats.offers],
         [t('market.tip_authors'),data.stats.authors],[t('market.purchases_of_active_tips'),data.stats.sales],
@@ -83,35 +109,45 @@ export async function marketShelf({ view, nav, waterDirectory }) {
       button('offer-' + i, t('market.open_tip'), 'secondary') + '</article>').join('') ||
       '<p class="empty">' + t('common.no_tips_here_yet') + '</p>') +
     (data.next ? button('market-more', t('market.more_tips'), 'secondary') : '') +
-    (wallet?.mode==='off' ? '' : button('market-create', t('common.offer_a_technique'), 'primary'));
+    ((play && (!wallet || wallet.mode === 'off')) ? '' : button('market-create', t('common.offer_a_technique'), 'primary'));
   bindBack(nav);
   if (shelf === 'browse') bindWaterPicker('market-water', view, waterDirectory, water);
   if (by('market-water')) by('market-water').onchange = e => {
     view.route.water = e.target.value || null; view.route.cursor = null; nav.show();
   };
   if (wallet) walletPanel(view,nav,wallet);
-  else if (data.balance == null) claim(view, nav);
-  for (const key of Object.keys(shelves())) {
-    by('shelf-' + key).setAttribute('aria-pressed', String(key === shelf));
-    bind('shelf-' + key, () => { view.route.shelf = key; view.route.cursor = null; nav.show(); });
-  }
+  if (by('wallet-refresh')) bind('wallet-refresh', () => nav.show());
+  if (!play && data.balance == null) claim(view, nav);
+  bindShelves();
   data.items.forEach((item, i) => bind('offer-' + i, () => nav.open('marketDetail', { id: item.id })));
   if (data.next) bind('market-more', () => nav.open('marketShelf', { shelf, water, cursor: data.next }));
   if (by('market-create')) bind('market-create', () => nav.open('marketEditor', { water }));
 }
 
+function walletUnavailable() {
+  return '<p role="status">' + esc(t('commerce.quote_unavailable')) + '</p>' +
+    button('wallet-refresh', t('common.refresh'), 'secondary');
+}
+
 export async function marketDetail({ view, nav, waterDirectory }) {
   const { id } = view.route;
-  let item, directory, wallet;
-  try { [item,directory,wallet] = await Promise.all([rpc('market_detail', { offer_id: id }),fishDirectory(),playEdition()?commerceStatus(id):null]); }
-  catch (err) { return loadError(view, nav, err); }
+  const play = playEdition();
+  let item, directory;
+  try {
+    [item, directory] = await Promise.all([
+      rpc('market_detail', { offer_id: id }), fishDirectory().catch(() => ({ names: new Map() })),
+    ]);
+  } catch (err) { return loadError(view, nav, err); }
   if (!view.active()) return;
-  if (wallet) item.balance=wallet.balance;
+  const wallet = play && !item.purchased ? await commerceStatus(id).catch(() => null) : null;
+  if (!view.active()) return;
+  const balance = play ? wallet?.balance : item.balance;
   const funding = purchaseFunding(wallet, item.price, item.limit);
-  const affordable = funding ? funding.available : item.balance >= item.price;
+  const affordable = play ? funding?.available : balance >= item.price;
   const payment = funding ? t('commerce.purchase_funding')
     .replace('{welcome}', String(funding.welcome)).replace('{paid}', String(funding.paid)) : '';
-  const available = (!wallet || (wallet.mode!=='off' && wallet.enrolled)) && !item.withdrawn && (item.limit == null || item.limit > item.sold);
+  const inStock = !item.withdrawn && (item.limit == null || item.limit > item.sold);
+  const available = inStock && (play ? wallet?.enrolled && wallet.mode !== 'off' && funding : !item.commercial);
   screen.innerHTML = heading(item.title) + '<article class="surface"><h2>' + t('market.fishing_technique') +
     '</h2>' + offerFacts(item, waterDirectory, directory) + '</article>' +
     (item.mine || item.purchased ? '<section class="surface"><h2>' +
@@ -121,14 +157,18 @@ export async function marketDetail({ view, nav, waterDirectory }) {
     (wallet && !wallet.enrolled && !item.purchased ? '<p>'+t('commerce.pilot_offer')+'</p>' : '') +
     (wallet && item.mine && !item.withdrawn && !wallet.enrolled && wallet.mode!=='off' ? button('commerce-enroll',t('commerce.enroll'),'secondary') : '') +
     (wallet && wallet.enrolled ? '<p>'+t('commerce.split')+(item.mine?' '+estimate(item.price):'')+'</p>' : '') +
+    (play && !item.mine && !item.purchased && (!wallet || (wallet.mode !== 'off' && wallet.enrolled && !funding)) ? walletUnavailable() : '') +
+    (!play && item.commercial && !item.mine && !item.purchased ? '<p>' + esc(t('commerce.play_offer')) + '</p>' : '') +
+    (item.welcomeOnly ? '<p>' + esc(t('commerce.welcome_access')) + '</p>' : '') +
     purchaseRating(item) +
     '<div class="actions">' + (item.mine && !item.withdrawn ?
       button('market-edit', editLabel(), 'secondary') + button('market-withdraw', t('market.withdraw_offer'), 'danger') :
-      !item.mine && !item.purchased && available ? (item.balance == null ? button('market-activate', activate(), 'secondary') :
-        '<p>' + t('market.balance') + ' · ' + credits(item.balance) + '</p>' +
+      !item.mine && !item.purchased && available ? (balance == null ? button('market-activate', activate(), 'secondary') :
+        '<p>' + t('market.balance') + ' · ' + credits(balance) + '</p>' +
         (affordable ? button('market-buy', t('market.unlock_tip'), 'primary') :
-          '<p>' + (wallet ? (item.limit != null && item.balance >= item.price ? t('commerce.limited_paid') : t('commerce.insufficient')) : errorText(402)) + '</p>')) : '') + '</div>';
+          '<p>' + (wallet ? (item.limit != null && balance >= item.price ? t('commerce.limited_paid') : t('commerce.insufficient')) : errorText(402)) + '</p>')) : '') + '</div>';
   bindBack(nav);
+  if (by('wallet-refresh')) bind('wallet-refresh', () => nav.show());
   enrollment(view,nav,item);
   bindPurchaseRating(view, nav, id);
   if (by('market-activate')) claim(view, nav);
@@ -141,10 +181,10 @@ export async function marketDetail({ view, nav, waterDirectory }) {
   });
   if (by('market-buy')) bind('market-buy', async () => {
     if (!await confirmAction({ title: t('market.confirm_tip_purchase'),
-      message: [item.title, credits(item.price), payment].filter(Boolean).join(' · '), accept: t('market.buy_for') + credits(item.price) })) return;
+      message: [item.title, credits(item.price), payment, funding?.paid === 0 ? t('commerce.welcome_access') : ''].filter(Boolean).join(' · '), accept: t('market.buy_for') + credits(item.price) })) return;
     await submitChange(view, () => wallet ? commerceBuy(id, item.revision, item.price, funding?.paid) : rpc('market_buy', { offer_id: id, expected_revision: item.revision, expected_price: item.price }),
       () => nav.show(), err => {
-        toast(errorText(err.status));
+        toast(play && err.status === 402 ? t('commerce.insufficient') : errorText(err.status));
         if ([402, 404, 409].includes(err.status)) nav.show();
       });
   });
@@ -161,6 +201,7 @@ export async function marketEditor({ view, nav, waterDirectory }) {
   if (!view.active()) return;
   if (route.id && (!old.mine || old.withdrawn)) return loadError(view, nav, { status: 404 });
   route.requestId ??= newJournalId();
+  const commercialTerms = old ? old.commercial === true : playEdition();
   const currentDay = today('Europe/Prague');
   screen.innerHTML = heading(old ? editLabel() : t('common.offer_a_technique')) +
     '<form id="market-form" class="entry-form"><fieldset class="surface"><legend>' + t('market.public_preview') + '</legend>' +
@@ -172,7 +213,7 @@ export async function marketEditor({ view, nav, waterDirectory }) {
       'required type="date" min="1900-01-01" max="' + currentDay + '"') +
     waterPicker('offer-water', t('market.water_shown_in_preview'), t('market.omit')) +
     selectField('offer-access', t('market.where_to_fish'), Object.entries(access()), old?.access ?? 'shore') +
-    textInput('offer-price', t(playEdition()?'commerce.price':'market.price_in_test_credits'), old?.price ?? 10, 'required type="number" min="1" max="100"') +
+    textInput('offer-price', t(commercialTerms?'commerce.price':'market.price_in_test_credits'), old?.price ?? 10, 'required type="number" min="1" max="100"') +
     textInput('offer-limit', t('market.total_sales_limit_optional'), old?.limit ?? '',
       'type="number" min="' + Math.max(1, old?.sold || 0) + '" max="10000"') +
     '</fieldset><fieldset class="surface"><legend>' + t('market.only_for_buyers') + '</legend>' +
@@ -218,7 +259,7 @@ export async function marketEditor({ view, nav, waterDirectory }) {
     const message = [draft.title, draft.species, displayDay(draft.day), access()[draft.access], selectedWater()?.name || draft.water,
       credits(draft.price), draft.limit == null ? t('market.unlimited') : t('market.sales_limit') + draft.limit]
       .filter(Boolean).join(' · ');
-    if (!await confirmAction({ title: t('market.publish_this_preview'), message: commercial ? message+' · '+t('commerce.split')+' '+estimate(draft.price) : message,
+    if (!await confirmAction({ title: t('market.publish_this_preview'), message: commercialTerms ? message+' · '+t('commerce.split')+' '+estimate(draft.price) : message,
       accept: t(commercial ? 'commerce.review_sale' : 'market.publish_offer') })) return;
     const args={ offer_id: old?.id ?? route.requestId, expected_revision: old?.revision ?? 0, draft };
     await submitChange(view, () => commercial ? commercePublish(args) : rpc('market_publish', args),
