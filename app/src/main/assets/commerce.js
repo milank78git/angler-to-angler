@@ -7,12 +7,15 @@ const money=halers=>new Intl.NumberFormat(languageTag,{style:'currency',currency
 const packs=['credits_50_czk','credits_100_czk'];
 export const playEdition=()=>!!window.PlayMarket;
 export const commerceStatus=offer=>dispatch('status',offer?{offer}:{});
+export const commerceDiscover=(water,cursor)=>dispatch('discover',{water,cursor});
+export const commercePublish=args=>dispatch('publish',args);
 export const commerceBuy=(offer,revision,price)=>dispatch('buy',{offer,revision,price});
+export const estimate=credits=>t('commerce.estimate').replace('{amount}',money(Math.round(credits*100/1.21*0.85*0.85)));
 export function enrollment(view,nav,item) {
   const node=by('commerce-enroll');
   if (!node) return;
   node.onclick=async()=>{
-    if (!await confirmAction({title:t('commerce.enroll'),message:t('commerce.split'),accept:t('commerce.enroll')})) return;
+    if (!await confirmAction({title:t('commerce.enroll'),message:t('commerce.split')+' '+estimate(item.price),accept:t('commerce.enroll')})) return;
     try { await dispatch('enroll',{offer:item.id,revision:item.revision}); if (view.active()) nav.show(); }
     catch(error) { toast(failure(error)); }
   };
@@ -23,6 +26,7 @@ export function walletPanel(view,nav,data) {
   const line=text=>{const p=document.createElement('p');p.textContent=text;panel.append(p);};
   line(t('commerce.'+(data.mode==='test'?'test':data.mode==='off'?'off':'live')));
   if (data.mode==='off') return;
+  line(t('commerce.welcome'));
   line(t('commerce.balance').replace('{amount}',String(data.balance)));
   line(t('commerce.earned').replace('{amount}',money(data.earned)));
   line(t('commerce.pending').replace('{amount}',String(data.pendingCredits)));

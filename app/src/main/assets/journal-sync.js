@@ -36,9 +36,11 @@ async function run(resolution) {
     }
     const keys=new Set([...await documentKeys(Journal,localStorage,subject),...remote.keys()]);
     for (const key of keys) {
+      if (!enabled()) return;
       const row=remote.get(key)||{revision:0,parts:[]};
       const checkpoint=prefix+'base.'+key;
-      const base=JSON.parse(localStorage.getItem(checkpoint)||'[]');
+      const saved=localStorage.getItem(checkpoint);
+      const base=JSON.parse(saved||'[]');
       const local=await Journal.lock(()=>encodeDocument(Journal,localStorage,subject,key));
       if (same(local.hashes,row.parts)) {
         if (!same(base,row.parts)) localStorage.setItem(checkpoint,JSON.stringify(row.parts));
@@ -46,7 +48,8 @@ async function run(resolution) {
       }
       const choice=resolution?.key===key && resolution.revision===row.revision &&
         same(resolution.local,local.hashes) ? resolution.choice : '';
-      if (same(base,row.parts) || choice==='local') {
+      const unknownDeletion=saved===null && row.revision>0 && !row.parts.length;
+      if ((!unknownDeletion && same(base,row.parts)) || choice==='local') {
         await uploadDocument(call,key,local,row.revision);
         localStorage.setItem(checkpoint,JSON.stringify(local.hashes));
       } else if (same(base,local.hashes) || choice==='cloud') {
@@ -80,7 +83,14 @@ export function bindJournalSync(panel) {
         localStorage.setItem(prefix+'enabled','1');schedule();
       }
     });
-    else if (status!=='working') button('sync.retry',()=>run());
+    else if (status!=='working') {
+      button('sync.retry',()=>run());
+      button('sync.pause',async()=>{
+        if (await confirmAction({title:t('sync.pause'),message:t('sync.pause_info'),accept:t('sync.pause')})) {
+          clearTimeout(timer);localStorage.removeItem(prefix+'enabled');conflicts=[];notify('disabled');
+        }
+      });
+    }
     for (const c of conflicts) {
       const name=document.createElement('p');name.textContent=c.key;panel.append(name);
       for (const choice of ['cloud','local']) button('sync.'+choice,async()=>{
@@ -94,4 +104,5 @@ export function bindJournalSync(panel) {
 window.addEventListener('journal-edited',schedule);
 window.addEventListener('online',schedule);
 document.addEventListener('visibilitychange',()=>{ if (!document.hidden) schedule(); });
-if (enabled()) { schedule(); setInterval(()=>{ if (!document.hidden && !busy && status==='waiting') schedule(); },60000); }
+if (enabled()) schedule();
+setInterval(()=>{ if (enabled() && !document.hidden && !busy && !conflicts.length) run(); },60000);

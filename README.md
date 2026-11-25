@@ -2,6 +2,8 @@
 
 An offline-first Android field journal for anglers. The Czech launcher name is **Rybáři sobě**. The journal stores trips on the phone. The offline atlas includes sourced waters and can receive new catalogue editions. A verified angler profile and acceptance of the current terms are required. Open **My journal** to log a trip on any named water.
 
+For the Google Play internal test, marketplace settlement and optional private journal synchronization, see [Google Play operations](docs/google-play.md).
+
 ## Try the pilot
 
 1. Open [GitHub Releases](https://github.com/milank78git/angler-to-angler/releases), select the desired pilot and download the **.apk** under **Assets**. Install it over the previous pilot to retain your private journal. Android 8.0 or later and an up-to-date Android System WebView are required.

@@ -695,6 +695,9 @@ public final class AccountActivity extends Activity {
     ui.page(AccountStore.prefs(this).getString("name", ""), false);
     ui.label(
         text("account.for_account_correction_access_or_deletion_contact"));
+    action(text("store.deletion_request"), AccountLayout.Action.SECONDARY,
+        () -> startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(
+            "https://milank78git.github.io/angler-to-angler/delete-account/"))));
     action(text("common.water_atlas_updates"), AccountLayout.Action.SECONDARY,
         () -> startActivity(new Intent(this, WaterSettingsActivity.class)));
     action(

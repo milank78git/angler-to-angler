@@ -1058,5 +1058,17 @@
   "commerce.enroll": "Nabídnout tento tip za kredity Google Play",
   "commerce.pilot_offer": "Tento tip je zatím dostupný v původním pilotu. Prodej přes Google Play může zapnout jeho autor.",
   "commerce.price": "Cena v kreditech (1 kredit = 1 Kč)",
-  "commerce.insufficient": "Nemáš dost kreditů. Na tržišti můžeš dobít kredity přes Google Play."
+  "commerce.insufficient": "Nemáš dost kreditů. Na tržišti můžeš dobít kredity přes Google Play.",
+  "store.privacy": "Rybáři sobě · Soukromí",
+  "store.delete-account": "Rybáři sobě · Smazání účtu",
+  "store.deletion_request": "Požádat o smazání účtu",
+  "store.deletion_steps": "Napiš provozovateli z registrované adresy, že žádáš o smazání účtu Rybáři sobě. Žádost můžeš zahájit také v aplikaci v části Účet. Neposílej heslo ani platební údaje. Provozovatel před smazáním ověří vlastníka účtu.",
+  "store.deletion_scope": "Smazáním se odstraní přihlašovací účet, soukromý profil a online deník včetně fotografií. Místní kopii na každém telefonu odstraníš vymazáním dat aplikace. Příjemci mohou mít dříve sdílené kopie. Doklady potřebné pro účetnictví a nevypořádané platby se uchovávají odděleně. Na dobu uchování konkrétního dokladu se můžeš zeptat provozovatele.",
+  "store.private_data": "Pokud zapneš soukromou synchronizaci, stávající i nové záznamy včetně fotek, přesných souřadnic, poznámek a záložek se uloží k tvému účtu. Online deník je soukromý. Stav synchronizace uvidíš v deníku. Smazání výpravy se přenese na ostatní zařízení.",
+  "store.payment_data": "Platby v Google Play zpracovává Google. Provozovatel zpracovává identifikátory nákupů, pohyby kreditů, vratky a záznamy o výplatách pro provoz tržiště a vedení účetnictví. Veřejné nabídky obsahují informace, které autor výslovně zveřejnil.",
+  "commerce.welcome": "Tvůj účet jednorázově získá 10 kreditů hrazených provozovatelem. Můžeš je utratit za tipy. Mezi účty je nelze posílat.",
+  "commerce.estimate": "Odhad odměny autora při této ceně: {amount}. Konečná výše vychází z vyúčtování Google Play.",
+  "commerce.review_sale": "Zkontrolovat cenu a nabídnout tip za kredity Google Play",
+  "sync.pause": "Pozastavit synchronizaci v tomto zařízení",
+  "sync.pause_info": "Online kopie zůstane dostupná. Nové úpravy z tohoto telefonu se odešlou po opětovném zapnutí synchronizace."
 }

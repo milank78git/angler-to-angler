@@ -1,0 +1,110 @@
+# Czech Play internal test and settlement
+
+The project now has a pilot APK and a Google Play AAB with package name
+`app.anglers.journal`. The marketplace starts disabled. A separate Supabase
+project is required for license testers. Once its store is activated, the
+database rejects switching between test and live financial environments.
+
+## Prepare an internal release
+
+1. Register the Play Console account, complete verification and the merchant
+   payments profile, and create the listing under the existing package name.
+   Choose the Play signing identity deliberately. Existing sideloaded pilots
+   can update in place only if their installed signing certificate matches.
+   Enable journal sync and verify a restore before asking anyone to reinstall.
+2. Set the public GitHub Actions variable `ANGLER_PLAY_ACCOUNT_CONFIG` for the
+   test project using the format in `docs/accounts.md`. Configure the Pages
+   callback there. Apply the Liquibase changelog. Deploy the `play-purchase`
+   Edge Function and configure Supabase Auth JWT verification as described below.
+   Create a Google service account, enable Android Publisher API, grant the
+   application-scoped order permissions needed for verification, consumption
+   and voided purchases. Put its JSON in the Edge secret
+   `PLAY_SERVICE_ACCOUNT_JSON`; set `PLAY_PURCHASE_MODE=test`.
+3. In the isolated database, run
+   `update angler_commerce.settings set mode='test'`. The operator sponsors
+   10 one-time credits per registered profile. The ledger grants them on profile
+   creation; all spending and purchases require a verified member.
+4. Download the Google Play bundle workflow artifact. The workflow builds a
+   release AAB and never uploads it to a store. Sign it with the designated
+   upload key (use jarsigner with an interactive password prompt), verify the
+   signature with jarsigner, and upload it to internal testing. A bundle built
+   without public account configuration is a build check only. Use the same
+   application ID, an increasing version code and the correct upload key.
+5. Create consumable one-time products `credits_50_czk` and `credits_100_czk`,
+   with one standard buy option each, quantity one and no discounts. Set the
+   Czech tax-inclusive prices to CZK 50 and CZK 100. Restrict distribution to
+   Czechia for this release. Only matching CZK prices are offered in the client.
+6. Add license testers and internal testers, then use the Play installation
+   link. Verify approved, declined, pending and canceled purchases, restart,
+   offline delivery and a developer refund with two different app accounts.
+   Compare the quoted and charged price, wallet grant, single consumption and
+   Google order. Test receipts must never create a bank instruction.
+
+The Edge Function validates the bearer with Supabase Auth, queries Google's
+product purchase V2 endpoint and compares the account hash, package endpoint,
+test environment, region, product, unit count and purchase state. The backend
+records the receipt once before consuming it. In a project using asymmetric
+Supabase signing keys, deploy this function with `--no-verify-jwt` if the
+legacy gateway is incompatible. The function itself always verifies the user
+with Auth before accessing the service-role route.
+
+## Operating the marketplace
+
+Pilot tips can be enrolled by their author on their detail screen. Earlier
+buyers keep their entitlements. New Play purchases use a separate ledger.
+The welcome allocation defaults to 702 halers of sponsored net proceeds for
+10 credits, matching the initial 21% VAT / 15% Play planning example. Review
+that budget and set the sponsored basis before enabling a live installation.
+Purchased packs have no settled monetary value until the earnings statement
+is reconciled. Prices and splits are CZK-only in this release.
+
+Use a private Python environment with psycopg 3, google-auth and requests;
+database access uses a restricted operator connection via libpq. Keep recipient
+verification and bank details with the chosen payout provider. Store only its
+verified destination reference in `angler_commerce.recipients`. Identify the
+conservation beneficiary before opening live sales.
+
+- Run `python scripts/play/voids.py` daily with Google application default
+  credentials, database access and `PLAY_PURCHASE_MODE` matching the database.
+  The first pass checks the past 29 days. Later runs overlap and page forward.
+- Run `python scripts/play/settlement.py import-earnings earnings.csv` on the
+  complete English Play monthly earnings export with merchant currency CZK.
+  The importer sums signed charge, tax and fee rows per Google order. Verify
+  totals against the actual remittance. Unsupported adjustments and partial
+  refunds require reconciliation before release of the affected payout.
+- Payouts require CZK 100 settled earnings and three currently published
+  enrolled offers for the first payout. Requests reserve funds. Export a
+  closed month with `payout-batch YYYY-MM-01`. Review verified destinations
+  and use the payout UUID as the unique bank instruction reference. Re-export
+  returns the same identifiers and bank confirmation status. After bank
+  confirmation run `record-paid PAYOUT_UUID BANK_REFERENCE`. Export and
+  confirmation are available only on the live ledger.
+- Run `nature-balance` for allocated, sent and remaining CZK. Confirm an
+  actual transfer using `record-nature BANK_REFERENCE PARTNER HALERS YYYY-MM-DD`.
+  The five percent applies to net proceeds on spent credits. Welcome purchases
+  participate through operator sponsorship. Refunds also reverse allocations.
+- Reconcile a late refund even if the author's payout already cleared.
+  The balance then offsets future earnings. Review any negative carry before
+  paying again. The app never initiates a bank transfer.
+
+## Listing materials
+
+Use the published GitHub Pages privacy and account-deletion pages under
+`/angler-to-angler/privacy/` and `/angler-to-angler/delete-account/`.
+Describe optional exact catch location, photos, personal journal content,
+identity, community features and purchase history in the Play data safety
+questionnaire according to the configured providers and retention policy.
+Complete the audience, content rating, reviewer access and store listing in
+Play Console. Do not promote from internal testing until the real checkout,
+restoration, refunds and settlement evidence have been reviewed.
+
+## Portable private journal
+
+Android and future clients use the same versioned, authenticated document
+format. The Android APK and the Play bundle retain offline IndexedDB storage.
+The Journal screen explains synchronization before existing GPS coordinates
+and photos leave the phone. Enable it again on a second device to restore.
+A revision covers one trip and its catches, a personal water photo or a
+preference. Disjoint edits merge. Conflicting edits to one document require
+an explicit local/cloud choice. Account deletion cascades through private
+documents and media. OS permissions and delivery of notifications are local.

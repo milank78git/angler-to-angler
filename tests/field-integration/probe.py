@@ -1,4 +1,6 @@
 """Compare the same identity, rating and unnamed parking point before and after restore."""
+import base64
+import hashlib
 import json
 import sys
 import time
@@ -51,3 +53,20 @@ matches = [row for row in parking if row['id'] == point_id]
 assert len(matches) == 1 and matches[0]['name'] is None
 assert (matches[0]['lat'], matches[0]['lon']) == (point['lat'], point['lon'])
 print('Unnamed car park verified (' + mode + ').')
+
+
+# Use an authenticated round trip and compare exact document bytes after a full database restore.
+journal_bytes = json.dumps({"version": 1, "value": {"trip": {"id": "restore", "notes": "Morning by the pond"},
+    "catches": []}}, separators=(",", ":")).encode()
+digest = hashlib.sha256(journal_bytes).hexdigest()
+
+def journal(op, **args):
+    return post('/rest/v1/rpc/angler_journal_sync', {'op': op, 'args': args}, token)
+
+if mode == 'seed':
+    journal('put', hash=digest, data=base64.b64encode(journal_bytes).decode())
+    assert journal('save', key='trip/restore', revision=0, parts=[digest])['revision'] == 1
+documents = journal('list')['rows']
+assert any(row['key'] == 'trip/restore' and row['parts'] == [digest] for row in documents)
+assert base64.b64decode(journal('get', hash=digest)['data']) == journal_bytes
+print('Private journal document verified (' + mode + ').')

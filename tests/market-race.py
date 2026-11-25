@@ -78,3 +78,26 @@ def rating(accuracy):
 overlap(rating(5), rating(1), "PT409")
 assert success(sql(f"select count(*) from angler_market.orders where offer='{last}' and rating_accuracy=5")) == "1"
 print("Concurrent ratings preserved the first receipt")
+
+# Exercise the commercial sales path with the same live database lock coordination.
+success(sql("update angler_commerce.settings set mode='test';"))
+commercial = [offer(title) for title in ("Play last slot", "Play wallet A", "Play wallet B")]
+for offer_id in commercial:
+    success(sql(as_user(71) + f"""select public.angler_commerce('enroll',
+        jsonb_build_object('offer','{offer_id}','revision',1)); commit;"""))
+
+for number in (75, 76):
+    success(sql(f"""select public.angler_play_receipt('credit',jsonb_build_object(
+        'holder','00000000-0000-4000-8000-{number:012}','mode','test','sku','credits_100_czk',
+        'order','parallel-order-{number}','hash',encode(sha256('parallel-{number}'::bytea),'hex')));"""))
+
+def commercial_buy(number, offer_id):
+    return as_user(number) + f"""select public.angler_commerce('buy',
+        jsonb_build_object('offer','{offer_id}','revision',1,'price',80));"""
+
+overlap(commercial_buy(75, commercial[0]), commercial_buy(76, commercial[0]), "PT409")
+overlap(commercial_buy(76, commercial[1]), commercial_buy(76, commercial[2]), "PT402")
+for number in (75, 76):
+    assert success(sql(as_user(number) + "select public.angler_commerce('status')->>'balance'; commit;")) == "30"
+assert success(sql(f"select sold from angler_market.offers where id='{commercial[2]}'")) == "0"
+print("Play last-slot and cross-offer wallet races passed")

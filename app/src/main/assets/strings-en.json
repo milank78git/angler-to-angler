@@ -1058,5 +1058,17 @@
   "commerce.enroll": "Offer this tip for Play credits",
   "commerce.pilot_offer": "This tip is currently listed only in the original pilot. Its author can enable Play sales.",
   "commerce.price": "Price in credits (1 credit = CZK 1)",
-  "commerce.insufficient": "You need more credits. Open the market wallet to top up with Google Play."
+  "commerce.insufficient": "You need more credits. Open the market wallet to top up with Google Play.",
+  "store.privacy": "Angler to Angler · Privacy",
+  "store.delete-account": "Angler to Angler · Delete your account",
+  "store.deletion_request": "Request account deletion",
+  "store.deletion_steps": "Email the operator from your registered address with a request to delete your Angler to Angler account. You can also start this request from Account inside the app. Never send passwords or payment details. The operator verifies ownership before deletion.",
+  "store.deletion_scope": "Deletion removes the hosted identity, private profile and online journal, including photos. Clear app data to remove the local copy from each phone. Shared copies may remain with recipients. Transaction records needed for accounting and unsettled payments are retained separately. Contact the operator for the retention period applicable to your transaction.",
+  "store.private_data": "If you enable private sync, existing and future journal records including photos, exact locations, notes and bookmarks are stored under your account. Your online journal is private. Tap Journal to see sync status, and delete trips to synchronize their removal.",
+  "store.payment_data": "Google handles Play checkout. The operator processes purchase references, credit allocations, refunds and payout records to provide the marketplace and maintain its accounts. Public marketplace offers contain the information the author explicitly publishes.",
+  "commerce.welcome": "Your account receives 10 operator-funded credits once. Credits can be spent on tips and cannot be sent to others.",
+  "commerce.estimate": "Estimated author earnings for this price: {amount}. Actual settlement uses Play proceeds.",
+  "commerce.review_sale": "Review price and enroll this tip for Play purchases",
+  "sync.pause": "Pause sync on this device",
+  "sync.pause_info": "Your online copy remains available. Edits on this phone will be uploaded when you enable synchronization again."
 }

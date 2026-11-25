@@ -16,8 +16,14 @@ do $$declare id uuid; draft jsonb:='{"title":"River technique","species":"Pike",
  h text:=repeat('f',64); h2 text:=repeat('a',64); args jsonb; buyer uuid; wallet jsonb; begin
  for i in 1..3 loop
    id:=md5('commercial tip '||i)::uuid;
-   perform public.angler_market_publish(id,0,draft);
-   perform public.angler_commerce('enroll',jsonb_build_object('offer',id,'revision',1));
+   if i=1 then
+     perform public.angler_market_publish(id,0,draft);
+     perform public.angler_commerce('enroll',jsonb_build_object('offer',id,'revision',1));
+   else
+     perform public.angler_commerce('publish',jsonb_build_object('offer_id',id,'expected_revision',0,'draft',draft));
+   end if;
+   perform pg_temp.check_that(exists(select from jsonb_array_elements(public.angler_commerce('discover')->'items') item where item->>'id'=id::text)
+     and not exists(select from jsonb_array_elements(public.angler_market_discover()->'items') item where item->>'id'=id::text),'Offer listed in wrong store');
  end loop;
  for i in 1..2 loop
    perform pg_temp.as_user(71+i);buyer:=auth.uid();

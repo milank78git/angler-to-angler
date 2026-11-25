@@ -43,3 +43,26 @@ folder.mkdir(parents=True, exist_ok=True)
 (folder / 'index.html').write_text('\n'.join(page))
 # The project home also provides the account instructions, with no forced redirect.
 (args.output / 'index.html').write_text('\n'.join(page))
+
+# The store requires public, directly accessible privacy and account deletion information.
+for route in ("privacy", "delete-account"):
+    sections = []
+    for locale in ("en", "cs"):
+        assets = ROOT / "app/src/main/assets"
+        messages = json.loads((assets / f"strings-{locale}.json").read_bytes())
+        paragraphs = []
+        if route == "privacy":
+            paragraphs = (assets / f"privacy-{locale}.txt").read_text().strip().split("\n\n")[1:]
+            paragraphs[-1] = paragraphs[-1].split(". ",1)[-1]
+            paragraphs.append(messages["store.private_data"])
+            paragraphs.append(messages["store.payment_data"])
+        else:
+            paragraphs = [messages["store.deletion_steps"], messages["store.deletion_scope"]]
+        sections.append(f'<section lang="{locale}"><h1>{html.escape(messages["store."+route])}</h1>' +
+                        ''.join('<p>'+html.escape(p)+'</p>' for p in paragraphs) +
+                        '<a href="mailto:info@horistum.com">info@horistum.com</a></section>')
+    dest = args.output / route
+    dest.mkdir(exist_ok=True)
+    (dest / "index.html").write_text('<!doctype html><html lang="en"><head><meta charset="utf-8">'
+        '<meta name="viewport" content="width=device-width,initial-scale=1"><title>Angler to Angler</title>'
+        '<style>'+style+'</style></head><body><main>'+''.join(sections)+'</main></body></html>')

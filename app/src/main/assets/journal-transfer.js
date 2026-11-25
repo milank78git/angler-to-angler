@@ -49,6 +49,7 @@ export async function encodeDocument(db, storage, subject, key) {
   const hashes=[], blocks=new Map();
   if (value!=null) {
     const bytes=encoder.encode(JSON.stringify({version:1,value}));
+    if (bytes.length>1024*65536) throw Object.assign(Error('Document too large'),{status:413});
     for (let i=0;i<bytes.length;i+=65536) {
       const part=bytes.subarray(i,i+65536), digest=await hash(part);
       hashes.push(digest); blocks.set(digest,part);

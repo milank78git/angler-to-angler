@@ -63,7 +63,7 @@ create view angler_commerce.distribution as
  round(net_halers::numeric*(last_unit-units)/pack)::bigint as prev_net from running
  ), splits as (
  select *,round(last_net*0.85)-round(prev_net*0.85) as author_halers,
- round(last_net*0.05)-round(prev_net*0.05) as nature_halers from amounts)
+ round((last_net-round(last_net*0.85))/3)-round((prev_net-round(prev_net*0.85))/3) as nature_halers from amounts)
  select id,author,lot,created_at,settled_at,units,author_halers,nature_halers,
  last_net-prev_net-author_halers-nature_halers as platform_halers from splits;
 revoke all on angler_commerce.remaining,angler_commerce.distribution from public,anon,authenticated;
@@ -108,6 +108,29 @@ returns jsonb language sql set search_path='' as $$select angler_market.buy(offe
 revoke all on function angler_market.buy(uuid,integer,integer) from public,anon;
 grant execute on function angler_market.buy(uuid,integer,integer) to authenticated;
 
+create function angler_commerce.discover(water_key text, before_position bigint,commercial boolean) returns jsonb
+language plpgsql stable security definer set search_path='' as $$
+declare actor uuid:=angler_groups_private.subject();
+begin
+ return (with live as materialized (
+   select o.id,o.position,o.seller,o.sold,o.revision
+   from angler_market.offers o join angler_market.versions v on (v.offer,v.revision)=(o.id,o.revision)
+   where exists(select from angler_commerce.offers c where c.offer=o.id)=commercial
+     and not o.withdrawn and (v.sale_limit is null or o.sold<v.sale_limit) and (water_key is null or v.water=water_key)),
+ batch as (select * from live where before_position is null or position<before_position order by position desc limit 21),
+ shown as (select * from batch order by position desc limit 20)
+ select jsonb_build_object('items',coalesce((select jsonb_agg(angler_market.preview(o,v) order by s.position desc)
+  from shown s join angler_market.offers o on o.id=s.id join angler_market.versions v on (v.offer,v.revision)=(s.id,s.revision)),'[]'::jsonb),
+  'balance',(select balance from angler_market.wallets where holder=actor),
+  'next',case when (select count(*) from batch)>20 then (select min(position)::text from shown) end,
+  'stats',jsonb_build_object('offers',count(*),'authors',count(distinct seller),'sales',coalesce(sum(sold),0),
+    'ratings',(select count(*) from angler_market.orders r join live l on l.id=r.offer where r.rating_accuracy is not null))) from live);
+end$$;
+create or replace function angler_market.discover(water_key text,before_position bigint) returns jsonb
+language sql stable security definer set search_path='' as $$
+ select angler_commerce.discover(water_key,before_position,false)
+$$;
+
 create function angler_commerce.market(op text,args jsonb) returns jsonb
 language plpgsql security definer set search_path='' as $$
 declare actor uuid:=angler_groups_private.subject(); cfg angler_commerce.settings;
@@ -117,8 +140,18 @@ begin
  select * into strict cfg from angler_commerce.settings;
  if op='status' then return angler_commerce.wallet(actor)||jsonb_build_object('enrolled',
    exists(select from angler_commerce.offers where offer=target)); end if;
+ if op='discover' then
+   return angler_commerce.discover(args->>'water',(args->>'cursor')::bigint,true);
+ end if;
  if cfg.mode='off' then raise exception 'Store unavailable' using errcode='PT503'; end if;
  perform pg_advisory_xact_lock(hashtextextended(actor::text,37));
+ if op='publish' then
+   if (args->>'expected_revision')::int is distinct from 0 then raise exception 'Expected a new offer' using errcode='PT422'; end if;
+   target:=(args->>'offer_id')::uuid;
+   wallet:=public.angler_market_publish(target,0,args->'draft');
+   insert into angler_commerce.offers values(target) on conflict do nothing;
+   return wallet;
+ end if;
  if op='payout' then
    wallet:=angler_commerce.wallet(actor);
    if (wallet->>'requested')::numeric>0 then return wallet; end if;
@@ -227,3 +260,4 @@ create table angler_commerce.nature_transfers (
 alter table angler_commerce.nature_transfers enable row level security;
 revoke all on angler_commerce.recipients,angler_commerce.nature_transfers from public,anon,authenticated;
 alter table angler_commerce.payouts add column exported_month date, add column destination text;
+alter table angler_commerce.settings add column void_checked_at timestamptz;

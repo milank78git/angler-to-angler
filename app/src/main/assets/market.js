@@ -1,4 +1,4 @@
-import { playEdition, commerceStatus, commerceBuy, enrollment, walletPanel } from './commerce.js';
+import { playEdition, commerceStatus, commerceBuy, commerceDiscover, commercePublish, enrollment, walletPanel, estimate } from './commerce.js';
 import { waterPicker, bindWaterPicker } from './water-picker.js';
 import { countryOptions, fishDirectory, fishOption, matchingSpecies, preferredCountry } from './fish-catalogue.js';
 import { by, screen, esc, bind, back, bindBack, button, t, displayDay, field, textInput, selectField,
@@ -63,7 +63,7 @@ export async function marketShelf({ view, nav, waterDirectory }) {
   let data, directory, wallet;
   try {
     [directory,data,wallet] = await Promise.all([fishDirectory(), shelf === 'browse' ?
-      rpc('market_discover', { water_key: water, before_position: cursor }) :
+      (playEdition() ? commerceDiscover(water,cursor) : rpc('market_discover', { water_key: water, before_position: cursor })) :
       rpc('market_list', { shelf, before_position: cursor }), playEdition() ? commerceStatus() : null]);
   }
   catch (err) { return loadError(view, nav, err); }
@@ -83,7 +83,7 @@ export async function marketShelf({ view, nav, waterDirectory }) {
       button('offer-' + i, t('market.open_tip'), 'secondary') + '</article>').join('') ||
       '<p class="empty">' + t('common.no_tips_here_yet') + '</p>') +
     (data.next ? button('market-more', t('market.more_tips'), 'secondary') : '') +
-    button('market-create', t('common.offer_a_technique'), 'primary');
+    (wallet?.mode==='off' ? '' : button('market-create', t('common.offer_a_technique'), 'primary'));
   bindBack(nav);
   if (shelf === 'browse') bindWaterPicker('market-water', view, waterDirectory, water);
   if (by('market-water')) by('market-water').onchange = e => {
@@ -97,7 +97,7 @@ export async function marketShelf({ view, nav, waterDirectory }) {
   }
   data.items.forEach((item, i) => bind('offer-' + i, () => nav.open('marketDetail', { id: item.id })));
   if (data.next) bind('market-more', () => nav.open('marketShelf', { shelf, water, cursor: data.next }));
-  bind('market-create', () => nav.open('marketEditor', { water }));
+  if (by('market-create')) bind('market-create', () => nav.open('marketEditor', { water }));
 }
 
 export async function marketDetail({ view, nav, waterDirectory }) {
@@ -116,7 +116,7 @@ export async function marketDetail({ view, nav, waterDirectory }) {
       '<p>' + t('market.unlock_the_authors_written_technique') + '</p>') +
     (wallet && !wallet.enrolled && !item.purchased ? '<p>'+t('commerce.pilot_offer')+'</p>' : '') +
     (wallet && item.mine && !item.withdrawn && !wallet.enrolled && wallet.mode!=='off' ? button('commerce-enroll',t('commerce.enroll'),'secondary') : '') +
-    (wallet && wallet.enrolled ? '<p>'+t('commerce.split')+'</p>' : '') +
+    (wallet && wallet.enrolled ? '<p>'+t('commerce.split')+(item.mine?' '+estimate(item.price):'')+'</p>' : '') +
     purchaseRating(item) +
     '<div class="actions">' + (item.mine && !item.withdrawn ?
       button('market-edit', editLabel(), 'secondary') + button('market-withdraw', t('market.withdraw_offer'), 'danger') :
@@ -210,12 +210,14 @@ export async function marketEditor({ view, nav, waterDirectory }) {
     review(draft);
   };
   async function review(draft) {
+    const commercial = playEdition() && !old;
     const message = [draft.title, draft.species, displayDay(draft.day), access()[draft.access], selectedWater()?.name || draft.water,
       credits(draft.price), draft.limit == null ? t('market.unlimited') : t('market.sales_limit') + draft.limit]
       .filter(Boolean).join(' · ');
-    if (!await confirmAction({ title: t('market.publish_this_preview'), message,
-      accept: t('market.publish_offer') })) return;
-    await submitChange(view, () => rpc('market_publish', { offer_id: old?.id ?? route.requestId, expected_revision: old?.revision ?? 0, draft }),
+    if (!await confirmAction({ title: t('market.publish_this_preview'), message: commercial ? message+' · '+t('commerce.split')+' '+estimate(draft.price) : message,
+      accept: t(commercial ? 'commerce.review_sale' : 'market.publish_offer') })) return;
+    const args={ offer_id: old?.id ?? route.requestId, expected_revision: old?.revision ?? 0, draft };
+    await submitChange(view, () => commercial ? commercePublish(args) : rpc('market_publish', args),
       () => { view.dirty = false; toast(t('market.offer_saved')); nav.back(); },
       err => {
         toast(errorText(err.status));

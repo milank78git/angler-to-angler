@@ -31,9 +31,12 @@ declare
   existing angler_sync.documents;
 begin
   if op='list' then
-    return jsonb_build_object('rows',(select coalesce(jsonb_agg(to_jsonb(d) order by d.key),'[]')
-      from (select key,revision,parts from angler_sync.documents where owner=actor
-        and key>coalesce(args->>'after','') order by key limit 1) d));
+    -- Keep each response under the Android bridge size limit while paging small manifests together.
+    return (with candidates as (select key,revision,parts from angler_sync.documents
+      where owner=actor and key>coalesce(args->>'after','') order by key limit 128),
+      page as (select to_jsonb(c) as item, key,
+        sum(octet_length(to_jsonb(c)::text)+1) over(order by key) as bytes from candidates c)
+      select jsonb_build_object('rows',coalesce(jsonb_agg(item order by key) filter(where bytes<180000),'[]')) from page);
   elsif op='get' then
     select bytes into strict raw from angler_sync.chunks where owner=actor and hash=h;
     return jsonb_build_object('data',replace(encode(raw,'base64'),chr(10),''));
@@ -74,6 +77,9 @@ begin
     if coalesce(existing.revision,0)<>(args->>'revision')::bigint then raise exception 'Journal changed' using errcode='PT409'; end if;
     insert into angler_sync.documents as d values(actor,k,coalesce(existing.revision,0)+1,parts_list)
       on conflict(owner,key) do update set revision=excluded.revision,parts=excluded.parts;
+    -- Drop replaced sensitive content as soon as its last active reference is gone.
+    delete from angler_sync.chunks c where c.owner=actor and c.hash=any(existing.parts)
+      and not exists(select from angler_sync.documents d where d.owner=actor and c.hash=any(d.parts));
     return jsonb_build_object('revision',coalesce(existing.revision,0)+1);
   end if;
   raise exception 'Unknown journal operation' using errcode='PT422';

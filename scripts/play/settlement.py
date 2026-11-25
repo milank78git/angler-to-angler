@@ -79,6 +79,9 @@ def main():
         elif args.action == "payout-batch":
             if args.month.day != 1 or args.month >= date.today().replace(day=1):
                 raise ValueError("Select a completed month")
+            recent = db.execute("select void_checked_at >= now()-interval '2 days' from angler_commerce.settings").fetchone()[0]
+            if not recent:
+                raise ValueError("Update the Google refund watermark before exporting payouts")
             rows = db.execute("""select p.id,p.author,p.halers,r.provider_reference
                 from angler_commerce.payouts p join angler_commerce.recipients r using(author)
                 where p.paid_at is null and p.exported_month is null
