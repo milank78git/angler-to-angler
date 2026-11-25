@@ -69,6 +69,7 @@ final class AccountStore {
       Context c, String name, boolean claimLegacy, IdentityService.Session value) {
     SharedPreferences p = prefs(c);
     if (!value.id.equals(p.getString("subject", ""))) {
+      LicenseReminder.clear(c);
       SeasonReminder.clearSubscriptions(c);
       FieldAlerts.clear(c);
       DeviceVault.clear(c);
@@ -160,6 +161,7 @@ final class AccountStore {
         .remove("verified")
         .remove("revision")
         .apply();
+    LicenseReminder.clear(c);
     SeasonReminder.clearSubscriptions(c);
     FieldAlerts.clear(c);
   }

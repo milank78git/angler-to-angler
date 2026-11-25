@@ -1,3 +1,4 @@
+import { profileDetailsSummary } from './angler-details.js';
 import {
   by,
   screen,
@@ -96,6 +97,7 @@ export async function profileScreen({ view, nav }) {
     (own
       ? '<div class="actions">' +
         button('edit-card', t('profiles.edit_profile'), 'primary') +
+        button('private-details', t('license.details'), 'secondary') + '<p id="private-summary" class="meta"></p>' +
         button('tip-market', t('market.title'), 'secondary') +
         button('my-public-cards', t('common.my_public_cards'), 'secondary') +
         button('my-activity', t('common.my_activity_contributions'), 'secondary') +
@@ -108,6 +110,8 @@ export async function profileScreen({ view, nav }) {
       : '');
   bindBack(nav);
   if (own) {
+    profileDetailsSummary(view);
+    bind('private-details', () => nav.open('anglerDetails'));
     bind('edit-card', () => nav.open('editProfile'));
     bind('tip-market', () => nav.open('marketShelf'));
     bind('my-public-cards', () => nav.open('myPublicCards'));

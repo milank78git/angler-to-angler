@@ -1,6 +1,5 @@
 package app.anglers.journal;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -9,7 +8,7 @@ import java.text.DateFormat;
 import java.util.Date;
 
 /** Controls the device-wide atlas. An angler can refresh even with automatic checks disabled. */
-public final class WaterSettingsActivity extends Activity {
+public final class WaterSettingsActivity extends LocalizedActivity {
   private TextView status, subscriptionStatus;
   private AccountLayout ui;
   private Button check;
@@ -45,6 +44,10 @@ public final class WaterSettingsActivity extends Activity {
     boolean checking = check != null && !check.isEnabled();
     ui.page(text("settings.title"), false);
     android.content.SharedPreferences appearance=getSharedPreferences("appearance",MODE_PRIVATE);
+    java.util.Locale locale = AppLanguage.current(this);
+    String language = AppLanguage.selection(this).isEmpty() ? text("settings.language_system") : locale.getDisplayName(locale);
+    ui.button(ui.form, text("settings.language") + " · " + language, AccountLayout.Action.SECONDARY,
+        () -> AppLanguage.pick(this));
     CheckBox large=ui.check(text("settings.large"));
     large.setChecked(appearance.getBoolean("large",false));
     large.setOnCheckedChangeListener((v,on) -> { appearance.edit().putBoolean("large",on).apply(); renderSettings(); });
@@ -131,7 +134,7 @@ public final class WaterSettingsActivity extends Activity {
     status.setText((WaterCatalogue.revision(this).isEmpty() ? text("atlas_settings.atlas_bundled_with_the_app")
         : text("atlas_settings.atlas_edition") + " · " + edition) + "\n"
         + text("atlas_settings.last_successful_check") + " · "
-        + (last == 0 ? text("atlas_settings.never") : DateFormat.getDateTimeInstance().format(new Date(last))));
+        + (last == 0 ? text("atlas_settings.never") : DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, AppLanguage.current(this)).format(new Date(last))));
   }
 
   private void refresh() {

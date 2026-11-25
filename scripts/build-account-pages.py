@@ -56,6 +56,7 @@ for route in ("privacy", "delete-account"):
             paragraphs[-1] = paragraphs[-1].split(". ",1)[-1]
             paragraphs.append(messages["store.private_data"])
             paragraphs.append(messages["store.payment_data"])
+            paragraphs.append(messages["license.privacy"])
         else:
             paragraphs = [messages["store.deletion_steps"], messages["store.deletion_scope"]]
         sections.append(f'<section lang="{locale}"><h1>{html.escape(messages["store."+route])}</h1>' +

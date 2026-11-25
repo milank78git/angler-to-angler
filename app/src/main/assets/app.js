@@ -1,3 +1,4 @@
+import { anglerDetails, bindLicenseNotice } from './angler-details.js';
 import { parkingEditor } from './parking-editor.js';
 import { journalStatistics } from './journal-statistics.js';
 import { createWaterDirectory, waterDistances } from './water-directory.js';
@@ -22,6 +23,7 @@ import { evidenceScreen, reviewScreen } from './verification.js';
 const tabs = by('tabs'),
   catalog = {};
 const views = {
+  anglerDetails,
   parkingEditor,
   journalStatistics,
   marketShelf, marketDetail, marketEditor, fishCatalogue, fishDetail,
@@ -73,7 +75,7 @@ window.positionResult = (id, fix) =>
 async function render(view, area) {
   dismissConfirmation();
   const { page } = view.route;
-  const editing = ['parkingEditor', 'newTrip', 'newCatch', 'editProfile', 'discussionComposer', 'messageComposer', 'marketEditor'].includes(page);
+  const editing = ['anglerDetails', 'parkingEditor', 'newTrip', 'newCatch', 'editProfile', 'discussionComposer', 'messageComposer', 'marketEditor'].includes(page);
   tabs.hidden = editing;
   document.body.classList.toggle('editing', editing);
   for (const key of ['waters', 'rules', 'trips'])
@@ -123,6 +125,7 @@ async function start() {
   document.documentElement.lang = contentLanguage;
   by('guide-open').ariaLabel = by('guide-open').title = t('common.help');
   bind('guide-open', () => openGuide({ page: nav.current?.route.page }));
+  bindLicenseNotice(nav);
   by('profile').textContent = t('profile.title');
   bind('profile', () => {
     if (nav.current?.route.page !== 'anglerProfile' || nav.current.route.id) nav.open('anglerProfile');
@@ -217,10 +220,13 @@ async function start() {
       .map(([k, label, glyph]) => button('tab' + k, label, 'destination', glyph))
       .join('');
     destinations.forEach(([k]) => bind('tab' + k, () => nav.open(k)));
+    by('profile').disabled = false;
+    by('license-notice').disabled = false;
     const weekly = window.Device?.weeklyDestination?.();
     const notice=window.Device?.fieldKind?.();
     const water=catalog.waterDirectory.byKey.get(window.Device?.fieldWater?.());
-    if (notice==='posts' && water) nav.open('waterDiscussion',{id:water.id});
+    if (notice==='license') nav.open('anglerDetails');
+    else if (notice==='posts' && water) nav.open('waterDiscussion',{id:water.id});
     else if (notice==='nearby' && water) nav.open('water',{id:water.id});
     else if (notice==='waters') {
       nav.stacks.get('waters')[0].additions=new Set(JSON.parse(window.Device.addedWaters()));

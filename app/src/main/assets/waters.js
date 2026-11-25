@@ -118,7 +118,7 @@ export async function listWaters({ view, pack, nav, waterDirectory }) {
   const savedCountry = previous === '' || countries.some(([code]) => code === previous);
   if (route.country === undefined && !route.additions) {
     route.country = savedCountry ? previous : suggestedAtlasCountry(ordered, window.Device.networkCountry?.(),
-      Intl.DateTimeFormat().resolvedOptions().timeZone, languageTag);
+      Intl.DateTimeFormat().resolvedOptions().timeZone, window.Device?.systemLocaleTag?.() || navigator.language);
   }
   const offerLocation = !route.additions && !savedCountry && !localStorage.getItem(locationChoice);
   screen.innerHTML = `<div class="page-intro"><div class="title-mark">${icon('map')}</div><h1>${t('atlas.title')}</h1></div>

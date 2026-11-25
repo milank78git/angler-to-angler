@@ -70,3 +70,12 @@ documents = journal('list')['rows']
 assert any(row['key'] == 'trip/restore' and row['parts'] == [digest] for row in documents)
 assert base64.b64decode(journal('get', hash=digest)['data']) == journal_bytes
 print('Private journal document verified (' + mode + ').')
+
+
+# The owner's private profile survives the same backup as their identity and journal.
+details_args = {'age': 48, 'expiry': '2030-03-31', 'reminder': 'month', 'revision': 0}
+details_rpc = '/rest/v1/rpc/angler_my_details'
+if mode == 'seed':
+    post(details_rpc, {'changes': details_args}, token)
+assert post(details_rpc, {}, token) == {**details_args, 'revision': 1}
+print('Private age, licence and reminder verified (' + mode + ').')

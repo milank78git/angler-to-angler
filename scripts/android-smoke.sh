@@ -41,7 +41,11 @@ for scenario in compact wide; do
   adb shell pm clear "$app_id"
   adb shell cmd locale set-app-locales "$app_id" --user 0 --locales "$language"
   adb shell cmd locale get-app-locales "$app_id" --user 0
-  adb shell am instrument -w -e scenario "$scenario" app.anglers.journal.smoke/.Runner | tee "$out/$scenario.txt"
+  if ! timeout 6m adb shell am instrument -w -e scenario "$scenario" app.anglers.journal.smoke/.Runner | tee "$out/$scenario.txt"; then
+    adb shell dumpsys activity activities | grep -m 3 -E 'mResumedActivity|topResumedActivity' || true
+    adb logcat -d -t 500 AndroidRuntime:E ActivityTaskManager:I Instrumentation:I '*:S' | tail -80 || true
+    exit 1
+  fi
   adb pull "/sdcard/Android/data/$app_id/files/ui/." "$out/screens" || true
   grep -Fq ANGLER_SMOKE_PASS "$out/$scenario.txt"
 done

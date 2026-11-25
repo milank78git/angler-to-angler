@@ -109,12 +109,14 @@
     "pages": [
       "anglerProfile",
       "editProfile",
+      "anglerDetails",
       "directory"
     ],
     "title": "help-topics.profile.title",
     "steps": [
       "help-topics.profile.steps.1",
-      "help-topics.profile.steps.2"
+      "help-topics.profile.steps.2",
+      "help-topics.profile.steps.3"
     ]
   },
   "forum": {

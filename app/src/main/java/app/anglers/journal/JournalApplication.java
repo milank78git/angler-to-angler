@@ -19,6 +19,7 @@ public final class JournalApplication extends Application
   @Override
   public void onCreate() {
     super.onCreate();
+    AppLanguage.migrate(this);
     AccountStore.initializeJournalOwnership(this);
     WaterCatalogue.schedule(this);
     registerActivityLifecycleCallbacks(this);
