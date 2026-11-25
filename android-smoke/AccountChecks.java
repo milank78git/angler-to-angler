@@ -632,7 +632,7 @@ final class AccountChecks {
 
   /** Open groups from the journal, create a group, issue a code and renew its online session. */
   Activity groups() throws Exception {
-    app.js("document.querySelector('#profile').click()");
+    app.clickReady("#profile");
     app.waitFor("!!document.querySelector('#edit-card')");
     app.js("document.querySelector('#edit-card').click()");
     app.waitFor("document.querySelectorAll('[name=portrait]').length===50");
@@ -714,7 +714,7 @@ final class AccountChecks {
     if (postedTip == null || !expected.equals(postedTip.getString("message"))) {
       throw new AssertionError("Posted text differs from the preview");
     }
-    app.js("document.querySelector('#profile').click()");
+    app.clickReady("#profile");
     app.waitFor("!!document.querySelector('#account-settings')");
     gate =
         next(

@@ -220,6 +220,8 @@ async function start() {
       .map(([k, label, glyph]) => button('tab' + k, label, 'destination', glyph))
       .join('');
     destinations.forEach(([k]) => bind('tab' + k, () => nav.open(k)));
+    by('profile').disabled = false;
+    by('license-notice').disabled = false;
     const weekly = window.Device?.weeklyDestination?.();
     const notice=window.Device?.fieldKind?.();
     const water=catalog.waterDirectory.byKey.get(window.Device?.fieldWater?.());

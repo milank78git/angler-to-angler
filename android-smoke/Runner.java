@@ -645,7 +645,8 @@ public final class Runner extends Instrumentation {
     if (!manager.getApplicationLocales().isEmpty()) throw new AssertionError("System language was not restored");
     accounts.click(label("common.back"));
     bindVisibleWeb();
-    waitFor("document.documentElement.lang==='en' && !!document.querySelector('#profile')");
+    waitFor("document.documentElement.lang==='en' && !!document.querySelector('[data-water]')"
+        + " && document.querySelector('#profile')?.textContent === " + org.json.JSONObject.quote(label("profile.title")));
   }
 
   /** A framework locale change can recreate both the settings and the background fishing activity. */
