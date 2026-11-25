@@ -245,7 +245,9 @@ if __name__ == "__main__":
     parser.add_argument("--as-of", required=True, type=date.fromisoformat)
     parser.add_argument("--download", action="store_true")
     parser.add_argument("--sql", type=Path)
+    parser.add_argument("--output", type=Path, default=ASSETS, help="Directory for the two catalogue files")
     args = parser.parse_args()
+    args.output.mkdir(parents=True, exist_ok=True)
     if args.download:
         download(args.cache)
     stamp = args.as_of.isoformat()
@@ -253,8 +255,8 @@ if __name__ == "__main__":
     if args.sql:
         with args.sql.open("x", encoding="utf8") as migration:
             migration.write(seed(waters))
-    (ASSETS / "czech-waters.json").write_text('{"asOf":' + compact(stamp) + ',"waters":[\n' +
+    (args.output / "czech-waters.json").write_text('{"asOf":' + compact(stamp) + ',"waters":[\n' +
         ",\n".join(map(compact, waters)) + "\n]}\n")
-    (ASSETS / "czech-water-shapes.json").write_text("{\n" + ",\n".join(
+    (args.output / "czech-water-shapes.json").write_text("{\n" + ",\n".join(
         compact(key) + ":" + compact(shapes[key]) for key in sorted(shapes)) + "\n}\n")
     print(f"{len(waters)} directory entries, {len(shapes)} with outlines")

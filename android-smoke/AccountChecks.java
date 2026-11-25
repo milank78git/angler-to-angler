@@ -636,6 +636,14 @@ final class AccountChecks {
     app.waitFor("!!document.querySelector('#edit-card')");
     app.js("document.querySelector('#edit-card').click()");
     app.waitFor("document.querySelectorAll('[name=portrait]').length===50");
+    app.js("const town=document.querySelector('#hometown');town.value='Unsaved';"
+        + "town.dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('#reload-card').click()");
+    app.clickReady("#confirmation-cancel");
+    app.waitFor("document.querySelector('#hometown').value==='Unsaved'");
+    app.clickReady("#reload-card");
+    app.clickReady("#confirmation-accept");
+    app.waitFor("document.querySelector('#hometown')?.value===''");
+
     app.js(
         "document.querySelector('[name=portrait][value=\"50\"]').click();document.querySelector('#hometown').value='Praha';document.querySelector('#tagline').value='River"
             + " days';document.querySelector('#biography').value='Fishing since"

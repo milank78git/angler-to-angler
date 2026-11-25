@@ -33,3 +33,49 @@ test('an existing offline trip, exact coordinates, private photos and bookmarks 
   assert.equal(target.getItem('water.my-account.cz.river'),'1');assert.equal(target.length,1);
   await restoreDocument(second,target,subject,'trip/river',null);assert.equal(await second.photo('fish'),undefined);
 });
+
+test('unchanged trip and water photos use committed fingerprints across database connections', async () => {
+  const {localDocument} = await import('../app/src/main/assets/journal-transfer.js');
+  const factory = new IDBFactory();
+  const db = createJournal(factory), writer = createJournal(factory);
+  // Exercise the upgrade from a v1 installation containing an existing trip and catch photo.
+  await new Promise((resolve, reject) => {
+    const request = factory.open('angler-field-journal', 1);
+    request.onupgradeneeded = () => {
+      const trips = request.result.createObjectStore('trips', {keyPath:'id'});
+      const catches = request.result.createObjectStore('catches', {keyPath:'id'});
+      catches.createIndex('tripId','tripId');
+      trips.put({id:'a'});
+      catches.put({id:'f',tripId:'a',hasPhoto:true});
+      request.result.createObjectStore('photos').put(new Blob(['old']), 'f');
+    };
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => { request.result.close(); resolve(); };
+  });
+  let reads = 0;
+  const counted = {...db, photo: id => { reads++; return db.photo(id); },
+    waterPhoto: id => { reads++; return db.waterPhoto(id); }};
+  const inspect = (key, bytes) => localDocument(counted, null, '', key, bytes);
+  const first = await inspect('trip/a');
+  await writer.setWaterPhoto('lake', new Blob(['shore']));
+  const lake = await inspect('photo/lake');
+  assert.equal(reads, 2);
+  for (let poll=0; poll<3; poll++) {
+    assert.deepEqual((await inspect('trip/a')).hashes, first.hashes);
+    assert.deepEqual((await inspect('photo/lake')).hashes, lake.hashes);
+  }
+  assert.equal(reads, 2);
+  await writer.saveCatch({id:'f',tripId:'a'},new Blob(['new']));
+  const changed = await inspect('trip/a');
+  assert.notDeepEqual(changed.hashes, first.hashes);
+  assert.equal(reads, 3);
+  const version = (await db.fingerprint('trip/a')).version;
+  await writer.removeTrip('a');
+  await db.cacheHashes('trip/a', version, changed.hashes);
+  assert.deepEqual((await inspect('trip/a')).hashes, []);
+  await writer.writeWaterPhoto('lake', null);
+  assert.deepEqual((await inspect('photo/lake')).hashes, []);
+  await writer.restoreTrip('a', {trip:{id:'a'},catches:[]});
+  const restored = await inspect('trip/a');
+  assert.deepEqual((await inspect('trip/a', true)).hashes, restored.hashes);
+});

@@ -1,6 +1,6 @@
 // Attach a synthetic device fix to the existing photographed catch in the emulator's journal.
 (async () => {
-  const open = indexedDB.open(Device.journalName(), 1);
+  const open = indexedDB.open(Device.journalName());
   const db = await new Promise((resolve, reject) => {
     open.onsuccess = () => resolve(open.result);
     open.onerror = () => reject(open.error);

@@ -341,7 +341,6 @@ public final class AccountActivity extends LocalizedActivity {
                 if (session != null) verified(session);
                 else {
                   inbox();
-                  callback(getIntent());
                 }
               });
         });
@@ -480,7 +479,6 @@ public final class AccountActivity extends LocalizedActivity {
           pending.edit().putLong("pkceAt", System.currentTimeMillis()).apply();
           ui.message(
               text("account.new_link_requested_check_your_inbox"));
-          callback(getIntent());
         });
   }
 
@@ -717,7 +715,17 @@ public final class AccountActivity extends LocalizedActivity {
         AccountLayout.Action.SECONDARY,
         () -> {
           clearPending();
-          AccountStore.logout(this);
+          IdentityService.Session previous = AccountStore.logout(this);
+          IdentityService auth = service;
+          if (auth != null && previous != null) {
+            new Thread(() -> {
+              try {
+                auth.signOut(previous);
+              } catch (Exception offline) {
+                android.util.Log.i("AnglerAuth", "Could not confirm remote sign-out");
+              }
+            }, "angler-sign-out").start();
+          }
           email = "";
           login();
         });
@@ -743,6 +751,7 @@ public final class AccountActivity extends LocalizedActivity {
                   busy = false;
                   ui.message("");
                   done.accept(value);
+                  if (!isFinishing() && !isDestroyed()) callback(getIntent());
                 });
           } catch (Exception error) {
             runOnUiThread(

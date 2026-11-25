@@ -108,7 +108,7 @@ A period covers one entire catalog water for one Prague calendar month, first av
 
 The APK and static reader render the same allowlisted snapshot using `public-card-view.js`. The reader requests one random UUID from the anonymous `angler_open_catch_card` RPC. The fragment stays out of static-host request paths. Owner IDs, journal IDs, original photo files and evidence records are never served by this endpoint. Published length reflects the measured or estimated outcome at publication. Account deletion or link withdrawal removes the public copy. Staff can immediately retire an abusive link with a privileged update of its row setting `details=null,pixels=null`.
 
-The pilot reader is at https://rybari-sobe-ulovky.richpopcorn17.chatgpt.site/. To rebuild it, run `python3 scripts/build-public-reader.py /path/to/public-account-config.json /path/to/dist` and deploy that directory to the same HTTPS origin. It requires only the project's public URL and publishable key. An independent deployment must also change the origin returned by `angler_public_cards.owner_item` in its database. The normal Android build does not publish the website.
+The Pages workflow builds the reader at `https://milank78git.github.io/angler-to-angler/catch-card/` using the pilot's public account configuration. Publish and verify that route before applying the reader migration. Earlier shared links still require the previous host. A separate Play deployment needs its own reader built against its public account configuration and its own `angler_public_cards.reader.base_url`.
 
 ## Android email return through the project's GitHub Pages site
 

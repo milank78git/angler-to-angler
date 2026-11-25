@@ -91,10 +91,10 @@ export async function waterParking(host,water,nav) {
       const source=p.source && p.revision===1 ? link(p.source,t('waters.access_point_source'))+' · '+esc(displayDay(p.checked)) : esc(t('parking.community'));
       card.innerHTML='<h3>'+esc(title)+'</h3><p class="meta">'+source+' · '+p.point[1].toFixed(6)+', '+p.point[0].toFixed(6)+'</p>'+
         '<p>'+esc(t('parking.signs'))+'</p><div class="quick-actions">'+button('drive-'+index,t('parking.drive'),'primary','navigation')+
-        button('edit-'+index,t('parking.edit'),'secondary')+'</div>';
+        (p.canEdit === true ? button('edit-'+index,t('parking.edit'),'secondary') : '')+'</div>';
       const [drive,correct]=card.querySelectorAll('button');
       drive.onclick=()=>window.Device?.driveToParking?.(p.point[1],p.point[0]);
-      correct.onclick=()=>edit(p);
+      if (correct) correct.onclick=()=>edit(p);
       if (online) {
         const details=document.createElement('details'),summary=document.createElement('summary'),body=document.createElement('div');
         details.className='parking-feedback fold';body.className='fold-body';

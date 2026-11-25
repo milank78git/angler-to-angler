@@ -100,7 +100,17 @@ final class DeviceVault {
     SharedPreferences prefs = AccountStore.prefs(c);
     JSONObject record = new JSONObject(prefs.getString(RECORD, ""));
     Cipher rsa = Cipher.getInstance("RSA/ECB/OAEPPadding");
-    rsa.init(Cipher.DECRYPT_MODE, store().getKey(ALIAS, null), OAEP);
+    Key privateKey = store().getKey(ALIAS, null);
+    if (privateKey == null) {
+      clear(c);
+      throw new GeneralSecurityException("Device credential no longer available");
+    }
+    try {
+      rsa.init(Cipher.DECRYPT_MODE, privateKey, OAEP);
+    } catch (android.security.keystore.KeyPermanentlyInvalidatedException invalidated) {
+      clear(c);
+      throw invalidated;
+    }
     byte[] key = rsa.doFinal(decode(record, "key"));
     try {
       Cipher aes = Cipher.getInstance("AES/GCM/NoPadding");

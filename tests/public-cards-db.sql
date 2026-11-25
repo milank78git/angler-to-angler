@@ -1,4 +1,5 @@
 \ir ../supabase/migrations/20261123180057_public_catch_cards.sql
+\ir ../supabase/migrations/20261125154159_public_card_reader.sql
 insert into auth.users select ('00000000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid,now()
   from generate_series(61,62) n;
 select pg_temp.check_that(not has_table_privilege('anon','angler_public_cards.cards','select')
@@ -33,6 +34,7 @@ begin
     raise exception 'Photo trailer';exception when sqlstate 'PT422' then null;end;
   receipt:=public.angler_public_card_publish(source,req,draft);
   link:=(receipt->>'id')::uuid;
+  perform pg_temp.check_that(receipt->>'url'='https://milank78git.github.io/angler-to-angler/catch-card/#'||link,'Wrong viewer URL');
   perform pg_temp.check_that(link<>source and link<>req and public.angler_open_catch_card(link)=draft
     and public.angler_public_card_publish(source,req,draft)=receipt,'Projection or retry');
   begin perform public.angler_public_card_publish(source,gen_random_uuid(),draft);

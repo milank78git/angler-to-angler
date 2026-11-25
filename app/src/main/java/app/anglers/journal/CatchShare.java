@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /** Creates the Android chooser from a user-reviewed caption and optional pixel-only JPEG. */
 final class CatchShare {
-  static final int REQUEST = 54;
+  static final int REQUEST = 57;
   private final Activity activity;
   private final AtomicBoolean choosing = new AtomicBoolean();
 

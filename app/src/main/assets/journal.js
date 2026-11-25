@@ -5,15 +5,17 @@ export const newJournalId = () =>
         '',
       );
 
-/** Opens the existing v1 journal lazily. The atlas can run independently of this database. */
+/** Opens the journal lazily and preserves existing diary records during upgrades. The atlas can run independently of this database. */
 export function createJournal(factory = globalThis.indexedDB, name = 'angler-field-journal') {
   let connection;
 
   function open() {
     if (connection) return connection;
     connection = new Promise((resolve, reject) => {
-      const req = factory.open(name, 1);
-      req.onupgradeneeded = () => {
+      const req = factory.open(name, 2);
+      req.onupgradeneeded = event => {
+        req.result.createObjectStore('fingerprints');
+        if (event.oldVersion >= 1) return;
         const trips = req.result.createObjectStore('trips', { keyPath: 'id' });
         trips.createIndex('day', 'day');
         const catches = req.result.createObjectStore('catches', { keyPath: 'id' });
@@ -67,6 +69,24 @@ export function createJournal(factory = globalThis.indexedDB, name = 'angler-fie
     });
   }
 
+  // Invalidate in the same transaction as the edit, including writes from another WebView.
+  function invalidate(tx, key) {
+    tx.objectStore('fingerprints').put({version: newJournalId()}, key);
+  }
+
+  // A slow encoder cannot cache old photo hashes over a concurrent write.
+  function cacheHashes(key, version, hashes) {
+    return transaction(['fingerprints'], 'readwrite', (tx, result) => {
+      const store = tx.objectStore('fingerprints');
+      const current = store.get(key);
+      current.onsuccess = () => {
+        const unchanged = current.result?.version === version;
+        if (unchanged) store.put({version, hashes}, key);
+        result(unchanged);
+      };
+    });
+  }
+
   /** Read the trips and their indexed counts from one snapshot without reading catch bodies. */
   function listTrips() {
     return transaction(['trips', 'catches'], 'readonly', (tx, result) => {
@@ -87,7 +107,7 @@ export function createJournal(factory = globalThis.indexedDB, name = 'angler-fie
 
   /** The caller supplies the full replacement record and its optional photo on every save. */
   function saveCatch(record, photo) {
-    return transaction(['trips', 'catches', 'photos'], 'readwrite', (tx) => {
+    return transaction(['trips', 'catches', 'photos', 'fingerprints'], 'readwrite', (tx) => {
       const parent = tx.objectStore('trips').get(record.tripId);
       parent.onsuccess = () => {
         if (!parent.result) {
@@ -95,7 +115,14 @@ export function createJournal(factory = globalThis.indexedDB, name = 'angler-fie
           return;
         }
         const photos = tx.objectStore('photos');
-        tx.objectStore('catches').put({ ...record, hasPhoto: !!photo });
+        const catches = tx.objectStore('catches');
+        const previous = catches.get(record.id);
+        previous.onsuccess = () => {
+          if (previous.result && previous.result.tripId !== record.tripId)
+            invalidate(tx, 'trip/' + previous.result.tripId);
+        };
+        invalidate(tx, 'trip/' + record.tripId);
+        catches.put({ ...record, hasPhoto: !!photo });
         if (photo) photos.put(photo, record.id);
         else photos.delete(record.id);
       };
@@ -104,7 +131,8 @@ export function createJournal(factory = globalThis.indexedDB, name = 'angler-fie
 
   /** Cascade through the trip index so a retry also removes any associated image. */
   function removeTrip(id) {
-    return transaction(['trips', 'catches', 'photos'], 'readwrite', (tx) => {
+    return transaction(['trips', 'catches', 'photos', 'fingerprints'], 'readwrite', (tx) => {
+      invalidate(tx, 'trip/' + id);
       tx.objectStore('trips').delete(id);
       const matches = tx.objectStore('catches').index('tripId').openKeyCursor(id);
       matches.onsuccess = () => {
@@ -126,7 +154,8 @@ export function createJournal(factory = globalThis.indexedDB, name = 'angler-fie
 
   // Replace all members of a remote trip in one IndexedDB transaction.
   function restoreTrip(id, document) {
-    return transaction(['trips','catches','photos'], 'readwrite', tx => {
+    return transaction(['trips','catches','photos','fingerprints'], 'readwrite', tx => {
+      invalidate(tx, 'trip/' + id);
       const trips = tx.objectStore('trips'), catches = tx.objectStore('catches'), photos = tx.objectStore('photos');
       const previous = catches.index('tripId').getAllKeys(id);
       previous.onsuccess = () => {
@@ -145,14 +174,17 @@ export function createJournal(factory = globalThis.indexedDB, name = 'angler-fie
     });
   }
   function writeWaterPhoto(key, blob) {
-    return transaction(['photos'], 'readwrite', tx => {
+    return transaction(['photos', 'fingerprints'], 'readwrite', tx => {
+      invalidate(tx, 'photo/' + key);
       const store = tx.objectStore('photos'), id = ['water', key];
       if (blob) store.put(blob, id);
       else store.delete(id);
     });
   }
   return {
-    lock, restoreTrip, writeWaterPhoto,
+    lock, restoreTrip, writeWaterPhoto, cacheHashes,
+    fingerprint: key => read('fingerprints', store => store.get(key)),
+    tripKeys: () => read('trips', store => store.getAllKeys()),
     waterPhotoKeys: () => read('photos', store => store.getAllKeys(IDBKeyRange.bound(['water'], ['water', []]))),
     listTrips,
     statEntries: () => transaction(['trips','catches'], 'readonly', (tx, result) => {
@@ -172,7 +204,10 @@ export function createJournal(factory = globalThis.indexedDB, name = 'angler-fie
     // Array keys cannot collide with the string catch IDs in existing journals.
     waterPhoto: (key) => read('photos', (store) => store.get(['water', key])),
     setWaterPhoto: change(writeWaterPhoto),
-    saveTrip: change(trip => transaction(['trips'], 'readwrite', tx => tx.objectStore('trips').put(trip))),
+    saveTrip: change(trip => transaction(['trips', 'fingerprints'], 'readwrite', tx => {
+      invalidate(tx, 'trip/' + trip.id);
+      tx.objectStore('trips').put(trip);
+    })),
   };
 }
 export const Journal = createJournal(globalThis.indexedDB,globalThis.Device?.journalName?.());

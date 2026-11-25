@@ -89,4 +89,16 @@
   <changeSet id="20261125092414" author="angler" dbms="postgresql">
     <sqlFile path="../supabase/migrations/20261125092414_private_angler_details.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
   </changeSet>
+  <changeSet id="20261125153337" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261125153337_promotional_credits.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
+  <changeSet id="20261125153400" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261125153400_parking_edit_ownership.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
+  <changeSet id="20261125154111" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261125154111_purchased_tip_retention.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
+  <changeSet id="20261125154159" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261125154159_public_card_reader.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
 </databaseChangeLog>

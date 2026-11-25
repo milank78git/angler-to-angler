@@ -24,7 +24,7 @@ function localKey(key, subject) {
   return ['ui.theme','fish.country','atlas.topographic'].includes(key) ? key : null;
 }
 export async function documentKeys(db, storage, subject) {
-  const keys = (await db.listTrips()).map(t => 'trip/'+t.id);
+  const keys = (await db.tripKeys()).map(id => 'trip/'+id);
   for (const [,id] of await db.waterPhotoKeys()) keys.push('photo/'+id);
   for (let n=0;n<storage.length;n++) {
     const pref = preferenceKey(storage.key(n), subject);
@@ -57,6 +57,17 @@ export async function encodeDocument(db, storage, subject, key) {
   }
   return {hashes,blocks};
 }
+/** Read a committed digest for comparisons. Materialize bytes only for dirty documents or an upload. */
+export async function localDocument(db, storage, subject, key, needBlocks = false) {
+  if (key.startsWith('pref/')) return encodeDocument(db, storage, subject, key);
+  const cached = await db.fingerprint(key);
+  if (cached?.hashes && !needBlocks) return {hashes: cached.hashes};
+  const local = await encodeDocument(db, storage, subject, key);
+  if (!await db.cacheHashes(key, cached?.version, local.hashes))
+    throw Object.assign(Error('Journal changed during encoding'), {status:409});
+  return local;
+}
+
 export async function uploadDocument(call, key, local, revision) {
   if (local.hashes.length) {
     const {hashes} = await call('missing',{hashes:[...local.blocks.keys()]});

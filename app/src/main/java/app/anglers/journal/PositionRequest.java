@@ -90,7 +90,9 @@ final class PositionRequest {
         new LocationListener() {
           @Override
           public void onLocationChanged(Location fix) {
-            if (fix.getElapsedRealtimeNanos() >= started) finish(id, fix);
+            if (fix.getElapsedRealtimeNanos() < started) return;
+            if (mode == Mode.PRECISE && !acceptableEvidenceFix(fix)) return;
+            finish(id, fix);
           }
 
           @Override
@@ -115,6 +117,11 @@ final class PositionRequest {
     }
     if (registered) handler.postDelayed(timeout, 25000);
     else finish(id, null);
+  }
+
+  static boolean acceptableEvidenceFix(Location fix) {
+    return fix != null && !fix.isFromMockProvider() && fix.hasAccuracy()
+        && fix.getAccuracy() >= 0 && fix.getAccuracy() <= 100;
   }
 
   private Location recentFix(String[] providers, long now) {

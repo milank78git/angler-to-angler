@@ -46,14 +46,14 @@ final class IdentityService {
   }
 
   private static String read(InputStream in) throws IOException {
-    try (BufferedReader r = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
-      StringBuilder s = new StringBuilder();
-      String line;
-      while ((line = r.readLine()) != null) {
-        if (s.length() > 262144) throw new IOException("Oversized response");
-        s.append(line).append('\n');
+    try (InputStream input = in; ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+      byte[] buffer = new byte[8192];
+      int count;
+      while ((count = input.read(buffer)) != -1) {
+        if (output.size() + count > 262144) throw new IOException("Oversized response");
+        output.write(buffer, 0, count);
       }
-      return s.toString().trim();
+      return output.toString("UTF-8").trim();
     }
   }
 
@@ -244,6 +244,13 @@ final class IdentityService {
     JSONObject user =
         request("/auth/v1/user", session.access, new JSONObject().put("password", password), "PUT");
     if (!session.id.equals(user.getString("id"))) throw new IOException("Account changed");
+  }
+
+  /** Revokes only the session being removed on this device, including after a vault unlock. */
+  void signOut(Session current) throws Exception {
+    if (current == null || current.refresh.isEmpty()) return;
+    if (current.access.isEmpty() || current.expires <= System.currentTimeMillis()) current = refresh(current);
+    request("/auth/v1/logout?scope=local", current.access, new JSONObject());
   }
 
   Session refresh(Session current) throws Exception {

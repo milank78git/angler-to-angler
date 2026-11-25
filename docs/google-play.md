@@ -21,8 +21,8 @@ database rejects switching between test and live financial environments.
    and voided purchases. Put its JSON in the Edge secret
    `PLAY_SERVICE_ACCOUNT_JSON`; set `PLAY_PURCHASE_MODE=test`.
 3. In the isolated database, run
-   `update angler_commerce.settings set mode='test'`. The operator sponsors
-   10 one-time credits per registered profile. The ledger grants them on profile
+   `update angler_commerce.settings set mode='test'`. The account receives
+   10 one-time promotional credits. The ledger grants them on profile
    creation; all spending and purchases require a verified member.
 4. Download the Google Play bundle workflow artifact. The workflow builds a
    release AAB and never uploads it to a store. Sign it with the designated
@@ -60,9 +60,10 @@ also covers missed void notifications.
 
 Pilot tips can be enrolled by their author on their detail screen. Earlier
 buyers keep their entitlements. New Play purchases use a separate ledger.
-The welcome allocation defaults to 702 halers of sponsored net proceeds for
-10 credits, matching the initial 21% VAT / 15% Play planning example. Review
-that budget and set the sponsored basis before enabling a live installation.
+The ten promotional credits can unlock tips and have zero monetary value for
+all three recipients. Mixed purchases distribute only the paid portion.
+The migration stops if a live ledger has historical sponsored allocations.
+Reconcile existing commitments and bank instructions before changing that ledger.
 Purchased packs have no settled monetary value until the earnings statement
 is reconciled. Prices and splits are CZK-only in this release.
 
@@ -89,8 +90,7 @@ conservation beneficiary before opening live sales.
   confirmation are available only on the live ledger.
 - Run `nature-balance` for allocated, sent and remaining CZK. Confirm an
   actual transfer using `record-nature BANK_REFERENCE PARTNER HALERS YYYY-MM-DD`.
-  The five percent applies to net proceeds on spent credits. Welcome purchases
-  participate through operator sponsorship. Refunds also reverse allocations.
+  The five percent applies to settled proceeds from spent, purchased credits. Refunds also reverse allocations.
 - Reconcile a late refund even if the author's payout already cleared.
   The balance then offsets future earnings. Review any negative carry before
   paying again. The app never initiates a bank transfer.

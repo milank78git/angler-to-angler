@@ -1,4 +1,5 @@
 \ir ../supabase/migrations/20261125045854_community_parking.sql
+\ir ../supabase/migrations/20261125153400_parking_edit_ownership.sql
 set local role authenticated;
 select pg_temp.as_user(71);
 do $$
@@ -22,6 +23,11 @@ begin
   response:=public.angler_parking_feedback(p);
   perform pg_temp.check_that((response->>'average')::numeric=3 and (response->>'votes')::int=2
     and (response->>'notes')::int=1 and response->>'myNote'='Gravel entrance','Feedback not isolated');
+  perform pg_temp.check_that((public.angler_parking_list(w)->'points'->0->>'canEdit')::boolean=false,'Unexpected edit action');
+  begin perform public.angler_parking_save(w,p,1,49.92,14.11,'Gate');
+    raise exception 'Foreign edit accepted'; exception when sqlstate 'PT403' then null; end;
+  perform pg_temp.as_user(71);
+  perform pg_temp.check_that((public.angler_parking_list(w)->'points'->0->>'canEdit')::boolean,'Owner cannot edit');
   perform public.angler_parking_save(w,p,1,49.92,14.11,'Gate');
   perform public.angler_parking_save(w,p,1,49.92,14.11,'Gate');
   begin perform public.angler_parking_save(w,p,1,49.93,14.11,'Stale edit');
@@ -34,10 +40,11 @@ begin
     raise exception 'Invalid coordinate accepted'; exception when sqlstate 'PT422' then null; end;
   begin perform public.angler_parking_review(p,6,null); raise exception 'Invalid score accepted';
     exception when sqlstate 'PT422' then null; end;
+  perform pg_temp.as_user(72);
   response:=public.angler_parking_review(p,null,null);
   perform pg_temp.check_that((response->>'votes')::int=1 and (response->>'notes')::int=0,'Withdrawal affected another account');
-  perform public.angler_parking_save(other_water,seed,1,49.877,14.426,null);
-  perform pg_temp.check_that((public.angler_parking_list(other_water)->'points'->0->>'revision')::int=2,'Bundled point not editable');
+  begin perform public.angler_parking_save(other_water,seed,1,49.877,14.426,null);
+    raise exception 'Bundled point edited'; exception when sqlstate 'PT403' then null; end;
   perform pg_temp.check_that(not has_function_privilege('anon','public.angler_parking_list(text)','execute')
     and not has_table_privilege('authenticated','angler_activity.parking_points','update'),'Unexpected parking privilege');
 end $$;

@@ -1,5 +1,5 @@
 import { Journal } from './journal.js';
-import { documentKeys, encodeDocument, uploadDocument, downloadDocument, restoreDocument } from './journal-transfer.js';
+import { documentKeys, localDocument, uploadDocument, downloadDocument, restoreDocument } from './journal-transfer.js';
 import { rpc } from './profile-api.js';
 import { t, confirmAction, displayDay } from './ui.js';
 import { languageTag } from './i18n.js';
@@ -55,7 +55,7 @@ async function run(resolution, retryRevision = true) {
       const checkpoint=prefix+'base.'+key;
       const saved=localStorage.getItem(checkpoint);
       const base=JSON.parse(saved||'[]');
-      const local=await Journal.lock(()=>encodeDocument(Journal,localStorage,subject,key));
+      const local=await Journal.lock(()=>localDocument(Journal,localStorage,subject,key));
       if (same(local.hashes,row.parts)) {
         if (!same(base,row.parts)) localStorage.setItem(checkpoint,JSON.stringify(row.parts));
         continue;
@@ -64,14 +64,17 @@ async function run(resolution, retryRevision = true) {
         same(resolution.local,local.hashes) ? resolution.choice : '';
       const unknownDeletion=saved===null && row.revision>0 && !row.parts.length;
       if ((!unknownDeletion && same(base,row.parts)) || choice==='local') {
-        await uploadDocument(call,key,local,row.revision);
+        const upload = local.blocks ? local : await Journal.lock(() =>
+          localDocument(Journal, localStorage, subject, key, true));
+        if (!same(local.hashes, upload.hashes)) { again=true; continue; }
+        await uploadDocument(call,key,upload,row.revision);
         uploaded=true;
         localStorage.setItem(checkpoint,JSON.stringify(local.hashes));
       } else if (same(base,local.hashes) || choice==='cloud') {
         const data=await downloadDocument(call,row.parts);
         await Journal.lock(async()=>{
           if (!enabled()) return;
-          const latest=await encodeDocument(Journal,localStorage,subject,key);
+          const latest=await localDocument(Journal,localStorage,subject,key);
           if (!same(local.hashes,latest.hashes)) { again=true; return; }
           await restoreDocument(Journal,localStorage,subject,key,data);
           localStorage.setItem(checkpoint,JSON.stringify(row.parts)); changed=true;
