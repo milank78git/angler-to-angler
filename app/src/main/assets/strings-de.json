@@ -1048,10 +1048,10 @@
  "waters.trout_water": "Forellengewässer",
  "waters.water_body": "Gewässer",
  "waters.water_reports": "Gewässermeldungen",
- "sync.disabled": "Die private Tagebuchsicherung ist ausgeschaltet.",
+ "sync.disabled": "Auf diesem Gerät gespeichert. Die private Synchronisierung ist ausgeschaltet.",
  "sync.enable": "Private Synchronisierung aktivieren",
  "sync.consent": "Speichere bestehende und künftige Ausflüge, Fänge, genaue Standorte, Notizen, Fotos, Lesezeichen und Atlaseinstellungen privat in deinem Konto. Auf einem neuen Gerät wird das synchronisierte Tagebuch nach der Anmeldung wiederhergestellt.",
- "sync.waiting": "Warten auf Synchronisierung",
+ "sync.waiting": "Auf diesem Gerät gespeichert. Synchronisierung steht aus.",
  "sync.working": "Privates Tagebuch wird synchronisiert …",
  "sync.done": "Privates Tagebuch synchronisiert",
  "sync.retry": "Jetzt synchronisieren",
@@ -1091,5 +1091,12 @@
  "sync.pause": "Synchronisierung auf diesem Gerät pausieren",
  "sync.pause_info": "Die Online-Kopie bleibt verfügbar. Änderungen auf diesem Telefon werden hochgeladen, sobald du die Synchronisierung wieder aktivierst.",
  "sync.new_account": "Dein neues Tagebuch wird privat in deinem Konto gespeichert und funktioniert offline. Es umfasst Ausflüge, Fänge, Notizen, genaue Standorte und Fotos. Ein älteres Tagebuch auf diesem Gerät kannst du gesondert verknüpfen.",
- "license.privacy": "Du kannst dein Alter, das Ablaufdatum deines Fischereischeins und die gewünschte Erinnerung privat in deinem Konto speichern. Andere Angler sehen diese Daten nicht. In deinem Profil kannst du sie löschen. Für Offline-Benachrichtigungen speichert Android das Datum und die Erinnerung auch auf diesem Gerät. Bei der Abmeldung wird die lokale Erinnerung entfernt."
+ "license.privacy": "Du kannst dein Alter, das Ablaufdatum deines Fischereischeins und die gewünschte Erinnerung privat in deinem Konto speichern. Andere Angler sehen diese Daten nicht. In deinem Profil kannst du sie löschen. Für Offline-Benachrichtigungen speichert Android das Datum und die Erinnerung auch auf diesem Gerät. Bei der Abmeldung wird die lokale Erinnerung entfernt.",
+ "sync.offline": "Auf diesem Gerät gespeichert. Das Angeltagebuch wird synchronisiert, sobald du wieder online bist.",
+ "sync.failed": "Die Synchronisierung mit deinem Konto ist fehlgeschlagen. Deine Einträge sind auf diesem Gerät gespeichert. Versuche es erneut.",
+ "sync.signin": "Melde dich für die Synchronisierung erneut an. Deine Einträge sind auf diesem Gerät gespeichert.",
+ "sync.saved_at": "Im Konto gespeichert · {time}",
+ "sync.last_success": "Zuletzt erfolgreich synchronisiert · {time}",
+ "sync.trip": "Angelausflug",
+ "sync.check_failed": "Auf diesem Gerät gespeichert. Es konnte nicht geprüft werden, ob dein Konto ein Online-Tagebuch enthält."
 }

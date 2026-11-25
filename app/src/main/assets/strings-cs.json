@@ -1029,10 +1029,10 @@
   "weekly_catch.withdraw_this_entry": "Stáhnout úlovek z pořadí?",
   "weekly_catch.you_have_not_joined_a_group_yet": "Zatím nejsi v partě.",
   "weekly_catch.your_photo_and_display_name_will_be": "Fotku s tvou přezdívkou uvidí parta ",
-  "sync.disabled": "Soukromá záloha deníku je vypnutá.",
+  "sync.disabled": "Uloženo v telefonu. Soukromá synchronizace je vypnutá.",
   "sync.enable": "Zapnout soukromou synchronizaci",
   "sync.consent": "Stávající i nové výpravy, úlovky, přesné souřadnice, poznámky, fotografie, záložky a nastavení atlasu se uloží soukromě k tvému účtu. Na novém zařízení se synchronizovaný deník obnoví po přihlášení.",
-  "sync.waiting": "Čeká na synchronizaci",
+  "sync.waiting": "Uloženo v telefonu. Čeká na synchronizaci.",
   "sync.working": "Synchronizuji soukromý deník…",
   "sync.done": "Soukromý deník je synchronizovaný",
   "sync.retry": "Synchronizovat nyní",
@@ -1091,5 +1091,12 @@
   "license.saved": "Soukromé údaje byly uloženy",
   "license.conflict": "Profil se změnil na jiném zařízení. Před další úpravou načti uložené údaje.",
   "help-topics.profile.steps.3": "Ve svém profilu otevři Věk a rybářský lístek a nastav si připomínku konce platnosti. V Nastavení můžeš zvolit jazyk aplikace nezávisle na telefonu.",
-  "license.privacy": "V soukromém účtu můžeš uložit svůj věk, konec platnosti rybářského lístku a volbu připomínky. Ostatní rybáři tyto údaje neuvidí. V profilu je můžeš smazat. Android si datum a připomínku uloží také v tomto zařízení pro upozornění bez připojení. Odhlášením se místní připomínka odstraní."
+  "license.privacy": "V soukromém účtu můžeš uložit svůj věk, konec platnosti rybářského lístku a volbu připomínky. Ostatní rybáři tyto údaje neuvidí. V profilu je můžeš smazat. Android si datum a připomínku uloží také v tomto zařízení pro upozornění bez připojení. Odhlášením se místní připomínka odstraní.",
+  "sync.offline": "Uloženo v telefonu. Deník se synchronizuje po připojení k internetu.",
+  "sync.failed": "Synchronizace s účtem se nezdařila. Záznamy zůstávají v telefonu. Zkus to znovu.",
+  "sync.signin": "Pro synchronizaci se znovu přihlas. Záznamy zůstávají v telefonu.",
+  "sync.saved_at": "Uloženo v účtu · {time}",
+  "sync.last_success": "Poslední úspěšná synchronizace · {time}",
+  "sync.trip": "Rybářská výprava",
+  "sync.check_failed": "Uloženo v telefonu. Nepodařilo se ověřit, zda máš v účtu uložený deník."
 }

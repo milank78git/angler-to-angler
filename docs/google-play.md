@@ -115,3 +115,9 @@ A revision covers one trip and its catches, a personal water photo or a
 preference. Disjoint edits merge. Conflicting edits to one document require
 an explicit local/cloud choice. Account deletion cascades through private
 documents and media. OS permissions and delivery of notifications are local.
+
+
+The Journal screen shows whether edits are on this device or synchronized with
+the account. It retains the time of the last successful transfer when offline or
+after a service error. Use **Sync now** to retry. If both installations change
+the same trip, review its fishing date and water before choosing a version.
