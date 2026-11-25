@@ -61,6 +61,7 @@ function bindSuggestions(id, search, select) {
   function choose(row) {
     select.value = row.dataset.key;
     close();
+    select.focus({ preventScroll: true });
     select.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
@@ -104,7 +105,10 @@ function bindSuggestions(id, search, select) {
 /** Search the whole edition, while keeping the native list small and the selected identity visible. */
 export function bindWaterPicker(id, view, directory, selectedKey, country, onSearch) {
   const search = by(id + '-search'), select = by(id), more = by(id + '-more');
-  const suggestions = onSearch && bindSuggestions(id, search, select);
+  const suggestions = by(id + '-suggestions') && bindSuggestions(id, search, select);
+  // A form commits an identity on selection. Only a live rule lookup previews a unique match.
+  const confirmChoice = suggestions && !onSearch;
+  let confirmedKey = selectedKey;
   const empty = select.options[0]?.text;
   const pageSize = 60;
   let limit = pageSize, retained;
@@ -119,7 +123,9 @@ export function bindWaterPicker(id, view, directory, selectedKey, country, onSea
       options.push(new Option(waterOption(water), water.key));
       if (water.key === key) visible = true;
     }
-    if (onSearch && typing) {
+    if (confirmChoice && typing && query) {
+      key = '';
+    } else if (onSearch && typing) {
       key = query && matches === 1 ? options[options.length - 1].value : '';
     } else if (key && !visible) {
       // Editors can retain historical identities. A live lookup only displays matching waters.
@@ -130,16 +136,21 @@ export function bindWaterPicker(id, view, directory, selectedKey, country, onSea
     select.value = key || '';
     more.hidden = matches <= limit;
     by(id + '-empty').hidden = matches > 0;
-    retained = selected;
+    if (selected) retained = selected;
     if (typing) suggestions?.show();
     else suggestions?.render();
   }
   populate(selectedKey);
   search.oninput = () => {
     limit = pageSize;
-    populate(select.value, true);
+    populate(confirmChoice ? confirmedKey : select.value, true);
     if (onSearch) onSearch(directory.byKey.get(select.value), search.value);
   };
+  if (confirmChoice) select.addEventListener('change', () => {
+    confirmedKey = select.value;
+    search.value = '';
+    populate(confirmedKey);
+  });
   more.onclick = () => { limit += pageSize; populate(select.value); };
   view.refreshWaters = updated => {
     retained = directory.byKey.get(select.value) || retained;
