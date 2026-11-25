@@ -563,10 +563,7 @@ public final class FishingActivity extends LocalizedActivity {
 
   private void positionResult(int id, Location fix) {
     if (id == CAMERA_FIX) {
-      if (fix != null
-          && !fix.isFromMockProvider()
-          && fix.hasAccuracy()
-          && fix.getAccuracy() <= 100
+      if (PositionRequest.acceptableEvidenceFix(fix)
           && Math.abs(fix.getTime() - cameraReturned) <= 120000L
           && cameraReturned - cameraStarted <= 120000L
           && cameraReturned >= cameraStarted) {

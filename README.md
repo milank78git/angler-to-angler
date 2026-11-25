@@ -82,7 +82,7 @@ bash scripts/build-debug.sh
 adb install -r build/standalone/angler-journal-debug.apk
 ```
 
-Open the project in Android Studio with Gradle 8.9 for IDE development. The standalone build and CI do not require Gradle or application dependencies.
+Open the project in Android Studio with Gradle 8.13 for IDE development. The standalone build and CI do not require Gradle or application dependencies.
 
 Build the preview first. `bash scripts/android-smoke.sh` runs instrumentation on a disposable **Android 15 test emulator**. It clears the preview application, sets its size and language, selects a water, checks a season, saves two catches, reopens the activity and verifies the records and photo. CI runs both Czech phone and English wide layouts and publishes their screenshots. The emulator also rejects a write, retries it, sends Android Back during a pending write and checks which coordinate field receives focus after invalid input. Unit tests cover navigation history, atomic photo replacement and native alarm scheduling across daylight saving time and pack expiry.
 

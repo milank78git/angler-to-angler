@@ -149,7 +149,8 @@ final class AccountStore {
         : "angler-field-journal-" + id;
   }
 
-  static synchronized void logout(Context c) {
+  static synchronized IdentityService.Session logout(Context c) {
+    IdentityService.Session previous = session;
     generation++;
     session = null;
     DeviceVault.clear(c);
@@ -164,5 +165,6 @@ final class AccountStore {
     LicenseReminder.clear(c);
     SeasonReminder.clearSubscriptions(c);
     FieldAlerts.clear(c);
+    return previous;
   }
 }

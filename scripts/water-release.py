@@ -60,9 +60,10 @@ def build(output, cache, stamp, refresh):
     failures = []
     if refresh:
         try:
-            run_import("import-czech-waters.py", cache / "cz", "--download", "--as-of", stamp)
-            new = read(ASSETS / "czech-waters.json")
-            shapes = read(ASSETS / "czech-water-shapes.json")
+            staged = cache / "cz-edition"
+            run_import("import-czech-waters.py", cache / "cz", "--download", "--as-of", stamp, "--output", staged)
+            new = read(staged / "czech-waters.json")
+            shapes = read(staged / "czech-water-shapes.json")
             validate_size(new["waters"], atlas["cz"]["waters"])
             if new["waters"] != atlas["cz"]["waters"] or shapes != atlas["shapes"]:
                 atlas["cz"], atlas["shapes"] = new, shapes

@@ -23,8 +23,16 @@ tag="v$version-build.$code"
 out=build/release
 name="angler-to-angler-${tag#v}.apk"
 mkdir -p "$out"
-"$bt/apksigner" sign --ks "$key" --ks-key-alias androiddebugkey --ks-pass pass:android \
-  --key-pass pass:android --out "$out/$name" "$apk"
+# Existing pilot installations pin the certificate. The same private key can be
+# rewrapped with strong passwords without rotating the certificate or losing journals.
+case "${ANDROID_PILOT_STORE_PASSWORD:+s}${ANDROID_PILOT_KEY_PASSWORD:+k}" in
+  sk) ;;
+  '') export ANDROID_PILOT_STORE_PASSWORD=android ANDROID_PILOT_KEY_PASSWORD=android ;;
+  *) echo "Set both pilot keystore passwords together" >&2; exit 1 ;;
+esac
+"$bt/apksigner" sign --ks "$key" --ks-key-alias "${ANDROID_PILOT_KEY_ALIAS:-androiddebugkey}" \
+  --ks-pass env:ANDROID_PILOT_STORE_PASSWORD --key-pass env:ANDROID_PILOT_KEY_PASSWORD --out "$out/$name" "$apk"
+unset ANDROID_PILOT_STORE_PASSWORD ANDROID_PILOT_KEY_PASSWORD
 certs=$("$bt/apksigner" verify --print-certs "$out/$name")
 [[ $(sed -n 's/^Signer #1 certificate SHA-256 digest: //p' <<< "$certs") == "$fingerprint" ]] || {
   echo "Signing certificate differs from pilot 0.4.4" >&2

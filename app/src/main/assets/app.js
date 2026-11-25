@@ -235,6 +235,7 @@ async function start() {
     else if (window.Device?.openProfile?.()) nav.open('anglerProfile');
     else nav.show();
   } catch (error) {
+    console.error('Journal startup failed', error?.name);
     screen.textContent = t('journal.could_not_open_local_data_try_restarting');
   }
 }

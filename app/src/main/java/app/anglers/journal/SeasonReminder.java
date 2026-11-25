@@ -79,7 +79,7 @@ public final class SeasonReminder extends BroadcastReceiver {
   @Override
   public void onReceive(Context context, Intent intent) {
     try {
-      if (AccountStore.remainingMillis(context) == 0) return;
+      if (!AccountStore.prefs(context).contains("subject") || prefs(context).getAll().isEmpty()) return;
       JSONObject pack = catalog(context);
       Instant now = Instant.now();
       if (FIRE.equals(intent.getAction())) {
@@ -146,6 +146,10 @@ public final class SeasonReminder extends BroadcastReceiver {
       prefs(c).edit().putLong(key, stamp).apply();
     }
     if (event != null && notificationsEnabled(c)) {
+      if (AccountStore.remainingMillis(c) == 0) {
+        post(c, key, AppLanguage.localized(c).getString(R.string.season), AppLanguage.text(c, "rules.open_season_reminder"));
+        return;
+      }
       String name = AppLanguage.text(c, fish.getString("message"));
       int message =
           event == SeasonCalendar.Event.EXPIRES
@@ -174,6 +178,7 @@ public final class SeasonReminder extends BroadcastReceiver {
             .setContentTitle(title)
             .setContentText(body)
             .setStyle(new Notification.BigTextStyle().bigText(body))
+            .setVisibility(Notification.VISIBILITY_PRIVATE)
             .setContentIntent(target)
             .setAutoCancel(true)
             .build());

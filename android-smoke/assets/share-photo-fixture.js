@@ -1,7 +1,7 @@
 // Add a valid JPEG comment to the saved fixture, as can occur in a legacy import.
 (async () => {
   const id = document.querySelector('[data-share-catch]').dataset.shareCatch;
-  const request = indexedDB.open(Device.journalName(), 1);
+  const request = indexedDB.open(Device.journalName());
   const db = await new Promise((resolve, reject) => {
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);

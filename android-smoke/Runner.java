@@ -667,6 +667,41 @@ public final class Runner extends Instrumentation {
     throw new AssertionError("Translated journal not visible");
   }
 
+  /** The alarm must advance an expired lease's watch even when the next date is months away. */
+  private void expiredSeasonWatch() throws Exception {
+    android.content.Context target = getTargetContext();
+    android.content.Context isolated = new android.content.ContextWrapper(target) {
+      @Override public android.content.SharedPreferences getSharedPreferences(String name, int mode) {
+        return super.getSharedPreferences("test-season-" + name, mode);
+      }
+    };
+    android.content.SharedPreferences account = isolated.getSharedPreferences("angler-account", 0);
+    android.content.SharedPreferences watches = isolated.getSharedPreferences("season-watches", 0);
+    org.json.JSONObject pack = targetAsset("catalog.json");
+    String key = pack.getString("id") + "/" + pack.getJSONArray("waters").getJSONObject(0).getString("id") + "/pike";
+    account.edit().putString("subject","fixture").putLong("verified", 1L).apply();
+    watches.edit().putLong(key, 1L).apply();
+    android.content.BroadcastReceiver receiver = (android.content.BroadcastReceiver)
+        target.getClassLoader().loadClass("app.anglers.journal.SeasonReminder").getDeclaredConstructor().newInstance();
+    try {
+      receiver.onReceive(isolated, new Intent("app.anglers.journal.SEASON").putExtra("key",key).putExtra("due",1L));
+      long next = watches.getLong(key, 0L);
+      if (next != 0 && next <= System.currentTimeMillis()) throw new AssertionError("Expired lease stopped season watch");
+      // A finite pack has no subsequent alarm after its last review date.
+      if (next > 0) {
+        Intent alarm = new Intent(isolated, receiver.getClass()).setAction("app.anglers.journal.SEASON")
+            .setData(android.net.Uri.parse("angler:season/" + android.net.Uri.encode(key)));
+        android.app.PendingIntent pending = android.app.PendingIntent.getBroadcast(isolated, 0, alarm,
+            android.app.PendingIntent.FLAG_IMMUTABLE | android.app.PendingIntent.FLAG_NO_CREATE);
+        if (pending == null) throw new AssertionError("Season watch did not schedule the next alarm");
+        isolated.getSystemService(android.app.AlarmManager.class).cancel(pending);
+      }
+    } finally {
+      watches.edit().clear().apply();
+      account.edit().clear().apply();
+    }
+  }
+
   @Override
   public void onStart() {
     Bundle outcome = new Bundle();
@@ -677,6 +712,7 @@ public final class Runner extends Instrumentation {
         finish(Activity.RESULT_OK, outcome);
         return;
       }
+      expiredSeasonWatch();
       AccountChecks accounts = new AccountChecks(this, !"wide".equals(scenario));
       bindJournal(accounts.register());
       checkAtlasLocationOffer();

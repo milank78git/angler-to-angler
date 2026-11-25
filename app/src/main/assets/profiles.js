@@ -198,7 +198,7 @@ export async function editProfile({ view, nav }) {
   bindBack(nav);
   trackEdits(by('card-form'), view);
   bind('reload-card', () => {
-    if (nav.mayLeave()) nav.show();
+    nav.leave(() => nav.show());
   });
   const radios = Array.from(screen.querySelectorAll('[name="portrait"]'));
   function preview() {
@@ -265,7 +265,7 @@ export async function editProfile({ view, nav }) {
           button('editor-sign-in', t('common.sign_in'), 'secondary'),
         );
         bind('editor-sign-in', () => {
-          if (nav.mayLeave()) window.Device.profileSignIn();
+          nav.leave(() => window.Device.profileSignIn());
         });
       }
       return;

@@ -146,6 +146,9 @@ jobs:
         id: package
         env:
           ANDROID_PILOT_KEYSTORE: ${{ secrets.ANDROID_PILOT_KEYSTORE }}
+          ANDROID_PILOT_STORE_PASSWORD: ${{ secrets.ANDROID_PILOT_STORE_PASSWORD }}
+          ANDROID_PILOT_KEY_PASSWORD: ${{ secrets.ANDROID_PILOT_KEY_PASSWORD }}
+          ANDROID_PILOT_KEY_ALIAS: ${{ vars.ANDROID_PILOT_KEY_ALIAS }}
         run: bash scripts/sign-pilot.sh build/input/angler-journal-debug.apk
       - name: Publish the APK and its checksum
         env:
