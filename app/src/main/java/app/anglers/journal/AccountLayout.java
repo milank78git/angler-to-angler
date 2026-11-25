@@ -190,7 +190,7 @@ final class AccountLayout {
     web.setWebViewClient(new LocalAssetClient(activity.getAssets(), ignored -> {}));
     Uri guide = Uri.parse(LocalAssetClient.ENTRY).buildUpon()
         .path("/guide.html")
-        .appendQueryParameter("lang", activity.getResources().getConfiguration().getLocales().get(0).toLanguageTag())
+        .appendQueryParameter("lang", AppLanguage.current(activity).toLanguageTag())
         .appendQueryParameter("theme", dark ? "dark" : "light")
         .fragment(activity instanceof WaterSettingsActivity ? "start" : activity instanceof GroupsActivity ? "groups" : "accounts")
         .build();

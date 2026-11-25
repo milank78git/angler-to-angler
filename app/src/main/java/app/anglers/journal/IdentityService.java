@@ -16,7 +16,7 @@ final class IdentityService {
   final String origin, key, redirect, notice, language;
 
   IdentityService(Context c) throws Exception {
-    language = c.getResources().getConfiguration().getLocales().get(0).stripExtensions().toLanguageTag().toLowerCase(Locale.ROOT);
+    language = AppLanguage.current(c).toLanguageTag().toLowerCase(Locale.ROOT);
     JSONObject config = new JSONObject(asset(c, "account-config.json"));
     origin = config.optString("url");
     key = config.optString("publishableKey");

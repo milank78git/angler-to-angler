@@ -1,7 +1,6 @@
 package app.anglers.journal;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -19,8 +18,8 @@ import android.webkit.WebView;
 import android.widget.Toast;
 
 /** Loads a fixed app-private HTTPS origin and brokers explicit Android user actions. */
-public final class FishingActivity extends Activity {
-  private static final int PHOTO = 51, NOTIFY = 53, CAMERA = 54, CAMERA_FIX = Integer.MAX_VALUE;
+public final class FishingActivity extends LocalizedActivity {
+  private static final int PHOTO = 51, NOTIFY = 53, LICENSE_NOTIFY = 56, CAMERA = 54, CAMERA_FIX = Integer.MAX_VALUE;
   private WebView web;
   private final android.content.SharedPreferences.OnSharedPreferenceChangeListener atlasListener = (prefs, key) -> {
     if (WaterCatalogue.REVISION.equals(key) && web != null)
@@ -230,6 +229,7 @@ public final class FishingActivity extends Activity {
     @JavascriptInterface
     public void profileRequest(int id, String operation, String body) {
       switch (operation) {
+        case "my_details":
         case "profile":
         case "card":
         case "directory":
@@ -306,6 +306,7 @@ public final class FishingActivity extends Activity {
                       subject,
                       operation,
                       new org.json.JSONObject(body));
+              if ("my_details".equals(operation)) LicenseReminder.remember(FishingActivity.this, subject, result);
             } catch (IdentityService.HttpFailure error) {
               status = error.status;
             } catch (Exception error) {
@@ -358,17 +359,17 @@ public final class FishingActivity extends Activity {
     /** Preserve the region and script used by localized dictionaries and number formatting. */
     @JavascriptInterface
     public String localeTag() {
-      return getResources().getConfiguration().getLocales().get(0).toLanguageTag();
+      return AppLanguage.current(FishingActivity.this).toLanguageTag();
+    }
+
+    @JavascriptInterface
+    public String systemLocaleTag() {
+      return android.content.res.Resources.getSystem().getConfiguration().getLocales().get(0).toLanguageTag();
     }
 
     @JavascriptInterface
     public String locale() {
-      if (Build.VERSION.SDK_INT >= 33) {
-        android.os.LocaleList selected =
-            getSystemService(android.app.LocaleManager.class).getApplicationLocales();
-        if (!selected.isEmpty()) return selected.get(0).getLanguage();
-      }
-      return getResources().getConfiguration().getLocales().get(0).getLanguage();
+      return AppLanguage.current(FishingActivity.this).getLanguage();
     }
 
     @JavascriptInterface
@@ -460,6 +461,32 @@ public final class FishingActivity extends Activity {
       runOnUiThread(() -> {
         if (foreground && subject.equals(AccountStore.active(FishingActivity.this)))
           FieldAlerts.nearby(FishingActivity.this,id,description);
+      });
+    }
+
+    @JavascriptInterface
+    public String licenseMessage() {
+      return subject.equals(AccountStore.active(FishingActivity.this)) ? LicenseReminder.message(FishingActivity.this) : "";
+    }
+
+    @JavascriptInterface
+    public boolean licenseNotificationsEnabled() {
+      return LicenseReminder.notificationsEnabled(FishingActivity.this);
+    }
+
+    @JavascriptInterface
+    public void enableLicenseNotifications() {
+      runOnUiThread(() -> {
+        if (!subject.equals(AccountStore.active(FishingActivity.this))) return;
+        if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+            && (!getSharedPreferences("appearance",MODE_PRIVATE).getBoolean("askedLicensePermission",false)
+                || shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS))) {
+          getSharedPreferences("appearance",MODE_PRIVATE).edit().putBoolean("askedLicensePermission",true).apply();
+          requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS},LICENSE_NOTIFY);
+        } else if (!LicenseReminder.notificationsEnabled(FishingActivity.this)) {
+          startActivity(new Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+              .putExtra(android.provider.Settings.EXTRA_APP_PACKAGE,getPackageName()));
+        } else LicenseReminder.reconcile(FishingActivity.this);
       });
     }
 
@@ -584,6 +611,10 @@ public final class FishingActivity extends Activity {
     boolean allowed = false;
     for (int grant : grants) if (grant == PackageManager.PERMISSION_GRANTED) allowed = true;
     if (code == PositionRequest.PERMISSION) position.permissionResult();
+    if (code == LICENSE_NOTIFY) {
+      LicenseReminder.reconcile(this);
+      signal("window.refreshLicense?.()");
+    }
     if (code == NOTIFY) {
       if (allowed && pendingReminder != null) enableReminder(pendingReminder);
       else {
@@ -647,7 +678,8 @@ public final class FishingActivity extends Activity {
     if (playStore!=null) playStore.resume();
     if (web!=null) {
       applyReadingPreferences();
-      signal("window.refreshFieldSettings?.()");
+      LicenseReminder.reconcile(this);
+      signal("window.refreshFieldSettings?.();window.refreshLicense?.()");
       if (FieldAlerts.enabled(this,FieldAlerts.POSTS)) FieldAlerts.checkPosts(this,null);
     }
     checkSession();

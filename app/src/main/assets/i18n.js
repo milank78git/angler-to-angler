@@ -1,4 +1,4 @@
-/** The phone language selects UI dictionaries independently of the fishing country. */
+/** The selected app language takes precedence over the phone language and fishing country. */
 const guideTag = globalThis.location?.pathname?.endsWith('/guide.html') && new URLSearchParams(location.search).get('lang');
 const requested = guideTag || globalThis.Device?.localeTag?.() || globalThis.Device?.locale?.() || navigator.language;
 function baseTag(tag) {

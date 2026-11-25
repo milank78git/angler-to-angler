@@ -1380,3 +1380,5 @@ label.label-with-hint { display: inline-block; margin-inline-end: .45rem; }
 #parking-name { margin-bottom: 12px; }
 .parking-card + .parking-card { border-top: 1px solid var(--border); margin-top: 16px; }
 .parking-feedback { margin-block: 8px; }
+
+#license-notice:not([hidden]) { display: block; margin: .75rem auto; max-width: calc(100% - 2rem); }

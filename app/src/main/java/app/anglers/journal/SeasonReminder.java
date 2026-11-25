@@ -153,7 +153,7 @@ public final class SeasonReminder extends BroadcastReceiver {
               : event == SeasonCalendar.Event.CLOSES
                   ? R.string.season_begins
                   : R.string.season_ends;
-      post(c, key, water.getString("name") + " · " + name, c.getString(message));
+      post(c, key, water.getString("name") + " · " + name, AppLanguage.localized(c).getString(message));
     }
   }
 
@@ -161,7 +161,7 @@ public final class SeasonReminder extends BroadcastReceiver {
     NotificationManager manager = c.getSystemService(NotificationManager.class);
     manager.createNotificationChannel(
         new NotificationChannel(
-            CHANNEL, c.getString(R.string.season), NotificationManager.IMPORTANCE_DEFAULT));
+            CHANNEL, AppLanguage.localized(c).getString(R.string.season), NotificationManager.IMPORTANCE_DEFAULT));
     Intent open = new Intent(c, AccountActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
     PendingIntent target =
         PendingIntent.getActivity(

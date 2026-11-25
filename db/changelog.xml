@@ -86,4 +86,7 @@
   <changeSet id="20261125075304" author="angler" dbms="postgresql">
     <sqlFile path="../supabase/migrations/20261125075304_play_market_settlement.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
   </changeSet>
+  <changeSet id="20261125092414" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261125092414_private_angler_details.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
 </databaseChangeLog>

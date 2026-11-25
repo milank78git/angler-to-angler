@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -237,7 +238,7 @@ public final class Runner extends Instrumentation {
     waitFor("!!document.querySelector('[data-water=\"CZ:MRS:1\"]')");
   }
 
-  private void setControl(String selector, String value, String event) throws Exception {
+  void setControl(String selector, String value, String event) throws Exception {
     String el = readyControl(selector);
     js("(() => { const field=" + el + "; field.value=" + org.json.JSONObject.quote(value)
         + "; field.dispatchEvent(new Event(" + org.json.JSONObject.quote(event) + ",{bubbles:true})); })()");
@@ -615,6 +616,44 @@ public final class Runner extends Instrumentation {
     }
   }
 
+  private void verifyLanguagePicker(AccountChecks accounts) throws Exception {
+    launch();
+    clickReady("#atlas-settings");
+    android.app.LocaleManager manager = getTargetContext().getSystemService(android.app.LocaleManager.class);
+    java.util.Locale original = manager.getApplicationLocales().get(0);
+    java.util.Locale german = java.util.Locale.GERMAN;
+    String germanName = german.getDisplayName(german);
+    org.json.JSONObject de = targetAsset("strings-de.json");
+    accounts.pickLanguage(label("settings.language")+" · "+original.getDisplayName(original), germanName);
+    accounts.click(de.getString("common.back"));
+    bindVisibleWeb();
+    waitFor("document.documentElement.lang==='de' && document.querySelector('#profile')?.textContent === "
+        + org.json.JSONObject.quote(de.getString("profile.title")));
+    clickReady("#atlas-settings");
+    accounts.pickLanguage(de.getString("settings.language")+" · "+germanName, de.getString("settings.language_system"));
+    long limit = android.os.SystemClock.elapsedRealtime()+8000;
+    while (!manager.getApplicationLocales().isEmpty() && android.os.SystemClock.elapsedRealtime()<limit) Thread.sleep(100);
+    if (!manager.getApplicationLocales().isEmpty()) throw new AssertionError("System language was not restored");
+  }
+
+  /** A framework locale change can recreate both the settings and the background fishing activity. */
+  private void bindVisibleWeb() throws Exception {
+    long limit = android.os.SystemClock.elapsedRealtime()+10000;
+    do {
+      WebView[] visible = {null};
+      runOnMainSync(() -> {
+        for (View root : android.view.inspector.WindowInspector.getGlobalWindowViews()) {
+          ViewGroup content = root.findViewById(android.R.id.content);
+          if (root.hasWindowFocus() && content != null && content.getChildAt(0) instanceof WebView)
+            visible[0]=(WebView)content.getChildAt(0);
+        }
+      });
+      if (visible[0]!=null) { web=visible[0]; return; }
+      Thread.sleep(100);
+    } while (android.os.SystemClock.elapsedRealtime()<limit);
+    throw new AssertionError("Translated journal not visible");
+  }
+
   @Override
   public void onStart() {
     Bundle outcome = new Bundle();
@@ -679,6 +718,7 @@ public final class Runner extends Instrumentation {
       clickReady("#tabwaters");
       // Follow an imported fishery through country filtering, official details and restored atlas state.
       accounts.atlasSettings();
+      accounts.fishingLicence();
       js("if(document.querySelector('#atlas-filters').hidden)document.querySelector('#atlas-filter-toggle').click()");
       setControl("#water-country", "IE", "change");
       setControl("#search", "Atlas fixture water", "input");
@@ -850,6 +890,7 @@ public final class Runner extends Instrumentation {
       MarketChecks.run(this);
       checkEvidenceSubmission(accounts);
       accounts.readGroupTip(postedTip);
+      if ("wide".equals(scenario)) verifyLanguagePicker(accounts);
       outcome.putString("stream", "ANGLER_SMOKE_PASS\n");
       finish(Activity.RESULT_OK, outcome);
     } catch (Throwable error) {

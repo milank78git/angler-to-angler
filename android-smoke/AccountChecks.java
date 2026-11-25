@@ -43,6 +43,7 @@ final class AccountChecks {
   private volatile String ownGroup;
   private volatile JSONObject savedCard;
   private volatile int cardRevision;
+  private JSONObject privateDetails;
   private volatile JSONObject submittedCatch;
   private volatile JSONObject postedTip;
   private static final String INVITE = "d18590e4-a811-4937-a16f-8eb2dacc019d";
@@ -206,6 +207,16 @@ final class AccountChecks {
                                       .put("groups", new org.json.JSONArray())
                                       .put("verifiedCount", 0)
                                       .toString();
+                              break;
+                            case "/rest/v1/rpc/angler_my_details":
+                              if (privateDetails == null) privateDetails = new JSONObject()
+                                  .put("age",JSONObject.NULL).put("expiry",JSONObject.NULL).put("reminder","off").put("revision",0);
+                              JSONObject changes = body.optJSONObject("changes");
+                              if (changes != null) {
+                                if (changes.getInt("revision") != privateDetails.getInt("revision")) return 409;
+                                privateDetails = changes.put("revision", changes.getInt("revision")+1);
+                              }
+                              response = privateDetails.toString();
                               break;
                             case "/rest/v1/rpc/angler_save_card":
                               if (body.getInt("expected") != cardRevision
@@ -808,6 +819,63 @@ final class AccountChecks {
     app.runOnMainSync(() -> gate.startActivity(callback));
   }
 
+  /** Exercise the private profile form, an immediately due Android notification and cancellation. */
+  void fishingLicence() throws Exception {
+    app.clickReady("#profile");
+    app.clickReady("#private-details");
+    app.waitFor("!!document.querySelector('#angler-age')");
+    String expiry = java.time.LocalDate.now().plusDays(5).toString();
+    app.setControl("#angler-age", "48", "input");
+    app.setControl("#permit-expiry", expiry, "input");
+    app.setControl("#permit-lead", "week", "change");
+    app.clickReady("#details-form button[type=submit]");
+    app.waitFor("document.querySelector('#private-summary')?.textContent.includes('48') && !document.querySelector('#license-notice').hidden");
+    android.app.NotificationManager manager = app.getTargetContext().getSystemService(android.app.NotificationManager.class);
+    if (java.util.Arrays.stream(manager.getActiveNotifications()).noneMatch(n -> "fishing-license".equals(n.getNotification().getChannelId())))
+      throw new AssertionError("No fishing licence notification");
+    app.clickReady("#license-notice");
+    app.waitFor("document.querySelector('#permit-expiry')?.value==='" + expiry + "'");
+    app.setControl("#permit-expiry", "", "input");
+    app.clickReady("#details-form button[type=submit]");
+    app.waitFor("!!document.querySelector('#private-summary') && document.querySelector('#license-notice').hidden");
+    if (java.util.Arrays.stream(manager.getActiveNotifications()).anyMatch(n -> "fishing-license".equals(n.getNotification().getChannelId())))
+      throw new AssertionError("Clearing expiry kept a notification");
+    app.clickReady("#tabwaters");
+  }
+
+  /** Select an item in the actual native single-choice list, including rows outside its viewport. */
+  void pickLanguage(String buttonLabel, String option) throws Exception {
+    click(buttonLabel);
+    app.waitForIdleSync();
+    boolean[] chosen = {false};
+    app.runOnMainSync(() -> {
+      for (View root : android.view.inspector.WindowInspector.getGlobalWindowViews()) {
+        if (!root.hasWindowFocus()) continue;
+        ListView list = languageList(root);
+        if (list == null) continue;
+        for (int i=0; i<list.getCount(); i++) {
+          if (option.contentEquals(String.valueOf(list.getItemAtPosition(i)))) {
+            chosen[0] = list.performItemClick(null,i,list.getItemIdAtPosition(i));
+            return;
+          }
+        }
+      }
+    });
+    if (!chosen[0]) throw new AssertionError("Language option missing: " + option);
+  }
+
+  private ListView languageList(View root) {
+    if (root instanceof ListView) return (ListView)root;
+    if (root instanceof ViewGroup) {
+      ViewGroup group = (ViewGroup)root;
+      for (int i=0; i<group.getChildCount(); i++) {
+        ListView child = languageList(group.getChildAt(i));
+        if (child != null) return child;
+      }
+    }
+    return null;
+  }
+
   void atlasSettings() throws Exception {
     app.clickReady("#atlas-settings");
     String daily = tr("atlas_settings.check_automatically_every_day");
@@ -890,7 +958,7 @@ final class AccountChecks {
     if (find(text).isEnabled()) throw new AssertionError("Premature profile acceptance");
   }
 
-  private void click(String text) throws Exception {
+  void click(String text) throws Exception {
     TextView v = find(text);
     app.runOnMainSync(
         () -> {

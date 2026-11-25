@@ -16,7 +16,7 @@ import org.json.JSONObject;
  * The launcher and account UI. The journal opens only after the server confirms the profile and
  * both revisions.
  */
-public final class AccountActivity extends Activity {
+public final class AccountActivity extends LocalizedActivity {
   private final ExecutorService io = Executors.newFixedThreadPool(2);
   private IdentityService service;
   private AccountLayout ui;
@@ -143,7 +143,7 @@ public final class AccountActivity extends Activity {
       if (kind.equals("privacy"))
         contents +=
             "\n\n" + AppLanguage.document(this, "optional-profile")
-                + "\n\n" + text("store.private_data") + "\n\n" + text("store.payment_data");
+                + "\n\n" + text("store.private_data") + "\n\n" + text("store.payment_data") + "\n\n" + text("license.privacy");
       if (kind.equals("privacy") && service != null && !service.notice.isEmpty())
         contents += "\n\n" + service.notice;
       AccountLayout.Prompt reader = ui.prompt(title);
@@ -214,6 +214,7 @@ public final class AccountActivity extends Activity {
     else
       ui.message(text("account.sign_in_is_currently_unavailable"));
     documents();
+    action(text("settings.language"), AccountLayout.Action.LINK, () -> AppLanguage.pick(this));
   }
 
   /**

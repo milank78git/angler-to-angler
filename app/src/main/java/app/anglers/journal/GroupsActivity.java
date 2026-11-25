@@ -1,6 +1,5 @@
 package app.anglers.journal;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
@@ -13,7 +12,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /** Online membership management. No group, invitation or account token is written to disk here. */
-public final class GroupsActivity extends Activity {
+public final class GroupsActivity extends LocalizedActivity {
   private final ExecutorService io = Executors.newSingleThreadExecutor();
   private AccountLayout ui;
   private IdentityService service;
