@@ -37,6 +37,7 @@ def generateAccountConfig = tasks.register('generateAccountConfig', Exec) {
     def output = accountAssets.get().file('account-config.json').asFile
     outputs.dir(accountAssets)
     outputs.upToDateWhen { false }
+    workingDir rootProject.projectDir
     commandLine 'python3', rootProject.file('scripts/account-config.py'), output
 }
 android.sourceSets.preview.java.srcDir('src/pilot/java')
