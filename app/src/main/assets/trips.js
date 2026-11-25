@@ -1,3 +1,4 @@
+import { bindJournalSync } from './journal-sync.js';
 import { catchLatin, catchRulesHtml } from './catch-species.js';
 import { fishDirectory } from './fish-catalogue.js';
 import { waterPicker, bindWaterPicker } from './water-picker.js';
@@ -40,12 +41,13 @@ export async function listTrips({ view, nav, waterDirectory }) {
   const total = trips.reduce((sum, trip) => sum + trip.catchCount, 0);
   screen.innerHTML = `<section class="journal-head"><div class="journal-art" aria-hidden="true">${icon('book-open')}</div>
     <h1>${t('trips.my_journal')}</h1><p>${icon('lock-keyhole')}${t('trips.private_on_this_phone')}</p>
-    <div class="metrics"><span><strong>${trips.length}</strong>${t('common.trips')}</span><span><strong>${total}</strong>${t('trips.catches')}</span></div></section>
+    <div id="journal-sync"></div><div class="metrics"><span><strong>${trips.length}</strong>${t('common.trips')}</span><span><strong>${total}</strong>${t('trips.catches')}</span></div></section>
     <div class="list-heading"><h2>${t('trips.my_trips')}</h2>${button('add-trip', t('trips.new_trip'), 'primary', 'plus')}</div>
     ${button('trip-stats', t('stats.title'), 'secondary')}` +
     (trips.length ? textInput('trip-search', t('trips.find_by_water'), view.route.query, 'type="search"') +
       '<p id="trip-results" class="meta" role="status"></p><div id="trip-list" class="trip-list"></div>' :
       emptyState('notebook-pen', t('trips.log_your_first_trip'), t('trips.a_day_on_the_water_belongs_here')));
+  bindJournalSync(by('journal-sync'));
   bind('trip-stats', () => nav.open('journalStatistics'));
   bind('add-trip', () => nav.open('newTrip'));
   if (!trips.length) return;

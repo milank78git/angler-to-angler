@@ -142,7 +142,8 @@ public final class AccountActivity extends Activity {
       }
       if (kind.equals("privacy"))
         contents +=
-            "\n\n" + AppLanguage.document(this, "optional-profile");
+            "\n\n" + AppLanguage.document(this, "optional-profile")
+                + "\n\n" + text("store.private_data") + "\n\n" + text("store.payment_data");
       if (kind.equals("privacy") && service != null && !service.notice.isEmpty())
         contents += "\n\n" + service.notice;
       AccountLayout.Prompt reader = ui.prompt(title);
@@ -603,6 +604,7 @@ public final class AccountActivity extends Activity {
       nickname.setText(profile.optString("name"));
       nickname.setEnabled(false);
     }
+    ui.message(text("sync.new_account"));
     CheckBox terms = ui.check(text("account.i_accept_the_terms_of_use"));
     CheckBox privacy =
         ui.check(
@@ -619,7 +621,12 @@ public final class AccountActivity extends Activity {
                 return;
               }
               if (!terms.isChecked() || !privacy.isChecked()) return;
-              run(() -> service.accept(signing.access, name), this::finishProfile);
+              run(() -> service.accept(signing.access, name), result -> {
+                if (signing.id.equals(result.optString("id")) && result.optBoolean("current")) {
+                  AccountStore.prefs(this).edit().putBoolean("cloudJournal." + signing.id, true).apply();
+                }
+                finishProfile(result);
+              });
             });
     submit.setEnabled(false);
     CompoundButton.OnCheckedChangeListener update =
@@ -695,6 +702,9 @@ public final class AccountActivity extends Activity {
     ui.page(AccountStore.prefs(this).getString("name", ""), false);
     ui.label(
         text("account.for_account_correction_access_or_deletion_contact"));
+    action(text("store.deletion_request"), AccountLayout.Action.SECONDARY,
+        () -> startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(
+            "https://milank78git.github.io/angler-to-angler/delete-account/"))));
     action(text("common.water_atlas_updates"), AccountLayout.Action.SECONDARY,
         () -> startActivity(new Intent(this, WaterSettingsActivity.class)));
     action(

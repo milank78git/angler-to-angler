@@ -121,6 +121,7 @@ export function atlasMap(host, route, openWater, picker = null) {
   }
   online.onchange = () => {
     localStorage.setItem('atlas.topographic',online.checked?'on':'off');
+    window.dispatchEvent(new Event('journal-edited'));
     attribution.hidden=!online.checked;
     tiles.clear();
     draw();

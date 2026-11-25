@@ -1,4 +1,4 @@
-plugins { id 'com.android.application' version '8.7.3' }
+plugins { id 'com.android.application' version '8.13.2' }
 def appLinkHost = providers.exec { commandLine 'python3', rootProject.file('scripts/app-link-host.py') }.standardOutput.asText.get().trim()
 def projectPages = System.getenv('ANGLER_ACCOUNT_PAGES') ?: 'false'
 if (!(projectPages in ['true', 'false']) || (projectPages == 'true' && System.getenv('ANGLER_APP_LINK_HOST')?.trim())) {
@@ -6,7 +6,12 @@ if (!(projectPages in ['true', 'false']) || (projectPages == 'true' && System.ge
 }
 android {
     namespace 'app.anglers.journal'
-    compileSdk 35
+    compileSdk 36
+    flavorDimensions += 'channel'
+    productFlavors {
+        pilot { dimension 'channel' }
+        play { dimension 'channel'; targetSdk 36 }
+    }
     defaultConfig {
         applicationId 'app.anglers.journal'
         minSdk 26
@@ -15,8 +20,8 @@ android {
         resValue 'string', 'app_link_host', appLinkHost
         resValue 'bool', 'use_project_pages', projectPages
         resValue 'bool', 'use_verified_links', (System.getenv('ANGLER_APP_LINK_HOST')?.trim() ? 'true' : 'false')
-        versionCode 36
-        versionName '0.23.0'
+        versionCode Integer.parseInt(System.getenv('ANGLER_VERSION_CODE') ?: '37')
+        versionName '0.24.0'
     }
 }
 
@@ -29,3 +34,5 @@ def generateAccountConfig = tasks.register('generateAccountConfig', Exec) {
 }
 android.sourceSets.main.assets.srcDir(accountAssets)
 tasks.named('preBuild').configure { dependsOn(generateAccountConfig) }
+
+dependencies { playImplementation 'com.android.billingclient:billing:8.3.0' }

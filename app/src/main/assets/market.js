@@ -1,3 +1,4 @@
+import { playEdition, commerceStatus, commerceBuy, commerceDiscover, commercePublish, enrollment, walletPanel, estimate } from './commerce.js';
 import { waterPicker, bindWaterPicker } from './water-picker.js';
 import { countryOptions, fishDirectory, fishOption, matchingSpecies, preferredCountry } from './fish-catalogue.js';
 import { by, screen, esc, bind, back, bindBack, button, t, displayDay, field, textInput, selectField,
@@ -59,18 +60,18 @@ function claim(view, nav) {
 
 export async function marketShelf({ view, nav, waterDirectory }) {
   const { shelf = 'browse', cursor = null, water = null } = view.route;
-  let data, directory;
+  let data, directory, wallet;
   try {
-    [directory,data] = await Promise.all([fishDirectory(), shelf === 'browse' ?
-      rpc('market_discover', { water_key: water, before_position: cursor }) :
-      rpc('market_list', { shelf, before_position: cursor })]);
+    [directory,data,wallet] = await Promise.all([fishDirectory(), shelf === 'browse' ?
+      (playEdition() ? commerceDiscover(water,cursor) : rpc('market_discover', { water_key: water, before_position: cursor })) :
+      rpc('market_list', { shelf, before_position: cursor }), playEdition() ? commerceStatus() : null]);
   }
   catch (err) { return loadError(view, nav, err); }
   if (!view.active()) return;
   screen.innerHTML = heading(market()) +
-    '<p>' + t('market.fishing_techniques_for_test_credits_credits_have') + '</p>' +
+    (wallet ? '<section class="surface" id="commerce-wallet"></section>' : '<p>' + t('market.fishing_techniques_for_test_credits_credits_have') + '</p>' +
     (data.balance == null ? button('market-activate', activate(), 'secondary') :
-      '<p>' + t('market.balance') + ' · ' + credits(data.balance) + '</p>') +
+      '<p>' + t('market.balance') + ' · ' + credits(data.balance) + '</p>')) +
     '<div class="actions">' + Object.entries(shelves()).map(([key, label]) =>
       button('shelf-' + key, label, shelf === key ? 'primary' : 'secondary')).join('') + '</div>' +
     (shelf === 'browse' ? waterPicker('market-water', t('common.water'), t('market.all_waters')) +
@@ -82,43 +83,49 @@ export async function marketShelf({ view, nav, waterDirectory }) {
       button('offer-' + i, t('market.open_tip'), 'secondary') + '</article>').join('') ||
       '<p class="empty">' + t('common.no_tips_here_yet') + '</p>') +
     (data.next ? button('market-more', t('market.more_tips'), 'secondary') : '') +
-    button('market-create', t('common.offer_a_technique'), 'primary');
+    (wallet?.mode==='off' ? '' : button('market-create', t('common.offer_a_technique'), 'primary'));
   bindBack(nav);
   if (shelf === 'browse') bindWaterPicker('market-water', view, waterDirectory, water);
   if (by('market-water')) by('market-water').onchange = e => {
     view.route.water = e.target.value || null; view.route.cursor = null; nav.show();
   };
-  if (data.balance == null) claim(view, nav);
+  if (wallet) walletPanel(view,nav,wallet);
+  else if (data.balance == null) claim(view, nav);
   for (const key of Object.keys(shelves())) {
     by('shelf-' + key).setAttribute('aria-pressed', String(key === shelf));
     bind('shelf-' + key, () => { view.route.shelf = key; view.route.cursor = null; nav.show(); });
   }
   data.items.forEach((item, i) => bind('offer-' + i, () => nav.open('marketDetail', { id: item.id })));
   if (data.next) bind('market-more', () => nav.open('marketShelf', { shelf, water, cursor: data.next }));
-  bind('market-create', () => nav.open('marketEditor', { water }));
+  if (by('market-create')) bind('market-create', () => nav.open('marketEditor', { water }));
 }
 
 export async function marketDetail({ view, nav, waterDirectory }) {
   const { id } = view.route;
-  let item, directory;
-  try { [item,directory] = await Promise.all([rpc('market_detail', { offer_id: id }),fishDirectory()]); }
+  let item, directory, wallet;
+  try { [item,directory,wallet] = await Promise.all([rpc('market_detail', { offer_id: id }),fishDirectory(),playEdition()?commerceStatus(id):null]); }
   catch (err) { return loadError(view, nav, err); }
   if (!view.active()) return;
-  const available = !item.withdrawn && (item.limit == null || item.limit > item.sold);
+  if (wallet) item.balance=wallet.balance;
+  const available = (!wallet || (wallet.mode!=='off' && wallet.enrolled)) && !item.withdrawn && (item.limit == null || item.limit > item.sold);
   screen.innerHTML = heading(item.title) + '<article class="surface"><h2>' + t('market.fishing_technique') +
     '</h2>' + offerFacts(item, waterDirectory, directory) + '</article>' +
     (item.mine || item.purchased ? '<section class="surface"><h2>' +
       (item.mine ? t('market.your_technique') : t('market.purchased_technique')) +
       '</h2><p class="discussion-body" id="market-technique">' + esc(item.technique) + '</p></section>' :
       '<p>' + t('market.unlock_the_authors_written_technique') + '</p>') +
+    (wallet && !wallet.enrolled && !item.purchased ? '<p>'+t('commerce.pilot_offer')+'</p>' : '') +
+    (wallet && item.mine && !item.withdrawn && !wallet.enrolled && wallet.mode!=='off' ? button('commerce-enroll',t('commerce.enroll'),'secondary') : '') +
+    (wallet && wallet.enrolled ? '<p>'+t('commerce.split')+(item.mine?' '+estimate(item.price):'')+'</p>' : '') +
     purchaseRating(item) +
     '<div class="actions">' + (item.mine && !item.withdrawn ?
       button('market-edit', editLabel(), 'secondary') + button('market-withdraw', t('market.withdraw_offer'), 'danger') :
       !item.mine && !item.purchased && available ? (item.balance == null ? button('market-activate', activate(), 'secondary') :
         '<p>' + t('market.balance') + ' · ' + credits(item.balance) + '</p>' +
         (item.balance >= item.price ? button('market-buy', t('market.unlock_tip'), 'primary') :
-          '<p>' + errorText(402) + '</p>')) : '') + '</div>';
+          '<p>' + (wallet?t('commerce.insufficient'):errorText(402)) + '</p>')) : '') + '</div>';
   bindBack(nav);
+  enrollment(view,nav,item);
   bindPurchaseRating(view, nav, id);
   if (by('market-activate')) claim(view, nav);
   if (by('market-edit')) bind('market-edit', () => nav.open('marketEditor', { id }));
@@ -131,7 +138,7 @@ export async function marketDetail({ view, nav, waterDirectory }) {
   if (by('market-buy')) bind('market-buy', async () => {
     if (!await confirmAction({ title: t('market.confirm_tip_purchase'),
       message: item.title + ' · ' + credits(item.price), accept: t('market.buy_for') + credits(item.price) })) return;
-    await submitChange(view, () => rpc('market_buy', { offer_id: id, expected_revision: item.revision, expected_price: item.price }),
+    await submitChange(view, () => wallet ? commerceBuy(id,item.revision,item.price) : rpc('market_buy', { offer_id: id, expected_revision: item.revision, expected_price: item.price }),
       () => nav.show(), err => {
         toast(errorText(err.status));
         if ([402, 404, 409].includes(err.status)) nav.show();
@@ -161,7 +168,7 @@ export async function marketEditor({ view, nav, waterDirectory }) {
       'required type="date" min="1900-01-01" max="' + currentDay + '"') +
     waterPicker('offer-water', t('market.water_shown_in_preview'), t('market.omit')) +
     selectField('offer-access', t('market.where_to_fish'), Object.entries(access()), old?.access ?? 'shore') +
-    textInput('offer-price', t('market.price_in_test_credits'), old?.price ?? 10, 'required type="number" min="1" max="100"') +
+    textInput('offer-price', t(playEdition()?'commerce.price':'market.price_in_test_credits'), old?.price ?? 10, 'required type="number" min="1" max="100"') +
     textInput('offer-limit', t('market.total_sales_limit_optional'), old?.limit ?? '',
       'type="number" min="' + Math.max(1, old?.sold || 0) + '" max="10000"') +
     '</fieldset><fieldset class="surface"><legend>' + t('market.only_for_buyers') + '</legend>' +
@@ -189,6 +196,7 @@ export async function marketEditor({ view, nav, waterDirectory }) {
   search.oninput = () => choices(picker.value);
   country.onchange = () => {
     localStorage.setItem('fish.country', country.value);
+    window.dispatchEvent(new Event('journal-edited'));
     choices(picker.value);
   };
   const form = by('market-form');
@@ -202,12 +210,14 @@ export async function marketEditor({ view, nav, waterDirectory }) {
     review(draft);
   };
   async function review(draft) {
+    const commercial = playEdition() && !old;
     const message = [draft.title, draft.species, displayDay(draft.day), access()[draft.access], selectedWater()?.name || draft.water,
       credits(draft.price), draft.limit == null ? t('market.unlimited') : t('market.sales_limit') + draft.limit]
       .filter(Boolean).join(' · ');
-    if (!await confirmAction({ title: t('market.publish_this_preview'), message,
-      accept: t('market.publish_offer') })) return;
-    await submitChange(view, () => rpc('market_publish', { offer_id: old?.id ?? route.requestId, expected_revision: old?.revision ?? 0, draft }),
+    if (!await confirmAction({ title: t('market.publish_this_preview'), message: commercial ? message+' · '+t('commerce.split')+' '+estimate(draft.price) : message,
+      accept: t(commercial ? 'commerce.review_sale' : 'market.publish_offer') })) return;
+    const args={ offer_id: old?.id ?? route.requestId, expected_revision: old?.revision ?? 0, draft };
+    await submitChange(view, () => commercial ? commercePublish(args) : rpc('market_publish', args),
       () => { view.dirty = false; toast(t('market.offer_saved')); nav.back(); },
       err => {
         toast(errorText(err.status));

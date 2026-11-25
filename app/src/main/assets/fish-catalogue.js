@@ -126,6 +126,7 @@ export async function fishCatalogue({view, nav}) {
     route.country = code; route.limit = 50;
     by('fish-country').value = code;
     localStorage.setItem('fish.country',code);
+    window.dispatchEvent(new Event('journal-edited'));
     render();
   }
   let pending = 0;

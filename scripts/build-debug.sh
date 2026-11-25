@@ -45,7 +45,7 @@ if [[ "${1:-}" == "--preview" ]]; then label=app_name_preview; fi
 sed -e 's/${appLinkHost}/'"$host"'/g' -e 's/${applicationId}/'"$app_id"'/g' -e "s|@string/app_name\"|@string/$label\"|g" app/src/main/AndroidManifest.xml > "$manifest"
 "$bt/aapt2" compile --dir "$out/res" -o "$out/resources.zip"
 "$bt/aapt2" link -o "$out/resources.apk" --manifest "$manifest" "${link_args[@]}" -I "$platform" --java "$out/gen" -A "$out/assets" "$out/resources.zip"
-find app/src/main/java "$out/gen" -name '*.java' | sort > "$out/sources"
+find app/src/main/java app/src/pilot/java "$out/gen" -name '*.java' | sort > "$out/sources"
 java -m jdk.compiler/com.sun.tools.javac.Main -source 8 -target 8 -bootclasspath "$bt/core-lambda-stubs.jar:$platform" -Xlint:-options -d "$out/classes" @"$out/sources"
 java -m jdk.jartool/sun.tools.jar.Main cf "$out/classes.jar" -C "$out/classes" .
 "$bt/d8" --lib "$platform" --min-api 26 --output "$out/dex" "$out/classes.jar"
