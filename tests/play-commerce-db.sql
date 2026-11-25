@@ -27,6 +27,8 @@ do $$declare id uuid; draft jsonb:='{"title":"River technique","species":"Pike",
  end loop;
  for i in 1..2 loop
    perform pg_temp.as_user(71+i);buyer:=auth.uid();
+   perform pg_temp.check_that(public.angler_play_receipt('holder',jsonb_build_object('binding',encode(sha256(convert_to(buyer::text,'UTF8')),'hex')))->>'holder'=buyer::text,
+     'Push purchase did not resolve the profile');
    args:=jsonb_build_object('holder',buyer,'sku','credits_100_czk','mode','test','order','fixture-order-'||i,'hash',case i when 1 then h else h2 end);
    perform public.angler_play_receipt('credit',args);perform public.angler_play_receipt('credit',args);
    id:=md5('commercial tip '||i)::uuid;

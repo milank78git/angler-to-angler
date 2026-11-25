@@ -2,6 +2,11 @@
 create schema angler_sync;
 revoke all on schema angler_sync from public, anon, authenticated;
 grant usage on schema angler_sync to authenticated;
+create table angler_sync.accounts (
+  owner uuid primary key references angler_private.profiles(user_id) on delete cascade,
+  enabled_at timestamptz not null default now()
+);
+alter table angler_sync.accounts enable row level security;
 create table angler_sync.documents (
   owner uuid not null references angler_private.profiles(user_id) on delete cascade,
   key text not null,
@@ -30,7 +35,12 @@ declare
   parts_list text[];
   existing angler_sync.documents;
 begin
-  if op='list' then
+  if op='enable' then
+    insert into angler_sync.accounts(owner) values(actor) on conflict do nothing;
+    return jsonb_build_object('enabled',true);
+  elsif op='settings' then
+    return jsonb_build_object('enabled',exists(select from angler_sync.accounts where owner=actor));
+  elsif op='list' then
     -- Keep each response under the Android bridge size limit while paging small manifests together.
     return (with candidates as (select key,revision,parts from angler_sync.documents
       where owner=actor and key>coalesce(args->>'after','') order by key limit 128),

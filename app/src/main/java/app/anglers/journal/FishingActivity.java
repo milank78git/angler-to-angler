@@ -170,6 +170,12 @@ public final class FishingActivity extends Activity {
     }
 
     @JavascriptInterface
+    public boolean journalCloudDefault() {
+      return AccountStore.prefs(FishingActivity.this).getBoolean("cloudJournal." + subject, false)
+          && !subject.equals(AccountStore.prefs(FishingActivity.this).getString("legacyOwner", ""));
+    }
+
+    @JavascriptInterface
     public String subjectId() {
       return subject;
     }

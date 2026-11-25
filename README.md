@@ -1,8 +1,8 @@
 # Angler to Angler
 
-An offline-first Android field journal for anglers. The Czech launcher name is **Rybáři sobě**. The journal stores trips on the phone. The offline atlas includes sourced waters and can receive new catalogue editions. A verified angler profile and acceptance of the current terms are required. Open **My journal** to log a trip on any named water.
+An offline-first Android field journal for anglers. The Czech launcher name is **Rybáři sobě**. The journal keeps trips available offline and synchronizes them privately across a registered account’s devices. The offline atlas includes sourced waters and can receive new catalogue editions. A verified angler profile and acceptance of the current terms are required. Open **My journal** to log a trip on any named water.
 
-For the Google Play internal test, marketplace settlement and optional private journal synchronization, see [Google Play operations](docs/google-play.md).
+For the Google Play internal test, marketplace settlement and private journal synchronization, see [Google Play operations](docs/google-play.md).
 
 ## Try the pilot
 
@@ -35,13 +35,13 @@ For the Google Play internal test, marketplace settlement and optional private j
 
 - The WebView starts in `app.js`. Navigation owns the lifetime of each screen. The atlas, seasons, trip views and catch editor each import their dependencies explicitly.
 - Catch sharing uses the system chooser. For a selected photo the chooser receives a read grant for a single randomly named file in the private cache. The provider stops serving copies after 24 hours and cleans up expired files on later use.
-- Android supplies the document picker, one-shot location, external map handoff and opt-in seasonal notifications. Packaged web assets run on a fixed, private origin inside the Android application. Native account requests use HTTPS. Journal data stay in the WebView’s private origin and are excluded from backup and analytics. Source links open an external browser.
+- Android supplies the document picker, one-shot location, external map handoff and opt-in seasonal notifications. Packaged web assets run on a fixed, private origin inside the Android application. Native account requests use HTTPS. The local journal is excluded from Android backup and analytics. Account journal synchronization uses authenticated private storage. Source links open an external browser.
 - IndexedDB keeps trip, catch and image records. A catch and its re-encoded JPEG are committed in a single transaction. Images are resized to a maximum edge of 1,920 pixels and omit source metadata. Saved lengths use integer millimetres. GPS records distinguish angler position from strike location, provider accuracy and observation time.
 - The 2026 Czech pack contains two main-river reaches and four species. It has a country, IANA time zone, revision, inclusive validity period, scientific names, regional sizes, closed seasons and primary sources. A restricted section returns a prohibition. An unknown section or expired pack returns an unknown status. Local seasonal results cover the selected rule only. The app UI is available in Czech and English, following the device language.
 - Reminders apply to the selected water and species. Android schedules approximate local 08:00 notifications on a seasonal transition and on the day after pack expiry. Restart and package replacement reschedule active subscriptions. If notifications are disabled, the app can still be used offline.
 - The APK includes the complete pilot pack. Updates currently ship with a new APK. The map shows generalized river geometry, boundaries, selected restrictions and documented accesses. Check public access locally. A boundary point does not imply an access point.
 - International expansion should add regional packs, local authorities, languages and corresponding rule tests. The first pilot ships one pack. Unlisted waters work worldwide as user-named journal entries.
-- The journal ranks personal visits and actual catches. Shared trip and species totals require voluntary submissions. A fishing group can run an opt-in monthly challenge using weekly catch votes. Global individual and group rankings, cash payouts and automated photo measurement belong to later releases. A future competition, record claim or prize would need a separate evidence standard, such as a continuous in-app clip with a randomized camera movement.
+- The journal ranks personal visits and actual catches. Shared trip and species totals require voluntary submissions. A fishing group can run an opt-in monthly challenge using weekly catch votes. Global individual and group rankings and automated photo measurement belong to later releases. The Play variant supports payout requests once the operator activates its marketplace. A future competition, record claim or prize would need a separate evidence standard, such as a continuous in-app clip with a randomized camera movement.
 
 ## Daily water directory
 

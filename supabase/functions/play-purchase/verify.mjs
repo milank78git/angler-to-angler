@@ -17,3 +17,23 @@ export async function fulfill({token,holder,mode,lookup,credit,consume}) {
   await credit({mode,sku,holder,order:purchase.orderId,hash:await digest(token)});
   if (offer.consumptionState!=='CONSUMPTION_STATE_CONSUMED') await consume(sku,token);
 }
+
+/** Complete a purchase even when its owner closes the app before Play confirms payment. */
+export async function processNotification(event, services) {
+  if (event.packageName!=='app.anglers.journal' || event.testNotification) return;
+  const voided=event.voidedPurchaseNotification;
+  if (voided?.productType===2 && voided.refundType===1 && voided.purchaseToken) {
+    await services.voidReceipt(await digest(voided.purchaseToken));
+    return;
+  }
+  const notice=event.oneTimeProductNotification;
+  if (notice?.notificationType!==1 || !skuSet.has(notice.sku)) return;
+  const purchase=await services.lookup(notice.purchaseToken);
+  if (Boolean(purchase.testPurchaseContext)!==(services.mode==='test') ||
+      purchase.purchaseStateContext?.purchaseState==='CANCELLED' ||
+      purchase.productLineItem?.[0]?.productOfferDetails?.refundableQuantity===0) return;
+  const holder=await services.resolveHolder(purchase.obfuscatedExternalAccountId);
+  // Test and production projects can subscribe to the same package. Deleted accounts receive no grants.
+  if (!holder) return;
+  await fulfill({...services,holder,token:notice.purchaseToken,lookup:async()=>purchase});
+}

@@ -11,7 +11,7 @@ database rejects switching between test and live financial environments.
    payments profile, and create the listing under the existing package name.
    Choose the Play signing identity deliberately. Existing sideloaded pilots
    can update in place only if their installed signing certificate matches.
-   Enable journal sync and verify a restore before asking anyone to reinstall.
+   Confirm the journal shows a completed sync and verify a restore before asking anyone to reinstall.
 2. Set the public GitHub Actions variable `ANGLER_PLAY_ACCOUNT_CONFIG` for the
    test project using the format in `docs/accounts.md`. Configure the Pages
    callback there. Apply the Liquibase changelog. Deploy the `play-purchase`
@@ -40,13 +40,21 @@ database rejects switching between test and live financial environments.
    Compare the quoted and charged price, wallet grant, single consumption and
    Google order. Test receipts must never create a bank instruction.
 
-The Edge Function validates the bearer with Supabase Auth, queries Google's
-product purchase V2 endpoint and compares the account hash, package endpoint,
-test environment, region, product, unit count and purchase state. The backend
-records the receipt once before consuming it. In a project using asymmetric
-Supabase signing keys, deploy this function with `--no-verify-jwt` if the
-legacy gateway is incompatible. The function itself always verifies the user
-with Auth before accessing the service-role route.
+Deploy `supabase functions deploy play-purchase --no-verify-jwt` to the intended
+project. The function verifies the mobile bearer with Supabase Auth. Its separate
+push route verifies Google's OIDC signature, issuer, audience and verified
+service-account email. Both paths check the Google purchase V2 record, product,
+quantity, region, environment and account before crediting, then consume it.
+
+In Play Console enable real-time developer notifications for one-time products,
+grant Google Play permission to publish to the chosen Pub/Sub topic, and create
+an authenticated push subscription to the Edge URL ending in
+`/functions/v1/play-purchase/notifications`. Configure `PLAY_PUSH_EMAIL` for the
+push service account, `PLAY_PUSH_AUDIENCE` for its exact OIDC audience and
+`PLAY_PUSH_SUBSCRIPTION` for the full subscription resource name. Use the Console
+test message, then complete a pending license purchase with the app closed.
+Review retry and dead-letter messages for the subscription. Daily refund polling
+also covers missed void notifications.
 
 ## Operating the marketplace
 
@@ -102,8 +110,7 @@ restoration, refunds and settlement evidence have been reviewed.
 
 Android and future clients use the same versioned, authenticated document
 format. The Android APK and the Play bundle retain offline IndexedDB storage.
-The Journal screen explains synchronization before existing GPS coordinates
-and photos leave the phone. Enable it again on a second device to restore.
+New registrations disclose account storage and turn on private synchronization for a fresh journal. Existing device journals require a separate opt-in before historical GPS coordinates and photos leave the phone. A clean second device restores after sign-in once the account has synced. A device with existing private records asks before combining journals.
 A revision covers one trip and its catches, a personal water photo or a
 preference. Disjoint edits merge. Conflicting edits to one document require
 an explicit local/cloud choice. Account deletion cascades through private

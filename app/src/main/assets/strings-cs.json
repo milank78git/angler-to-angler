@@ -1031,7 +1031,7 @@
   "weekly_catch.your_photo_and_display_name_will_be": "Fotku s tvou přezdívkou uvidí parta ",
   "sync.disabled": "Soukromá záloha deníku je vypnutá.",
   "sync.enable": "Zapnout soukromou synchronizaci",
-  "sync.consent": "Výpravy, úlovky, přesné souřadnice, poznámky, fotografie, záložky a nastavení atlasu tohoto účtu se soukromě uloží na server, včetně starších záznamů. Na dalším zařízení je obnovíš po přihlášení a zapnutí synchronizace. Přístup máš jen ty.",
+  "sync.consent": "Stávající i nové výpravy, úlovky, přesné souřadnice, poznámky, fotografie, záložky a nastavení atlasu se uloží soukromě k tvému účtu. Na novém zařízení se synchronizovaný deník obnoví po přihlášení.",
   "sync.waiting": "Čeká na synchronizaci",
   "sync.working": "Synchronizuji soukromý deník…",
   "sync.done": "Soukromý deník je synchronizovaný",
@@ -1070,5 +1070,6 @@
   "commerce.estimate": "Odhad odměny autora při této ceně: {amount}. Konečná výše vychází z vyúčtování Google Play.",
   "commerce.review_sale": "Zkontrolovat cenu a nabídnout tip za kredity Google Play",
   "sync.pause": "Pozastavit synchronizaci v tomto zařízení",
-  "sync.pause_info": "Online kopie zůstane dostupná. Nové úpravy z tohoto telefonu se odešlou po opětovném zapnutí synchronizace."
+  "sync.pause_info": "Online kopie zůstane dostupná. Nové úpravy z tohoto telefonu se odešlou po opětovném zapnutí synchronizace.",
+  "sync.new_account": "Nový deník se ukládá soukromě k tvému účtu a funguje i bez připojení. Ukládají se výpravy, úlovky, poznámky, přesná poloha a fotografie. Starší deník z tohoto zařízení můžeš připojit samostatně."
 }

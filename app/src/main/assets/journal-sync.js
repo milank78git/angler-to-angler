@@ -26,6 +26,10 @@ async function run(resolution) {
   busy=true; conflicts=[]; notify('working');
   let changed=false;
   try {
+    if (localStorage.getItem(prefix+'registered')!=='1') {
+      await call('enable',{});
+      localStorage.setItem(prefix+'registered','1');
+    }
     const remote=new Map();
     let after='';
     while (true) {
@@ -87,7 +91,7 @@ export function bindJournalSync(panel) {
       button('sync.retry',()=>run());
       button('sync.pause',async()=>{
         if (await confirmAction({title:t('sync.pause'),message:t('sync.pause_info'),accept:t('sync.pause')})) {
-          clearTimeout(timer);localStorage.removeItem(prefix+'enabled');conflicts=[];notify('disabled');
+          clearTimeout(timer);localStorage.setItem(prefix+'enabled','0');conflicts=[];notify('disabled');
         }
       });
     }
@@ -104,5 +108,21 @@ export function bindJournalSync(panel) {
 window.addEventListener('journal-edited',schedule);
 window.addEventListener('online',schedule);
 document.addEventListener('visibilitychange',()=>{ if (!document.hidden) schedule(); });
-if (enabled()) schedule();
+async function start() {
+  if (!subject || localStorage.getItem(prefix+'enabled')==='0') return;
+  if (!enabled()) {
+    if (!window.Device?.journalCloudDefault?.()) {
+      // Previously local records need an explicit migration decision, even on a second handset.
+      try {
+        if (!(await call('settings',{})).enabled) return;
+        const keys=await documentKeys(Journal,localStorage,subject);
+        if (keys.some(key=>key.startsWith('trip/') || key.startsWith('photo/') || key.startsWith('pref/water/'))) return;
+      } catch { return; }
+    }
+    if (localStorage.getItem(prefix+'enabled')===null) localStorage.setItem(prefix+'enabled','1');
+  }
+  schedule();
+}
+window.addEventListener('online',start);
+start();
 setInterval(()=>{ if (enabled() && !document.hidden && !busy && !conflicts.length) run(); },60000);

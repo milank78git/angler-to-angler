@@ -1031,7 +1031,7 @@
   "weekly_catch.your_photo_and_display_name_will_be": "Your photo and display name will be visible to ",
   "sync.disabled": "Private journal backup is off.",
   "sync.enable": "Enable private sync",
-  "sync.consent": "Upload this account’s existing and future trips, catches, exact coordinates, notes, photos, bookmarks and atlas preferences to private account storage. They will be restored on another device when you sign in and enable sync there. Only you can open them.",
+  "sync.consent": "Save existing and future trips, catches, exact positions, notes, photos, bookmarks and atlas settings privately to your account. A new device restores your synced journal after sign-in.",
   "sync.waiting": "Waiting for synchronization",
   "sync.working": "Synchronizing private journal…",
   "sync.done": "Private journal synchronized",
@@ -1070,5 +1070,6 @@
   "commerce.estimate": "Estimated author earnings for this price: {amount}. Actual settlement uses Play proceeds.",
   "commerce.review_sale": "Review price and enroll this tip for Play purchases",
   "sync.pause": "Pause sync on this device",
-  "sync.pause_info": "Your online copy remains available. Edits on this phone will be uploaded when you enable synchronization again."
+  "sync.pause_info": "Your online copy remains available. Edits on this phone will be uploaded when you enable synchronization again.",
+  "sync.new_account": "Your new journal is saved privately to your account and works offline. It includes trips, catches, notes, exact locations and photos. An older journal on this device can be linked separately."
 }

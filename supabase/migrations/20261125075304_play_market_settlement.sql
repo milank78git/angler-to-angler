@@ -8,6 +8,10 @@ create table angler_commerce.settings (
  bonus_net_halers integer not null default 702 check(bonus_net_halers between 0 and 1000)
 );
 insert into angler_commerce.settings default values;
+create table angler_commerce.holders (
+ holder uuid primary key references angler_private.profiles(user_id) on delete cascade,
+ binding text unique not null
+);
 create table angler_commerce.lots (
  id bigint generated always as identity primary key,
  holder uuid not null, source text not null check(source in ('welcome','google')),
@@ -70,12 +74,14 @@ revoke all on angler_commerce.remaining,angler_commerce.distribution from public
 
 create function angler_commerce.welcome() returns trigger language plpgsql security definer set search_path='' as $$
 begin
+ insert into angler_commerce.holders values(new.user_id,encode(sha256(convert_to(new.user_id::text,'UTF8')),'hex'));
  insert into angler_commerce.lots(holder,source,units,net_halers,settled_at)
  select new.user_id,'welcome',10,bonus_net_halers,now() from angler_commerce.settings on conflict do nothing;
  return new;
 end $$;
 create trigger credit_registered_profile after insert on angler_private.profiles
  for each row execute function angler_commerce.welcome();
+insert into angler_commerce.holders select user_id,encode(sha256(convert_to(user_id::text,'UTF8')),'hex') from angler_private.profiles;
 insert into angler_commerce.lots(holder,source,units,net_halers,settled_at)
  select p.user_id,'welcome',10,s.bonus_net_halers,now() from angler_private.profiles p cross join angler_commerce.settings s;
 
@@ -197,6 +203,9 @@ create function angler_commerce.receipt(op text,args jsonb) returns jsonb
 language plpgsql set search_path='' as $$
 declare h text:=args->>'hash'; actor uuid; fund angler_commerce.lots; qty integer; item record;
 begin
+ if op='holder' then
+   return jsonb_build_object('holder',(select holder from angler_commerce.holders where binding=args->>'binding'));
+ end if;
  if h is null or h !~ '^[a-f0-9]{64}$' then raise exception 'Invalid receipt'; end if;
  perform pg_advisory_xact_lock(hashtextextended(h,41));
  select * into fund from angler_commerce.lots where token_hash=h;

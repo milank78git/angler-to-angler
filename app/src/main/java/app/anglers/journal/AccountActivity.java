@@ -142,7 +142,8 @@ public final class AccountActivity extends Activity {
       }
       if (kind.equals("privacy"))
         contents +=
-            "\n\n" + AppLanguage.document(this, "optional-profile");
+            "\n\n" + AppLanguage.document(this, "optional-profile")
+                + "\n\n" + text("store.private_data") + "\n\n" + text("store.payment_data");
       if (kind.equals("privacy") && service != null && !service.notice.isEmpty())
         contents += "\n\n" + service.notice;
       AccountLayout.Prompt reader = ui.prompt(title);
@@ -603,6 +604,7 @@ public final class AccountActivity extends Activity {
       nickname.setText(profile.optString("name"));
       nickname.setEnabled(false);
     }
+    ui.message(text("sync.new_account"));
     CheckBox terms = ui.check(text("account.i_accept_the_terms_of_use"));
     CheckBox privacy =
         ui.check(
@@ -619,7 +621,12 @@ public final class AccountActivity extends Activity {
                 return;
               }
               if (!terms.isChecked() || !privacy.isChecked()) return;
-              run(() -> service.accept(signing.access, name), this::finishProfile);
+              run(() -> service.accept(signing.access, name), result -> {
+                if (signing.id.equals(result.optString("id")) && result.optBoolean("current")) {
+                  AccountStore.prefs(this).edit().putBoolean("cloudJournal." + signing.id, true).apply();
+                }
+                finishProfile(result);
+              });
             });
     submit.setEnabled(false);
     CompoundButton.OnCheckedChangeListener update =
