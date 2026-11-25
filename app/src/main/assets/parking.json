@@ -1,12 +1,12 @@
 {
   "CZ:401009": [
-    {"label":"parking.pikovice","point":[14.4263203,49.8770658],"source":"https://coparking.ch/en/Czech/parking/parkoviste-pobrezni-12863","checked":"2026-11-24"}
+    {"id":"e5011dee-bdc6-0c9d-aa65-5d0ee3f6771c","label":"parking.pikovice","point":[14.4263203,49.8770658],"source":"https://coparking.ch/en/Czech/parking/parkoviste-pobrezni-12863","checked":"2026-11-24"}
   ],
   "CZ:CRS:4615686": [
-    {"label":"parking.lipno","point":[14.220378,48.644036],"source":"https://www.kralovstvilesa.cz/en/","checked":"2026-11-24"},
-    {"label":"parking.frymburk","point":[14.1710583,48.6594239],"source":"https://www.mazanevylety.cz/vylety/219-okruh-po-frymburku/","checked":"2026-11-24"}
+    {"id":"0a645770-31ea-8d7c-a0c9-9298fc77b073","label":"parking.lipno","point":[14.220378,48.644036],"source":"https://www.kralovstvilesa.cz/en/","checked":"2026-11-24"},
+    {"id":"62cda0f2-9494-2ca8-0085-752249a925c4","label":"parking.frymburk","point":[14.1710583,48.6594239],"source":"https://www.mazanevylety.cz/vylety/219-okruh-po-frymburku/","checked":"2026-11-24"}
   ],
   "CZ:CRS:4615396": [
-    {"label":"parking.podolsko","point":[14.2760753,49.3592758],"source":"https://akkcr.cz/jizni-cechy-karavanova-stani-a-parkoviste/","checked":"2026-11-24"}
+    {"id":"742d6c3f-4f73-a78d-85cf-0ddc24399c3f","label":"parking.podolsko","point":[14.2760753,49.3592758],"source":"https://akkcr.cz/jizni-cechy-karavanova-stani-a-parkoviste/","checked":"2026-11-24"}
   ]
 }

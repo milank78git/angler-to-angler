@@ -135,6 +135,7 @@ export async function listWaters({ view, pack, nav, waterDirectory }) {
       ['', t('waters.all_countries')], ...countries
     ], route.country || '')}
     <label class="card-option"><input id="water-parking" type="checkbox"${route.parkingOnly ? ' checked' : ''}${parking ? '' : ' disabled'}>${esc(t('parking.filter'))}</label>
+    <div id="parking-index-error" hidden><span role="status">${esc(t('parking.filter_offline'))}</span> ${button('retry-parking-index',t('common.retry'),'secondary')}</div>
     ${parking ? '' : '<p role="status">' + esc(t('parking.unavailable')) + '</p>' + button('retry-parking',t('common.retry'),'secondary')}
     <details id="atlas-sources"><summary>${t('seasons.coverage_and_sources')}</summary><div id="water-coverage"></div></details></div>
     <div class="filter-row"><div class="segments">${button('all', t('common.all'))}${button('saved', t('waters.favorites'), '', 'bookmark')}</div><span class="count" id="found" role="status"></span></div></div>
@@ -152,8 +153,26 @@ export async function listWaters({ view, pack, nav, waterDirectory }) {
   toggle.onclick=() => { route.filtersOpen=filters.hidden; syncFilters(); };
   syncFilters();
   if (!parking) bind('retry-parking', () => nav.show());
+  let sharedParking = new Set(), parkingRequest = 0;
+  const indexError=by('parking-index-error');
+  async function loadSharedParking() {
+    const request=++parkingRequest;
+    indexError.hidden=true;
+    try {
+      const data = await rpc('parking_waters');
+      if (!view.active() || request!==parkingRequest) return;
+      if (!Array.isArray(data?.waters)) throw Error('Invalid parking index');
+      sharedParking = new Set(data.waters);
+      if (route.parkingOnly) results();
+    } catch {
+      if (view.active() && request===parkingRequest) indexError.hidden=!route.parkingOnly;
+    }
+  }
+  bind('retry-parking-index',loadSharedParking);
   by('water-parking').onchange = event => {
+    indexError.hidden=true;
     route.parkingOnly = event.target.checked;
+    if (route.parkingOnly) loadSharedParking();
     route.limit = pageSize;
     syncFilters();
     results();
@@ -257,7 +276,7 @@ export async function listWaters({ view, pack, nav, waterDirectory }) {
       (w) =>
         (!route.additions || route.additions.has(w.code ? w.provider + ':' + w.code : w.key)) &&
         (!route.country || route.country === w.country) && (!route.favorites || isFavorite(pack, w)) &&
-        (!route.parkingOnly || parking[w.key]?.length > 0) && matchesWater(w, q),
+        (!route.parkingOnly || (parking[w.key]?.length > 0 || sharedParking.has(w.key))) && matchesWater(w, q),
     );
     if (distances) matches.sort((a, b) => (distances.get(a.id) ?? Infinity) - (distances.get(b.id) ?? Infinity));
     const shown = matches.slice(0, limit);
@@ -340,6 +359,7 @@ export async function listWaters({ view, pack, nav, waterDirectory }) {
   by('atlas-sources').hidden = !route.country;
   by('water-coverage').innerHTML = coverage(waterDirectory, route.country);
   results();
+  if (route.parkingOnly) loadSharedParking();
 }
 function waterActions() {
   return '<div class="quick-actions">' +
@@ -351,7 +371,7 @@ function waterActions() {
 }
 
 function bindWaterActions(nav, water) {
-  waterParking(by('parking'),water);
+  waterParking(by('parking'),water,nav);
   waterRating(by('water-rating'),water);
   bind('new-trip', () => nav.open('newTrip', { water: water.id }));
   bind('open-rules', () => nav.open('waterRules', { id: water.id }));

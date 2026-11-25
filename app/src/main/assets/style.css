@@ -1375,3 +1375,8 @@ label.label-with-hint { display: inline-block; margin-inline-end: .45rem; }
 #world-map circle { fill: #245740; stroke: white; stroke-width: 2px; }
 #world-map text { fill: white; font: bold 12px sans-serif; text-anchor: middle; pointer-events: none; }
 #world-map g:focus circle { stroke: #cf641a; stroke-width: 4px; }
+
+#world-map .parking-pin circle { fill: #9e3d16; stroke: white; }
+#parking-name { margin-bottom: 12px; }
+.parking-card + .parking-card { border-top: 1px solid var(--border); margin-top: 16px; }
+.parking-feedback { margin-block: 8px; }

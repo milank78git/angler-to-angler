@@ -217,6 +217,15 @@ public final class Runner extends Instrumentation {
         + " && !!document.querySelector('#water-photo figcaption a[href*=\"commons.wikimedia.org\"]')"
         + " && document.querySelector('#water-photo-file')?.disabled === false");
     ShareChecks.parking(this, "#drive-1", "48.6594239,14.1710583");
+    clickReady("#parking-add");
+    waitFor("!!document.querySelector('#world-map') && document.querySelector('#parking-confirm').disabled");
+    js("document.querySelector('#world-map').dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true}))");
+    clickReady("#parking-confirm");
+    waitFor("document.querySelector('#confirmation').open && document.querySelector('#parking-coordinates').textContent.includes(',')");
+    clickReady("#confirmation-cancel");
+    clickReady("#back");
+    clickReady("#confirmation-accept");
+    waitFor("!!document.querySelector('#parking-add') && !!document.querySelector('#drive-1')");
     clickReady("#back");
     waitFor("document.querySelector('#water-parking')?.checked && document.querySelector('#search').value==='421 200'"
         + " && document.querySelector('#map-toggle').getAttribute('aria-pressed')==='true'");

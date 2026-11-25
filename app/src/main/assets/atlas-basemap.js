@@ -8,6 +8,11 @@ export function mercator([lon, lat]) {
   return [(lon + 180) / 360, (1 - Math.asinh(Math.tan(radians)) / Math.PI) / 2];
 }
 
+/** Recover geographic longitude and latitude from a normalized point on the atlas. */
+export function geographic([x, y]) {
+  return [360 * x - 180, Math.atan(Math.sinh(Math.PI * (1 - 2 * y))) * 180 / Math.PI];
+}
+
 /** Enumerate only the XYZ tiles intersecting the viewport, including fractional zoom levels. */
 export function visibleTiles(camera, width, height) {
   const level = Math.max(0, Math.min(maxLevel, Math.round(camera.level)));

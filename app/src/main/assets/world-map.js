@@ -1,4 +1,4 @@
-import { maxLevel, mercator, topographicLayer } from './atlas-basemap.js';
+import { maxLevel, mercator, geographic, topographicLayer } from './atlas-basemap.js';
 import { by, button, esc, link, t } from './ui.js';
 
 // Use a documented point on each water; some records only have a published outline.
@@ -38,7 +38,7 @@ function waterGeometry(water, shapes) {
 }
 
 /** Keep camera and selection in the route so Back returns to the same area. */
-export function atlasMap(host, route, openWater) {
+export function atlasMap(host, route, openWater, picker = null) {
   host.innerHTML = '<div class="actions">'+button('zoom-in',t('atlas.zoom_in'),'secondary')+
     button('zoom-out',t('atlas.zoom_out'),'secondary')+button('map-fit',t('atlas.fit'),'secondary')+
     '</div><label class="card-option"><input id="map-online" type="checkbox">' + esc(t('atlas.topographic')) + '</label>' +
@@ -68,6 +68,11 @@ export function atlasMap(host, route, openWater) {
     draw();
   }
   function fit() {
+    if (picker?.start) {
+      camera = route.camera = { ...picker.start };
+      draw();
+      return;
+    }
     let left=1,right=0,top=1,bottom=0;
     for (const {point:[x,y], extent} of rows) {
       left=Math.min(left,x,extent?.[0] ?? x); right=Math.max(right,x,extent?.[2] ?? x);
@@ -104,8 +109,12 @@ export function atlasMap(host, route, openWater) {
     shapesLayer.setAttribute('transform','translate('+x+' '+y+') scale('+s/65536+')');
     groups=clusterWaters(rows,project,w,h);
     markers.innerHTML=groups.map((g,i)=>{const n=g.waters.length;const label=n===1 ? g.waters[0].water.name : t('waters.waters')+' · '+n;
-      return '<g role="button" tabindex="0" aria-label="'+esc(label)+'" data-group="'+i+'" transform="translate('+g.x/n+' '+g.y/n+')"><circle r="17"/><text y="4">'+(n===1?'•':n)+'</text></g>';
+      return '<g '+(picker?'aria-hidden="true"':'role="button" tabindex="0" aria-label="'+esc(label)+'" data-group="'+i+'"')+' transform="translate('+g.x/n+' '+g.y/n+')"><circle r="17"/><text y="4">'+(n===1?'•':n)+'</text></g>';
     }).join('');
+    if (picker?.point) {
+      const [px,py] = project(mercator(picker.point));
+      markers.insertAdjacentHTML('beforeend','<g class="parking-pin" aria-hidden="true" transform="translate('+px+' '+py+')"><circle r="12"/><text y="4">P</text></g>');
+    }
     by('zoom-out').disabled=camera.level<=0;by('zoom-in').disabled=camera.level>=maxLevel;
     by('map-count').textContent=t('atlas.mapped')+' · '+rows.length+' / '+(rows.length+missing)
       + (route.parkingOnly && !rows.length && !missing ? ' · '+t('parking.filter_empty') : '');
@@ -116,6 +125,7 @@ export function atlasMap(host, route, openWater) {
     tiles.clear();
     draw();
   };
+  if (picker) by('map-count').hidden = true;
   const retry = () => { tiles.clear(); draw(); };
   by('map-retry').onclick = retry;
   window.addEventListener('online',retry);
@@ -136,12 +146,25 @@ export function atlasMap(host, route, openWater) {
     }
     more();zoom(camera.level+1,group.x/choices.length,group.y/choices.length);
   }
+  function choose(x,y) {
+    if (!camera) return;
+    const point = geographic([camera.x+(x-width()/2)/unit(),camera.y+(y-height()/2)/unit()]);
+    if (Math.abs(point[0]) > 180 || Math.abs(point[1]) > 85.051129) return;
+    picker.point = point.map(n => Number(n.toFixed(7)));
+    picker.onPick(picker.point);
+    draw();
+  }
   svg.onkeydown=e=>{
-    if(e.key==='Enter' || e.key===' '){e.preventDefault();pick(e.target);return;}
+    if(e.key==='Enter' || e.key===' '){e.preventDefault();if (picker) choose(width()/2,height()/2); else pick(e.target);return;}
     const offset={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,1],ArrowDown:[0,-1]}[e.key];
-    if(offset){e.preventDefault();camera.x+=offset[0]*65/unit();camera.y-=offset[1]*65/unit();draw();}
+    if(offset){e.preventDefault();camera.x+=offset[0]*65/unit();camera.y+=offset[1]*65/unit();draw();}
   };
-  svg.onclick=e=>{if(!down?.moved)pick(e.target);};
+  svg.onclick=e=>{
+    if (down?.moved) return;
+    if (!picker) return pick(e.target);
+    const rect=svg.getBoundingClientRect();
+    choose(e.clientX-rect.left,e.clientY-rect.top);
+  };
   svg.onpointerdown=e=>{pointers.set(e.pointerId,[e.clientX,e.clientY]);down={x:e.clientX,y:e.clientY,moved:pointers.size>1};};
   svg.onpointermove=e=>{
     const prev=pointers.get(e.pointerId);if(!prev||!down)return;
