@@ -63,11 +63,12 @@ def read_window(key):
     raise RuntimeError('Android window could not be read for ' + key)
 
 
-def control(key, field=None, optional=False):
+def control(key, field=None, optional=False, visible_text=None):
+    label = LABELS[key] if visible_text is None else visible_text
     for _ in range(2 if optional else 15):
         for node in read_window(key).iter('node'):
             attrs = node.attrib
-            if (LABELS[key] in (attrs.get('text'), attrs.get('hint'), attrs.get('content-desc'))
+            if (label in (attrs.get('text'), attrs.get('hint'), attrs.get('content-desc'))
                     and (field is None or attrs.get('class') == field)):
                 return attrs
         time.sleep(.25)
@@ -75,8 +76,8 @@ def control(key, field=None, optional=False):
         raise RuntimeError('Android control unavailable: ' + key)
 
 
-def tap(key, field=None, optional=False):
-    attrs = control(key, field, optional)
+def tap(key, field=None, optional=False, visible_text=None):
+    attrs = control(key, field, optional, visible_text)
     if attrs:
         x, y, right, bottom = map(int, re.findall(r'\d+', attrs['bounds']))
         shell('input', 'tap', str((x+right)//2), str((y+bottom)//2))
@@ -136,11 +137,18 @@ def register():
     return address, password
 
 
-def complete_profile():
+def complete_profile(check_duplicate=False):
     enter('account.display_name_2_60_characters', 'FieldAngler')
     tap('account.i_accept_the_terms_of_use')
     tap('account.i_acknowledge_the_privacy_notice')
     tap('common.save_profile')
+    if check_duplicate:
+        control('account.name_in_use')
+        tap('account.display_name_2_60_characters', 'android.widget.EditText', visible_text='FieldAngler')
+        shell('input', 'keyevent', 'KEYCODE_MOVE_END')
+        shell('input', 'text', 'Two')
+        shell('input', 'keyevent', '111')
+        tap('common.save_profile')
     tap('account.fresh_journal', optional=True)
     for _ in range(25):
         state = shell('dumpsys', 'activity', 'activities').splitlines()
@@ -198,7 +206,7 @@ def desktop_confirmation():
     tap('account.confirmed_sign_in')
     enter('account.password', password)  # The registration address must already be filled in.
     tap('common.sign_in')
-    complete_profile()
+    complete_profile(check_duplicate=True)
     matching = [m for m in mailbox('messages')['messages'] if any(t['Address'] == address for t in m['To'])]
     assert len(matching) == 1, 'Password continuation unexpectedly requested another email'
     print('Desktop: unconfirmed login rejected, original message confirmed, password and profile accepted.', flush=True)
