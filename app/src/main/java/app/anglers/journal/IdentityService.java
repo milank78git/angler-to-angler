@@ -153,9 +153,12 @@ final class IdentityService {
       if (status < 200 || status >= 300) {
         if (status == 429) throw new EmailRateLimit();
         String code = "";
-        if (path.startsWith("/auth/v1/") && conn.getErrorStream() != null) {
+        // Profile registration returns a PostgREST error code when the nickname is taken.
+        boolean accountError = path.startsWith("/auth/v1/") || path.equals("/rest/v1/rpc/angler_accept");
+        InputStream errorBody = conn.getErrorStream();
+        if (accountError && errorBody != null) {
           try {
-            JSONObject failure = new JSONObject(read(conn.getErrorStream()));
+            JSONObject failure = new JSONObject(read(errorBody));
             code = failure.optString("error_code", failure.optString("code", ""));
           } catch (JSONException ignored) {
             /* A failed proxy response can be plain text. */
