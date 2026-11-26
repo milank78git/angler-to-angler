@@ -45,6 +45,8 @@ def check():
         for key, value in read(p).items():
             if key not in english or not MESSAGE_ID.fullmatch(key) or not isinstance(value, str) or not value.strip():
                 raise ValueError(f"{p.name}: invalid message {key!r}")
+            if re.search(r"<(?:[A-Za-z/!?])", value):
+                raise ValueError(f"{p.name}: UI labels must be plain text: {key}")
             if sorted(PLACEHOLDER.findall(value)) != sorted(PLACEHOLDER.findall(english[key])):
                 raise ValueError(f"{p.name}: placeholders differ for {key}")
 

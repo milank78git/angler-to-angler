@@ -5,6 +5,7 @@ export class Navigation {
     this.confirmDiscard = confirmDiscard;
     this.getScroll = getScroll;
     this.area = 'waters';
+    /** @type {Map<string, Array<{page: string, id?: string, threadId?: string, scroll?: number, additions?: Set<string>, onExit?: () => void}>>} */
     this.stacks = new Map(['waters', 'rules', 'trips'].map((page) => [page, [{ page }]]));
     this.current = null;
   }
@@ -52,6 +53,7 @@ export class Navigation {
   journalAfterWrite(tripId) {
     if (this.area !== 'trips' && this.current?.route.page === 'newTrip') this.stacks.get(this.area).pop();
     this.area = 'trips';
+    /** @type {Array<{page: string, id?: string}>} */
     const stack = [{ page: 'trips' }];
     if (tripId) stack.push({ page: 'trip', id: tripId });
     this.stacks.set('trips', stack);

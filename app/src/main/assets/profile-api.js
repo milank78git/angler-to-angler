@@ -55,7 +55,7 @@ export async function photoPayload(file, edge, limit, encode = pixelJpeg) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onerror = () => reject(Error('photo'));
-    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onload = () => resolve(/** @type {string} */ (reader.result).split(',')[1]);
     reader.readAsDataURL(pixels);
   });
 }

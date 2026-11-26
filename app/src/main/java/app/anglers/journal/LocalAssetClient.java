@@ -82,6 +82,7 @@ final class LocalAssetClient extends WebViewClient {
     switch (path.substring(path.lastIndexOf('.') + 1)) {
       case "html":
         return "text/html";
+      case "mjs":
       case "js":
         return "text/javascript";
       case "css":

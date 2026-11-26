@@ -1,3 +1,4 @@
+import { replaceMarkup } from './markup.js';
 import { languageTag } from './i18n.js';
 import { bindGroupTip, groupTipControls } from './group-tip.js';
 import { Journal } from './journal.js';
@@ -30,6 +31,7 @@ async function photoCopy(id) {
   });
 }
 
+/** @param {import('../../../../types/screens.js').ScreenContext} context */
 export async function shareCard({ view, nav, pack }) {
   const { tripId, catchId } = view.route;
   const [trip, entry] = await Promise.all([
@@ -44,27 +46,37 @@ export async function shareCard({ view, nav, pack }) {
   const species = pack.species[entry?.speciesId];
   const speciesName = species ? loc(species) : entry?.speciesName || entry?.speciesId;
   const heading = entry ? t('common.share_catch') : t('common.share_a_trip_tip');
+  const tipField = field(
+    'share-tip-text',
+    entry ? t('share_card.tip_for_others_optional') : t('share_card.what_would_you_tell_other_anglers'),
+    '<textarea id="share-tip-text" rows="3" maxlength="1600"></textarea>',
+  );
   const fields = cardFields(trip, entry);
   const choices = fields.map(([key, label]) => [key, label]);
   if (entry?.hasPhoto) choices.push(['photo', t('share_card.photo')]);
-  screen.innerHTML =
+  replaceMarkup(
+    screen,
     back(t('common.trip')) +
-    `
+      `
     <div class="page-intro"><h1>${heading}</h1></div>
-    <div class="columns">
-      <section class="surface"><h2>${t('share_card.what_would_you_like_to_share')}</h2>
-        ${field('share-tip-text', entry ? t('share_card.tip_for_others_optional') : t('share_card.what_would_you_tell_other_anglers'), '<textarea id="share-tip-text" rows="3" maxlength="1600"></textarea>')}
+    <div class="columns"><section class="surface"><h2>${t('share_card.what_would_you_like_to_share')}</h2>
+        ${tipField}
         <p>${entry ? t('share_card.your_card_includes_the_species_choose_any') : t('share_card.you_can_add_the_date_and_water')}</p>
-        <div id="card-options">${choices.map(([key, label]) => `<label class="card-option"><input type="checkbox" id="share-${key}">${esc(label)}</label>`).join('')}</div>
-        <p class="meta">${entry ? t('share_card.coordinates_and_journal_notes_stay_private_the') : t('share_card.private_journal_notes_are_never_copied_into')}</p>
-      </section>
-      <section class="surface"><h2>${t('common.recipient_preview')}</h2>
-        <p id="card-text" aria-live="polite"></p><img id="card-image" class="preview" hidden alt="${t('share_card.catch_photo_for_sharing')}">
+        <div id="card-options">${choices
+          .map(
+            ([key, label]) =>
+              `<label class="card-option"><input type="checkbox" id="share-${key}">${esc(label)}</label>`,
+          )
+          .join('')}</div>
+        <p class="meta">
+          ${entry ? t('share_card.coordinates_and_journal_notes_stay_private_the') : t('share_card.private_journal_notes_are_never_copied_into')}
+          </p></section><section class="surface"><h2>${t('common.recipient_preview')}</h2>
+        <p id="card-text" aria-live="polite"></p><img id="card-image" class="preview" hidden alt="${esc(t('share_card.catch_photo_for_sharing'))}">
         <p id="card-status" role="status" hidden></p>
         <div class="actions">${button('card-send', entry ? t('share_card.choose_recipient') : t('share_card.share_via_another_app'), 'primary')}</div>
-        ${entry ? '' : groupTipControls()}
-      </section>
-    </div>`;
+        ${entry ? '' : groupTipControls()}</section>
+    </div>`,
+  );
   bindBack(nav);
   const send = by('card-send'),
     image = by('card-image'),
@@ -86,7 +98,7 @@ export async function shareCard({ view, nav, pack }) {
       speciesName,
       tip,
       ...fields
-        .filter(([key]) => by('share-' + key).checked)
+        .filter(([key]) => /** @type {HTMLInputElement} */ (by('share-' + key)).checked)
         .map(([, label, value]) => label + ' · ' + value),
     ];
     const text = lines.filter(Boolean).join('\n');

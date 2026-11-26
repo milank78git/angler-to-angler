@@ -1,3 +1,4 @@
+import { replaceMarkup } from './markup.js';
 import { anglerDetails, bindLicenseNotice } from './angler-details.js';
 import { parkingEditor } from './parking-editor.js';
 import { journalStatistics } from './journal-statistics.js';
@@ -26,7 +27,11 @@ const views = {
   anglerDetails,
   parkingEditor,
   journalStatistics,
-  marketShelf, marketDetail, marketEditor, fishCatalogue, fishDetail,
+  marketShelf,
+  marketDetail,
+  marketEditor,
+  fishCatalogue,
+  fishDetail,
   waters: listWaters,
   water: waterScreen,
   rules: rulesScreen,
@@ -75,7 +80,16 @@ window.positionResult = (id, fix) =>
 async function render(view, area) {
   dismissConfirmation();
   const { page } = view.route;
-  const editing = ['anglerDetails', 'parkingEditor', 'newTrip', 'newCatch', 'editProfile', 'discussionComposer', 'messageComposer', 'marketEditor'].includes(page);
+  const editing = [
+    'anglerDetails',
+    'parkingEditor',
+    'newTrip',
+    'newCatch',
+    'editProfile',
+    'discussionComposer',
+    'messageComposer',
+    'marketEditor',
+  ].includes(page);
   tabs.hidden = editing;
   document.body.classList.toggle('editing', editing);
   for (const key of ['waters', 'rules', 'trips'])
@@ -100,11 +114,13 @@ async function render(view, area) {
   } catch (error) {
     if (!view.active()) return;
     console.error('Could not render ' + page, error);
-    screen.innerHTML =
+    replaceMarkup(
+      screen,
       '<p role="alert">' +
-      t('journal.could_not_open_this_screen') +
-      '</p>' +
-      button('retry', t('common.retry'));
+        t('journal.could_not_open_this_screen') +
+        '</p>' +
+        button('retry', t('common.retry')),
+    );
     bind('retry', () => nav.show());
   } finally {
     if (view.active()) screen.removeAttribute('aria-busy');
@@ -113,11 +129,8 @@ async function render(view, area) {
 function setTheme(mode) {
   const dark = mode === 'dark';
   document.documentElement.dataset.theme = mode;
-  by('theme').setAttribute(
-    'aria-label',
-    dark ? t('journal.use_light_theme') : t('journal.use_dark_theme'),
-  );
-  by('theme').innerHTML = icon(dark ? 'sun' : 'moon');
+  by('theme').setAttribute('aria-label', dark ? t('journal.use_light_theme') : t('journal.use_dark_theme'));
+  replaceMarkup(by('theme'), icon(dark ? 'sun' : 'moon'));
   if (window.Device && typeof Device.systemBars === 'function')
     Device.systemBars(dark, !!localStorage.getItem('ui.theme'));
 }
@@ -136,9 +149,11 @@ async function start() {
     by('app-version').textContent = versionLabel;
     by('app-version').hidden = false;
   }
-  by('mark').innerHTML = icon('fish-symbol');
-  by('offline').innerHTML = icon('check') + t('journal.offline_pack');
-  window.addEventListener('journal-restored', () => { if (nav.current?.route.page === 'trips') nav.show(); });
+  replaceMarkup(by('mark'), icon('fish-symbol'));
+  replaceMarkup(by('offline'), icon('check') + t('journal.offline_pack'));
+  window.addEventListener('journal-restored', () => {
+    if (nav.current?.route.page === 'trips') nav.show();
+  });
   const system = matchMedia('(prefers-color-scheme: dark)');
   const sync = () =>
     setTheme(
@@ -155,14 +170,17 @@ async function start() {
     setTheme(mode);
   });
   try {
-    const json = async path => {
+    const json = async (path) => {
       const response = await fetch(path);
       if (!response.ok) throw Error(path);
       return response.json();
     };
-    const [pack, rivers, hints, rules] = await Promise.all(['catalog.json','rivers.json','field-hints.json','europe-rules.json'].map(json));
+    const [pack, rivers, hints, rules] = await Promise.all(
+      ['catalog.json', 'rivers.json', 'field-hints.json', 'europe-rules.json'].map(json),
+    );
     Object.assign(catalog, { pack, rivers, hints });
-    let installed, request = 0;
+    let installed,
+      request = 0;
     async function readDirectory() {
       const key = window.Device?.waterCatalogueVersion?.() || '';
       if (installed === key) return false;
@@ -171,12 +189,23 @@ async function start() {
       if (key) {
         try {
           const release = await json('water-update.json?revision=' + encodeURIComponent(key));
-          directory = createWaterDirectory(pack, release.cz, release.europe, release.sources, rules.countries, release.shapes);
-        } catch (error) { console.warn('Cannot open atlas edition', error); }
+          directory = createWaterDirectory(
+            pack,
+            release.cz,
+            release.europe,
+            release.sources,
+            rules.countries,
+            release.shapes,
+          );
+        } catch (error) {
+          console.warn('Cannot open atlas edition', error);
+        }
       }
       if (!directory) {
         if (catalog.waterDirectory) return false;
-        const [cz, europe, sources] = await Promise.all(['czech-waters.json','europe-waters.json','water-sources.json'].map(json));
+        const [cz, europe, sources] = await Promise.all(
+          ['czech-waters.json', 'europe-waters.json', 'water-sources.json'].map(json),
+        );
         directory = createWaterDirectory(pack, cz, europe, sources, rules.countries);
       }
       if (request !== generation) return false;
@@ -187,7 +216,7 @@ async function start() {
     // Register after the initial read, then recheck to catch an installation during startup.
     await readDirectory();
     window.waterCatalogueChanged = async () => {
-      if (!await readDirectory() || !nav.current) return;
+      if (!(await readDirectory()) || !nav.current) return;
       const view = nav.current;
       if (['waters', 'water', 'rules', 'waterRules', 'trip'].includes(view.route.page)) nav.show();
       else view.refreshWaters?.(catalog.waterDirectory);
@@ -196,16 +225,26 @@ async function start() {
 
     window.fieldNearby = async (lat, lon) => {
       if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;
-      const directory=catalog.waterDirectory;
-      const shapes=await directory.geography().catch(() => ({}));
-      if (directory!==catalog.waterDirectory) return;
-      const distances=waterDistances(directory.waters,shapes,{lat,lon});
-      let nearest, km=10;
-      for (const [id,distance] of distances) {
-        if (distance<=km) { nearest=directory.byId.get(id); km=distance; }
+      const directory = catalog.waterDirectory;
+      const shapes = await directory.geography().catch(() => ({}));
+      if (directory !== catalog.waterDirectory) return;
+      const distances = waterDistances(directory.waters, shapes, { lat, lon });
+      let nearest,
+        km = 10;
+      for (const [id, distance] of distances) {
+        if (distance <= km) {
+          nearest = directory.byId.get(id);
+          km = distance;
+        }
       }
-      if (nearest) window.Device?.nearbyWater?.(nearest.key,nearest.name+' · '+
-        new Intl.NumberFormat(document.documentElement.lang,{maximumFractionDigits:1}).format(km)+' km');
+      if (nearest)
+        window.Device?.nearbyWater?.(
+          nearest.key,
+          nearest.name +
+            ' · ' +
+            new Intl.NumberFormat(document.documentElement.lang, { maximumFractionDigits: 1 }).format(km) +
+            ' km',
+        );
     };
     window.refreshFieldSettings = () => window.Device?.checkNearby?.();
     window.refreshFieldSettings();
@@ -216,22 +255,24 @@ async function start() {
       ['trips', t('journal.journal'), 'book-open'],
     ];
     tabs.setAttribute('aria-label', t('journal.main_navigation'));
-    tabs.innerHTML = destinations
-      .map(([k, label, glyph]) => button('tab' + k, label, 'destination', glyph))
-      .join('');
+    replaceMarkup(
+      tabs,
+      destinations.map(([k, label, glyph]) => button('tab' + k, label, 'destination', glyph)).join(''),
+    );
     destinations.forEach(([k]) => bind('tab' + k, () => nav.open(k)));
     by('profile').disabled = false;
     by('license-notice').disabled = false;
     const weekly = window.Device?.weeklyDestination?.();
-    const notice=window.Device?.fieldKind?.();
-    const water=catalog.waterDirectory.byKey.get(window.Device?.fieldWater?.());
-    if (notice==='license') nav.open('anglerDetails');
-    else if (notice==='posts' && water) nav.open('waterDiscussion',{id:water.id});
-    else if (notice==='nearby' && water) nav.open('water',{id:water.id});
-    else if (notice==='waters') {
-      nav.stacks.get('waters')[0].additions=new Set(JSON.parse(window.Device.addedWaters()));
+    const notice = window.Device?.fieldKind?.();
+    const water = catalog.waterDirectory.byKey.get(window.Device?.fieldWater?.());
+    if (notice === 'license') nav.open('anglerDetails');
+    else if (notice === 'posts' && water) nav.open('waterDiscussion', { id: water.id });
+    else if (notice === 'nearby' && water) nav.open('water', { id: water.id });
+    else if (notice === 'waters') {
+      nav.stacks.get('waters')[0].additions = new Set(JSON.parse(window.Device.addedWaters()));
       nav.show();
-    } else if (weekly) nav.open('weeklyBoard', { ...JSON.parse(weekly), onExit: () => window.Device.closeGroupBoard() });
+    } else if (weekly)
+      nav.open('weeklyBoard', { ...JSON.parse(weekly), onExit: () => window.Device.closeGroupBoard() });
     else if (window.Device?.openProfile?.()) nav.open('anglerProfile');
     else nav.show();
   } catch (error) {

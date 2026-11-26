@@ -7,9 +7,6 @@ import android.os.Bundle;
 import android.text.InputType;
 import android.view.View;
 import android.widget.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import org.json.JSONObject;
 
 /**
@@ -17,11 +14,12 @@ import org.json.JSONObject;
  * both revisions.
  */
 public final class AccountActivity extends LocalizedActivity {
-  private final ExecutorService io = Executors.newFixedThreadPool(2);
+  private final AccountRequests requests = new AccountRequests(this);
   private IdentityService service;
   private AccountLayout ui;
+  private AccountDocuments documents;
   private Button submit;
-  private boolean busy, groupLogin, profileLogin;
+  private boolean groupLogin, profileLogin;
   private String email = "";
   private IdentityService.Session signing;
   private android.os.CancellationSignal prompt;
@@ -43,20 +41,21 @@ public final class AccountActivity extends LocalizedActivity {
     SharedPreferences pending = AccountStore.prefs(this);
     groupLogin = getIntent().getBooleanExtra("groupsSignIn", false);
     profileLogin = getIntent().getBooleanExtra("profileSignIn", false);
-    if (!groupLogin && !profileLogin && pendingIsFresh(pending)) {
+    if (!groupLogin && !profileLogin && PendingSignIn.fresh(pending)) {
       groupLogin = pending.getBoolean("pkceForGroups", false);
       profileLogin = pending.getBoolean("pkceForProfile", false);
     }
     ui = new AccountLayout(this);
+    documents = new AccountDocuments(this, ui, service == null ? "" : service.notice);
     email = pending.getString("pkceEmail", pending.getString("email", ""));
     if (getIntent().getData() != null) {
-      if (pendingIsFresh(pending) && !email.isEmpty()) inbox();
+      if (PendingSignIn.fresh(pending) && !email.isEmpty()) inbox();
       else login();
       callback(getIntent());
     } else if (!groupLogin && !profileLogin && !AccountStore.active(this).isEmpty()) {
       if (getIntent().getBooleanExtra("manage", false)) manage();
       else enter();
-    } else if (pendingIsFresh(pending)
+    } else if (PendingSignIn.fresh(pending)
         && pending.getBoolean("pkceMailAccepted", true)
         && !pending.getString("pkceEmail", "").isEmpty()) inbox();
     else {
@@ -89,7 +88,7 @@ public final class AccountActivity extends LocalizedActivity {
 
   @Override
   protected void onDestroy() {
-    io.shutdownNow();
+    requests.close();
     if (prompt != null) prompt.cancel();
     signing = null;
     super.onDestroy();
@@ -101,58 +100,12 @@ public final class AccountActivity extends LocalizedActivity {
         title,
         style,
         () -> {
-          if (!busy) handler.run();
+          if (!requests.busy()) handler.run();
         });
   }
 
   private void documents() {
-    String[] names = {
-      text("account.terms_of_use"),
-      text("account.privacy_notice"),
-      text("account.licenses_and_credits")
-    };
-    String[] pages = {"terms", "privacy", "license"};
-    String title = text("account.terms_and_privacy");
-    action(
-        title,
-        AccountLayout.Action.LINK,
-        () -> {
-          AccountLayout.Prompt menu = ui.prompt(title);
-          for (int i = 0; i < pages.length; i++) {
-            String kind = pages[i], name = names[i];
-            menu.choice(name, AccountLayout.Action.SECONDARY, () -> document(kind, name));
-          }
-          menu.action(text("common.close"), AccountLayout.Action.SECONDARY, null);
-          menu.show();
-        });
-  }
-
-  private void document(String kind, String title) {
-    try {
-      String contents;
-      if (kind.equals("license")) {
-        contents =
-            IdentityService.asset(this, "notice.txt")
-                + "\n\n"
-                + IdentityService.asset(this, "license.txt")
-                + "\n\n"
-                + IdentityService.asset(this, "icon-license.txt");
-      } else {
-        contents = AppLanguage.document(this, kind);
-      }
-      if (kind.equals("privacy"))
-        contents +=
-            "\n\n" + AppLanguage.document(this, "optional-profile")
-                + "\n\n" + text("store.private_data") + "\n\n" + text("store.payment_data") + "\n\n" + text("license.privacy");
-      if (kind.equals("privacy") && service != null && !service.notice.isEmpty())
-        contents += "\n\n" + service.notice;
-      AccountLayout.Prompt reader = ui.prompt(title);
-      reader.description(contents);
-      reader.action(text("common.close"), AccountLayout.Action.PRIMARY, null);
-      reader.show();
-    } catch (Exception e) {
-      ui.message(text("account.could_not_load_the_document"));
-    }
+    action(text("account.terms_and_privacy"), AccountLayout.Action.LINK, documents::open);
   }
 
   private void login() {
@@ -179,7 +132,7 @@ public final class AccountActivity extends LocalizedActivity {
             });
     // Keep the original confirmation usable if password sign-in happens before verification.
     SharedPreferences pending = AccountStore.prefs(this);
-    if (pendingIsFresh(pending) && "signup".equals(pending.getString("pkcePurpose", ""))
+    if (PendingSignIn.fresh(pending) && "signup".equals(pending.getString("pkcePurpose", ""))
         && pending.getBoolean("pkceMailAccepted", true)) {
       action(text("account.return_to_confirmation"), AccountLayout.Action.LINK, () -> {
         email = pending.getString("pkceEmail", "");
@@ -221,38 +174,29 @@ public final class AccountActivity extends LocalizedActivity {
    * Discover enabled providers once for this page without blocking email or a returning callback.
    */
   private void loadProviders(LinearLayout social, Button emailButton) {
-    io.execute(
-        () -> {
-          try {
-            JSONObject enabled = service.providers();
-            runOnUiThread(
+    requests.discoverProviders(service, enabled -> {
+      if (social.getParent() != ui.form) return;
+      if (enabled.has("email")) emailButton.setEnabled(enabled.optBoolean("email"));
+      for (String provider : new String[] {"google", "facebook"}) {
+        if (!enabled.optBoolean(provider)) continue;
+        String name = provider.equals("google") ? "Google" : "Facebook";
+        Button button =
+            ui.button(
+                social,
+                text("account.continue_with") + name,
+                AccountLayout.Action.SECONDARY,
                 () -> {
-                  if (isDestroyed() || isFinishing() || social.getParent() != ui.form) return;
-                  if (enabled.has("email")) emailButton.setEnabled(enabled.optBoolean("email"));
-                  for (String provider : new String[] {"google", "facebook"}) {
-                    if (!enabled.optBoolean(provider)) continue;
-                    String name = provider.equals("google") ? "Google" : "Facebook";
-                    Button button =
-                        ui.button(
-                            social,
-                            text("account.continue_with") + name,
-                            AccountLayout.Action.SECONDARY,
-                            () -> {
-                              if (!busy) oauth(provider);
-                            });
-                    if (provider.equals("google")) {
-                      android.graphics.drawable.Drawable logo =
-                          getDrawable(R.drawable.google_sign_in);
-                      int size = Math.round(20 * getResources().getDisplayMetrics().density);
-                      logo.setBounds(0, 0, size, size);
-                      button.setCompoundDrawablesRelative(logo, null, null, null);
-                    }
-                  }
+                  if (!requests.busy()) oauth(provider);
                 });
-          } catch (Exception ignored) {
-            /* Email can still be requested if provider discovery fails. */
-          }
-        });
+        if (provider.equals("google")) {
+          android.graphics.drawable.Drawable logo =
+              getDrawable(R.drawable.google_sign_in);
+          int size = Math.round(20 * getResources().getDisplayMetrics().density);
+          logo.setBounds(0, 0, size, size);
+          button.setCompoundDrawablesRelative(logo, null, null, null);
+        }
+      }
+    });
   }
 
   private EditText addressField(String explanation) {
@@ -321,7 +265,7 @@ public final class AccountActivity extends LocalizedActivity {
           String purpose = recovery ? "recovery" : "signup";
           SharedPreferences p = AccountStore.prefs(this);
           String verifier =
-              pendingIsFresh(p)
+              PendingSignIn.fresh(p)
                       && purpose.equals(p.getString("pkcePurpose", ""))
                       && email.equalsIgnoreCase(p.getString("pkceEmail", ""))
                   ? p.getString("pkce", "")
@@ -348,7 +292,7 @@ public final class AccountActivity extends LocalizedActivity {
   }
 
   private void choosePassword(IdentityService.Session recovery) {
-    clearPending();
+    PendingSignIn.clear(AccountStore.prefs(this));
     ui.page(text("account.set_a_new_password"), false);
     EditText field = passwordField(true);
     action(
@@ -369,7 +313,7 @@ public final class AccountActivity extends LocalizedActivity {
 
   /** Use the OS authentication UI and a Keystore-protected key on the same device. */
   private void unlock() {
-    if (busy || prompt != null || !DeviceVault.enrolled(this)) return;
+    if (requests.busy() || prompt != null || !DeviceVault.enrolled(this)) return;
     String title = text("account.unlock_journal");
     if (android.os.Build.VERSION.SDK_INT >= 29) {
       android.hardware.biometrics.BiometricPrompt.Builder builder =
@@ -455,7 +399,7 @@ public final class AccountActivity extends LocalizedActivity {
           text("account.back_to_sign_in"),
           AccountLayout.Action.LINK,
           () -> {
-            clearPending();
+            PendingSignIn.clear(AccountStore.prefs(this));
             login();
           });
   }
@@ -483,47 +427,9 @@ public final class AccountActivity extends LocalizedActivity {
   }
 
   private boolean savePending(String verifier, String address, String purpose) {
-    SharedPreferences pending = AccountStore.prefs(this);
-    boolean previouslyAccepted =
-        verifier.equals(pending.getString("pkce", ""))
-            && pending.getBoolean("pkceMailAccepted", true);
-    boolean saved =
-        pending
-            .edit()
-            .putBoolean("pkceForGroups", groupLogin)
-            .putBoolean("pkceForProfile", profileLogin)
-            .putString("pkce", verifier)
-            .putString("pkcePurpose", purpose)
-            .putBoolean("pkceMailAccepted", previouslyAccepted)
-            .putString("pkceEmail", address)
-            .putLong("pkceAt", System.currentTimeMillis())
-            .commit();
-    if (!saved)
-      ui.message(
-          text("account.could_not_save_the_sign_in_request"));
+    boolean saved = PendingSignIn.save(AccountStore.prefs(this), verifier, address, purpose, groupLogin, profileLogin);
+    if (!saved) ui.message(text("account.could_not_save_the_sign_in_request"));
     return saved;
-  }
-
-  private void clearPending() {
-    AccountStore.prefs(this)
-        .edit()
-        .remove("pkceForGroups")
-        .remove("pkceForProfile")
-        .remove("pkce")
-        .remove("pkcePurpose")
-        .remove("pkceMailAccepted")
-        .remove("pkceAt")
-        .remove("pkceEmail")
-        .apply();
-  }
-
-  private boolean pendingIsFresh(SharedPreferences pending) {
-    long age = System.currentTimeMillis() - pending.getLong("pkceAt", 0);
-    long limit =
-        pending.getString("pkceEmail", "").isEmpty()
-            ? TimeUnit.MINUTES.toMillis(10)
-            : TimeUnit.DAYS.toMillis(1);
-    return pending.contains("pkce") && age >= 0 && age <= limit;
   }
 
   private String expiredEmailMessage() {
@@ -543,7 +449,7 @@ public final class AccountActivity extends LocalizedActivity {
 
   private void callback(Intent intent) {
     Uri uri = intent.getData();
-    if (uri == null || service == null || busy) return;
+    if (uri == null || service == null || requests.busy()) return;
     if (!AccountCallbackActivity.matches(this, intent)) return;
     intent.setData(null);
     SharedPreferences p = AccountStore.prefs(this);
@@ -562,7 +468,7 @@ public final class AccountActivity extends LocalizedActivity {
     }
     String code = uri.getQueryParameter("code");
     if (!service.configured()
-        || !pendingIsFresh(p)
+        || !PendingSignIn.fresh(p)
         || verifier.isEmpty()
         || code == null
         || code.isEmpty()) {
@@ -581,7 +487,7 @@ public final class AccountActivity extends LocalizedActivity {
   }
 
   private void verified(IdentityService.Session auth) {
-    clearPending();
+    PendingSignIn.clear(AccountStore.prefs(this));
     signing = auth;
     run(
         () -> service.profile(auth.access),
@@ -714,7 +620,7 @@ public final class AccountActivity extends LocalizedActivity {
         text("account.sign_out_on_this_phone"),
         AccountLayout.Action.SECONDARY,
         () -> {
-          clearPending();
+          PendingSignIn.clear(AccountStore.prefs(this));
           IdentityService.Session previous = AccountStore.logout(this);
           IdentityService auth = service;
           if (auth != null && previous != null) {
@@ -733,37 +639,10 @@ public final class AccountActivity extends LocalizedActivity {
     documents();
   }
 
-  private interface Work<T> {
-    T call() throws Exception;
-  }
-
-  private <T> void run(Work<T> work, java.util.function.Consumer<T> done) {
-    if (busy) return;
-    busy = true;
-    ui.message(text("account.contacting_account_service"));
-    io.execute(
-        () -> {
-          try {
-            T value = work.call();
-            runOnUiThread(
-                () -> {
-                  if (isFinishing() || isDestroyed()) return;
-                  busy = false;
-                  ui.message("");
-                  done.accept(value);
-                  if (!isFinishing() && !isDestroyed()) callback(getIntent());
-                });
-          } catch (Exception error) {
-            runOnUiThread(
-                () -> {
-                  if (isFinishing() || isDestroyed()) return;
-                  busy = false;
-                  ui.message(errorMessage(error));
-                  // A link can arrive while a mail request is still waiting for its response.
-                  callback(getIntent());
-                });
-          }
-        });
+  private <T> void run(java.util.concurrent.Callable<T> work, java.util.function.Consumer<T> done) {
+    requests.run(work, value -> { ui.message(""); done.accept(value); },
+        error -> ui.message(errorMessage(error)),
+        () -> ui.message(text("account.contacting_account_service")), () -> callback(getIntent()));
   }
 
   private String errorMessage(Exception error) {
@@ -771,6 +650,7 @@ public final class AccountActivity extends LocalizedActivity {
       return text("account.too_many_attempts_please_try_again_later");
     if (error instanceof IdentityService.HttpFailure) {
       String code = ((IdentityService.HttpFailure) error).code;
+      if ("PT409".equals(code)) return text("account.name_in_use");
       if ("invalid_credentials".equals(code))
         return text("account.incorrect_email_or_password_if_you_previously");
       if ("email_address_not_authorized".equals(code))

@@ -99,8 +99,7 @@ export function messageReactions(view, data, item, explainError) {
     }
 
     if (!data.canSend) {
-      if (item.myReaction)
-        region.append(control(t('message_emoji.remove_my_reaction'), () => save(null)));
+      if (item.myReaction) region.append(control(t('message_emoji.remove_my_reaction'), () => save(null)));
       return;
     }
 
@@ -134,8 +133,7 @@ export function messageReactions(view, data, item, explainError) {
         }
       };
       menu.append(label, apply);
-      if (item.myReaction)
-        menu.append(control(t('message_emoji.remove_my_reaction'), () => save(null)));
+      if (item.myReaction) menu.append(control(t('message_emoji.remove_my_reaction'), () => save(null)));
     };
     region.append(menu);
     if (focus) summary.focus({ preventScroll: true });

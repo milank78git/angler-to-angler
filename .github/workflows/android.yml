@@ -11,6 +11,8 @@ on:
     branches: [main]
 permissions:
   contents: read
+env:
+  ANGLER_ATLAS_PUBLIC_KEY: ${{ vars.ANGLER_ATLAS_PUBLIC_KEY }}
 jobs:
   profiles:
     if: github.event_name != 'workflow_dispatch'
@@ -31,6 +33,13 @@ jobs:
           sed 's/^rollback;$/commit;/' "$fixture/tests/profile-db.sql" > "$fixture/tests/committed.sql"
           install -m644 tests/market-race.py "$fixture/tests/"
           sudo -u postgres env PGTZ=UTC psql -X -v ON_ERROR_STOP=1 -d angler_fixture -f "$fixture/tests/committed.sql"
+          python3 scripts/index-db-functions.py --signatures | LC_ALL=C sort > "$fixture/expected"
+          sudo -u postgres psql -XAt -v ON_ERROR_STOP=1 -d angler_fixture \
+            -c "select n.nspname||'.'||p.proname||'('||pg_catalog.oidvectortypes(p.proargtypes)||')'
+                from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+                where n.nspname like 'angler%' or (n.nspname='public' and p.proname like 'angler%')" \
+            | LC_ALL=C sort > "$fixture/installed"
+          diff -u "$fixture/expected" "$fixture/installed"
           sudo -u postgres env PGDATABASE=angler_fixture python3 "$fixture/tests/market-race.py"
   build:
     if: github.event_name != 'workflow_dispatch'
@@ -45,6 +54,8 @@ jobs:
         with:
           node-version: '22'
       - run: npm ci --ignore-scripts
+      - run: npm run check
+      - run: python3 scripts/index-db-functions.py --check
       - run: python3 scripts/index-translations.py --check
       - run: python3 tests/account-links.py
       - run: python3 scripts/build-account-links.py build/account-links
@@ -66,9 +77,10 @@ jobs:
           path: build/auth-email/
       - run: node --test tests/*.test.cjs
       - run: python3 tests/water-release.py
+      - run: python3 tests/atlas-signature.py
       - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4
         with:
-          packages: "platforms;android-35 build-tools;35.0.0 platform-tools"
+          packages: "platforms;android-35 platforms;android-36 build-tools;35.0.0 platform-tools"
       - name: Assign the installable Android build number
         run: echo "ANGLER_VERSION_CODE=$((10000 + GITHUB_RUN_NUMBER))" >> "$GITHUB_ENV"
       - run: bash scripts/build-debug.sh
@@ -142,6 +154,12 @@ jobs:
         with:
           name: angler-journal-debug
           path: build/input
+      - name: Check the published atlas against the signer pinned in this release
+        run: |
+          curl --fail --silent --show-error --max-time 30 \
+            https://raw.githubusercontent.com/milank78git/angler-to-angler/water-atlas-v1/manifest.json \
+            -o "$RUNNER_TEMP/atlas-manifest.json"
+          python3 scripts/atlas-signature.py "$RUNNER_TEMP/atlas-manifest.json"
       - name: Sign the tested application for existing pilot installations
         id: package
         env:

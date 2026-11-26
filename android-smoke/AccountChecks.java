@@ -21,7 +21,7 @@ import org.json.JSONObject;
 final class AccountChecks {
   private static final String ID = "11111111-1111-4111-8111-111111111111";
   private final AtlasFixture atlas = new AtlasFixture();
-  private final MarketChecks market = new MarketChecks();
+  final MarketChecks market = new MarketChecks();
   private final PublicCardChecks publicCards;
   private final ActivityChecks activityChecks = new ActivityChecks();
   private final WeeklyChecks weekly = new WeeklyChecks();
@@ -311,6 +311,7 @@ final class AccountChecks {
                                     .toString();
                               }
                               break;
+                            case "/rest/v1/rpc/angler_commerce":
                             case "/rest/v1/rpc/angler_market_discover":
                             case "/rest/v1/rpc/angler_market_list":
                             case "/rest/v1/rpc/angler_market_detail":
@@ -456,7 +457,12 @@ final class AccountChecks {
         app.getTargetContext()
             .getPackageManager()
             .getLaunchIntentForPackage(app.getTargetContext().getPackageName());
-    gate = app.startActivitySync(launch);
+    // Observe the real account screen behind the public, no-display launcher.
+    Instrumentation.ActivityMonitor loginMonitor = app.addMonitor("app.anglers.journal.AccountActivity", null, false);
+    app.getTargetContext().startActivity(launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+    gate = app.waitForMonitorWithTimeout(loginMonitor, 10000);
+    app.removeMonitor(loginMonitor);
+    if (gate == null) throw new AssertionError("Launcher did not open account");
     if (!find(app.expectedVersionLabel()).isShown())
       throw new AssertionError("Version hidden at sign-in");
     app.waitForIdleSync();
@@ -925,11 +931,19 @@ final class AccountChecks {
     assertAtlasSchedule(true);
     click(daily);
     assertAtlasSchedule(false);
-    atlas.enable(app.getTargetContext());
+    atlas.enable(app.getTargetContext(), app.getContext(), 1);
     click(manual);
     find(tr("atlas_settings.the_updated_atlas_is_available_offline"));
     click(manual);
     find(tr("atlas_settings.your_atlas_is_up_to_date"));
+    String firstHash = new JSONObject(atlas.manifest).getString("sha256");
+    atlas.enable(app.getTargetContext(), app.getContext(), 2);
+    click(manual);
+    find(tr("atlas_settings.the_updated_atlas_is_available_offline"));
+    click(manual);
+    find(tr("atlas_settings.your_atlas_is_up_to_date"));
+    if (!new File(app.getTargetContext().getDir("atlas", 0), firstHash + ".json").isFile())
+      throw new AssertionError("Rechecking an unchanged edition deleted the previous verified atlas");
     String goodManifest = atlas.manifest;
     atlas.damage();
     click(manual);

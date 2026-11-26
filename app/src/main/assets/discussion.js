@@ -1,3 +1,4 @@
+import { replaceMarkup } from './markup.js';
 import { languageTag, label } from './i18n.js';
 import { today, validDay } from './domain.js';
 import { newJournalId } from './journal.js';
@@ -23,54 +24,50 @@ const postTime = new Intl.DateTimeFormat(languageTag, { dateStyle: 'medium', tim
 const questions = () => t('common.observations_and_questions');
 const withdraw = () => t('discussion.withdraw_post');
 const removed = () => t('discussion.the_text_of_this_post_was_removed');
-const linked = () =>
-  t('discussion.this_post_has_a_text_reply_and');
+const linked = () => t('discussion.this_post_has_a_text_reply_and');
 const report = () => t('discussion.report_post');
 
 function errorText(error) {
-  if (error.status === 401 || error.status === 403)
-    return t('discussion.sign_in_with_a_verified_account_to');
-  if (error.status === 404)
-    return t('discussion.this_discussion_or_post_is_no_longer');
+  if (error.status === 401 || error.status === 403) return t('discussion.sign_in_with_a_verified_account_to');
+  if (error.status === 404) return t('discussion.this_discussion_or_post_is_no_longer');
   if (error.status === 400) return t('discussion.check_your_text_and_trip_date');
-  if (error.status === 409)
-    return t('discussion.this_post_changed_reopen_the_discussion');
+  if (error.status === 409) return t('discussion.this_post_changed_reopen_the_discussion');
   return t('common.could_not_connect_please_retry');
 }
 
 function postCard(item) {
   const card = document.createElement('article');
   card.className = 'surface discussion-post';
-  card.innerHTML =
+  replaceMarkup(
+    card,
     '<p class="meta">' +
-    esc(item.removed ? t('discussion.removed_post') : item.author) +
-    ' · ' +
-    t('discussion.posted') +
-    ' ' +
-    esc(postTime.format(new Date(item.postedAt))) +
-    '</p>' +
-    (item.replyTo
-      ? '<blockquote class="discussion-context"><strong>' +
-        esc(
-          item.replyTo.author
-            ? t('discussion.reply_to') + item.replyTo.author
-            : t('discussion.in_reply_to_a_post'),
-        ) +
-        '</strong><br>' +
-        esc(item.replyTo.excerpt ?? removed()) +
-        '</blockquote>'
-      : '') +
-    '<p class="discussion-body">' +
-    esc(item.body ?? removed()) +
-    '</p>' +
-    (item.tripDay
-      ? '<p class="meta">' + t('common.trip_date') + ' · ' + esc(displayDay(item.tripDay)) + '</p>'
-      : '') +
-    (item.helpful
-      ? '<p class="discussion-helpful">' +
-        t('discussion.marked_helpful_by_the_angler_who_asked') +
-        '</p>'
-      : '');
+      esc(item.removed ? t('discussion.removed_post') : item.author) +
+      ' · ' +
+      t('discussion.posted') +
+      ' ' +
+      esc(postTime.format(new Date(item.postedAt))) +
+      '</p>' +
+      (item.replyTo
+        ? '<blockquote class="discussion-context"><strong>' +
+          esc(
+            item.replyTo.author
+              ? t('discussion.reply_to') + item.replyTo.author
+              : t('discussion.in_reply_to_a_post'),
+          ) +
+          '</strong><br>' +
+          esc(item.replyTo.excerpt ?? removed()) +
+          '</blockquote>'
+        : '') +
+      '<p class="discussion-body">' +
+      esc(item.body ?? removed()) +
+      '</p>' +
+      (item.tripDay
+        ? '<p class="meta">' + t('common.trip_date') + ' · ' + esc(displayDay(item.tripDay)) + '</p>'
+        : '') +
+      (item.helpful
+        ? '<p class="discussion-helpful">' + t('discussion.marked_helpful_by_the_angler_who_asked') + '</p>'
+        : ''),
+  );
   if (item.replyCount !== undefined) {
     const count = document.createElement('p');
     count.className = 'meta';
@@ -97,31 +94,34 @@ function action(card, label, callback, style = 'secondary') {
 }
 
 /** Read a water feed or a single question. The atlas itself remains usable without a connection. */
+/** @param {import('../../../../types/screens.js').ScreenContext} context */
 export async function waterDiscussion({ view, nav, waterDirectory }) {
   const { id, questionId = null } = view.route;
   const water = waterDirectory.byId.get(id);
   if (!water) return nav.back();
   const key = water.key;
-  screen.innerHTML =
+  replaceMarkup(
+    screen,
     back(t('common.back')) +
-    '<div class="page-intro"><p class="meta">' +
-    esc(water.name) +
-    ' · ' +
-    esc(water.number) +
-    '</p><h1>' +
-    (questionId ? t('discussion.water_post') : questions()) +
-    '</h1></div>' +
-    '<div id="discussion-root"></div><div class="actions" id="discussion-tools" hidden>' +
-    button('discussion-compose', label(questionId ? 'discussion.reply' : 'discussion.compose'), 'primary') +
-    button('discussion-refresh', t('common.refresh'), 'secondary') +
-    '</div>' +
-    '<h2 id="answers-title" hidden>' +
-    t('discussion.answers') +
-    '</h2><div id="discussion-items"></div>' +
-    '<p id="discussion-status" role="status"></p>' +
-    button('discussion-more', t('discussion.older_posts'), 'secondary') +
-    button('discussion-retry', t('common.retry'), 'secondary') +
-    button('discussion-signin', t('common.sign_in'), 'secondary');
+      '<div class="page-intro"><p class="meta">' +
+      esc(water.name) +
+      ' · ' +
+      esc(water.number) +
+      '</p><h1>' +
+      (questionId ? t('discussion.water_post') : questions()) +
+      '</h1></div>' +
+      '<div id="discussion-root"></div><div class="actions" id="discussion-tools" hidden>' +
+      button('discussion-compose', label(questionId ? 'discussion.reply' : 'discussion.compose'), 'primary') +
+      button('discussion-refresh', t('common.refresh'), 'secondary') +
+      '</div>' +
+      '<h2 id="answers-title" hidden>' +
+      t('discussion.answers') +
+      '</h2><div id="discussion-items"></div>' +
+      '<p id="discussion-status" role="status"></p>' +
+      button('discussion-more', t('discussion.older_posts'), 'secondary') +
+      button('discussion-retry', t('common.retry'), 'secondary') +
+      button('discussion-signin', t('common.sign_in'), 'secondary'),
+  );
   bindBack(nav);
   const more = by('discussion-more'),
     retry = by('discussion-retry'),
@@ -140,9 +140,7 @@ export async function waterDiscussion({ view, nav, waterDirectory }) {
   function makeCard(item, isRoot) {
     const card = postCard(item);
     if (!questionId) {
-      action(card, t('discussion.open_post'), () =>
-        nav.open('waterDiscussion', { id, questionId: item.id }),
-      );
+      action(card, t('discussion.open_post'), () => nav.open('waterDiscussion', { id, questionId: item.id }));
       return card;
     }
     const failed = (err) => toast(errorText(err));
@@ -253,6 +251,9 @@ export async function waterDiscussion({ view, nav, waterDirectory }) {
       });
       if (!view.active()) return;
       if (!next) {
+        if (questionId && (!page.question || page.question.id !== questionId)) {
+          throw Object.assign(new Error('Discussion root unavailable'), { status: 404 });
+        }
         question = page.question;
         if (question) {
           by('discussion-root').append(makeCard(question, true));
@@ -284,46 +285,47 @@ export async function waterDiscussion({ view, nav, waterDirectory }) {
 }
 
 /** The composer contains only newly authored text and an optional, explicit trip date. */
+/** @param {import('../../../../types/screens.js').ScreenContext} context */
 export function discussionComposer({ view, nav, waterDirectory }) {
   const { id, questionId = null } = view.route;
   const water = waterDirectory.byId.get(id);
   if (!water) return nav.back();
   const publish = questionId ? t('discussion.post_answer') : t('discussion.publish_post');
-  screen.innerHTML =
+  replaceMarkup(
+    screen,
     back(t('common.back')) +
-    '<div class="page-intro"><p class="meta">' +
-    esc(water.name) +
-    '</p><h1>' +
-    (questionId ? t('discussion.answer_at_this_water') : t('discussion.new_post')) +
-    '</h1></div>' +
-    (questionId
-      ? '<blockquote class="discussion-context">' +
-        (view.route.replyAuthor
-          ? '<strong>' + esc(t('discussion.reply_to') + view.route.replyAuthor) + '</strong><br>'
-          : '') +
-        esc(view.route.questionText) +
-        '</blockquote>'
-      : '') +
-    '<form id="discussion-form" class="entry-form"><section class="surface">' +
-    field(
-      'discussion-text',
-      questionId
-        ? t('discussion.your_answer')
-        : t('discussion.what_did_you_observe_or_what_would'),
-      '<textarea id="discussion-text" rows="5" maxlength="1600" required></textarea>',
-    ) +
-    (questionId
-      ? field(
-          'discussion-day',
-          t('discussion.trip_date_optional'),
-          '<input id="discussion-day" type="date" max="' + esc(today(water.zone)) + '">',
-        )
-      : '') +
-    '<p class="meta">' +
-    t('discussion.signed_in_anglers_will_see_this_post') +
-    '</p><p id="discussion-error" role="alert"></p></section><div class="savebar"><button type="submit" class="primary">' +
-    publish +
-    '</button></div></form>';
+      '<div class="page-intro"><p class="meta">' +
+      esc(water.name) +
+      '</p><h1>' +
+      (questionId ? t('discussion.answer_at_this_water') : t('discussion.new_post')) +
+      '</h1></div>' +
+      (questionId
+        ? '<blockquote class="discussion-context">' +
+          (view.route.replyAuthor
+            ? '<strong>' + esc(t('discussion.reply_to') + view.route.replyAuthor) + '</strong><br>'
+            : '') +
+          esc(view.route.questionText) +
+          '</blockquote>'
+        : '') +
+      '<form id="discussion-form" class="entry-form"><section class="surface">' +
+      field(
+        'discussion-text',
+        questionId ? t('discussion.your_answer') : t('discussion.what_did_you_observe_or_what_would'),
+        '<textarea id="discussion-text" rows="5" maxlength="1600" required></textarea>',
+      ) +
+      (questionId
+        ? field(
+            'discussion-day',
+            t('discussion.trip_date_optional'),
+            '<input id="discussion-day" type="date" max="' + esc(today(water.zone)) + '">',
+          )
+        : '') +
+      '<p class="meta">' +
+      t('discussion.signed_in_anglers_will_see_this_post') +
+      '</p><p id="discussion-error" role="alert"></p></section><div class="savebar"><button type="submit" class="primary">' +
+      publish +
+      '</button></div></form>',
+  );
   bindBack(nav);
   const form = by('discussion-form');
   trackEdits(form, view);
@@ -342,10 +344,7 @@ export function discussionComposer({ view, nav, waterDirectory }) {
       title: publish + '?',
       accept: publish,
       message:
-        water.name +
-        '\n\n' +
-        message +
-        (day ? '\n\n' + t('common.trip_date') + ' · ' + displayDay(day) : ''),
+        water.name + '\n\n' + message + (day ? '\n\n' + t('common.trip_date') + ' · ' + displayDay(day) : ''),
     });
     if (!confirmed || !view.active()) return;
     if (!attempt || attempt.message !== message || attempt.trip_day !== day)

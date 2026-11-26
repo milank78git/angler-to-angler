@@ -304,11 +304,11 @@ public final class Runner extends Instrumentation {
     waitFor("document.querySelector('#fish').value==='' && document.querySelector('#catch-rules').hidden");
     setControl("#catch-search", "Esox", "input");
     setControl("#fish", "Esox lucius", "change");
-    setControl("#length", "50", "input");
+    setControl("#catch-length", "50", "input");
     clickReady("#catch-rules summary");
     waitFor("!!document.querySelector('#catch-rule-body .result') && !!document.querySelector('#catch-rule-body a[href]')");
     clickReady("#catch-rules summary");
-    waitFor("document.querySelector('#length').value==='50' && document.querySelector('#fish').value==='Esox lucius'");
+    waitFor("document.querySelector('#catch-length').value==='50' && document.querySelector('#fish').value==='Esox lucius'");
     setControl("#catch-search", "", "input");
   }
 
@@ -702,6 +702,45 @@ public final class Runner extends Instrumentation {
     }
   }
 
+  /** Observe real Android notifications, including dismissal and the next day's delivery. */
+  private void genericSeasonPrompt() throws Exception {
+    android.content.Context target = getTargetContext();
+    android.app.NotificationManager manager = target.getSystemService(android.app.NotificationManager.class);
+    android.content.SharedPreferences state = target.getSharedPreferences("season-alerts", 0);
+    java.lang.reflect.Method post = target.getClassLoader().loadClass("app.anglers.journal.SeasonReminder")
+        .getDeclaredMethod("postGeneric", android.content.Context.class, java.time.LocalDate.class);
+    post.setAccessible(true);
+    java.time.LocalDate today = java.time.LocalDate.now();
+    state.edit().clear().commit();
+    try {
+      post.invoke(null, target, today);
+      waitForGenericSeason(manager, true);
+      manager.cancel("season-generic", 1);
+      waitForGenericSeason(manager, false);
+      post.invoke(null, target, today);
+      // Give the notification service time to process a mistakenly repeated post.
+      android.os.SystemClock.sleep(350);
+      waitForGenericSeason(manager, false);
+      post.invoke(null, target, today.plusDays(1));
+      waitForGenericSeason(manager, true);
+    } finally {
+      manager.cancel("season-generic", 1);
+      state.edit().clear().commit();
+    }
+  }
+
+  private static void waitForGenericSeason(android.app.NotificationManager manager, boolean expected) {
+    long deadline = android.os.SystemClock.elapsedRealtime() + 3000;
+    do {
+      boolean present = false;
+      for (android.service.notification.StatusBarNotification entry : manager.getActiveNotifications())
+        if ("season-generic".equals(entry.getTag())) present = true;
+      if (present == expected) return;
+      android.os.SystemClock.sleep(50);
+    } while (android.os.SystemClock.elapsedRealtime() < deadline);
+    throw new AssertionError("Unexpected generic season notification state: " + expected);
+  }
+
   @Override
   public void onStart() {
     Bundle outcome = new Bundle();
@@ -709,6 +748,12 @@ public final class Runner extends Instrumentation {
       if ("unlock".equals(scenario)) {
         coldUnlock();
         outcome.putString("stream", "ANGLER_UNLOCK_PASS\n");
+        finish(Activity.RESULT_OK, outcome);
+        return;
+      }
+      if ("season".equals(scenario)) {
+        genericSeasonPrompt();
+        outcome.putString("stream", "ANGLER_SEASON_PASS\n");
         finish(Activity.RESULT_OK, outcome);
         return;
       }
@@ -842,7 +887,7 @@ public final class Runner extends Instrumentation {
       capture("seasons");
       js("document.querySelector('#theme').click();document.querySelector('#tabwaters').click()");
       waitFor("document.querySelector('#saved').getAttribute('aria-pressed')==='true'");
-      js("document.querySelector('#all').click()");
+      js("document.querySelector('#all-waters').click()");
       js(
           "document.getElementById('search').value='401 009';"
               + " document.getElementById('search').dispatchEvent(new Event('input'))");
@@ -893,12 +938,12 @@ public final class Runner extends Instrumentation {
         setControl("#fish", "manual", "change");
         if (n == 1) {
           form(
-              "document.querySelector('#fish-name').value='Perch';document.querySelector('#length').value='0x20'");
+              "document.querySelector('#fish-name').value='Perch';document.querySelector('#catch-length').value='0x20'");
           waitFor(
-              "document.activeElement.id==='length' &&"
+              "document.activeElement.id==='catch-length' &&"
                   + " !document.querySelector('#form-error').hidden");
           form(
-              "document.querySelector('#length').value='32.5';document.querySelector('#lat').value='2';document.querySelector('#lon').value='181'");
+              "document.querySelector('#catch-length').value='32.5';document.querySelector('#lat').value='2';document.querySelector('#lon').value='181'");
           waitFor(
               "document.activeElement.id==='lon' &&"
                   + " document.querySelector('#position-fields').open");
@@ -914,7 +959,7 @@ public final class Runner extends Instrumentation {
           waitFor("document.querySelector('#photo').files.length===1");
         }
         form(
-            "document.querySelector('#bait').value='spinner';document.querySelector('#technique').value='jigging';document.querySelector('#position-fields').open=true;document.querySelector('#fish-name').value='Perch';document.querySelector('#length').value='32.5';document.querySelector('#lat').value='-40';document.querySelector('#lon').value='0'");
+            "document.querySelector('#bait').value='spinner';document.querySelector('#technique').value='jigging';document.querySelector('#position-fields').open=true;document.querySelector('#fish-name').value='Perch';document.querySelector('#catch-length').value='32.5';document.querySelector('#lat').value='-40';document.querySelector('#lon').value='0'");
         waitFor("document.querySelectorAll('#catch-list article').length===" + n);
       }
       runOnMainSync(() -> activity.finish());
@@ -938,7 +983,7 @@ public final class Runner extends Instrumentation {
       ShareChecks.run(this);
       WeeklyChecks.run(this);
       PublicCardChecks.run(this);
-      MarketChecks.run(this);
+      accounts.market.run(this);
       checkEvidenceSubmission(accounts);
       if ("wide".equals(scenario)) verifyLanguagePicker(accounts);
       accounts.readGroupTip(postedTip);

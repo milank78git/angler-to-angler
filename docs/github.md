@@ -19,6 +19,38 @@ Each successful push to main produces a pre-release after the Android and databa
 
 The installed version name comes from the manifest. The CI Android build number is 10000 plus the Android pilot workflow run number, so separate merges can share a version name and still upgrade in order. The tag, APK filename and version displayed inside the app identify the same build. A retry uses the same number. Preserve the workflow's run numbering when renaming or replacing it.
 
-The release job re-signs the compiled standard APK with the base64-encoded 0.4.4 keystore in the Actions secret `ANDROID_PILOT_KEYSTORE`. It checks its certificate against that pilot, verifies that the packaged account configuration is present and attaches a SHA-256 file alongside the APK. To rewrap the pilot key, export the same private key and certificate to a password-protected keystore offline. Compare the SHA-256 certificate fingerprint before updating the keystore secret, then set both `ANDROID_PILOT_STORE_PASSWORD` and `ANDROID_PILOT_KEY_PASSWORD` in Actions secrets. Set the variable `ANDROID_PILOT_KEY_ALIAS` if the alias changed. The legacy password pair is supported until rewrapping. Retire older copies with weak passwords. If the private key may have been disclosed, rewrapping it offers no protection against a holder of the old copy. Coordinate certificate rotation separately from Play App Signing.  Configure the public Actions variable `ANGLER_ACCOUNT_CONFIG` as described in [Accounts](accounts.md). The closed-pilot mail configuration still restricts who can sign in.
+The release job re-signs the compiled standard APK with the base64-encoded 0.4.4 keystore in the Actions secret `ANDROID_PILOT_KEYSTORE`. It checks its certificate against that pilot, verifies that the packaged account configuration is present and attaches a SHA-256 file alongside the APK. To rewrap the pilot key, export the same private key and certificate to a password-protected keystore offline. Compare the SHA-256 certificate fingerprint before updating the keystore secret, then set both `ANDROID_PILOT_STORE_PASSWORD` and `ANDROID_PILOT_KEY_PASSWORD` in Actions secrets. Set the Actions variable `ANDROID_PILOT_KEY_ALIAS` to the new release alias. The release job requires both passwords and a non-debug alias. It stops before publishing when migration is incomplete. Keep the existing certificate and test an in-place upgrade on a pilot device. Retire older copies with weak passwords. If the private key may have been disclosed, rewrapping it offers no protection against a holder of the old copy. Coordinate certificate rotation separately from Play App Signing.
+
+To copy the existing private key under a release alias, run the following commands offline. Keytool prompts for passwords. Compare both SHA-256 certificate fingerprints with the value pinned in `scripts/sign-pilot.sh` before replacing the Actions secret. Keep a recoverable backup of the original until a signed upgrade has been verified.
+
+```sh
+keytool -importkeystore -srckeystore original-pilot.keystore -srcalias androiddebugkey \
+  -destkeystore pilot-release.p12 -deststoretype PKCS12 -destalias angler-pilot
+keytool -list -v -keystore original-pilot.keystore -alias androiddebugkey
+keytool -list -v -keystore pilot-release.p12 -alias angler-pilot
+```
+
+For PKCS12, configure both password secrets with the new keystore password.
+
+Configure the public Actions variable `ANGLER_ACCOUNT_CONFIG` as described in [Accounts](accounts.md). The closed-pilot mail configuration still restricts who can sign in.
 
 To promote an already tested APK, open **Actions → Android pilot → Run workflow**, select **main**, and enter the full published pilot tag. The workflow marks that release stable and latest using its existing tag and files. Verify a download by running `sha256sum -c angler-to-angler-<version>-build.<number>.apk.sha256` in the download directory.
+
+### Atlas release signing
+
+Generate a dedicated P-256 key offline and keep its backup under the atlas publisher's control.
+Set the multiline PEM as the Actions secret `ANGLER_ATLAS_SIGNING_KEY`. Set the matching
+base64-encoded DER public key as the Actions variable `ANGLER_ATLAS_PUBLIC_KEY` used by
+both Android builds and atlas publication.
+
+```sh
+umask 077
+openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256 -out atlas-private.pem
+openssl pkey -in atlas-private.pem -pubout -outform DER | openssl base64 -A
+```
+
+Configure the pair before merging the signed-atlas release, run **Publish the water directory**
+and check a manual atlas update on the candidate APK. An absent signer stops publication.
+An APK without a configured public key uses its bundled atlas. The client also drops trust in unsigned
+editions cached by earlier versions. A failed update retains the last verified edition.
+Coordinate key changes with an APK release because existing APKs pin their original signer.

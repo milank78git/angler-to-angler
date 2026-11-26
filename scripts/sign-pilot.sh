@@ -4,6 +4,14 @@ set -euo pipefail
 apk=${1:?Missing compiled APK}
 bt=${ANDROID_BUILD_TOOLS:-${ANDROID_HOME:?}/build-tools/35.0.0}
 : "${ANDROID_PILOT_KEYSTORE:?Set the pilot keystore in GitHub Actions Secrets}"
+: "${ANDROID_PILOT_STORE_PASSWORD:?Configure the rewrapped pilot keystore password}"
+: "${ANDROID_PILOT_KEY_PASSWORD:?Configure the rewrapped pilot key password}"
+: "${ANDROID_PILOT_KEY_ALIAS:?Configure the release key alias}"
+if [[ "$ANDROID_PILOT_STORE_PASSWORD" == android || "$ANDROID_PILOT_KEY_PASSWORD" == android ||
+      "${ANDROID_PILOT_KEY_ALIAS,,}" == androiddebugkey ]]; then
+  echo "Rewrap the original pilot key and configure its release alias before distribution." >&2
+  exit 1
+fi
 key=$(mktemp)
 trap 'rm -f "$key"' EXIT
 printf '%s' "$ANDROID_PILOT_KEYSTORE" | base64 --decode > "$key"
@@ -25,12 +33,7 @@ name="angler-to-angler-${tag#v}.apk"
 mkdir -p "$out"
 # Existing pilot installations pin the certificate. The same private key can be
 # rewrapped with strong passwords without rotating the certificate or losing journals.
-case "${ANDROID_PILOT_STORE_PASSWORD:+s}${ANDROID_PILOT_KEY_PASSWORD:+k}" in
-  sk) ;;
-  '') export ANDROID_PILOT_STORE_PASSWORD=android ANDROID_PILOT_KEY_PASSWORD=android ;;
-  *) echo "Set both pilot keystore passwords together" >&2; exit 1 ;;
-esac
-"$bt/apksigner" sign --ks "$key" --ks-key-alias "${ANDROID_PILOT_KEY_ALIAS:-androiddebugkey}" \
+"$bt/apksigner" sign --ks "$key" --ks-key-alias "$ANDROID_PILOT_KEY_ALIAS" \
   --ks-pass env:ANDROID_PILOT_STORE_PASSWORD --key-pass env:ANDROID_PILOT_KEY_PASSWORD --out "$out/$name" "$apk"
 unset ANDROID_PILOT_STORE_PASSWORD ANDROID_PILOT_KEY_PASSWORD
 certs=$("$bt/apksigner" verify --print-certs "$out/$name")

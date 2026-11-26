@@ -53,15 +53,29 @@ an authenticated push subscription to the Edge URL ending in
 push service account, `PLAY_PUSH_AUDIENCE` for its exact OIDC audience and
 `PLAY_PUSH_SUBSCRIPTION` for the full subscription resource name. Use the Console
 test message, then complete a pending license purchase with the app closed.
+An authenticated notification with an invalid envelope or ineligible product is acknowledged and logged without the token.
+A database or Google API outage requests redelivery. Before enabling live payments, verify the subscription's
+`deadLetterPolicy` with `gcloud pubsub subscriptions describe SUBSCRIPTION --format=json`. Check the
+destination subscription and Pub/Sub service agent permissions. A test delivery to that subscription after
+the configured retry limit verifies forwarding.
+
 Review retry and dead-letter messages for the subscription. Daily refund polling
 also covers missed void notifications.
 
 ## Operating the marketplace
 
 Pilot tips can be enrolled by their author on their detail screen. Earlier
-buyers keep their entitlements. New Play purchases use a separate ledger.
+buyers keep their entitlements. Earlier pilot copies still use a slot in the
+author's lifetime limit but do not appear in Play sales or commercial ratings.
+Purchased tips remain readable when only the wallet or offer discovery service is
+unavailable. A new Play purchase requires a verified credit breakdown.
+New Play purchases use a separate ledger.
 The ten promotional credits can unlock tips and have zero monetary value for
-all three recipients. Mixed purchases distribute only the paid portion.
+all three recipients. A welcome-only unlock is available on unlimited offers
+and does not count as a sale or qualify for a commercial rating. For a limited
+offer at least one purchased credit is required. The confirmation shows the
+split before checkout. Mixed purchases distribute only the paid portion.
+Existing buyers keep their purchased revisions, including welcome-only copies.
 The migration stops if a live ledger has historical sponsored allocations.
 Reconcile existing commitments and bank instructions before changing that ledger.
 Purchased packs have no settled monetary value until the earnings statement

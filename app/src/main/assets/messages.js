@@ -1,3 +1,4 @@
+import { replaceMarkup } from './markup.js';
 import { languageTag } from './i18n.js';
 import { bindInlineEmoji, messageReactions } from './message-emoji.js';
 import { newJournalId } from './journal.js';
@@ -22,13 +23,10 @@ const inboxTitle = () => t('common.private_messages');
 const sendLabel = () => t('messages.send_privately');
 const stamp = new Intl.DateTimeFormat(languageTag, { dateStyle: 'medium', timeStyle: 'short' });
 function errorText(err) {
-  if (err.status === 403)
-    return t('messages.messaging_is_unavailable_for_this_account_or');
+  if (err.status === 403) return t('messages.messaging_is_unavailable_for_this_account_or');
   if (err.status === 401) return t('messages.sign_in_again_to_use_messages');
-  if (err.status === 404)
-    return t('messages.the_question_or_conversation_is_no_longer');
-  if (err.status === 409)
-    return t('messages.the_contents_of_the_retried_request_have');
+  if (err.status === 404) return t('messages.the_question_or_conversation_is_no_longer');
+  if (err.status === 409) return t('messages.the_contents_of_the_retried_request_have');
   return t('common.could_not_connect_please_retry');
 }
 
@@ -73,14 +71,17 @@ function listShell() {
   );
 }
 
+/** @param {import('../../../../types/screens.js').ScreenContext} context */
 export async function messageInbox({ view, nav }) {
-  screen.innerHTML =
+  replaceMarkup(
+    screen,
     back(t('common.back')) +
-    '<h1>' +
-    inboxTitle() +
-    '</h1>' +
-    button('inbox-refresh', t('common.refresh'), 'secondary') +
-    listShell();
+      '<h1>' +
+      inboxTitle() +
+      '</h1>' +
+      button('inbox-refresh', t('common.refresh'), 'secondary') +
+      listShell(),
+  );
   bindBack(nav);
   bind('inbox-refresh', () => nav.show());
   await listPages(
@@ -100,20 +101,23 @@ export async function messageInbox({ view, nav }) {
   );
 }
 
+/** @param {import('../../../../types/screens.js').ScreenContext} context */
 export async function messageThread({ view, nav }) {
   const { threadId = null, questionId = null } = view.route;
-  screen.innerHTML =
+  replaceMarkup(
+    screen,
     back(t('common.back')) +
-    '<p class="meta">' +
-    inboxTitle() +
-    '</p><h1 id="peer-name">' +
-    t('messages.conversation') +
-    '</h1><div id="message-context"></div><div id="message-tools" hidden><div class="actions">' +
-    button('write-message', t('messages.write_a_message'), 'primary') +
-    button('block-peer', '', 'secondary') +
-    button('thread-refresh', t('common.refresh'), 'secondary') +
-    '</div><p id="block-status" role="status"></p></div>' +
-    listShell();
+      '<p class="meta">' +
+      inboxTitle() +
+      '</p><h1 id="peer-name">' +
+      t('messages.conversation') +
+      '</h1><div id="message-context"></div><div id="message-tools" hidden><div class="actions">' +
+      button('write-message', t('messages.write_a_message'), 'primary') +
+      button('block-peer', '', 'secondary') +
+      button('thread-refresh', t('common.refresh'), 'secondary') +
+      '</div><p id="block-status" role="status"></p></div>' +
+      listShell(),
+  );
   bindBack(nav);
   bind('thread-refresh', () => nav.show());
   const read = (before_position) =>
@@ -126,8 +130,10 @@ export async function messageThread({ view, nav }) {
         by('peer-name').textContent = data.peerName;
         by('message-tools').hidden = false;
         if (data.questionText)
-          by('message-context').innerHTML =
-            '<blockquote class="discussion-context">' + esc(data.questionText) + '</blockquote>';
+          replaceMarkup(
+            by('message-context'),
+            '<blockquote class="discussion-context">' + esc(data.questionText) + '</blockquote>',
+          );
         by('write-message').hidden = !data.canSend;
         bind('write-message', () =>
           nav.open('messageComposer', {
@@ -140,9 +146,7 @@ export async function messageThread({ view, nav }) {
         const block = by('block-peer'),
           blocked = data.blockedByMe;
         block.hidden = !data.threadId;
-        const label = blocked
-          ? t('messages.unblock_angler')
-          : t('messages.block_angler');
+        const label = blocked ? t('messages.unblock_angler') : t('messages.block_angler');
         block.textContent = label;
         by('block-status').textContent = data.canSend
           ? ''
@@ -173,18 +177,20 @@ export async function messageThread({ view, nav }) {
       for (const item of data.items) {
         const card = document.createElement('article');
         card.className = 'surface discussion-post';
-        card.innerHTML =
+        replaceMarkup(
+          card,
           '<p class="meta">' +
-          esc(item.mine ? t('common.you') : data.peerName) +
-          ' · ' +
-          esc(stamp.format(new Date(item.postedAt))) +
-          '</p>' +
-          (item.questionText
-            ? '<blockquote class="discussion-context">' + esc(item.questionText) + '</blockquote>'
-            : '') +
-          '<p class="discussion-body">' +
-          esc(item.body) +
-          '</p>';
+            esc(item.mine ? t('common.you') : data.peerName) +
+            ' · ' +
+            esc(stamp.format(new Date(item.postedAt))) +
+            '</p>' +
+            (item.questionText
+              ? '<blockquote class="discussion-context">' + esc(item.questionText) + '</blockquote>'
+              : '') +
+            '<p class="discussion-body">' +
+            esc(item.body) +
+            '</p>',
+        );
         if (!item.mine) {
           const flag = document.createElement('button');
           flag.type = 'button';
@@ -197,10 +203,7 @@ export async function messageThread({ view, nav }) {
             const accepted = await confirmAction({
               title: label + '?',
               accept: label,
-              message:
-                t('messages.send_this_message_to_the_pilot_operator') +
-                '\n\n' +
-                item.body,
+              message: t('messages.send_this_message_to_the_pilot_operator') + '\n\n' + item.body,
             });
             if (accepted && view.active())
               await submitChange(
@@ -224,32 +227,35 @@ export async function messageThread({ view, nav }) {
   );
 }
 
+/** @param {import('../../../../types/screens.js').ScreenContext} context */
 export function messageComposer({ view, nav }) {
   const { threadId, questionId, peerName, questionText } = view.route;
-  screen.innerHTML =
+  replaceMarkup(
+    screen,
     back(t('common.back')) +
-    '<h1>' +
-    t('messages.private_message') +
-    '</h1><p>' +
-    t('common.recipient') +
-    ' · ' +
-    esc(peerName) +
-    '</p>' +
-    (questionText ? '<blockquote class="discussion-context">' + esc(questionText) + '</blockquote>' : '') +
-    '<form class="entry-form" id="message-form"><section class="surface">' +
-    field(
-      'message-text',
-      t('messages.your_message'),
-      '<textarea id="message-text" rows="5" required maxlength="1600"></textarea>',
-    ) +
-    '<details id="inline-emoji"><summary>' +
-    t('messages.insert_emoji') +
-    '</summary></details>' +
-    '<p class="meta">' +
-    t('messages.only_you_and_the_recipient_see_the') +
-    '</p><p role="alert" id="send-error"></p></section><div class="savebar"><button class="primary">' +
-    sendLabel() +
-    '</button></div></form>';
+      '<h1>' +
+      t('messages.private_message') +
+      '</h1><p>' +
+      t('common.recipient') +
+      ' · ' +
+      esc(peerName) +
+      '</p>' +
+      (questionText ? '<blockquote class="discussion-context">' + esc(questionText) + '</blockquote>' : '') +
+      '<form class="entry-form" id="message-form"><section class="surface">' +
+      field(
+        'message-text',
+        t('messages.your_message'),
+        '<textarea id="message-text" rows="5" required maxlength="1600"></textarea>',
+      ) +
+      '<details id="inline-emoji"><summary>' +
+      t('messages.insert_emoji') +
+      '</summary></details>' +
+      '<p class="meta">' +
+      t('messages.only_you_and_the_recipient_see_the') +
+      '</p><p role="alert" id="send-error"></p></section><div class="savebar"><button class="primary">' +
+      sendLabel() +
+      '</button></div></form>',
+  );
   bindBack(nav);
   const form = by('message-form');
   bindInlineEmoji();

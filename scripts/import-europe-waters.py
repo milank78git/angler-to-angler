@@ -16,6 +16,7 @@ from urllib.parse import urlencode, urlsplit
 from urllib.request import Request, urlopen
 
 from osgeo import ogr, osr
+from swedish_water_ids import identify as identify_swedish_waters
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "app/src/main/assets"
@@ -112,25 +113,34 @@ def luxembourg():
     return rows
 
 
-def swedish():
+def swedish(previous):
     terms = SOURCE_TERMS["SE"]
-    # The country register labels active management areas with reference points.
-    # ID_FVOF identifies the association across publications; OBJECTID is only for paging.
-    url = "https://ext-geodata-acc.lansstyrelsen.se/arcgis/rest/services/svenskafiskekartan/lst_svenskafiskekartan/MapServer/11/query?"
+    service = json.loads(get("https://fiskekartan.se/config.json"))["urlfiskekartanservice"]
+    parsed = urlsplit(service)
+    if (parsed.scheme != "https" or parsed.netloc != "ext-geodata-applikationer.lansstyrelsen.se"
+            or parsed.path.lower() != "/arcgis/rest/services/svenskafiskekartan/lst_svenskafiskekartan/mapserver"
+            or parsed.query or parsed.fragment):
+        raise ValueError("Unexpected official Swedish fishery map service")
+    url = service + "/11/query?"
     params = {"where": terms["condition"]}
     expected = json.loads(get(url + urlencode({**params, "returnCountOnly":"true", "f":"json"})))["count"]
     rows = []
+    object_ids = set()
     for offset in range(0, expected, 800):
         query = {**params, "outFields":terms["fields"], "outSR":4326, "orderByFields":"OBJECTID",
                  "resultOffset":offset, "resultRecordCount":800, "f":"geojson"}
         for feature in json.loads(get(url + urlencode(query)))["features"]:
             prop = feature["properties"]
-            if not isinstance(prop["ID_FVOF"], int) or prop["Status"] != terms["active"]:
+            row_id = prop["OBJECTID"]
+            if row_id in object_ids:
+                raise ValueError("Repeated Swedish feature in paged response")
+            object_ids.add(row_id)
+            if prop["Status"] != terms["active"] or feature["geometry"]["type"] != "Point":
                 raise ValueError("Unexpected management area identity")
-            rows.append({"code":str(prop["ID_FVOF"]), "name":prop[terms["name"]].strip(), **source_geometry(feature["geometry"])})
+            rows.append({"name":prop[terms["name"]].strip(), **source_geometry(feature["geometry"])})
     if len(rows) != expected:
         raise ValueError("Incomplete Swedish management area register")
-    return rows
+    return identify_swedish_waters(rows, previous)
 
 
 def berlin():
@@ -351,9 +361,14 @@ ADAPTERS = {"PZW":polish_union, "AGE":luxembourg, "FVO":swedish, "BERLIN":berlin
             "DORIS":upper_austria, "DDT49":maine_loire, "GEOFA":danish, "CYL":castile_leon, "ZH":zurich}
 
 
-def build(provider):
+def build(provider, previous=None):
     osr.UseExceptions()
-    rows = arcgis(provider) if provider in ARCGIS else ADAPTERS[provider]()
+    if provider == "FVO":
+        baseline = json.loads((ASSETS / "europe-waters.json").read_text())["FVO"]["waters"]
+        # A temporarily absent legacy area may reappear after more than one edition.
+        rows = swedish(baseline + (previous or []))
+    else:
+        rows = arcgis(provider) if provider in ARCGIS else ADAPTERS[provider]()
     if not rows or len({r["code"] for r in rows}) != len(rows):
         raise ValueError("Empty register or duplicate source identity: " + provider)
     return sorted(rows, key=lambda r: r["code"])
@@ -368,7 +383,8 @@ if __name__ == "__main__":
     parser.add_argument("provider", choices=[*ARCGIS, *ADAPTERS])
     parser.add_argument("output", type=Path)
     parser.add_argument("--as-of", required=True, type=date.fromisoformat)
+    parser.add_argument("--previous", type=Path)
     args = parser.parse_args()
-    records = build(args.provider)
+    records = build(args.provider, json.loads(args.previous.read_text())["waters"] if args.previous else None)
     save(args.output, {"asOf": args.as_of.isoformat(), "waters": records})
     print(args.provider, len(records))

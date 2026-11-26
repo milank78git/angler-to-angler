@@ -99,3 +99,16 @@ test('wallet keeps independent errors, updates the current balance and retires c
   assert.equal(balance.textContent, dictionary['commerce.balance'].replace('{amount}', '60'));
   assert.equal(purchases.length, 1);
 });
+
+test('checkout quotes promotional, mixed and paid purchases before confirmation', async () => {
+  const { purchaseFunding } = await import('../app/src/main/assets/commerce.js');
+  assert.equal(purchaseFunding({ balance: 10 }, 5, 1), null);
+  assert.deepEqual(purchaseFunding({ balance: 10, welcomeBalance: 10 }, 5, null),
+    { welcome: 5, paid: 0, available: true });
+  assert.deepEqual(purchaseFunding({ balance: 10, welcomeBalance: 10 }, 5, 1),
+    { welcome: 4, paid: 1, available: false });
+  assert.deepEqual(purchaseFunding({ balance: 11, welcomeBalance: 10 }, 1, 2),
+    { welcome: 0, paid: 1, available: true });
+  assert.deepEqual(purchaseFunding({ balance: 6, welcomeBalance: 2 }, 6, 1),
+    { welcome: 2, paid: 4, available: true });
+});

@@ -2,10 +2,22 @@
   "name": "angler-to-angler-tests",
   "private": true,
   "scripts": {
-    "test": "node --test tests/*.test.cjs"
+    "test": "node --test tests/*.test.cjs",
+    "lint": "eslint \"app/src/main/assets/**/*.js\" \"web/**/*.js\"",
+    "format:check": "prettier --check \"app/src/main/assets/**/*.js\" \"web/**/*.js\" \"types/**/*.ts\" \"tests/types/**/*.ts\"",
+    "format": "prettier --write \"app/src/main/assets/**/*.js\" \"web/**/*.js\" \"types/**/*.ts\" \"tests/types/**/*.ts\"",
+    "typecheck": "tsc -p tsconfig.json",
+    "check": "npm run lint && npm run format:check && npm run typecheck && node scripts/check-vendor.mjs"
   },
   "devDependencies": {
-    "fake-indexeddb": "6.2.8"
+    "@eslint/js": "10.0.1",
+    "dompurify": "3.5.0",
+    "eslint": "10.15.0",
+    "fake-indexeddb": "6.2.8",
+    "globals": "17.14.0",
+    "jsdom": "26.1.0",
+    "prettier": "3.6.2",
+    "typescript": "5.9.3"
   },
   "type": "module"
 }

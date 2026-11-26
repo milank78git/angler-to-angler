@@ -53,3 +53,5 @@ with Liquibase and restores the rows. Its acceptance probe signs in with the
 original password and checks the same user ID, accepted profile and water
 rating. The release job requires this workflow on main. This rehearsal uses
 synthetic data and does not touch the pilot database.
+
+The [function index](functions.md) links each active signature to its effective migration, including renamed implementations. Regenerate it with `python3 scripts/index-db-functions.py` after changing a definition.

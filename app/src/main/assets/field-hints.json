@@ -79,7 +79,7 @@
     "topic": "catch",
     "message": "field-hints.lon"
   },
-  "length": {
+  "catch-length": {
     "topic": "catch",
     "message": "field-hints.length"
   },
