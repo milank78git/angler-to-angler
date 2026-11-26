@@ -1,0 +1,50 @@
+{
+  "sources": {
+    "cz11": {
+      "articleClass": "paragraf",
+      "templateSha256": "8473762b188b18e54deb7423ede9585aa0563375b57c460a06b555a178b844dc"
+    },
+    "cz13": {
+      "articleClass": "paragraf",
+      "templateSha256": "6d076139b4c1a2301901b607e407edd8238826bb3d4b26b4408071ea60153b63",
+      "months": [
+        "ledna",
+        "února",
+        "března",
+        "dubna",
+        "května",
+        "června",
+        "července",
+        "srpna",
+        "září",
+        "října",
+        "listopadu",
+        "prosince"
+      ],
+      "paragraphs": {
+        "allFreshwater": "1",
+        "Salmo trutta": "2",
+        "Chondrostoma nasus": "3",
+        "Leuciscus idus": "3",
+        "Leuciscus aspius": "4",
+        "Thymallus thymallus": "5",
+        "Hucho hucho": "6",
+        "Anguilla anguilla": "7",
+        "Lota lota": "8"
+      }
+    },
+    "gb": {
+      "articleClass": "gem-c-govspeak",
+      "templateSha256": "52ac7031bdb8d08709180f927fab2b1a1df043eb3329bcad4aa01c759ad68a9e"
+    },
+    "gbsize": {
+      "articleClass": "gem-c-govspeak",
+      "templateSha256": "fe5648e924db45f845b14d71388a63055fac4342ac09c854809681048963252b"
+    }
+  },
+  "risSpecies": {
+    "4": "zander",
+    "51": "barbel",
+    "75": "pike"
+  }
+}

@@ -55,3 +55,18 @@ rating. The release job requires this workflow on main. This rehearsal uses
 synthetic data and does not touch the pilot database.
 
 The [function index](functions.md) links each active signature to its effective migration, including renamed implementations. Regenerate it with `python3 scripts/index-db-functions.py` after changing a definition.
+
+## Private journal objects
+
+Before updating the journal migration, provision Supabase Storage and Vault. The migration creates
+the private `angler-journal` bucket. In Vault configure `angler_storage_url` with the project's
+HTTPS Storage API root ending in `/storage/v1`, and `angler_storage_key` with the server-side Storage
+service JWT. Restrict Vault access to the deployment account. Never include this credential in the APK.
+New writes store an opaque private object. The five-minute maintenance job reads back each migrated
+object and checks its digest before releasing the legacy database bytes. Unreferenced objects are
+collected after one day. A 90-day deletion history and a per-account revision boundary protect
+returning offline devices from replaying deleted documents.
+
+Back up the private bucket and PostgreSQL together at a consistent recovery point. A SQL dump alone
+does not contain object bodies. Restore the bucket with the Storage API and verify the digest of
+each referenced object before restarting writers. The field-integration job rehearses this sequence.

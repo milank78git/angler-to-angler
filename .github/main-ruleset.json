@@ -37,6 +37,9 @@
           },
           {
             "context": "profiles"
+          },
+          {
+            "context": "field-integration / register-and-restore"
           }
         ]
       }

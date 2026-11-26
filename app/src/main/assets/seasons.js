@@ -20,8 +20,17 @@ import {
   link,
   displayDay,
 } from './ui.js';
+/** Return the authority period for this water, species and fishing date, when monitored. */
+function datedRule(water, species, day) {
+  if (!Domain.validDay(day) || !water.risSince || day < water.risSince || !water.datedRules?.[species])
+    return undefined;
+  return water.datedRules[species].find((rule) => rule.from <= day && day <= rule.until) || null;
+}
+
 export function localSeasonHtml(pack, w, section, speciesId, day) {
-  const status = Domain.season(pack, speciesId, section, day);
+  const official = section === 'main' ? datedRule(w, speciesId, day) : undefined;
+  let status = Domain.season(pack, speciesId, section, day);
+  if (official !== undefined) status = official ? (official.closed ? 'closed' : 'outside') : 'unknown';
   const labels = {
     closed: t('seasons.closed_season'),
     outside: t('seasons.outside_the_listed_closed_season'),
@@ -29,38 +38,56 @@ export function localSeasonHtml(pack, w, section, speciesId, day) {
     prohibited: t('seasons.fishing_is_prohibited_in_this_section'),
   };
   const valid = status === 'closed' || status === 'outside';
-  const windowLabel = pack.species[speciesId].window
-    .map((d) =>
-      new Intl.DateTimeFormat(languageTag, {
-        day: 'numeric',
-        month: 'short',
-        timeZone: 'UTC',
-      }).format(new Date('2000-' + d + 'T12:00Z')),
-    )
-    .join(' – ');
+  const windowLabel = official
+    ? [official.from, official.until].map(displayDay).join(' – ')
+    : pack.species[speciesId].window
+        .map((d) =>
+          new Intl.DateTimeFormat(languageTag, {
+            day: 'numeric',
+            month: 'short',
+            timeZone: 'UTC',
+          }).format(new Date('2000-' + d + 'T12:00Z')),
+        )
+        .join(' – ');
   const glyph = {
     closed: 'calendar-off',
     prohibited: 'ban',
     unknown: 'circle-help',
     outside: 'calendar-days',
   }[status];
-  const minimum = w.size[speciesId]
-    ? ' · ' + t('seasons.minimum_size') + ' ' + w.size[speciesId] + ' cm'
+  const minCm = official ? official.minCm : w.size[speciesId];
+  const minimum = minCm ? ' · ' + t('seasons.minimum_size') + ' ' + minCm + ' cm' : '';
+  const maximum = official?.maxCm
+    ? ' · ' + t('fish_catalogue.maximum_retained_size') + ' ' + official.maxCm + ' cm'
     : '';
   return `<div class="panel result ${status}"><strong>${icon(glyph)}${labels[status]}</strong>
-    ${valid ? `<p>${windowLabel}${minimum}</p>` : ''}</div>`;
+    ${valid ? `<p>${windowLabel}${minimum}${maximum}</p>` : ''}</div>`;
 }
 
 function ruleResult(pack, w) {
   const section = by('section').value,
     speciesId = by('species').value;
-  replaceMarkup(by('status'), localSeasonHtml(pack, w, section, speciesId, by('rule-date').value));
+  const selectedDay = by('rule-date').value;
+  replaceMarkup(by('status'), localSeasonHtml(pack, w, section, speciesId, selectedDay));
+  const period = section === 'main' ? datedRule(w, speciesId, selectedDay) : undefined;
+  by('rule-coverage').textContent = period
+    ? [period.from, period.until].map(displayDay).join(' – ')
+    : period === null
+      ? t('seasons.no_verified_rule_for_this_selection')
+      : t('seasons.checked') +
+        ' ' +
+        displayDay(pack.revision) +
+        ' · ' +
+        t('seasons.valid_through') +
+        ' ' +
+        displayDay(pack.until);
   const key = pack.id + '/' + w.id + '/' + speciesId;
   by('watch').replaceChildren();
   if (!window.Device || section !== 'main') return;
   const watching = Device.watching(key),
     today = Domain.today(pack.zone);
-  if (!watching && (today > pack.until || today < pack.from)) return;
+  const current = datedRule(w, speciesId, today);
+  if (!watching && (current === null || (!current && (today > pack.until || today < pack.from)))) return;
   replaceMarkup(
     by('watch'),
     button(
@@ -196,9 +223,8 @@ async function showWaterRules(view, pack, nav, waterDirectory, site) {
   replaceMarkup(
     by('rule-sources'),
     `<details class="fold"><summary>${icon('info')}${t('seasons.coverage_and_sources')}</summary><div class="fold-body"><p>
-      ${t('seasons.the_selected_rule_covers_this_species_and')}</p><p class="sub">
-      ${t('seasons.checked')} ${esc(displayDay(pack.revision))} · ${t('seasons.valid_through')} ${esc(displayDay(pack.until))}
-      </p><div class="rulesrc">${link(w.source, t('seasons.fishery_authority'))}
+      ${t('seasons.the_selected_rule_covers_this_species_and')}</p><p class="sub" id="rule-coverage"></p>
+      <div class="rulesrc">${link(w.source, t('seasons.fishery_authority'))}
       ${link(pack.law, t('seasons.national_closed_seasons'))}</div></div></details>`,
   );
   for (const key of ['section', 'species', 'rule-date'])

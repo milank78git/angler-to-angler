@@ -11,7 +11,9 @@ PILOT = 'app.anglers.journal'
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('output', type=Path)
 parser.add_argument('--preview', action='store_true', help='Use exclusively with a local Android preview fixture')
+parser.add_argument('--account-config', type=Path, help='Packaged public deployment notices')
 args = parser.parse_args()
+notices = json.loads(args.account_config.read_bytes()).get("deploymentNotices", {}) if args.account_config else {}
 package = PILOT + ('.preview' if args.preview else '')
 script = (ROOT / 'web/account/handoff.js').read_text()
 style = ('html{font:110%/1.55 system-ui,sans-serif;color:#19362f;background:#f6f7f1}'
@@ -45,21 +47,23 @@ folder.mkdir(parents=True, exist_ok=True)
 (args.output / 'index.html').write_text('\n'.join(page))
 
 # The store requires public, directly accessible privacy and account deletion information.
-for route in ("privacy", "delete-account"):
+for route in ("terms", "privacy", "delete-account"):
     sections = []
     for locale in ("en", "cs"):
         assets = ROOT / "app/src/main/assets"
         messages = json.loads((assets / f"strings-{locale}.json").read_bytes())
         paragraphs = []
-        if route == "privacy":
-            paragraphs = (assets / f"privacy-{locale}.txt").read_text().strip().split("\n\n")[1:]
-            paragraphs[-1] = paragraphs[-1].split(". ",1)[-1]
-            paragraphs.append(messages["store.private_data"])
-            paragraphs.append(messages["store.payment_data"])
-            paragraphs.append(messages["license.privacy"])
+        if route in ("terms", "privacy"):
+            names = ("privacy", "optional-profile") if route == "privacy" else ("terms",)
+            paragraphs = [part for name in names for part in
+                          (assets / f"{name}-{locale}.txt").read_text().strip().split("\n\n")]
+            title = paragraphs.pop(0)
+            if route == "privacy" and notices.get(locale):
+                paragraphs.append(notices[locale])
         else:
+            title = messages["store.delete-account"]
             paragraphs = [messages["store.deletion_steps"], messages["store.deletion_scope"]]
-        sections.append(f'<section lang="{locale}"><h1>{html.escape(messages["store."+route])}</h1>' +
+        sections.append(f'<section lang="{locale}"><h1>{html.escape(title)}</h1>' +
                         ''.join('<p>'+html.escape(p)+'</p>' for p in paragraphs) +
                         '<a href="mailto:info@horistum.com">info@horistum.com</a></section>')
     dest = args.output / route

@@ -22,7 +22,7 @@ final class FieldAlerts {
     SharedPreferences.Editor edit = prefs(c).edit().putBoolean(kind,on);
     if (POSTS.equals(kind)) {
       revoke(c);
-      edit.remove("cursor").remove("registered").remove("key");
+      edit.remove("cursor").remove("registered").remove("key").remove("acknowledgedWaters");
       if (on) edit.putString("key",UUID.randomUUID().toString());
     }
     if (NEARBY.equals(kind)) edit.remove("lastNearby");
@@ -57,6 +57,14 @@ final class FieldAlerts {
     });
   }
 
+  static synchronized void favourites(Context c, String owner, String keys) {
+    if (owner.isEmpty() || !owner.equals(AccountStore.active(c)) || keys.length() > 220000) return;
+    SharedPreferences p = prefs(c);
+    if (keys.equals(p.getString("watersForPosts", "[]"))) return;
+    p.edit().putString("watersForPosts", keys).remove("cursor").remove("registered").apply();
+    if (enabled(c, POSTS)) checkPosts(c, null);
+  }
+
   /** Advance the cursor only after delivery, and ignore work from a previous opt-in or account. */
   static void checkPosts(Context context, Runnable done) {
     Context c=context.getApplicationContext();
@@ -70,14 +78,18 @@ final class FieldAlerts {
         String actor=AccountStore.active(c);
         long now=System.currentTimeMillis();
         boolean register=!actor.isEmpty() && now-p.getLong("registered",0)>TimeUnit.DAYS.toMillis(7);
-        JSONObject signal=register ? AccountStore.rpc(c,service,actor,"register_post_watch",args) : service.postSignal(args);
+        String selected = p.getString("watersForPosts","[]");
+        if (!register && !selected.equals(p.getString("acknowledgedWaters",null))) return;
+        JSONObject signal = register
+            ? AccountStore.rpc(c,service,actor,"watch_favourites",args.put("water_keys",new org.json.JSONArray(selected)))
+            : service.postSignal(args);
         long latest=signal.getLong("position");
         synchronized (FieldAlerts.class) {
-          if (!key.equals(p.getString("key",""))) return;
+          if (!key.equals(p.getString("key","")) || !selected.equals(p.getString("watersForPosts","[]"))) return;
           long previous=p.getLong("cursor",-1);
           if (previous<0 || latest<=previous || post(c,POSTS,AppLanguage.text(c,"alerts.new_post"),signal.optString("water")))
             p.edit().putLong("cursor",Math.max(previous,latest)).apply();
-          if (register) p.edit().putLong("registered",now).apply();
+          if (register) p.edit().putString("acknowledgedWaters",selected).putLong("registered",now).apply();
         }
       } catch (Exception error) { android.util.Log.w("FieldAlerts","Post check unavailable"); }
       finally { if (done!=null) done.run(); }

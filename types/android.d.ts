@@ -1,5 +1,6 @@
 // Methods exposed to the packaged WebView by FishingActivity.Device.
 interface JournalDevice {
+  postFavourites(owner: string, keys: string): void;
   waterCatalogueVersion(): string;
   openWaterSettings(): void;
   versionLabel(): string;

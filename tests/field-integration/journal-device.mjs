@@ -9,11 +9,16 @@ const adb = (...args) => execFileSync('adb', args, {encoding:'utf8', timeout:120
 const fixtureFile = join(dir,'journal-device.json');
 
 async function connect() {
-  let port;
+  let port, attachedPid;
   for (let attempt=0; attempt<90; attempt++) {
     try {
       const pid = adb('shell','pidof',pkg);
-      if (!port) port = adb('forward','tcp:0','localabstract:webview_devtools_remote_'+pid);
+      if (!pid) throw Error('Starting Android process');
+      if (pid !== attachedPid) {
+        if (port) adb('forward', '--remove', 'tcp:' + port);
+        port = adb('forward','tcp:0','localabstract:webview_devtools_remote_'+pid);
+        attachedPid = pid;
+      }
       const targets = await (await fetch('http://127.0.0.1:'+port+'/json/list')).json();
       const target = targets.find(t => t.url === 'https://journal.invalid/index.html');
       if (target) {

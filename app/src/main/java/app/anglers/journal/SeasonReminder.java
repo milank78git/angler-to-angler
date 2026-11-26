@@ -16,6 +16,8 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.MonthDay;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -99,6 +101,23 @@ public final class SeasonReminder extends BroadcastReceiver {
   }
 
   private static JSONObject catalog(Context c) throws Exception {
+    String key = WaterCatalogue.revision(c);
+    if (!key.isEmpty()) {
+      try (android.util.JsonReader atlas = new android.util.JsonReader(new InputStreamReader(WaterCatalogue.open(c, key), "UTF-8"))) {
+        atlas.beginObject();
+        while (atlas.hasNext()) {
+          if (atlas.nextName().equals("anglingRules")) {
+            atlas.beginObject();
+            while (atlas.hasNext()) {
+              if (atlas.nextName().equals("catalog.json")) return new JSONObject(atlas.nextString());
+              atlas.skipValue();
+            }
+            break;
+          }
+          atlas.skipValue();
+        }
+      }
+    }
     try (BufferedReader r =
         new BufferedReader(new InputStreamReader(c.getAssets().open("catalog.json"), "UTF-8"))) {
       StringBuilder json = new StringBuilder();
@@ -136,6 +155,17 @@ public final class SeasonReminder extends BroadcastReceiver {
             LocalDate.parse(pack.getString("until")),
             MonthDay.parse("--" + bounds.getString(0)),
             MonthDay.parse("--" + bounds.getString(1)));
+    JSONObject dated = water.optJSONObject("datedRules");
+    if (dated != null && dated.has(parts[2]) && !water.isNull("risSince")) {
+      JSONArray rows = dated.getJSONArray(parts[2]);
+      List<SeasonCalendar.Period> periods = new ArrayList<>();
+      for (int i = 0; i < rows.length(); i++) {
+        JSONObject row = rows.getJSONObject(i);
+        periods.add(new SeasonCalendar.Period(LocalDate.parse(row.getString("from")),
+            LocalDate.parse(row.getString("until")), row.getBoolean("closed")));
+      }
+      calendar.useDatedRules(LocalDate.parse(water.getString("risSince")), periods);
+    }
     SeasonCalendar.Event event = calendar.dueToday(previousDue, now);
     Instant next = calendar.next(now);
     if (next == null) cancel(c, key);

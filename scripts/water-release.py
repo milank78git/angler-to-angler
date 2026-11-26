@@ -91,6 +91,21 @@ def build(output, cache, stamp, refresh):
     atlas["europe"] = {k: editions[k] for k in sources["providers"] if k in editions}
     sources["providers"] = {k: sources["providers"][k] for k in atlas["europe"]}
     atlas["sources"] = sources
+    atlas["anglingRules"] = {name: (ASSETS / name).read_text() for name in ("catalog.json", "europe-rules.json")}
+    write_edition(atlas, output, cache)
+    (cache / "failed-sources.txt").write_text("\n".join(failures))
+    for failure in failures:
+        print("::warning::Keeping the previous edition for " + failure)
+
+
+def edition_date(atlas):
+    waters = [atlas["cz"], *atlas["europe"].values()]
+    rules = json.loads(atlas["anglingRules"]["europe-rules.json"])
+    return max([edition["asOf"] for edition in waters] + [rules.get("updated", "")])
+
+
+def write_edition(atlas, output, cache):
+    """Use the same deterministic encoding and manifest for water and rule changes."""
     raw = encode(atlas)
     if len(raw) > 48 * 1024 * 1024:
         raise ValueError("Atlas exceeds mobile unpacking limit")
@@ -98,15 +113,11 @@ def build(output, cache, stamp, refresh):
     if len(pack) > 16 * 1024 * 1024:
         raise ValueError("Atlas exceeds mobile download limit")
     keys = encode(registry(atlas))
-    previous.write_bytes(pack)
+    (output / "atlas.json.gz").write_bytes(pack)
     (output / "registry.json").write_bytes(keys)
-    dates = [atlas["cz"]["asOf"], *(e["asOf"] for e in atlas["europe"].values())]
-    manifest = {"format": 1, "asOf": max(dates), "bytes": len(pack), "unpacked": len(raw),
+    manifest = {"format": 1, "asOf": edition_date(atlas), "bytes": len(pack), "unpacked": len(raw),
                 "sha256": hashlib.sha256(pack).hexdigest(), "registrySha256": hashlib.sha256(keys).hexdigest()}
     (cache / "manifest.json").write_bytes(encode(manifest))
-    (cache / "failed-sources.txt").write_text("\n".join(failures))
-    for failure in failures:
-        print("::warning::Keeping the previous edition for " + failure)
 
 
 if __name__ == "__main__":

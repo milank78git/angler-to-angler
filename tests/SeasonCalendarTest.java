@@ -35,5 +35,11 @@ public final class SeasonCalendarTest {
         winter.dueToday(alarm.toEpochMilli(), alarm.plusSeconds(300)));
     expect(null, winter.dueToday(alarm.toEpochMilli(), alarm.plusSeconds(86400)));
     expect(null, winter.dueToday(0, alarm));
+    winter.useDatedRules(LocalDate.parse("2026-11-26"), java.util.Arrays.asList(
+        new SeasonCalendar.Period(LocalDate.parse("2026-11-26"), LocalDate.parse("2026-12-31"), true),
+        new SeasonCalendar.Period(LocalDate.parse("2027-01-01"), LocalDate.parse("2027-01-20"), false)));
+    expect(SeasonCalendar.Event.OPENS, winter.event(LocalDate.parse("2027-01-01")));
+    expect(null, winter.event(LocalDate.parse("2027-01-20")));
+    expect(SeasonCalendar.Event.EXPIRES, winter.event(LocalDate.parse("2027-01-21")));
   }
 }

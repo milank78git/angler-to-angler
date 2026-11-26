@@ -65,9 +65,15 @@ async function run(resolution, retryRevision = true) {
       localStorage.setItem(prefix + 'registered', '1');
     }
     const remote = new Map();
-    let after = '';
+    let after = '',
+      floor;
+    const lastFloor = Number(localStorage.getItem(prefix + 'deletionFloor') || 0);
     while (true) {
-      const { rows } = await call('list', { after });
+      const page = await call('list', { after });
+      const { rows } = page;
+      if (floor !== undefined && floor !== (page.floor || 0))
+        throw Object.assign(Error('Journal changed'), { status: 409 });
+      floor = page.floor || 0;
       if (!rows.length) break;
       for (const row of rows) remote.set(row.key, row);
       after = rows.at(-1).key;
@@ -90,7 +96,8 @@ async function run(resolution, retryRevision = true) {
         same(resolution.local, local.hashes)
           ? resolution.choice
           : '';
-      const unknownDeletion = saved === null && row.revision > 0 && !row.parts.length;
+      const unknownDeletion =
+        saved === null && !row.parts.length && (row.revision > 0 || floor !== lastFloor);
       if ((!unknownDeletion && same(base, row.parts)) || choice === 'local') {
         const upload = local.blocks
           ? local
@@ -99,7 +106,7 @@ async function run(resolution, retryRevision = true) {
           again = true;
           continue;
         }
-        await uploadDocument(call, key, upload, row.revision);
+        await uploadDocument(call, key, upload, row.revision, floor);
         uploaded = true;
         localStorage.setItem(checkpoint, JSON.stringify(local.hashes));
       } else if (same(base, local.hashes) || choice === 'cloud') {
@@ -132,6 +139,7 @@ async function run(resolution, retryRevision = true) {
     else if (!again) {
       if (uploaded || changed || !localStorage.getItem(lastSyncKey))
         localStorage.setItem(lastSyncKey, String(Date.now()));
+      localStorage.setItem(prefix + 'deletionFloor', String(floor));
       notify('done');
     }
   } catch (error) {

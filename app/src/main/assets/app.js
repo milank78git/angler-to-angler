@@ -3,7 +3,7 @@ import { anglerDetails, bindLicenseNotice } from './angler-details.js';
 import { parkingEditor } from './parking-editor.js';
 import { journalStatistics } from './journal-statistics.js';
 import { createWaterDirectory, waterDistances } from './water-directory.js';
-import { fishCatalogue, fishDetail } from './fish-catalogue.js';
+import { fishCatalogue, fishDetail, setFishingRules } from './fish-catalogue.js';
 import { openGuide, closeGuide, attachHints } from './guide.js';
 import { contentLanguage } from './i18n.js';
 import { by, screen, t, bind, button, icon, confirmAction, dismissConfirmation } from './ui.js';
@@ -185,16 +185,22 @@ async function start() {
       const key = window.Device?.waterCatalogueVersion?.() || '';
       if (installed === key) return false;
       const generation = ++request;
-      let directory;
+      let directory,
+        currentPack = pack,
+        currentRules = rules;
       if (key) {
         try {
           const release = await json('water-update.json?revision=' + encodeURIComponent(key));
+          if (release.anglingRules) {
+            currentPack = JSON.parse(release.anglingRules['catalog.json']);
+            currentRules = JSON.parse(release.anglingRules['europe-rules.json']);
+          }
           directory = createWaterDirectory(
-            pack,
+            currentPack,
             release.cz,
             release.europe,
             release.sources,
-            rules.countries,
+            currentRules.countries,
             release.shapes,
           );
         } catch (error) {
@@ -203,12 +209,16 @@ async function start() {
       }
       if (!directory) {
         if (catalog.waterDirectory) return false;
+        currentPack = pack;
+        currentRules = rules;
         const [cz, europe, sources] = await Promise.all(
           ['czech-waters.json', 'europe-waters.json', 'water-sources.json'].map(json),
         );
         directory = createWaterDirectory(pack, cz, europe, sources, rules.countries);
       }
       if (request !== generation) return false;
+      catalog.pack = currentPack;
+      setFishingRules(currentRules);
       catalog.waterDirectory = directory;
       installed = key;
       return true;
@@ -218,10 +228,31 @@ async function start() {
     window.waterCatalogueChanged = async () => {
       if (!(await readDirectory()) || !nav.current) return;
       const view = nav.current;
-      if (['waters', 'water', 'rules', 'waterRules', 'trip'].includes(view.route.page)) nav.show();
+      if (
+        ['waters', 'water', 'rules', 'waterRules', 'fishCatalogue', 'fishDetail', 'trip'].includes(
+          view.route.page,
+        )
+      )
+        nav.show();
       else view.refreshWaters?.(catalog.waterDirectory);
     };
     await window.waterCatalogueChanged();
+    function updatePostWaters() {
+      const owner = window.Device?.subjectId?.();
+      if (!owner || !window.Device?.postFavourites) return;
+      const prefix = 'water.' + owner + '.' + catalog.pack.id + '.';
+      const keys = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const name = localStorage.key(i);
+        if (!name?.startsWith(prefix) || localStorage.getItem(name) !== '1') continue;
+        const water = catalog.waterDirectory.byId.get(name.slice(prefix.length));
+        if (water) keys.push(water.key);
+      }
+      window.Device.postFavourites(owner, JSON.stringify(keys.sort()));
+    }
+    updatePostWaters();
+    window.addEventListener('favourites-changed', updatePostWaters);
+    window.addEventListener('journal-restored', updatePostWaters);
 
     window.fieldNearby = async (lat, lon) => {
       if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;

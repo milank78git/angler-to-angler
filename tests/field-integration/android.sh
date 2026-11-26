@@ -35,5 +35,10 @@ adb install -r build/preview/angler-journal-debug.apk
 adb install -r "$stage/legacy/build/standalone/angler-journal-debug.apk"
 adb shell wm size 1080x2200
 adb shell wm density 320
+# Exercise the app, without system password-manager overlays consuming its sign-in taps.
+adb shell settings put secure autofill_service null
+adb shell settings put global window_animation_scale 0
+adb shell settings put global transition_animation_scale 0
+adb shell settings put global animator_duration_scale 0
 python3 -m unittest discover -s tests/field-integration -p 'test_registration_ui.py'
 python3 tests/field-integration/registration.py "$stage"

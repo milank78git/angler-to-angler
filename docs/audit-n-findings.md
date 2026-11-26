@@ -1,6 +1,6 @@
-# Pilot audit findings N1–N19
+# Pilot audit findings N1–N20
 
-The status below describes the source in this pull request. Database changes, Edge Functions, publication keys and released APKs have separate deployment lifecycles.
+The status below describes the source changes. Database changes, Edge Functions, publication keys and released APKs have separate deployment lifecycles.
 
 | ID | Behaviour in this revision | Verification |
 | --- | --- | --- |
@@ -17,9 +17,10 @@ The status below describes the source in this pull request. Database changes, Ed
 | N11 | The publisher signs the immutable edition, and downloaded atlases require a signature from the key pinned in the APK. A device without a trusted edition can use the bundled atlas. | CLI tests change each signed field and the key. Android exercises the signed download. Configure the publisher and publish the first signed manifest before distributing the new APK. |
 | N12 | Each public aggregate requires at least ten trips and five contributors with independently reviewed catch evidence. This also applies to ranked waters and species. | PostgreSQL tests keep all three projections hidden for unreviewed accounts and expose qualifying cohorts. These checks establish review history, not civil identity. |
 | N13 | The authenticated Play push handler acknowledges permanent failures and requests redelivery for transient failures. | Receipt tests cover malformed input, an unavailable publisher API and pending purchases. The production dead-letter subscription and IAM require a delivery test in the operator's Google Cloud project. |
-| N14 | A unique database index enforces normalized display names. Existing collisions receive a stable suffix and preserve their original spelling in the private profile. | The SQL suite covers existing collisions, an occupied suffix, duplicate registration and reacceptance. |
+| N14 | A unique database index compares normalized display names, ignores Unicode default-ignorable characters and maps visually confusable Cyrillic letters to Latin representatives. It preserves accents and accepts distinct Cyrillic names. Existing collisions receive a stable suffix and preserve their original spelling in the private profile. | The SQL suite exercises Unicode comparison through registration, existing collisions, occupied suffixes, preserved history and reacceptance. Android tests the duplicate-name recovery flow. |
 | N15 | The display layer sanitizes HTML fragments. Localized attributes escape quotes, and dictionary validation rejects embedded tags. | DOM markup tests and the locale validation run in CI. |
 | N16 | CI runs type checking across the first-party JavaScript and exercises profile-editor buttons on Android. Discussion-root regression tests also render the screen and inspect its actions. | TypeScript navigation contract, Android editor retry/cancel flows and discussion DOM tests. |
 | N17 | The account activity is private. The public launcher opens it with a fresh intent. External authentication links enter through the validating callback activity. | Android account registration, mail return and launcher re-entry scenarios. |
 | N18 | Expired account verification produces one generic seasonal prompt per local day across watches, including after dismissal. | The emulator checks duplicate watches, dismissal and the following day. |
 | N19 | The marketplace estimate states its paid-credit assumption and explains welcome credits, mixed payments and final settlement. | Compare the estimate copy with funded-share wallet tests. |
+| N20 | Remove the tracked Python bytecode file and ignore bytecode and cache directories anywhere in the repository. | Verify the Git index and ignore rules after running the Python tests. |

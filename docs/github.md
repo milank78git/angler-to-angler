@@ -1,6 +1,6 @@
 # Repository controls
 
-The active [Protect main ruleset](https://github.com/milank78git/angler-to-angler/settings/rules/27878561) applies to the default branch. Changes require a pull request with resolved review conversations. Its branch must be up to date and both GitHub Actions jobs (`build` and `profiles`) must pass. Force pushes and deletion are blocked. The minimum approval count is zero while the repository has a single maintainer.
+The active [Protect main ruleset](https://github.com/milank78git/angler-to-angler/settings/rules/27878561) applies to the default branch. Changes require a pull request with resolved review conversations. Its branch must be up to date and the required `build` check succeeds only after the Android package and the registration/restore integration job both pass. The portable ruleset also names `field-integration / register-and-restore` alongside `profiles`. Force pushes and deletion are blocked. The minimum approval count is zero while the repository has a single maintainer.
 
 Inspect the effective policy and its settings with an authenticated account:
 
@@ -19,18 +19,22 @@ Each successful push to main produces a pre-release after the Android and databa
 
 The installed version name comes from the manifest. The CI Android build number is 10000 plus the Android pilot workflow run number, so separate merges can share a version name and still upgrade in order. The tag, APK filename and version displayed inside the app identify the same build. A retry uses the same number. Preserve the workflow's run numbering when renaming or replacing it.
 
-The release job re-signs the compiled standard APK with the base64-encoded 0.4.4 keystore in the Actions secret `ANDROID_PILOT_KEYSTORE`. It checks its certificate against that pilot, verifies that the packaged account configuration is present and attaches a SHA-256 file alongside the APK. To rewrap the pilot key, export the same private key and certificate to a password-protected keystore offline. Compare the SHA-256 certificate fingerprint before updating the keystore secret, then set both `ANDROID_PILOT_STORE_PASSWORD` and `ANDROID_PILOT_KEY_PASSWORD` in Actions secrets. Set the Actions variable `ANDROID_PILOT_KEY_ALIAS` to the new release alias. The release job requires both passwords and a non-debug alias. It stops before publishing when migration is incomplete. Keep the existing certificate and test an in-place upgrade on a pilot device. Retire older copies with weak passwords. If the private key may have been disclosed, rewrapping it offers no protection against a holder of the old copy. Coordinate certificate rotation separately from Play App Signing.
+### Rotate the pilot signing identity
 
-To copy the existing private key under a release alias, run the following commands offline. Keytool prompts for passwords. Compare both SHA-256 certificate fingerprints with the value pinned in `scripts/sign-pilot.sh` before replacing the Actions secret. Keep a recoverable backup of the original until a signed upgrade has been verified.
+Keep an offline backup of the pilot 0.4.4 key. Rewrap it with strong passwords under a release alias.
+Provision the rewrapped key with the existing `ANDROID_PILOT_KEYSTORE`, `ANDROID_PILOT_STORE_PASSWORD`,
+`ANDROID_PILOT_KEY_PASSWORD` secrets and `ANDROID_PILOT_KEY_ALIAS` variable. Generate a separate PKCS12
+pilot release key offline, outside the repository. Keep the Play signing key separate.
 
-```sh
-keytool -importkeystore -srckeystore original-pilot.keystore -srcalias androiddebugkey \
-  -destkeystore pilot-release.p12 -deststoretype PKCS12 -destalias angler-pilot
-keytool -list -v -keystore original-pilot.keystore -alias androiddebugkey
-keytool -list -v -keystore pilot-release.p12 -alias angler-pilot
-```
+    keytool -genkeypair -storetype PKCS12 -keystore pilot-rotated.p12 -alias pilot-release -keyalg RSA -keysize 4096 -validity 10000
+    apksigner rotate --out pilot.lineage --old-signer --ks pilot-original.p12 --new-signer --ks pilot-rotated.p12
+    keytool -list -v -keystore pilot-rotated.p12 -alias pilot-release
 
-For PKCS12, configure both password secrets with the new keystore password.
+Store the base64 PKCS12 and lineage as `ANDROID_ROTATED_KEYSTORE` and `ANDROID_PILOT_LINEAGE` secrets,
+with `ANDROID_ROTATED_PASSWORD`. Set the public variables `ANDROID_ROTATED_ALIAS` and
+`ANDROID_ROTATED_CERTIFICATE` (the new SHA-256 fingerprint). Deploy the generated assetlinks statement
+to the verified App Links host before publishing. The release job checks both certs at the Android 9
+rotation boundary. Android 8 continues to require the original signer for an in-place update.
 
 Configure the public Actions variable `ANGLER_ACCOUNT_CONFIG` as described in [Accounts](accounts.md). The closed-pilot mail configuration still restricts who can sign in.
 
@@ -39,7 +43,7 @@ To promote an already tested APK, open **Actions → Android pilot → Run workf
 ### Atlas release signing
 
 Generate a dedicated P-256 key offline and keep its backup under the atlas publisher's control.
-Set the multiline PEM as the Actions secret `ANGLER_ATLAS_SIGNING_KEY`. Set the matching
+Set the multiline PEM only as a secret named `ANGLER_ATLAS_SIGNING_KEY` in the protected `atlas-publication` environment. Set the matching
 base64-encoded DER public key as the Actions variable `ANGLER_ATLAS_PUBLIC_KEY` used by
 both Android builds and atlas publication.
 
@@ -54,3 +58,14 @@ and check a manual atlas update on the candidate APK. An absent signer stops pub
 An APK without a configured public key uses its bundled atlas. The client also drops trust in unsigned
 editions cached by earlier versions. A failed update retains the last verified edition.
 Coordinate key changes with an APK release because existing APKs pin their original signer.
+
+### Automatic fishing rule editions
+
+The daily water directory workflow also refreshes fishing rules. Its separate read-only job
+fetches authoritative publications, matches supported articles and imports the effective
+periods supplied by the Czech fishery register. It identifies its exact output by SHA-256.
+The publisher validates the water artifact, checks the independent rules digest, combines the
+two editions and signs the final manifest. The app receives updates on its usual atlas check.
+
+See [Field guide maintenance](europe-field-guide.md#maintain-a-release) for source coverage
+and exception handling. Each source follows its own effective dates.

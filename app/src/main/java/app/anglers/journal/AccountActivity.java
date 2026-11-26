@@ -509,7 +509,8 @@ public final class AccountActivity extends LocalizedActivity {
       nickname.setText(profile.optString("name"));
       nickname.setEnabled(false);
     }
-    ui.message(text("sync.new_account"));
+    boolean firstRegistration = !profile.has("name");
+    if (firstRegistration) ui.message(text("sync.new_account"));
     CheckBox terms = ui.check(text("account.i_accept_the_terms_of_use"));
     CheckBox privacy =
         ui.check(
@@ -527,7 +528,7 @@ public final class AccountActivity extends LocalizedActivity {
               }
               if (!terms.isChecked() || !privacy.isChecked()) return;
               run(() -> service.accept(signing.access, name), result -> {
-                if (signing.id.equals(result.optString("id")) && result.optBoolean("current")) {
+                if (firstRegistration && signing.id.equals(result.optString("id")) && result.optBoolean("current")) {
                   AccountStore.prefs(this).edit().putBoolean("cloudJournal." + signing.id, true).apply();
                 }
                 finishProfile(result);
@@ -650,7 +651,9 @@ public final class AccountActivity extends LocalizedActivity {
       return text("account.too_many_attempts_please_try_again_later");
     if (error instanceof IdentityService.HttpFailure) {
       String code = ((IdentityService.HttpFailure) error).code;
+      if ("AN001".equals(code)) return text("account.invisible_name");
       if ("PT409".equals(code)) return text("account.name_in_use");
+      if ("23514".equals(code)) return text("account.visible_name_required");
       if ("invalid_credentials".equals(code))
         return text("account.incorrect_email_or_password_if_you_previously");
       if ("email_address_not_authorized".equals(code))

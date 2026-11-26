@@ -1,6 +1,7 @@
 {
   "stats.independent_reviews": "At least five contributors must each have a catch confirmed by an independent reviewer.",
   "account.name_in_use": "That display name is already in use. Choose another name.",
+  "account.visible_name_required": "Choose a display name with at least two visible characters.",
   "account.account_sign_in": "Account sign-in",
   "account.and_tap_the_link_on_this_phone": " and tap the link on this phone. You can also return by tapping the app icon.",
   "account.angler_profile": "Angler profile",
@@ -768,7 +769,7 @@
   "seasons.stop_reminders": "Stop reminders",
   "seasons.the_selected_rule_covers_this_species_and": "The selected rule covers this species and section. Check other local restrictions.",
   "seasons.valid_through": "Valid through",
-  "settings.alert_schedule": "Discussion checks run about hourly when online. New waters are reported after an atlas update. Nearby alerts use your location when you open or return to the guide.",
+  "settings.alert_schedule": "Only posts at favourite waters trigger discussion alerts. Discussion checks run about hourly when online. New waters are reported after an atlas update. Nearby alerts use your location when you open or return to the guide.",
   "settings.filters": "Filters",
   "settings.large": "Larger text (+30%)",
   "settings.notifications": "Notify me about",
@@ -1115,5 +1116,8 @@
   "sync.last_success": "Last successful sync · {time}",
   "sync.trip": "Fishing trip",
   "sync.checking": "Checking journal synchronization settings…",
-  "sync.check_failed": "Saved on this device. Could not check whether your account has an online journal."
+  "sync.check_failed": "Saved on this device. Could not check whether your account has an online journal.",
+  "moderation.report": "Report content",
+  "moderation.report_parking": "Report parking point or notes",
+  "account.invisible_name": "Remove invisible formatting characters from your display name."
 }

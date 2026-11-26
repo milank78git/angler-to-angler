@@ -29,6 +29,8 @@ final class JournalProfileRequests implements AutoCloseable {
       case "discussion_reply":
       case "discussion_withdraw":
       case "discussion_helpful":
+      case "report_parking_note":
+      case "report_content":
       case "discussion_report":
       case "public_card_options":
       case "public_card_publish":

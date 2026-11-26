@@ -37,6 +37,21 @@ class WaterReleaseTest(unittest.TestCase):
             build(output, cache, "2026-11-24", False)
             archive = output / "atlas.json.gz"
             first = archive.read_bytes()
+            validate = runpy.run_path(str(root / "scripts/validate-atlas.py"))["validate"]
+            import shutil
+            shutil.copyfile(cache / "manifest.json", output / "manifest.json")
+            validate(output)
+            archived_registry = (output / "registry.json").read_bytes()
+            (output / "registry.json").write_bytes(b"[]")
+            with self.assertRaises(ValueError):
+                validate(output)
+            (output / "registry.json").write_bytes(archived_registry)
+            malicious = json.loads(gzip.decompress(first))
+            malicious["anglingRules"]["catalog.json"] = "{}"
+            archive.write_bytes(gzip.compress(json.dumps(malicious).encode()))
+            with self.assertRaisesRegex(ValueError, "Unapproved rules"):
+                validate(output)
+            archive.write_bytes(first)
             base = json.loads(gzip.decompress(first))
             build(output, cache, "2026-11-25", False)
             self.assertEqual(archive.read_bytes(), first)

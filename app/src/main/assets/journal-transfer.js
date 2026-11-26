@@ -76,12 +76,12 @@ export async function localDocument(db, storage, subject, key, needBlocks = fals
   return local;
 }
 
-export async function uploadDocument(call, key, local, revision) {
+export async function uploadDocument(call, key, local, revision, floor = 0) {
   if (local.hashes.length) {
     const { hashes } = await call('missing', { hashes: [...local.blocks.keys()] });
     for (const h of hashes) await call('put', { hash: h, data: toBase64(local.blocks.get(h)) });
   }
-  return (await call('save', { key, revision, parts: local.hashes })).revision;
+  return (await call('save', { key, revision, floor, parts: local.hashes })).revision;
 }
 export async function downloadDocument(call, hashes) {
   if (!hashes.length) return null;

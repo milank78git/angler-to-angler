@@ -12,8 +12,18 @@ if [[ "$ANDROID_PILOT_STORE_PASSWORD" == android || "$ANDROID_PILOT_KEY_PASSWORD
   echo "Rewrap the original pilot key and configure its release alias before distribution." >&2
   exit 1
 fi
-key=$(mktemp)
-trap 'rm -f "$key"' EXIT
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT
+key="$work/original"
+: "${ANDROID_ROTATED_KEYSTORE:?Missing dedicated pilot release keystore}"
+: "${ANDROID_ROTATED_PASSWORD:?Missing rotated PKCS12 password}"
+: "${ANDROID_ROTATED_ALIAS:?Missing rotated alias}"
+: "${ANDROID_ROTATED_CERTIFICATE:?Missing public release fingerprint}"
+: "${ANDROID_PILOT_LINEAGE:?Missing offline signing lineage}"
+[[ "$ANDROID_ROTATED_PASSWORD" != android && "${ANDROID_ROTATED_ALIAS,,}" != androiddebugkey ]]
+printf '%s' "$ANDROID_ROTATED_KEYSTORE" | base64 --decode > "$work/rotated"
+printf '%s' "$ANDROID_PILOT_LINEAGE" | base64 --decode > "$work/lineage"
+unset ANDROID_ROTATED_KEYSTORE ANDROID_PILOT_LINEAGE
 printf '%s' "$ANDROID_PILOT_KEYSTORE" | base64 --decode > "$key"
 unset ANDROID_PILOT_KEYSTORE
 
@@ -31,15 +41,7 @@ tag="v$version-build.$code"
 out=build/release
 name="angler-to-angler-${tag#v}.apk"
 mkdir -p "$out"
-# Existing pilot installations pin the certificate. The same private key can be
-# rewrapped with strong passwords without rotating the certificate or losing journals.
-"$bt/apksigner" sign --ks "$key" --ks-key-alias "$ANDROID_PILOT_KEY_ALIAS" \
-  --ks-pass env:ANDROID_PILOT_STORE_PASSWORD --key-pass env:ANDROID_PILOT_KEY_PASSWORD --out "$out/$name" "$apk"
-unset ANDROID_PILOT_STORE_PASSWORD ANDROID_PILOT_KEY_PASSWORD
-certs=$("$bt/apksigner" verify --print-certs "$out/$name")
-[[ $(sed -n 's/^Signer #1 certificate SHA-256 digest: //p' <<< "$certs") == "$fingerprint" ]] || {
-  echo "Signing certificate differs from pilot 0.4.4" >&2
-  exit 1
-}
+bash scripts/sign-lineage.sh "$bt/apksigner" "$key" "$work/rotated" "$work/lineage" \
+  "$fingerprint" "$ANDROID_ROTATED_CERTIFICATE" "$apk" "$out/$name"
 (cd "$out" && sha256sum "$name" > "$name.sha256")
 echo "tag=$tag" >> "${GITHUB_OUTPUT:?}"

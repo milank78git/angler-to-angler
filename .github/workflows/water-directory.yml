@@ -9,23 +9,105 @@ on:
       - '.github/workflows/water-directory.yml'
       - 'scripts/*water*.py'
       - 'scripts/atlas-signature.py'
+      - 'scripts/refresh-atlas-rules.py'
+      - 'scripts/rule_sources.py'
+      - 'scripts/review-field-guide.py'
+      - 'data/europe/rule-imports.json'
+      - 'data/europe/source-fingerprints.json'
+      - 'app/src/main/assets/europe-rules.json'
+      - 'app/src/main/assets/catalog.json'
+      - 'scripts/validate-atlas.py'
       - 'data/europe/water-providers.json'
       - 'data/waters/europe-provider-terms.json'
       - 'app/src/main/assets/*waters.json'
       - 'app/src/main/assets/water-sources.json'
 permissions:
-  contents: write
+  contents: read
 concurrency:
   group: water-directory-publication
   cancel-in-progress: false
 jobs:
-  publish:
+  import:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
       - run: sudo apt-get update && sudo apt-get install -y python3-gdal poppler-utils
-      - name: Refresh providers and publish one consistent version
+      - name: Refresh provider editions without publication credentials
+        run: |
+          mkdir -p "$RUNNER_TEMP/edition"
+          if git ls-remote --exit-code --heads origin water-atlas-v1 >/dev/null; then
+            git fetch --depth=1 origin refs/heads/water-atlas-v1
+            git show FETCH_HEAD:atlas.json.gz > "$RUNNER_TEMP/edition/atlas.json.gz"
+          else
+            test "$?" -eq 2
+          fi
+          /usr/bin/python3 scripts/water-release.py "$RUNNER_TEMP/edition" "$RUNNER_TEMP/cache" --refresh --as-of "$(date -u +%F)"
+          cp "$RUNNER_TEMP/cache/"{failed-sources.txt,manifest.json} "$RUNNER_TEMP/edition/"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: unsigned-atlas
+          path: ${{ runner.temp }}/edition/
+          if-no-files-found: error
+          retention-days: 1
+  refresh-rules:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    outputs:
+      digest: ${{ steps.rules.outputs.digest }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Read the last published rule edition
+        run: |
+          previous="$RUNNER_TEMP/previous"
+          mkdir -p "$previous"
+          if git ls-remote --exit-code --heads origin water-atlas-v1 >/dev/null; then
+            git fetch --depth=1 origin refs/heads/water-atlas-v1
+            git show FETCH_HEAD:manifest.json > "$previous/manifest.json"
+            git show FETCH_HEAD:atlas.json.gz > "$previous/atlas.json.gz"
+          else
+            test "$?" -eq 2
+          fi
+      - id: rules
+        name: Import authority changes and effective periods
+        env:
+          ANGLER_ATLAS_PUBLIC_KEY: ${{ vars.ANGLER_ATLAS_PUBLIC_KEY }}
+        run: |
+          digest=$(python3 scripts/refresh-atlas-rules.py collect "$RUNNER_TEMP/rules" "$RUNNER_TEMP/previous")
+          [[ "$digest" =~ ^[0-9a-f]{64}$ ]]
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: refreshed-rules
+          path: ${{ runner.temp }}/rules/rules.json
+          retention-days: 1
+          if-no-files-found: error
+  publish:
+    needs: [import, refresh-rules]
+    runs-on: ubuntu-24.04
+    environment: atlas-publication
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+          name: unsigned-atlas
+          path: ${{ runner.temp }}/water-cache
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+          name: refreshed-rules
+          path: ${{ runner.temp }}/rules
+      - name: Validate artefact and prepare immutable content commit
+        env:
+          RULE_DIGEST: ${{ needs.refresh-rules.outputs.digest }}
         run: |
           channel=water-atlas-v1
           published="$RUNNER_TEMP/water-publication"
@@ -39,7 +121,8 @@ jobs:
             git worktree add --detach "$published" HEAD
             git -C "$published" switch --orphan "$channel"
           fi
-          /usr/bin/python3 scripts/water-release.py "$published" "$cache" --refresh --as-of "$(date -u +%F)"
+          python3 scripts/refresh-atlas-rules.py apply "$cache" "$RUNNER_TEMP/rules/rules.json" "$RULE_DIGEST"
+          cp "$cache/"{atlas.json.gz,registry.json} "$published/"
           cd "$published"
           git config user.name github-actions
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
@@ -69,8 +152,13 @@ jobs:
           cp "$candidate" "$published/manifest.json"
           git -C "$published" add manifest.json
           git -C "$published" commit -m "Publish signed atlas manifest"
-          git -C "$published" push origin HEAD:refs/heads/water-atlas-v1
+      - name: Publish verified commits
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh auth setup-git
+          git -C "$RUNNER_TEMP/water-publication" push origin HEAD:refs/heads/water-atlas-v1
       - name: Report unavailable providers
         run: |
           failures="$RUNNER_TEMP/water-cache/failed-sources.txt"
-          if test -s "$failures"; then cat "$failures"; exit 1; fi
+          if test -s "$failures"; then echo "One or more providers could not be refreshed"; exit 1; fi

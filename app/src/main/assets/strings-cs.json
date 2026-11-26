@@ -1,6 +1,7 @@
 {
   "stats.independent_reviews": "Alespoň pět přispěvatelů musí mít každý alespoň jeden úlovek potvrzený nezávislým kontrolorem.",
   "account.name_in_use": "Tuto přezdívku už někdo používá. Zvol jinou.",
+  "account.visible_name_required": "Zvol přezdívku s alespoň dvěma viditelnými znaky.",
   "account.account_sign_in": "Přihlášení",
   "account.and_tap_the_link_on_this_phone": " a klepni na odkaz na tomto telefonu. Do aplikace se můžeš také vrátit přes její ikonu.",
   "account.angler_profile": "Rybářský profil",
@@ -768,7 +769,7 @@
   "seasons.stop_reminders": "Vypnout připomínky",
   "seasons.the_selected_rule_covers_this_species_and": "Zobrazené pravidlo pokrývá vybraný druh a úsek. Ověř si i další místní omezení.",
   "seasons.valid_through": "Platí do",
-  "settings.alert_schedule": "Diskuse se při připojení kontrolují přibližně každou hodinu. Na nové revíry upozorníme po aktualizaci atlasu. Revíry v okolí vyhledáme podle polohy při otevření průvodce nebo návratu do něj.",
+  "settings.alert_schedule": "Upozornění na diskusi se týkají pouze oblíbených revírů. Diskuse se při připojení kontrolují přibližně každou hodinu. Na nové revíry upozorníme po aktualizaci atlasu. Revíry v okolí vyhledáme podle polohy při otevření průvodce nebo návratu do něj.",
   "settings.filters": "Filtry",
   "settings.large": "Větší písmo (+30 %)",
   "settings.notifications": "Upozorňovat na",
@@ -1115,5 +1116,8 @@
   "sync.last_success": "Poslední úspěšná synchronizace · {time}",
   "sync.trip": "Rybářská výprava",
   "sync.checking": "Ověřuji nastavení synchronizace deníku…",
-  "sync.check_failed": "Uloženo v telefonu. Nepodařilo se ověřit, zda máš v účtu uložený deník."
+  "sync.check_failed": "Uloženo v telefonu. Nepodařilo se ověřit, zda máš v účtu uložený deník.",
+  "moderation.report": "Nahlásit obsah",
+  "moderation.report_parking": "Nahlásit parkoviště nebo poznámky",
+  "account.invisible_name": "Odstraň z přezdívky neviditelné formátovací znaky."
 }
