@@ -1,4 +1,4 @@
-Informace o zpracování osobních údajů · verze 2026-11-26
+Informace o zpracování osobních údajů · verze 2026-11-26.2
 
 Správce: Milan Kucera, info@horistum.com. Na tento e-mail můžeš požádat o přístup, opravu přezdívky, výmaz nebo přenositelnost údajů, omezení zpracování či podat námitku. Máš právo podat stížnost u Úřadu pro ochranu osobních údajů (uoou.gov.cz) nebo u svého dozorového úřadu.
 
@@ -6,4 +6,6 @@ Pro vedení účtu podle smlouvy (čl. 6 odst. 1 písm. b GDPR) používáme ov�
 
 Účet technicky zajišťuje služba kompatibilní se Supabase Auth. Při přihlášení přes Google nebo Facebook obdrží zvolený poskytovatel přihlašovací požadavek, síťové a technické údaje a uplatní vlastní zásady. Alternativou je ověřovací kód e-mailem přes poskytovatele pošty. Konkrétní hosting, poštovní službu, doby provozních záloh a podrobnosti případného předání mimo EHP uvádí nasazovací dodatek zobrazený před přihlášením.
 
-Deník je uložený v telefonu. U nového účtu se výpravy, úlovky, přesná poloha, fotografie a poznámky synchronizují také do soukromé kopie v účtu. Polohu lze zadat ručně nebo povolit zařízení pouze na vyžádání. Uloženou výpravu můžeš smazat v deníku. Odhlášení uzamkne místní záznamy. Odstranění dat aplikace vymaže místní deníky na daném zařízení. Při dobrovolném sdílení předá Android vybranému příjemci údaje z náhledu. Příjemce může kopii uchovat. Aplikace nepoužívá reklamní sledování ani marketingové souhlasy. Potvrzení přečtení eviduje doručení této informace.
+Deník je uložený v telefonu. U nového účtu od 15 let se výpravy, úlovky, přesná poloha, fotografie a poznámky synchronizují také do soukromé kopie v účtu. Polohu lze zadat ručně nebo povolit zařízení pouze na vyžádání. Uloženou výpravu můžeš smazat v deníku. Odhlášení uzamkne místní záznamy. Odstranění dat aplikace vymaže místní deníky na daném zařízení. Při dobrovolném sdílení předá Android vybranému příjemci údaje z náhledu. Příjemce může kopii uchovat. Aplikace nepoužívá reklamní sledování ani marketingové souhlasy. Potvrzení přečtení eviduje doručení této informace.
+
+Datum narození je povinné a soukromé. Oprávnění se přepočítávají podle narozenin. Do 15 let zůstává deník v telefonu. Úlovky s volitelnou fotografií nebo tipy z výprav, které se souhlasem rodiče sdílíš do uzavřené party, vidí jen její současní členové. Rodič nebo zákonný zástupce požádá na info@horistum.com o ověření zastoupení a propojení samostatných účtů. V nabídce Rybářské party → Rodičovská oprávnění může pro každou partu povolit každý typ příspěvku zvlášť. Odvoláním souhlasu se z party smažou i dřívější příspěvky daného typu. Příjemcům mohou zůstat uložené kopie. Veřejné odkazy na úlovky, sdílení mimo aplikaci, soukromé zprávy a tržiště jsou dostupné od 15 let. Partu může založit člověk od 18 let.

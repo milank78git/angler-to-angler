@@ -91,7 +91,7 @@ public final class FishingActivity extends LocalizedActivity {
         + " AnglerToAngler (+https://github.com/milank78git/angler-to-angler)");
     settings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
     web.addJavascriptInterface(new Device(), "Device");
-    playStore = new PlayStore(this, web, subject);
+    if (AccountStore.canShareOutsideGroups(this)) playStore = new PlayStore(this, web, subject);
     shares = new CatchShare(this);
     position = new PositionRequest(this, this::positionResult);
     nearbyPosition = new PositionRequest(this, (id,fix) -> {
@@ -172,8 +172,13 @@ public final class FishingActivity extends LocalizedActivity {
     }
 
     @JavascriptInterface
+    public boolean groupSharingOnly() {
+      return !AccountStore.canShareOutsideGroups(FishingActivity.this);
+    }
+
+    @JavascriptInterface
     public boolean journalCloudDefault() {
-      return AccountStore.prefs(FishingActivity.this).getBoolean("cloudJournal." + subject, false)
+      return !groupSharingOnly() && AccountStore.prefs(FishingActivity.this).getBoolean("cloudJournal." + subject, false)
           && !subject.equals(AccountStore.prefs(FishingActivity.this).getString("legacyOwner", ""));
     }
 
@@ -284,7 +289,7 @@ public final class FishingActivity extends LocalizedActivity {
 
     @JavascriptInterface
     public boolean shareCatch(String caption, String jpeg) {
-      return shares.open(caption, jpeg);
+      return !groupSharingOnly() && subject.equals(AccountStore.active(FishingActivity.this)) && shares.open(caption, jpeg);
     }
 
     /** A registered network can indicate the current country without requesting coordinates. */

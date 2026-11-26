@@ -163,6 +163,7 @@ public final class AccountActivity extends LocalizedActivity {
     LinearLayout social = new LinearLayout(this);
     social.setOrientation(LinearLayout.VERTICAL);
     ui.form.addView(social);
+    ui.label(text("age.before_signup"));
     if (ready) loadProviders(social, send);
     else
       ui.message(text("account.sign_in_is_currently_unavailable"));
@@ -510,7 +511,10 @@ public final class AccountActivity extends LocalizedActivity {
       nickname.setEnabled(false);
     }
     boolean firstRegistration = !profile.has("name");
-    if (firstRegistration) ui.message(text("sync.new_account"));
+    ui.label(text("age.registration_notice"));
+    boolean needsBirthDate = !profile.has("ageBand") || "unknown".equals(profile.optString("ageBand"));
+    EditText birth = needsBirthDate ? ui.field(text("age.birth_date"), InputType.TYPE_CLASS_TEXT) : null;
+    if (birth != null) birth.setSingleLine();
     CheckBox terms = ui.check(text("account.i_accept_the_terms_of_use"));
     CheckBox privacy =
         ui.check(
@@ -527,9 +531,21 @@ public final class AccountActivity extends LocalizedActivity {
                 return;
               }
               if (!terms.isChecked() || !privacy.isChecked()) return;
-              run(() -> service.accept(signing.access, name), result -> {
+              String date = birth == null ? null : birth.getText().toString().trim();
+              if (birth != null) {
+                try {
+                  java.time.LocalDate supplied = java.time.LocalDate.parse(date);
+                  java.time.LocalDate today = java.time.LocalDate.now(java.time.ZoneId.of("Europe/Prague"));
+                  if (supplied.isAfter(today) || supplied.plusYears(126).compareTo(today) <= 0)
+                    throw new IllegalArgumentException();
+                } catch (RuntimeException invalid) {
+                  birth.setError(text("age.invalid_date"));
+                  return;
+                }
+              }
+              run(() -> service.accept(signing.access, name, date), result -> {
                 if (firstRegistration && signing.id.equals(result.optString("id")) && result.optBoolean("current")) {
-                  AccountStore.prefs(this).edit().putBoolean("cloudJournal." + signing.id, true).apply();
+                  AccountStore.prefs(this).edit().putBoolean("cloudJournal." + signing.id, !"child".equals(result.optString("ageBand"))).apply();
                 }
                 finishProfile(result);
               });
@@ -574,7 +590,7 @@ public final class AccountActivity extends LocalizedActivity {
     IdentityService.Session auth = signing;
     run(
         () -> {
-          AccountStore.activate(this, result.getString("name"), legacy, auth);
+          AccountStore.activate(this, result.getString("name"), result.getString("ageBand"), legacy, auth);
           return auth.id;
         },
         id -> {
@@ -651,6 +667,7 @@ public final class AccountActivity extends LocalizedActivity {
       return text("account.too_many_attempts_please_try_again_later");
     if (error instanceof IdentityService.HttpFailure) {
       String code = ((IdentityService.HttpFailure) error).code;
+      if ("AN002".equals(code)) return text("age.invalid_date");
       if ("AN001".equals(code)) return text("account.invisible_name");
       if ("PT409".equals(code)) return text("account.name_in_use");
       if ("23514".equals(code)) return text("account.visible_name_required");

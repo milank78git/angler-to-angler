@@ -50,7 +50,8 @@ export function bindGroupTip(view, nav, tripId, getText) {
     sync();
     report(t('group_tip.loading_groups'));
     try {
-      const { groups } = await rpc('groups');
+      const result = await rpc('groups');
+      const groups = result.groups.filter((group) => group.canShareTip !== false);
       if (!view.active()) return;
       for (const group of groups) select.add(new Option(group.name, group.id));
       destination.hidden = !groups.length;

@@ -1,4 +1,4 @@
-Privacy notice · revision 2026-11-26
+Privacy notice · revision 2026-11-26.2
 
 Controller: Milan Kucera, info@horistum.com. Contact the controller to request access, correction of your display name, erasure, portability, restriction or to object. You may complain to the Czech Office for Personal Data Protection (uoou.gov.cz) or your local supervisory authority.
 
@@ -6,4 +6,6 @@ To provide your account under the contract (GDPR Article 6(1)(b)), we use a veri
 
 A service compatible with Supabase Auth handles identity. If you select Google or Facebook, that provider receives the sign-in request and network and device information under its own privacy policy. You can also request a verification code through the email delivery service. The deployment notice shown before sign-in identifies the hosting and mail providers, operational backup retention and any international transfers or safeguards.
 
-Your phone stores a local journal. For new accounts, trips, catches, exact positions, photos and notes also sync to a private account copy. Enter a position manually or request device location. Delete a trip in the journal. Signing out locks local records. Clearing app data erases all local journals on that device. When you choose to share, Android passes the previewed data to the recipient you select, who may keep a copy. No advertising trackers or marketing consents are used. Acknowledgement records delivery of this notice.
+Your phone stores a local journal. For new accounts aged 15 and over, trips, catches, exact positions, photos and notes also sync to a private account copy. Enter a position manually or request device location. Delete a trip in the journal. Signing out locks local records. Clearing app data erases all local journals on that device. When you choose to share, Android passes the previewed data to the recipient you select, who may keep a copy. No advertising trackers or marketing consents are used. Acknowledgement records delivery of this notice.
+
+Your date of birth is required and private. The service calculates permissions on your birthdays. Before age 15, the journal stays on this phone. Only current members of your closed group can see catches with an optional photo or trip tips that you share with parental permission. A parent or legal guardian contacts info@horistum.com to verify their authority and link separate accounts. In Fishing groups → Parental permissions they can allow each kind of content for each group and withdraw it, removing previous posts of that kind from that group. Copies already saved by recipients can remain. Public catch links, external sharing, private messages and the marketplace are unavailable before age 15. A group founder must be at least 18.

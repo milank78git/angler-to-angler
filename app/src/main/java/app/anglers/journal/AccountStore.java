@@ -8,7 +8,7 @@ import org.json.JSONObject;
 
 /** Keeps a verified offline lease and a device-authenticated refresh credential for one profile. */
 final class AccountStore {
-  static final String REVISION = "2026-11-26";
+  static final String REVISION = "2026-11-26.2";
   private static final long WINDOW = TimeUnit.DAYS.toMillis(7);
   private static final Object REFRESH_LOCK = new Object();
   private static IdentityService.Session session;
@@ -41,6 +41,11 @@ final class AccountStore {
         : "";
   }
 
+  static boolean canShareOutsideGroups(Context c) {
+    String band = active(c).isEmpty() ? "" : prefs(c).getString("ageBand", "");
+    return "adult".equals(band) || "teen".equals(band);
+  }
+
   static long remainingMillis(Context c) {
     SharedPreferences p = prefs(c);
     long age = System.currentTimeMillis() - p.getLong("verified", 0);
@@ -66,7 +71,7 @@ final class AccountStore {
 
   /** Called only after Auth and the profile RPC agree on identity and legal revisions. */
   static synchronized void activate(
-      Context c, String name, boolean claimLegacy, IdentityService.Session value) {
+      Context c, String name, String ageBand, boolean claimLegacy, IdentityService.Session value) {
     SharedPreferences p = prefs(c);
     if (!value.id.equals(p.getString("subject", ""))) {
       LicenseReminder.clear(c);
@@ -78,6 +83,7 @@ final class AccountStore {
         p.edit()
             .putString("subject", value.id)
             .putString("name", name)
+            .putString("ageBand", ageBand)
             .putString("email", value.email)
             .putString("revision", REVISION)
             .putLong("verified", System.currentTimeMillis());

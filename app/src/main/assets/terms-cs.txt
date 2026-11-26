@@ -1,13 +1,15 @@
-Podmínky používání · verze 2026-11-26
+Podmínky používání · verze 2026-11-26.2
 
 Provozovatel: Milan Kucera. Kontakt: info@horistum.com.
 
 Rybáři sobě je bezplatný rybářský atlas a soukromý deník. Pro používání potřebuješ vlastní ověřený účet a přezdívku. O přístup se neděl a přihlášení nevydávej za účet jiné osoby. Žádosti ohledně služby včetně ukončení účtu přijímáme na kontaktním e-mailu.
 
-Obsah deníku zůstává tvůj. K fotografiím a textům, které sdílíš, musíš mít potřebná oprávnění. Před odesláním zkontroluj náhled i příjemce. Příjemce může kopii dál uložit. U nového účtu je zapnutá soukromá synchronizace deníku včetně fotografií, souřadnic a poznámek. Její stav najdeš v deníku.
+Obsah deníku zůstává tvůj. K fotografiím a textům, které sdílíš, musíš mít potřebná oprávnění. Před odesláním zkontroluj náhled i příjemce. Příjemce může kopii dál uložit. U nového účtu od 15 let je zapnutá soukromá synchronizace deníku včetně fotografií, souřadnic a poznámek. Její stav najdeš v deníku.
 
 Atlas pokrývá vyznačené revíry a období. Před lovem ověř aktuální místní pravidla u uživatele revíru. Deník ani přihlášení nenahrazují povolenku. Povinná práva spotřebitele a zákonná odpovědnost zůstávají zachovány.
 
 Zdrojový kód projektu je dostupný pod Apache License 2.0. Mapové podklady, fotografie a ikony mají vlastní licence uvedené v aplikaci a v repozitáři. Při podstatné změně podmínek zobrazíme nové znění k potvrzení.
 
 V edici s aktivními platbami vidíš cenu balíčku před nákupem v Google Play a cenu tipu v kreditech před odemčením. Při vrácení platby se odečtou odpovídající kredity a může zaniknout přístup k tipu i související odměna autora. Vratku můžeš žádat přes Google Play nebo kontaktovat provozovatele. Uvítací ani testovací kredity nezakládají nárok na výplatu. Z vypořádané placené části připadá 85 % autorovi, 10 % provozu a 5 % obnově vod. O měsíční výplatu lze požádat od 100 Kč, poprvé po zveřejnění tří tipů.
+
+Datum narození je povinné a soukromé. Oprávnění se přepočítávají podle narozenin. Do 15 let zůstává deník v telefonu. Úlovky s volitelnou fotografií nebo tipy z výprav, které se souhlasem rodiče sdílíš do uzavřené party, vidí jen její současní členové. Rodič nebo zákonný zástupce požádá na info@horistum.com o ověření zastoupení a propojení samostatných účtů. V nabídce Rybářské party → Rodičovská oprávnění může pro každou partu povolit každý typ příspěvku zvlášť. Odvoláním souhlasu se z party smažou i dřívější příspěvky daného typu. Příjemcům mohou zůstat uložené kopie. Veřejné odkazy na úlovky, sdílení mimo aplikaci, soukromé zprávy a tržiště jsou dostupné od 15 let. Partu může založit člověk od 18 let.

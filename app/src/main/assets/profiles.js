@@ -54,6 +54,19 @@ export function showError(view, nav, error) {
 export async function profileScreen({ view, nav }) {
   const id = view.route.id || null;
   const own = !id;
+  if (own && window.Device?.groupSharingOnly?.()) {
+    replaceMarkup(
+      screen,
+      back(t('common.back')) +
+        '<p>' +
+        esc(t('age.group_rule')) +
+        '</p>' +
+        button('account-settings', t('profiles.account_and_group_settings'), 'primary'),
+    );
+    bindBack(nav);
+    bind('account-settings', () => window.Device.profile());
+    return;
+  }
   let card;
   try {
     card = await rpc('card', { profile_id: id });
