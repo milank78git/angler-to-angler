@@ -1,4 +1,14 @@
+-- Existing collisions, including a historical name that already occupies a proposed suffix.
+insert into auth.users select ('00000000-0000-4000-8000-'||lpad(n::text,12,'0'))::uuid, now() from generate_series(895,897) n;
+insert into angler_private.profiles(user_id,display_name,created_at) values
+ ('00000000-0000-4000-8000-000000000895','Silver pike','2026-01-01'),
+ ('00000000-0000-4000-8000-000000000896','Silver PIKE','2026-02-01'),
+ ('00000000-0000-4000-8000-000000000897','Silver PIKE #00000000','2026-03-01');
 \ir ../supabase/migrations/20261126021000_audit_publication_controls.sql
+select pg_temp.check_that((select display_name='Silver pike' and original_display_name is null
+ from angler_private.profiles where user_id='00000000-0000-4000-8000-000000000895'), 'Oldest name changed');
+select pg_temp.check_that((select display_name='Silver PIKE #00000000-1' and original_display_name='Silver PIKE'
+ from angler_private.profiles where user_id='00000000-0000-4000-8000-000000000896'), 'Historical collision lost');
 select pg_temp.check_that(not exists(select from angler_private.profiles group by angler_private.nickname_key(display_name) having count(*)>1), 'Ambiguous public display names');
 select pg_temp.check_that(angler_private.nickname_key(' Blue   river ')=angler_private.nickname_key('BLUE River'), 'Canonical name differs');
 select pg_temp.check_that(not has_function_privilege('authenticated','angler_activity.reviewed_contributor(uuid)','execute'), 'Review eligibility must stay private');

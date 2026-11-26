@@ -25,6 +25,12 @@ class WaterReleaseTest(unittest.TestCase):
         self.assertEqual(updated[0]["code"], "legacy")
         self.assertEqual(identify([other, moved], updated), list(reversed(updated)))
 
+    def test_one_area_keeps_its_id_when_only_one_of_its_markers_moves(self):
+        identify = runpy.run_path(str(root / "scripts/swedish_water_ids.py"))["identify"]
+        old = [{"code":"legacy", "name":"River", "points":[[14, 60], [14.1,60]]}]
+        rows = [{"name":"River", "points":[point]} for point in [[14,60],[14.11,60]]]
+        self.assertEqual(identify(rows, old), [dict(old[0], points=[[14,60],[14.11,60]])])
+
     def test_offline_rebuild_and_partial_upstream_failure(self):
         with tempfile.TemporaryDirectory() as folder:
             output, cache = Path(folder) / "out", Path(folder) / "cache"

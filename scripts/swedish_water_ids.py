@@ -26,26 +26,24 @@ def identify(rows, previous):
     rows = list(distinct.values())
     current = list(distinct)
     assigned = {key: known[key] for key in current if key in known}
-    used = set(assigned.values())
-    # Reconcile renames and moved reference points only when the match is unique on both sides.
-    remaining = {key: code for key, code in known.items() if code not in used}
+    # A previously matched area may also have a second marker that moved.
     def indices(keys):
         names, points = defaultdict(set), defaultdict(set)
         for key in keys:
             names[key[0]].add(key)
             points[key[1]].add(key)
         return names, points
-    names, points = indices(remaining)
+    names, points = indices(known)
     for key in current:
         if key in assigned:
             continue
         same_name = {old for old in names[key[0]] if max(abs(a-b) for a,b in zip(key[1],old[1])) < 0.1}
         options = same_name | points[key[1]]
-        if len({remaining[k] for k in options}) > 1:
+        if len({known[k] for k in options}) > 1:
             raise ValueError('Ambiguous Swedish management area identity')
         if options:
             old = options.pop()
-            assigned[key] = remaining[old]
+            assigned[key] = known[old]
         else:
             # The provider supplies no association ID. Persist this initial ID in subsequent editions.
             seed = 'https://fiskekartan.se/area/' + repr(key)

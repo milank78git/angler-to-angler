@@ -77,6 +77,7 @@ jobs:
           path: build/auth-email/
       - run: node --test tests/*.test.cjs
       - run: python3 tests/water-release.py
+      - run: python3 tests/atlas-signature.py
       - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4
         with:
           packages: "platforms;android-35 platforms;android-36 build-tools;35.0.0 platform-tools"

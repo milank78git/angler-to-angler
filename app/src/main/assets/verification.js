@@ -214,7 +214,7 @@ export async function reviewScreen({ view, nav }) {
           ', ' +
           esc(item.lon100 / 100) +
           '</p><img class="review-image" alt="' +
-          t('verification.catch_photograph') +
+          esc(t('verification.catch_photograph')) +
           '" src="data:image/jpeg;base64,' +
           esc(item.photo) +
           '"></article>' +

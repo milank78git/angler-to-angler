@@ -10,6 +10,7 @@ on:
       - 'scripts/*water*.py'
       - 'scripts/atlas-signature.py'
       - 'data/europe/water-providers.json'
+      - 'data/waters/europe-provider-terms.json'
       - 'app/src/main/assets/*waters.json'
       - 'app/src/main/assets/water-sources.json'
 permissions:

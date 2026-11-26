@@ -365,7 +365,8 @@ def build(provider, previous=None):
     osr.UseExceptions()
     if provider == "FVO":
         baseline = json.loads((ASSETS / "europe-waters.json").read_text())["FVO"]["waters"]
-        rows = swedish(previous if previous is not None else baseline)
+        # A temporarily absent legacy area may reappear after more than one edition.
+        rows = swedish(baseline + (previous or []))
     else:
         rows = arcgis(provider) if provider in ARCGIS else ADAPTERS[provider]()
     if not rows or len({r["code"] for r in rows}) != len(rows):

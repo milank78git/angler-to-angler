@@ -143,7 +143,7 @@ export async function editProfile({ view, nav }) {
       '<label class="portrait-choice"><input type="radio" name="portrait" value="' +
       n +
       '" aria-label="' +
-      t('profiles.portrait') +
+      esc(t('profiles.portrait')) +
       n +
       '"' +
       (avatar === n ? ' checked' : '') +
