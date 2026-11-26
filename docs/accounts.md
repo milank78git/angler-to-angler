@@ -168,3 +168,30 @@ returning verified_at;
 ```
 
 Once the child joins a group, the guardian opens **Fishing groups → Parental permissions** in their own account. Catches (with or without a photo) and trip tips have independent controls for each group. Withdrawal removes posts shared under that permission. Leaving a group cancels both permissions. To end the verified relationship, delete the matching child and guardian pair in `angler_private.guardians`. This also withdraws the permissions attached to that relationship. A verified date correction belongs with the operator. The account holder cannot edit their date or raise their permissions in the profile.
+
+A member can report a shared group catch, including the founder’s. The author and the group
+owner can remove it from the group. Operators can review `angler_groups_private.catch_flags`
+joined to `catch_posts` by position and, after review, call
+`angler_groups_private.remove_shared_catch($1)`. Withdrawing a post removes its photo and clears
+its flag. The original catch stays in the angler’s private journal.
+
+### Verified birth-date corrections
+
+A user can contact **info@horistum.com** from the account contact details. Verify control of the
+account and the requested correction privately. For corrections involving a minor, verify the
+guardian's authority where applicable. Explain the effects and obtain confirmation before changing
+the date. Use the private operator connection and bound parameters for the verified account UUID,
+the currently registered date and the corrected date.
+
+```sql
+select angler_private.correct_birth_date($1, $2, $3);
+```
+
+A stale expected date aborts the update. A person corrected to under 18 must first have the
+ownership of any groups explicitly resolved, and loses guardian permissions. A correction to
+under 15 withdraws public catch cards, the shared profile, public contributions, active market
+offers and previous group shares. The operation removes the server journal manifests, chunks
+and quota records in the same transaction. The storage job deletes orphaned objects after the
+one-day grace period. The journal on the phone remains local. Restoring an adult date does
+not republish previous content. Existing purchasers retain their private contractual copies.
+Cloud backups follow their own retention period.

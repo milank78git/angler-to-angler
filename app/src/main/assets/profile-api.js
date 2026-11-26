@@ -8,7 +8,7 @@ window.profileReply = (id, status, result) => {
   if (callback) {
     pending.delete(id);
     if (status === 200) callback.resolve(result);
-    else callback.reject(Object.assign(new Error('Profile request failed'), { status }));
+    else callback.reject(Object.assign(new Error('Profile request failed'), { status, reason: result }));
   }
 };
 
@@ -36,7 +36,7 @@ export function failure(error) {
     case 409:
       return t('profile_api.the_record_changed_or_the_photo_was');
     case 429:
-      return t('account.too_many_attempts_please_try_again_later');
+      return t(error.reason === 'pending_review_limit' ? 'verification.queue_full' : 'limits.hourly');
     case 400:
       return t('profile_api.the_details_could_not_be_accepted_check');
     default:

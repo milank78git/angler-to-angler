@@ -27,6 +27,7 @@ const checkbox = (id, label) =>
   '<label class="card-option"><input type="checkbox" id="' + id + '">' + esc(label) + '</label>';
 
 function message(error) {
+  if (error.status === 429) return t('limits.hourly');
   if (error.status === 409) return t('public_cards.the_details_or_link_changed_refresh_the');
   if (error.status === 401 || error.status === 403) return t('public_cards.sign_in_again_to_manage_cards');
   if (error.status === 422 || error.status === 400)

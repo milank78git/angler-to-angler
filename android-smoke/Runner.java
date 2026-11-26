@@ -518,6 +518,15 @@ public final class Runner extends Instrumentation {
     waitFor("document.querySelector('#confirmation').open");
     js("document.querySelector('#confirmation-cancel').click()");
     waitFor("!document.querySelector('[data-verify-catch]').disabled");
+    // Retry through the same visible control the angler uses and check the actual notice.
+    for (String reason : new String[]{"Hourly write limit reached", "Pending review limit"}) {
+      accounts.nextEvidenceLimit = reason;
+      clickReady("[data-verify-catch]");
+      clickReady("#confirmation-accept");
+      String key = reason.startsWith("Hourly") ? "limits.hourly" : "verification.queue_full";
+      waitFor("document.querySelector('#notice').textContent === "
+          + org.json.JSONObject.quote(label(key)));
+    }
     js("document.querySelector('[data-verify-catch]').click()");
     waitFor("document.querySelector('#confirmation').open");
     js("document.querySelector('#confirmation-accept').click()");

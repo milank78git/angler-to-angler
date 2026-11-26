@@ -514,8 +514,12 @@ public final class AccountActivity extends LocalizedActivity {
     boolean firstRegistration = !profile.has("name");
     ui.label(text("age.registration_notice"));
     boolean needsBirthDate = !profile.has("ageBand") || "unknown".equals(profile.optString("ageBand"));
-    EditText birth = needsBirthDate ? ui.field(text("age.birth_date"), InputType.TYPE_CLASS_TEXT) : null;
-    if (birth != null) birth.setSingleLine();
+    EditText birth = needsBirthDate ? ui.field(text("age.birth_date"), InputType.TYPE_CLASS_DATETIME | InputType.TYPE_DATETIME_VARIATION_DATE) : null;
+    if (birth != null) {
+      birth.setSingleLine();
+      birth.setKeyListener(android.text.method.DigitsKeyListener.getInstance("0123456789-"));
+      action(text("age.choose_date"), AccountLayout.Action.LINK, () -> chooseBirthDate(birth));
+    }
     CheckBox terms = ui.check(text("account.i_accept_the_terms_of_use"));
     CheckBox privacy =
         ui.check(
@@ -533,23 +537,25 @@ public final class AccountActivity extends LocalizedActivity {
               }
               if (!terms.isChecked() || !privacy.isChecked()) return;
               String date = birth == null ? null : birth.getText().toString().trim();
-              if (birth != null) {
-                try {
-                  java.time.LocalDate supplied = java.time.LocalDate.parse(date);
-                  java.time.LocalDate today = java.time.LocalDate.now(java.time.ZoneId.of("Europe/Prague"));
-                  if (supplied.isAfter(today) || supplied.plusYears(126).compareTo(today) <= 0)
-                    throw new IllegalArgumentException();
-                } catch (RuntimeException invalid) {
-                  birth.setError(text("age.invalid_date"));
-                  return;
-                }
+              Runnable register = () -> submitRegistration(name, date, firstRegistration);
+              if (birth == null) {
+                register.run();
+                return;
               }
-              run(() -> service.accept(signing.access, name, date), result -> {
-                if (firstRegistration && signing.id.equals(result.optString("id")) && result.optBoolean("current")) {
-                  AccountStore.prefs(this).edit().putBoolean("cloudJournal." + signing.id, !"child".equals(result.optString("ageBand"))).apply();
-                }
-                finishProfile(result);
-              });
+              try {
+                java.time.LocalDate supplied = java.time.LocalDate.parse(date);
+                java.time.LocalDate today = java.time.LocalDate.now(java.time.ZoneId.of("Europe/Prague"));
+                int years = java.time.Period.between(supplied, today).getYears();
+                if (supplied.isAfter(today) || years > 125) throw new IllegalArgumentException();
+                AccountLayout.Prompt review = ui.prompt(text("age.birth_date"));
+                review.description(text("age.review_date").replace("{date}", date)
+                    .replace("{age}", Integer.toString(years)));
+                review.action(text("common.cancel"), AccountLayout.Action.SECONDARY, null);
+                review.action(text("age.confirm_date"), AccountLayout.Action.PRIMARY, register);
+                review.show();
+              } catch (java.time.DateTimeException | IllegalArgumentException invalid) {
+                birth.setError(text("age.invalid_date"));
+              }
             });
     submit.setEnabled(false);
     CompoundButton.OnCheckedChangeListener update =
@@ -558,6 +564,31 @@ public final class AccountActivity extends LocalizedActivity {
     privacy.setOnCheckedChangeListener(update);
     documents();
     action(text("account.back_to_sign_in"), AccountLayout.Action.LINK, this::login);
+  }
+
+  private void chooseBirthDate(EditText input) {
+    java.time.LocalDate today = java.time.LocalDate.now(java.time.ZoneId.of("Europe/Prague"));
+    java.time.LocalDate initial = today.minusYears(18);
+    try {
+      java.time.LocalDate entered = java.time.LocalDate.parse(input.getText().toString());
+      if (!entered.isAfter(today) && entered.isAfter(today.minusYears(126))) initial = entered;
+    } catch (java.time.DateTimeException ignored) {
+      // The calendar can also complete a partially entered date.
+    }
+    DatePickerDialog picker = new DatePickerDialog(this,
+        (view, year, month, day) -> input.setText(java.time.LocalDate.of(year, month + 1, day).toString()),
+        initial.getYear(), initial.getMonthValue() - 1, initial.getDayOfMonth());
+    picker.show();
+  }
+
+  private void submitRegistration(String name, String date, boolean firstRegistration) {
+    run(() -> service.accept(signing.access, name, date), result -> {
+      if (firstRegistration && signing.id.equals(result.optString("id")) && result.optBoolean("current")) {
+        AccountStore.prefs(this).edit().putBoolean("cloudJournal." + signing.id,
+            !"child".equals(result.optString("ageBand"))).apply();
+      }
+      finishProfile(result);
+    });
   }
 
   private void finishProfile(JSONObject result) {
@@ -625,6 +656,7 @@ public final class AccountActivity extends LocalizedActivity {
     ui.page(AccountStore.prefs(this).getString("name", ""), false);
     ui.label(
         text("account.for_account_correction_access_or_deletion_contact"));
+    ui.label(text("age.correction_help"));
     action(text("store.deletion_request"), AccountLayout.Action.SECONDARY,
         () -> startActivity(new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(
             "https://milank78git.github.io/angler-to-angler/delete-account/"))));

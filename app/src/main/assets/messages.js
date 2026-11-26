@@ -23,6 +23,7 @@ const inboxTitle = () => t('common.private_messages');
 const sendLabel = () => t('messages.send_privately');
 const stamp = new Intl.DateTimeFormat(languageTag, { dateStyle: 'medium', timeStyle: 'short' });
 function errorText(err) {
+  if (err.status === 429) return t('limits.hourly');
   if (err.status === 403) return t('messages.messaging_is_unavailable_for_this_account_or');
   if (err.status === 401) return t('messages.sign_in_again_to_use_messages');
   if (err.status === 404) return t('messages.the_question_or_conversation_is_no_longer');

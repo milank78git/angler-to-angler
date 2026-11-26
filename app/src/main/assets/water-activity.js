@@ -48,6 +48,7 @@ function methodChoices() {
 }
 
 function problem(err) {
+  if (err.status === 429) return t('limits.hourly');
   if (err.status === 401 || err.status === 403)
     return t('water_activity.sign_in_again_to_use_water_activity');
   if (err.status === 409) return t('water_activity.the_contribution_changed_refresh_the_screen');

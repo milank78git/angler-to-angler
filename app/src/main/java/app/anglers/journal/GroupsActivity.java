@@ -243,6 +243,25 @@ public final class GroupsActivity extends LocalizedActivity {
         String length = item.isNull("mm") ? "" : " · " + item.getInt("mm") + " mm";
         ui.tip(item.getString("author") + " · " + item.getString("day"), item.getString("species") + length);
         if (!item.isNull("photo")) ui.catchPhoto(item.getString("photo"), item.getString("species"));
+        if (item.optBoolean("canReport")) {
+          String position = item.getString("position");
+          button(t("moderation.report"), AccountLayout.Action.SECONDARY,
+              () -> request("group_catch_report", args("group_id", id, "post_position", position),
+                  ignored -> ui.message(t("group_catch.reported"))));
+        }
+        if (item.optBoolean("canRemove")) {
+          String position = item.getString("position");
+          String species = item.getString("species");
+          button(t("group_catch.remove"), AccountLayout.Action.DANGER, () -> {
+            AccountLayout.Prompt confirm = ui.prompt(species);
+            confirm.description(t("group_catch.confirm_remove"));
+            confirm.action(t("common.cancel"), AccountLayout.Action.SECONDARY, null);
+            confirm.action(t("group_catch.remove"), AccountLayout.Action.DANGER,
+                () -> request("group_catch_remove", args("group_id", id, "post_position", position),
+                    ignored -> catches(id, name, cursor)));
+            confirm.show();
+          });
+        }
       }
       if (!result.isNull("next")) {
         String next = result.getString("next");
@@ -408,7 +427,7 @@ public final class GroupsActivity extends LocalizedActivity {
                   }
                 }
                 String error =
-                    http == 400 && method.equals("group_join")
+                    http == 429 ? t("limits.hourly") : http == 400 && method.equals("group_join")
                         ? t("groups.this_invitation_is_invalid_already_used_or")
                         : http == 403
                             ? t("groups.you_do_not_have_permission_for_this")

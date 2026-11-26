@@ -134,4 +134,16 @@
   <changeSet id="20261126140000" author="angler" dbms="postgresql">
     <sqlFile path="../supabase/migrations/20261126140000_catalogue_activity_targets.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
   </changeSet>
+  <changeSet id="20261126150000" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261126150000_journal_maintenance.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
+  <changeSet id="20261126150100" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261126150100_group_catch_moderation.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
+  <changeSet id="20261126150200" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261126150200_birth_date_corrections.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
+  <changeSet id="20261126150300" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261126150300_remove_stored_age.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
 </databaseChangeLog>

@@ -1138,5 +1138,14 @@
   "sync.check_failed": "Saved on this device. Could not check whether your account has an online journal.",
   "moderation.report": "Report content",
   "moderation.report_parking": "Report parking point or notes",
-  "account.invisible_name": "Remove invisible formatting characters from your display name."
+  "account.invisible_name": "Remove invisible formatting characters from your display name.",
+  "group_catch.remove": "Remove shared catch",
+  "group_catch.confirm_remove": "Remove this catch and its photo from the group? The private journal entry stays on the phone.",
+  "age.choose_date": "Choose date from calendar",
+  "age.confirm_date": "Confirm birth date",
+  "age.review_date": "Date of birth: {date}. Your age today: {age}. Is this correct?",
+  "age.correction_help": "For a birth-date correction, contact info@horistum.com. Support verifies the account privately.",
+  "limits.hourly": "You have reached the hourly activity limit. Try again after the hourly window ends.",
+  "verification.queue_full": "You already have 10 photos awaiting review. Wait for a review or withdraw a pending photo before submitting another.",
+  "group_catch.reported": "The catch has been reported for review."
 }

@@ -28,6 +28,7 @@ const linked = () => t('discussion.this_post_has_a_text_reply_and');
 const report = () => t('discussion.report_post');
 
 function errorText(error) {
+  if (error.status === 429) return t('limits.hourly');
   if (error.status === 401 || error.status === 403) return t('discussion.sign_in_with_a_verified_account_to');
   if (error.status === 404) return t('discussion.this_discussion_or_post_is_no_longer');
   if (error.status === 400) return t('discussion.check_your_text_and_trip_date');
