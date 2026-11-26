@@ -89,7 +89,11 @@ public final class GroupsActivity extends LocalizedActivity {
     }
     ui.page(title(), false);
     button(t("groups.refresh_groups"), AccountLayout.Action.LINK, this::refresh);
-    request("groups", new JSONObject(), result -> render(result.getJSONArray("groups")));
+    request("groups", new JSONObject(), result -> {
+      if (result.has("ageBand"))
+        AccountStore.prefs(this).edit().putString("ageBand", result.getString("ageBand")).apply();
+      render(result.getJSONArray("groups"));
+    });
   }
 
   private void render(JSONArray groups) throws JSONException {
@@ -105,15 +109,51 @@ public final class GroupsActivity extends LocalizedActivity {
       button(
           name + (owner ? t("groups.owner") : t("groups.member")),
           AccountLayout.Action.SECONDARY,
-          () -> actions(id, name, owner));
+          () -> actions(id, name, owner, group.optBoolean("canShareTip", true), group.optBoolean("canShareCatch", true)));
       ui.label(t("groups.members") + group.getInt("memberCount"));
     }
-    button(t("groups.create_a_group"), AccountLayout.Action.PRIMARY, () -> editor(true));
+    if ("adult".equals(AccountStore.prefs(this).getString("ageBand", ""))) {
+      button(t("groups.create_a_group"), AccountLayout.Action.PRIMARY, () -> editor(true));
+      button(t("age.family_settings"), AccountLayout.Action.SECONDARY, this::familySettings);
+    } else {
+      ui.label(t("age.group_rule"));
+    }
     button(
         t("groups.join_with_a_code"),
         AccountLayout.Action.SECONDARY,
         () -> editor(false));
     button(t("groups.refresh_groups"), AccountLayout.Action.LINK, this::refresh);
+  }
+
+  /** Show only the child memberships linked to this independently verified guardian. */
+  private void familySettings() {
+    request("family_permissions", new JSONObject(), result -> {
+      readingTips = true;
+      ui.page(t("age.family_settings"), false);
+      ui.label(t("age.link_help"));
+      button(t("groups.back_to_groups"), AccountLayout.Action.LINK, this::refresh);
+      JSONArray items = result.getJSONArray("items");
+      for (int i = 0; i < items.length(); i++) {
+        JSONObject item = items.getJSONObject(i);
+        String destination = item.getString("name") + " · " + item.getString("groupName");
+        ui.label(destination);
+        for (String kind : new String[] {"catch", "tip"}) {
+          boolean allowed = item.getBoolean(kind);
+          String feature = t(kind.equals("catch") ? "age.catches" : "age.tips");
+          String change = t(allowed ? "age.withdraw" : "age.allow") + " · " + feature;
+          JSONObject args = args("child_id", item.getString("child"), "target", item.getString("group"), "feature", kind);
+          args.put("allowed", !allowed);
+          button(change, AccountLayout.Action.SECONDARY, () -> {
+            dialog = ui.prompt(change);
+            dialog.description(destination + "\n" + t(allowed ? "age.withdraw_info" : "age.grant_info"));
+            dialog.action(change, allowed ? AccountLayout.Action.DANGER : AccountLayout.Action.PRIMARY,
+                () -> request("family_permission", args, receipt -> familySettings()));
+            dialog.action(t("common.cancel"), AccountLayout.Action.SECONDARY, null);
+            dialog.show();
+          });
+        }
+      }
+    });
   }
 
   /** Keep the draft and request ID through recoverable network failures. */
@@ -161,13 +201,14 @@ public final class GroupsActivity extends LocalizedActivity {
     dialog.show();
   }
 
-  private void actions(String id, String name, boolean owner) {
+  private void actions(String id, String name, boolean owner, boolean tipsAllowed, boolean catchesAllowed) {
     String leave =
         owner ? t("groups.dissolve_group") : t("groups.leave_group");
     dialog = ui.prompt(name);
-    dialog.choice(
+    if (catchesAllowed) dialog.choice(t("age.catches"), AccountLayout.Action.SECONDARY, () -> catches(id, name, null));
+    if (tipsAllowed) dialog.choice(
         t("groups.group_tips"), AccountLayout.Action.SECONDARY, () -> tips(id, name, null));
-    dialog.choice(
+    if (catchesAllowed) dialog.choice(
         t("common.catch_of_the_week"),
         AccountLayout.Action.SECONDARY,
         () ->
@@ -187,6 +228,27 @@ public final class GroupsActivity extends LocalizedActivity {
     dialog.choice(leave, AccountLayout.Action.DANGER, () -> confirmLeave(id, name, owner, leave));
     dialog.action(t("common.close"), AccountLayout.Action.SECONDARY, null);
     dialog.show();
+  }
+
+  private void catches(String id, String name, String cursor) {
+    readingTips = true;
+    ui.page(t("age.catches") + " · " + name, false);
+    button(t("groups.back_to_groups"), AccountLayout.Action.LINK, this::refresh);
+    JSONObject query = cursor == null ? args("group_id", id) : args("group_id", id, "before_position", cursor);
+    request("group_catches", query, result -> {
+      JSONArray items = result.getJSONArray("items");
+      if (items.length() == 0) ui.label(t("age.empty_catches"));
+      for (int i = 0; i < items.length(); i++) {
+        JSONObject item = items.getJSONObject(i);
+        String length = item.isNull("mm") ? "" : " · " + item.getInt("mm") + " mm";
+        ui.tip(item.getString("author") + " · " + item.getString("day"), item.getString("species") + length);
+        if (!item.isNull("photo")) ui.catchPhoto(item.getString("photo"), item.getString("species"));
+      }
+      if (!result.isNull("next")) {
+        String next = result.getString("next");
+        button(t("age.older_catches"), AccountLayout.Action.LINK, () -> catches(id, name, next));
+      }
+    });
   }
 
   /** Read a bounded page online. Refresh and Back always work from an empty or failed page. */

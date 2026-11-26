@@ -11,7 +11,7 @@ The repository contains a mobile client and a PostgreSQL migration for Supabase 
 {"url":"https://YOUR-PROJECT.supabase.co","publishableKey":"sb_publishable_…","deploymentNotices":{"en":"Operator-approved deployment details in English","cs":"Operator-approved deployment details in Czech"}}
 ```
 
-After the provider verifies the person, the client checks the profile through authenticated RPCs. A new profile needs a display name, an explicit terms acceptance and a separate privacy acknowledgement. The service stamps both revisions and the time. A document update requires a new immutable revision in the migration and client, replacing the text in the four bundled documents. Serve the same change to all languages. Preserve old text in Git and acceptance history in the database.
+After the provider verifies the person, the client checks the profile through authenticated RPCs. A new profile needs a private date of birth, a display name, an explicit terms acceptance and a separate privacy acknowledgement. The service stamps both revisions and the time. A document update requires a new immutable revision in the migration and client, replacing the text in the four bundled documents. Serve the same change to all languages. Preserve old text in Git and acceptance history in the database.
 
 The phone keeps a verified profile identifier and timestamp for up to seven days of offline access. On secured devices Android Keystore gates the encrypted refresh token with system authentication. Passwords and access tokens are never written to application storage. An unlocked session locks on screen-off, process death or a minute in the background. Android 10 and later offer system biometrics or device credentials. Older devices use the system screen lock. Without a secure screen lock the next cold start requires online sign-in. Signing out locks this device and cancels local reminders. After the grace period the user must authenticate again. Earlier data on a shared phone are linked only by the initial user's explicit choice. Erasure of a hosted account does not remotely wipe an offline device.
 
@@ -153,3 +153,18 @@ Moderators with database access review unresolved rows in `angler_private.conten
 inspect the indicated published revision, withdraw the card or unpublish the profile when
 appropriate, and set `resolved_at`. Parking corrections retain their previous coordinates.
 Use `angler_activity.restore_parking(point, expected_revision, historical_revision)` to revert a pin.
+
+## Guardian verification in the Czech pilot
+
+An adult requests a link through info@horistum.com. Verify control of each account and the adult's authority to act for this specific child through an independent channel. Group ownership, a display name and a declared birth date on their own do not establish parental authority. Do not ask children to post identity documents, addresses or dates of birth to a group. Use the operator connection with the two verified account UUIDs. An existing link requires separate review before changing it.
+
+```sql
+insert into angler_private.guardians(child,guardian)
+select c.user_id,a.user_id from angler_private.profiles c cross join angler_private.profiles a
+join auth.users parent_account on parent_account.id=a.user_id and parent_account.email_confirmed_at is not null
+where c.user_id=$1 and a.user_id=$2 and angler_private.age_years(c.born_on)<15
+  and angler_private.age_years(a.born_on)>=18
+returning verified_at;
+```
+
+Once the child joins a group, the guardian opens **Fishing groups → Parental permissions** in their own account. Catches (with or without a photo) and trip tips have independent controls for each group. Withdrawal removes posts shared under that permission. Leaving a group cancels both permissions. To end the verified relationship, delete the matching child and guardian pair in `angler_private.guardians`. This also withdraws the permissions attached to that relationship. A verified date correction belongs with the operator. The account holder cannot edit their date or raise their permissions in the profile.

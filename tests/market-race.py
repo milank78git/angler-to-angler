@@ -58,7 +58,7 @@ def overlap(first, second, expected):
 # Use fresh buyers. 71 is the fixture's confirmed seller.
 for n in (75, 76):
     success(sql(f"insert into auth.users values ('00000000-0000-4000-8000-{n:012}',now());" +
-                as_user(n) + f"select public.angler_accept('Race {n}','2026-11-26','2026-11-26');"
+                as_user(n) + f"select public.angler_register('Race {n}','2026-11-26.2','2026-11-26.2','1980-01-01');"
                 "select public.angler_market_activate(); commit;"))
 
 last, left, right = (offer(title) for title in ("Last slot", "Wallet A", "Wallet B"))
