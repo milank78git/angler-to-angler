@@ -124,7 +124,7 @@ restoration, refunds and settlement evidence have been reviewed.
 
 Android and future clients use the same versioned, authenticated document
 format. The Android APK and the Play bundle retain offline IndexedDB storage.
-New registrations disclose account storage and turn on private synchronization for a fresh journal. Existing device journals require a separate opt-in before historical GPS coordinates and photos leave the phone. A clean second device restores after sign-in once the account has synced. A device with existing private records asks before combining journals.
+New registrations disclose age-based storage. Accounts aged 15 and over start with private synchronization for a fresh journal. Under 15, the journal stays on the device. A verified guardian may separately permit catch and trip-tip sharing per private group. Existing device journals require a separate opt-in before historical GPS coordinates and photos leave the phone. A clean second device restores after sign-in once the account has synced. A device with existing private records asks before combining journals.
 A revision covers one trip and its catches, a personal water photo or a
 preference. Disjoint edits merge. Conflicting edits to one document require
 an explicit local/cloud choice. Account deletion cascades through private

@@ -111,9 +111,7 @@ export async function anglerDetails({ view, nav }) {
       field(
         'angler-age',
         t('license.age'),
-        '<input id="angler-age" type="number" inputmode="numeric" min="0" max="125" step="1" value="' +
-          esc(data.age ?? '') +
-          '">',
+        '<input id="angler-age" type="number" readonly value="' + esc(data.age ?? '') + '">',
       ) +
       field(
         'permit-expiry',

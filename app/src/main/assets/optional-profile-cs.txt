@@ -1,4 +1,4 @@
-Účet a volitelné online funkce · pilot 2026-11-26
+Účet a volitelné online funkce · pilot 2026-11-26.2
 
 Při registraci e-mailem si volíš heslo a jazyk zpráv vychází z jazyka aplikace. Ověření e-mailu a obnova hesla používají jednorázový odkaz. Pro další odemknutí může zabezpečený telefon uchovat zašifrované oprávnění k účtu. PIN a biometrické údaje ověřuje Android. Odhlášením se toto oprávnění v telefonu smaže.
 
@@ -26,4 +26,4 @@ Ověření rybáři vidí parkoviště, jejich polohu, poznámky a souhrnná hod
 
 Platby v Google Play zpracovává Google. Provozovatel zpracovává identifikátory nákupů, pohyby kreditů, vratky a záznamy o výplatách pro provoz tržiště a vedení účetnictví. Veřejné nabídky obsahují informace, které autor výslovně zveřejnil.
 
-V soukromém účtu můžeš uložit svůj věk, konec platnosti rybářského lístku a volbu připomínky. Ostatní rybáři tyto údaje neuvidí. V profilu je můžeš smazat. Android si datum a připomínku uloží také v tomto zařízení pro upozornění bez připojení. Odhlášením se místní připomínka odstraní.
+V profilu vidíš věk vypočítaný ze soukromého data narození. O opravu požádej provozovatele. Platnost rybářského lístku a připomínku můžeš uložit nebo smazat. Odhlášením se místní připomínka odstraní.

@@ -57,6 +57,7 @@ export async function weeklyGroups({ view, nav }) {
   let groups;
   try {
     ({ groups } = await rpc('groups'));
+    groups = groups.filter((group) => group.canShareCatch !== false);
   } catch (err) {
     return readError(view, nav, err);
   }
@@ -305,7 +306,7 @@ export async function weeklyBoard({ view, nav, pack }) {
         ? button('week-newer', t('weekly_catch.newer_round'), 'secondary')
         : '') +
       '</div>' +
-      (!r.catchId
+      (!r.catchId && !window.Device?.groupSharingOnly?.()
         ? '<details id="monthly" class="fold"><summary>' +
           t('monthly.title') +
           '</summary><div class="fold-body"></div></details>'

@@ -55,7 +55,7 @@ final class AccountChecks {
   }
 
   private JSONObject profile() throws Exception {
-    return new JSONObject().put("id", ID).put("name", "River").put("current", true);
+    return new JSONObject().put("id", ID).put("name", "River").put("ageBand", "adult").put("current", true);
   }
 
   AccountChecks(Runner app, boolean cs) {
@@ -210,7 +210,7 @@ final class AccountChecks {
                               break;
                             case "/rest/v1/rpc/angler_my_details":
                               if (privateDetails == null) privateDetails = new JSONObject()
-                                  .put("age",JSONObject.NULL).put("expiry",JSONObject.NULL).put("reminder","off").put("revision",0);
+                                  .put("age",48).put("expiry",JSONObject.NULL).put("reminder","off").put("revision",0);
                               JSONObject changes = body.optJSONObject("changes");
                               if (changes != null) {
                                 if (changes.getInt("revision") != privateDetails.getInt("revision")) return 409;
@@ -418,18 +418,19 @@ final class AccountChecks {
                               if (!body.getString("group_id").equals(ownGroup)) return 403;
                               response = new JSONObject().put("code", INVITE).toString();
                               break;
+                            case "/rest/v1/rpc/angler_registration_profile":
                             case "/rest/v1/rpc/angler_profile":
                               response = accepted ? profile().toString() : "null";
                               break;
-                            case "/rest/v1/rpc/angler_accept":
-                              if (!body.getString("nickname").equals("River")
-                                  || !body.getString("terms").equals("2026-11-26")
-                                  || !body.getString("privacy").equals("2026-11-26")) return 400;
+                            case "/rest/v1/rpc/angler_register":
+                              if (!body.getString("birth_date").equals("1978-01-01") || !body.getString("nickname").equals("River")
+                                  || !body.getString("terms").equals("2026-11-26.2")
+                                  || !body.getString("privacy").equals("2026-11-26.2")) return 400;
                               response =
                                   new JSONObject()
                                       .put("id", ID)
                                       .put("name", "River")
-                                      .put("current", true)
+                                      .put("ageBand", "adult").put("current", true)
                                       .toString();
                               accepted = true;
                               break;
@@ -526,6 +527,7 @@ final class AccountChecks {
     wrongEmail = false;
     checkMailboxReturn();
     type(tr("account.display_name_2_60_characters"), "River");
+    type(tr("age.birth_date"), "1978-01-01");
     String save = tr("common.save_profile");
     assertDisabled(save);
     click(tr("account.i_accept_the_terms_of_use"));
@@ -839,7 +841,7 @@ final class AccountChecks {
     app.clickReady("#private-details");
     app.waitFor("!!document.querySelector('#angler-age')");
     String expiry = java.time.LocalDate.now().plusDays(5).toString();
-    app.setControl("#angler-age", "48", "input");
+    app.waitFor("document.querySelector('#angler-age').readOnly && document.querySelector('#angler-age').value==='48'");
     app.setControl("#permit-expiry", expiry, "input");
     app.setControl("#permit-lead", "week", "change");
     app.clickReady("#details-form button[type=submit]");

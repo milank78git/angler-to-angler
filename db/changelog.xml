@@ -128,4 +128,7 @@
   <changeSet id="20261126060300" author="angler" dbms="postgresql">
     <sqlFile path="../supabase/migrations/20261126060300_journal_object_storage.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
   </changeSet>
+  <changeSet id="20261126080000" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261126080000_age_and_guardians.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
 </databaseChangeLog>

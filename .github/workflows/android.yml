@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Promote this published pilot tag to a stable release (e.g. v0.4.4-build.10042)'
-        required: true
+        description: 'Leave empty to build and publish a new pilot. Enter a published pilot tag to promote it to stable.'
+        required: false
         type: string
   push:
     branches: [main]
@@ -16,7 +16,7 @@ env:
   ANGLER_ATLAS_PUBLIC_KEY: ${{ vars.ANGLER_ATLAS_PUBLIC_KEY }}
 jobs:
   profiles:
-    if: github.event_name != 'workflow_dispatch'
+    if: github.event_name != 'workflow_dispatch' || (github.ref == 'refs/heads/main' && inputs.tag == '')
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -43,7 +43,7 @@ jobs:
           diff -u "$fixture/expected" "$fixture/installed"
           sudo -u postgres env PGDATABASE=angler_fixture python3 "$fixture/tests/market-race.py"
   android-package:
-    if: github.event_name != 'workflow_dispatch'
+    if: github.event_name != 'workflow_dispatch' || (github.ref == 'refs/heads/main' && inputs.tag == '')
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -64,7 +64,7 @@ jobs:
       - run: python3 tests/account-links.py
       - run: python3 scripts/build-account-links.py build/account-links
       - name: Check live Android association before issuing HTTPS links
-        if: github.event_name == 'push' && vars.ANGLER_APP_LINK_HOST != ''
+        if: github.event_name != 'pull_request' && vars.ANGLER_APP_LINK_HOST != ''
         env:
           LINK_HOST: ${{ vars.ANGLER_APP_LINK_HOST }}
         run: python3 scripts/check-account-links.py "$LINK_HOST" build/account-links
@@ -102,10 +102,20 @@ jobs:
           path: build/standalone/angler-journal-debug.apk
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        id: preview
         with:
+          if-no-files-found: error
           overwrite: true
           name: angler-ui-preview
           path: build/preview/angler-journal-debug.apk
+
+      - name: Link the installable test APK
+        env:
+          PREVIEW_URL: ${{ steps.preview.outputs.artifact-url }}
+        run: |
+          echo "### Android preview" >> "$GITHUB_STEP_SUMMARY"
+          echo "[Download the preview APK (ZIP)]($PREVIEW_URL). Sign in to GitHub and extract the APK. It installs alongside the pilot." >> "$GITHUB_STEP_SUMMARY"
+          echo "[Signed pilot updates]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases) are published by the release job on main." >> "$GITHUB_STEP_SUMMARY"
 
       - name: Enable KVM
         run: |
@@ -131,13 +141,13 @@ jobs:
           if-no-files-found: warn
 
   field-integration:
-    if: github.event_name != 'workflow_dispatch'
+    if: github.event_name != 'workflow_dispatch' || (github.ref == 'refs/heads/main' && inputs.tag == '')
     uses: ./.github/workflows/field-integration.yml
 
   # Keep the existing required check effective even before the portable ruleset is reapplied.
   build:
     needs: [android-package, field-integration]
-    if: always() && github.event_name != 'workflow_dispatch'
+    if: always() && (github.event_name != 'workflow_dispatch' || (github.ref == 'refs/heads/main' && inputs.tag == ''))
     runs-on: ubuntu-24.04
     steps:
       - name: Require the Android package and registration/restore rehearsal
@@ -147,7 +157,7 @@ jobs:
         run: test "$PACKAGE_RESULT" = success && test "$INTEGRATION_RESULT" = success
 
   account-pages:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.tag == ''))
     permissions:
       actions: read
       contents: read
@@ -156,7 +166,7 @@ jobs:
     uses: ./.github/workflows/account-pages.yml
 
   release:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.tag == ''))
     needs: [build, profiles, field-integration, account-pages]
     runs-on: ubuntu-24.04
     permissions:
@@ -165,6 +175,17 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - name: Check release signing configuration
+        env:
+          ANDROID_PILOT_KEY_ALIAS: ${{ vars.ANDROID_PILOT_KEY_ALIAS }}
+          ANDROID_ROTATED_ALIAS: ${{ vars.ANDROID_ROTATED_ALIAS }}
+          HAS_ORIGINAL_KEY: ${{ secrets.ANDROID_PILOT_KEYSTORE != '' }}
+          HAS_STORE_PASSWORD: ${{ secrets.ANDROID_PILOT_STORE_PASSWORD != '' }}
+          HAS_KEY_PASSWORD: ${{ secrets.ANDROID_PILOT_KEY_PASSWORD != '' }}
+          HAS_ROTATED_KEY: ${{ secrets.ANDROID_ROTATED_KEYSTORE != '' }}
+          HAS_ROTATED_PASSWORD: ${{ secrets.ANDROID_ROTATED_PASSWORD != '' }}
+          HAS_LINEAGE: ${{ secrets.ANDROID_PILOT_LINEAGE != '' }}
+        run: bash scripts/check-pilot-signing.sh
       - name: Verify deployed handoff before publishing a Pages-enabled APK
         if: vars.ANGLER_ACCOUNT_PAGES == 'true'
         run: python3 scripts/check-account-pages.py
@@ -194,10 +215,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.package.outputs.tag }}
-        run: bash scripts/pilot-release.sh publish "$TAG"
+        run: |
+          bash scripts/pilot-release.sh publish "$TAG"
+          echo "[Download the signed APK]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/tag/$TAG)" >> "$GITHUB_STEP_SUMMARY"
 
   promote:
-    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.tag != ''
     runs-on: ubuntu-24.04
     permissions:
       contents: write

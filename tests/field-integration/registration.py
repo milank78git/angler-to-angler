@@ -155,6 +155,8 @@ def register():
 
 def complete_profile(check_duplicate=False):
     enter('account.display_name_2_60_characters', 'FieldAngler')
+    from datetime import date
+    enter('age.birth_date', f'{date.today().year - 48}-01-01')
     tap('account.i_accept_the_terms_of_use')
     tap('account.i_acknowledge_the_privacy_notice')
     tap('common.save_profile')

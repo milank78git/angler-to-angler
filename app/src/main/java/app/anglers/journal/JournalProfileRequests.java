@@ -75,6 +75,7 @@ final class JournalProfileRequests implements AutoCloseable {
       case "message_report":
       case "message_react":
       case "groups":
+      case "group_catch_post":
       case "group_tip_post":
       case "save_card":
       case "evidence_submit":

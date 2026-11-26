@@ -199,8 +199,11 @@ export async function tripScreen({ view, nav, pack, waterDirectory }) {
     ${trip.notes ? `<p class="trip-note">${esc(trip.notes)}</p>` : ''}
     <div class="actions">${button('add', t('trips.add_catch'), 'primary', 'plus')}
       ${water ? button('trip-rules', t('dated_rules.trip'), 'secondary', 'calendar-days') : ''}
-      ${button('offer-technique', t('common.offer_a_technique'), 'secondary')}${button('share-tip', t('common.share_a_trip_tip'), 'secondary')}${
-        water ? button('trip-activity', t('common.trip_contribution'), 'secondary') : ''
+      ${window.Device?.groupSharingOnly?.() ? '' : button('offer-technique', t('common.offer_a_technique'), 'secondary')}
+      ${button('share-tip', t('common.share_a_trip_tip'), 'secondary')}${
+        water && !window.Device?.groupSharingOnly?.()
+          ? button('trip-activity', t('common.trip_contribution'), 'secondary')
+          : ''
       }</div>
     <h2>${t('trips.catches')} · ${catches.length}</h2><div id="catch-list"></div>
     <div class="actions">${button('delete', t('trips.delete_trip'), 'danger')}</div>`,
@@ -209,9 +212,9 @@ export async function tripScreen({ view, nav, pack, waterDirectory }) {
   bind('add', () => nav.open('newCatch', { id }));
   if (water) {
     bind('trip-rules', () => nav.open('waterRules', { id: water.id, day: trip.day }));
-    bind('trip-activity', () => nav.open('activityContribution', { id }));
+    if (by('trip-activity')) bind('trip-activity', () => nav.open('activityContribution', { id }));
   }
-  bind('offer-technique', () => nav.open('marketEditor', { day: trip.day }));
+  if (by('offer-technique')) bind('offer-technique', () => nav.open('marketEditor', { day: trip.day }));
   bind('share-tip', () => nav.open('shareCard', { tripId: id }));
   bind('delete', async () => {
     const confirmed = await confirmAction({
@@ -270,8 +273,8 @@ export async function tripScreen({ view, nav, pack, waterDirectory }) {
     publicCard.dataset.publicCatch = c.id;
     publicCard.textContent = t('common.public_catch_card');
     publicCard.onclick = () => nav.open('publicCardEditor', { tripId: id, catchId: c.id });
-    article.append(publicCard);
-    addVerificationAction(article, c, trip, view, nav);
+    if (!window.Device?.groupSharingOnly?.()) article.append(publicCard);
+    if (!window.Device?.groupSharingOnly?.()) addVerificationAction(article, c, trip, view, nav);
     if (c.hasPhoto) {
       const nominate = document.createElement('button');
       nominate.type = 'button';
