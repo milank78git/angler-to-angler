@@ -5,7 +5,7 @@ Active signatures in Liquibase deployment order. Each link opens the effective d
 | Function signature | Definition | Rename |
 | --- | --- | --- |
 | `angler_activity.archive_parking()` | [20261126060000](../supabase/migrations/20261126060000_community_protection.sql#L112) |  |
-| `angler_activity.change(uuid, integer, text, date, angler_activity.target, angler_activity.method, integer)` | [20261123171108](../supabase/migrations/20261123171108_water_activity.sql#L43) |  |
+| `angler_activity.change(uuid, integer, text, date, text, angler_activity.method, integer)` | [20261126140000](../supabase/migrations/20261126140000_catalogue_activity_targets.sql#L22) |  |
 | `angler_activity.clear_species()` | [20261124122648](../supabase/migrations/20261124122648_volunteered_species_counts.sql#L3) |  |
 | `angler_activity.mine(bigint)` | [20261123171108](../supabase/migrations/20261123171108_water_activity.sql#L69) |  |
 | `angler_activity.parking_feedback(uuid, boolean, integer, text, bigint)` | [20261125045854](../supabase/migrations/20261125045854_community_parking.sql#L83) |  |
@@ -19,7 +19,8 @@ Active signatures in Liquibase deployment order. Each link opens the effective d
 | `angler_activity.reviewed_contributor(uuid)` | [20261126021000](../supabase/migrations/20261126021000_audit_publication_controls.sql#L52) |  |
 | `angler_activity.species_share(uuid, integer, bigint, jsonb)` | [20261124122648](../supabase/migrations/20261124122648_volunteered_species_counts.sql#L13) |  |
 | `angler_activity.state(uuid)` | [20261123171108](../supabase/migrations/20261123171108_water_activity.sql#L33) |  |
-| `angler_activity.summary(text, date, angler_activity.target, angler_activity.method)` | [20261126021000](../supabase/migrations/20261126021000_audit_publication_controls.sql#L62) |  |
+| `angler_activity.summary(text, date, text, angler_activity.method)` | [20261126140000](../supabase/migrations/20261126140000_catalogue_activity_targets.sql#L49) |  |
+| `angler_activity.target_key(text)` | [20261126140000](../supabase/migrations/20261126140000_catalogue_activity_targets.sql#L7) |  |
 | `angler_activity.top_species()` | [20261126021000](../supabase/migrations/20261126021000_audit_publication_controls.sql#L100) |  |
 | `angler_activity.top_waters()` | [20261126021000](../supabase/migrations/20261126021000_audit_publication_controls.sql#L90) |  |
 | `angler_atlas.install(jsonb, text)` | [20261124060000](../supabase/migrations/20261124060000_water_directory.sql#L17) |  |
@@ -124,10 +125,10 @@ Active signatures in Liquibase deployment order. Each link opens the effective d
 | `angler_weekly.webp(bytea)` | [20261123163226](../supabase/migrations/20261123163226_group_catch_week.sql#L50) |  |
 | `angler_weekly.withdraw(uuid, uuid)` | [20261126080000](../supabase/migrations/20261126080000_age_and_guardians.sql#L398) |  |
 | `public.angler_accept(text, text, text)` | [20261126060200](../supabase/migrations/20261126060200_account_revision.sql#L10) |  |
-| `public.angler_activity_change(uuid, integer, text, date, text, text, integer)` | [20261123171108](../supabase/migrations/20261123171108_water_activity.sql#L113) |  |
+| `public.angler_activity_change(uuid, integer, text, date, text, text, integer)` | [20261126140000](../supabase/migrations/20261126140000_catalogue_activity_targets.sql#L78) |  |
 | `public.angler_activity_mine(bigint)` | [20261123171108](../supabase/migrations/20261123171108_water_activity.sql#L119) |  |
 | `public.angler_activity_state(uuid)` | [20261123171108](../supabase/migrations/20261123171108_water_activity.sql#L111) |  |
-| `public.angler_activity_summary(text, date, text, text)` | [20261123171108](../supabase/migrations/20261123171108_water_activity.sql#L121) |  |
+| `public.angler_activity_summary(text, date, text, text)` | [20261126140000](../supabase/migrations/20261126140000_catalogue_activity_targets.sql#L84) |  |
 | `public.angler_card(uuid)` | [20261123112814](../supabase/migrations/20261123112814_angler_profile_cards.sql#L204) |  |
 | `public.angler_commerce(text, jsonb)` | [20261125075304](../supabase/migrations/20261125075304_play_market_settlement.sql#L195) |  |
 | `public.angler_directory(uuid)` | [20261123112814](../supabase/migrations/20261123112814_angler_profile_cards.sql#L206) |  |

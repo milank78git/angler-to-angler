@@ -7,9 +7,9 @@ import xml.etree.ElementTree as ET
 root = Path(__file__).resolve().parents[1]
 changelog = root / 'db/changelog.xml'
 definition = re.compile(
-    r'^\s*(create (?:or replace )?function|alter function)\s+([\w.]+)\s*\(([^()]*)\)\s*'
-    r'(returns\b|rename to (\w+))', re.I | re.M)
-declaration = re.compile(r'^\s*(?:create (?:or replace )?function|alter function)\s+', re.I | re.M)
+    r'^\s*(create (?:or replace )?function|alter function|drop function)\s+([\w.]+)\s*\(([^()]*)\)\s*'
+    r'(returns\b|rename to (\w+)|;)', re.I | re.M)
+declaration = re.compile(r'^\s*(?:create (?:or replace )?function|alter function|drop function)\s+', re.I | re.M)
 
 
 def signatures():
@@ -31,7 +31,9 @@ def signatures():
             key = name.lower(), ', '.join(types)
             line = sql.count('\n', 0, match.start(1)) + 1
             source = f'../{path.relative_to(root)}#L{line}'
-            if rename:
+            if kind.lower().startswith('drop'):
+                del current[key]
+            elif rename:
                 definition_source, _ = current.pop(key)
                 renamed = name.rsplit('.', 1)[0] + '.' + rename.lower()
                 current[renamed, key[1]] = definition_source, source

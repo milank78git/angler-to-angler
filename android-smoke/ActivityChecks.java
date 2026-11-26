@@ -21,6 +21,8 @@ final class ActivityChecks {
       case "activity_summary":
         if (!"CZ:401009".equals(args.getString("water_key")))
           throw new AssertionError("Wrong report water");
+        if (!args.isNull("target_species") && !"Cyprinus carpio".equals(args.getString("target_species")))
+          throw new AssertionError("Wrong report target");
         JSONObject sample =
             new JSONObject()
                 .put("trips", 12)
@@ -44,7 +46,7 @@ final class ActivityChecks {
               || args.getInt("fish_count") != 0
               || !"CZ:401009".equals(args.getString("water_key"))
               || !args.getString("month_start").matches("[0-9]{4}-[0-9]{2}-01")
-              || !"pike".equals(args.getString("target_species"))
+              || !"Cyprinus carpio".equals(args.getString("target_species"))
               || !"fly".equals(args.getString("fishing_method")))
             throw new AssertionError("Unexpected activity projection");
           entry =
@@ -53,7 +55,7 @@ final class ActivityChecks {
                   .put("water", args.getString("water_key"))
                   .put("month", args.getString("month_start"))
                   .put("fish", 0)
-                  .put("target", "pike")
+                  .put("target", "Cyprinus carpio")
                   .put("method", "fly");
         } else {
           if (args.length() != 2 || !entry.getString("trip").equals(args.getString("trip_id")))
@@ -72,7 +74,7 @@ final class ActivityChecks {
     app.waitFor("document.querySelector('#activity-result')?.textContent.includes('7 / 12')");
     app.capture("water-activity");
     app.js(
-        "document.querySelector('#activity-target').value='pike';document.querySelector('#activity-filters').requestSubmit()");
+        "document.querySelector('#activity-target').value='Cyprinus carpio';document.querySelector('#activity-filters').requestSubmit()");
     app.waitFor(
         "document.querySelector('#activity-result') && !document.querySelector('#activity-result"
             + " strong')");
@@ -84,7 +86,7 @@ final class ActivityChecks {
     app.clickReady("#trip-activity");
     app.waitFor("!!document.querySelector('#activity-submit')");
     app.js(
-        "document.querySelector('#activity-target').value='pike';document.querySelector('#activity-method').value='fly'");
+        "document.querySelector('#activity-target').value='Cyprinus carpio';document.querySelector('#activity-method').value='fly'");
     app.clickReady("#activity-submit");
     app.waitFor(
         "document.querySelector('#confirmation').open &&"
@@ -94,6 +96,7 @@ final class ActivityChecks {
     app.clickReady("#activity-submit");
     app.clickReady("#confirmation-accept");
     app.waitFor("!!document.querySelector('#withdraw-activity')");
+    app.waitFor("'Cyprinus carpio' === document.querySelector('#activity-target')?.value");
     app.clickReady("#profile");
     app.clickReady("#my-activity");
     app.clickReady("#withdraw-0");

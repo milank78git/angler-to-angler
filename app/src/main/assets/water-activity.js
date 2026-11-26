@@ -1,4 +1,6 @@
 import { insertMarkup, replaceMarkup } from './markup.js';
+import { activityTargetLabel, bindTargetPicker, targetFields } from './activity-target.js';
+import { fishDirectory } from './fish-catalogue.js';
 import { bindSharedSpecies } from './shared-species.js';
 import { tripWater } from './water-directory.js';
 import { languageTag } from './i18n.js';
@@ -14,7 +16,6 @@ import {
   by,
   confirmAction,
   esc,
-  loc,
   screen,
   selectField,
   submitChange,
@@ -35,22 +36,15 @@ const monthLabel = (month) =>
     new Date(month + 'T12:00:00Z'),
   );
 
-function choices(pack) {
-  return {
-    targets: [
-      ['unspecified', unspecified()],
-      ...Object.entries(pack.species).map(([id, s]) => [id, loc(s)]),
-      ['other', t('water_activity.other_species')],
-    ],
-    methods: [
-      ['unspecified', unspecified()],
-      ['float', t('water_activity.float_fishing')],
-      ['bottom', t('water_activity.bottom_fishing_or_feeder')],
-      ['lure', t('water_activity.lure_fishing')],
-      ['fly', t('water_activity.fly_fishing')],
-      ['other', t('water_activity.other_method')],
-    ],
-  };
+function methodChoices() {
+  return [
+    ['unspecified', unspecified()],
+    ['float', t('water_activity.float_fishing')],
+    ['bottom', t('water_activity.bottom_fishing_or_feeder')],
+    ['lure', t('water_activity.lure_fishing')],
+    ['fly', t('water_activity.fly_fishing')],
+    ['other', t('water_activity.other_method')],
+  ];
 }
 
 function problem(err) {
@@ -77,14 +71,14 @@ function failed(view, nav, err) {
   bind('activity-retry', () => nav.show());
 }
 
-function entryText(entry, directory, options) {
+function entryText(entry, directory, pack, fish, methods) {
   const water = directory.byKey.get(entry.water);
   const label = (pairs, key) => pairs.find(([id]) => id === key)?.[1] || key;
   return [
     water?.name || entry.water,
     monthLabel(entry.month),
-    targetLabel() + ' · ' + label(options.targets, entry.target),
-    methodLabel() + ' · ' + label(options.methods, entry.method),
+    targetLabel() + ' · ' + activityTargetLabel(entry.target, pack, fish),
+    methodLabel() + ' · ' + label(methods, entry.method),
     fishLabel() + ' · ' + entry.fish,
   ].join(' / ');
 }
@@ -113,12 +107,13 @@ async function withdraw(view, nav, item) {
 /** @param {import('../../../../types/screens.js').ScreenContext} context */
 export async function activityContribution({ view, nav, pack, waterDirectory }) {
   const id = view.route.id;
-  let trip, catches, state;
+  let trip, catches, state, fish;
   try {
-    [trip, catches, state] = await Promise.all([
+    [trip, catches, state, fish] = await Promise.all([
       Journal.trip(id),
       Journal.catches(id),
       rpc('activity_state', { trip_id: id }),
+      fishDirectory(),
     ]);
   } catch (err) {
     failed(view, nav, err);
@@ -126,7 +121,7 @@ export async function activityContribution({ view, nav, pack, waterDirectory }) 
   }
   if (!view.active()) return;
   const water = tripWater(waterDirectory, trip);
-  const options = choices(pack);
+  const methods = methodChoices();
   const allowed = water && trip.day >= '1900-01-01' && trip.day <= today(water.zone);
   replaceMarkup(
     screen,
@@ -138,7 +133,7 @@ export async function activityContribution({ view, nav, pack, waterDirectory }) 
         ? '<section class="surface"><h2>' +
           t('water_activity.shared_details') +
           '</h2><p>' +
-          esc(entryText(state.entry, waterDirectory, options)) +
+          esc(entryText(state.entry, waterDirectory, pack, fish, methods)) +
           '</p>' +
           button('withdraw-activity', t('water_activity.withdraw_from_statistics'), 'danger') +
           '</section>'
@@ -153,18 +148,8 @@ export async function activityContribution({ view, nav, pack, waterDirectory }) 
           ' · ' +
           catches.length +
           '</p>' +
-          selectField(
-            'activity-target',
-            targetLabel(),
-            options.targets,
-            state.entry?.target || 'unspecified',
-          ) +
-          selectField(
-            'activity-method',
-            methodLabel(),
-            options.methods,
-            state.entry?.method || 'unspecified',
-          ) +
+          targetFields(water.country) +
+          selectField('activity-method', methodLabel(), methods, state.entry?.method || 'unspecified') +
           '<p>' +
           t('water_activity.contribute_for_the_entire_water_and_month') +
           '</p>' +
@@ -189,6 +174,7 @@ export async function activityContribution({ view, nav, pack, waterDirectory }) 
   }
   if (state.entry) bind('withdraw-activity', () => withdraw(view, nav, state));
   if (!allowed) return;
+  bindTargetPicker(fish, pack, state.entry?.target || 'unspecified');
   bind('activity-submit', async () => {
     const entry = {
       month: trip.day.slice(0, 7) + '-01',
@@ -200,7 +186,7 @@ export async function activityContribution({ view, nav, pack, waterDirectory }) 
     if (
       !(await confirmAction({
         title: t('water_activity.include_this_completed_trip'),
-        message: entryText(entry, waterDirectory, options),
+        message: entryText(entry, waterDirectory, pack, fish, methods),
         accept: t('water_activity.confirm_details'),
       })) ||
       !view.active()
@@ -230,15 +216,18 @@ export async function activityContribution({ view, nav, pack, waterDirectory }) 
 /** Keep withdrawals reachable after a local trip is deleted or on a new phone. */
 /** @param {import('../../../../types/screens.js').ScreenContext} context */
 export async function myActivity({ view, nav, pack, waterDirectory }) {
-  let page;
+  let page, fish;
   try {
-    page = await rpc('activity_mine', { before_position: view.route.cursor || null });
+    [page, fish] = await Promise.all([
+      rpc('activity_mine', { before_position: view.route.cursor || null }),
+      fishDirectory().catch(() => null),
+    ]);
   } catch (err) {
     failed(view, nav, err);
     return;
   }
   if (!view.active()) return;
-  const options = choices(pack);
+  const methods = methodChoices();
   replaceMarkup(
     screen,
     back(t('common.back')) +
@@ -250,7 +239,7 @@ export async function myActivity({ view, nav, pack, waterDirectory }) {
             .map(
               (item, i) =>
                 '<article class="surface"><p>' +
-                esc(entryText(item.entry, waterDirectory, options)) +
+                esc(entryText(item.entry, waterDirectory, pack, fish, methods)) +
                 '</p>' +
                 button('withdraw-' + i, t('water_activity.withdraw_from_statistics'), 'secondary') +
                 '</article>',
@@ -270,15 +259,18 @@ export async function waterActivity({ view, nav, pack, rivers, waterDirectory })
   const route = view.route;
   const water = waterDirectory.byId.get(route.id);
   if (!water) return nav.back();
-  const options = choices(pack);
-  let report;
+  const methods = methodChoices();
+  let report, fish;
   try {
-    report = await rpc('activity_summary', {
-      water_key: water.key,
-      month_start: route.month || null,
-      target_species: route.target || null,
-      fishing_method: route.method || null,
-    });
+    [report, fish] = await Promise.all([
+      rpc('activity_summary', {
+        water_key: water.key,
+        month_start: route.month || null,
+        target_species: route.target || null,
+        fishing_method: route.method || null,
+      }),
+      fishDirectory(),
+    ]);
   } catch (err) {
     failed(view, nav, err);
     return;
@@ -311,8 +303,8 @@ export async function waterActivity({ view, nav, pack, rivers, waterDirectory })
         report.month.slice(0, 7),
         'type="month" required min="1900-01" max="' + esc(report.latest.slice(0, 7)) + '"',
       ) +
-      selectField('activity-target', targetLabel(), withAll(options.targets), route.target || '') +
-      selectField('activity-method', methodLabel(), withAll(options.methods), route.method || '') +
+      targetFields(water.country) +
+      selectField('activity-method', methodLabel(), withAll(methods), route.method || '') +
       '<button class="secondary">' +
       t('water_activity.show_period') +
       '</button></form>' +
@@ -343,6 +335,7 @@ export async function waterActivity({ view, nav, pack, rivers, waterDirectory })
       button('activity-questions', t('common.observations_and_questions'), 'secondary'),
   );
   bindBack(nav);
+  bindTargetPicker(fish, pack, route.target || '', true);
   by('activity-filters').onsubmit = (event) => {
     event.preventDefault();
     Object.assign(route, {

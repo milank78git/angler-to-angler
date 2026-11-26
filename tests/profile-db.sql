@@ -55,4 +55,5 @@ do $$begin if exists(select from angler_private.acceptances) or exists(select fr
 \ir nickname-db.sql
 \ir audit-closure-db.sql
 \ir age-db.sql
+\ir catalogue-activity-db.sql
 rollback;
