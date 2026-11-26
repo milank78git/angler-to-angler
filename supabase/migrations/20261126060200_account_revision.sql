@@ -18,6 +18,11 @@ begin
     raise exception 'Document revision mismatch' using errcode='22023';
   end if;
   if not exists(select from angler_private.profiles where user_id=subject) then
+    -- Reacceptance keeps historic display spellings. Fresh registrations cannot contain
+    -- invisible format controls, even when the resulting visible name is still available.
+    if nickname collate "C" ~ U&'[\00AD\200B-\200F\202A-\202E\2060-\2064\2066-\2069\FEFF]' then
+      raise exception 'Invisible display-name characters' using errcode='AN001';
+    end if;
     begin
       insert into angler_private.profiles(user_id,display_name) values(subject,btrim(nickname))
         on conflict(user_id) do nothing;

@@ -24,6 +24,11 @@ end $$;
 \ir ../supabase/migrations/20261126060300_journal_object_storage.sql
 
 set local role authenticated;
+select pg_temp.as_user(970);
+do $$begin
+ begin perform public.angler_accept(U&'Unique\2060nickname','2026-11-26','2026-11-26');
+ raise exception 'Invisible controls accepted in a new name'; exception when sqlstate 'AN001' then null; end;
+end$$;
 select pg_temp.as_user(71);
 select pg_temp.check_that((public.angler_profile()->>'current')::boolean=false,'Old terms accepted as current');
 do $$begin

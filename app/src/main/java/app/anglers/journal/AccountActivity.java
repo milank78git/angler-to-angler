@@ -651,6 +651,7 @@ public final class AccountActivity extends LocalizedActivity {
       return text("account.too_many_attempts_please_try_again_later");
     if (error instanceof IdentityService.HttpFailure) {
       String code = ((IdentityService.HttpFailure) error).code;
+      if ("AN001".equals(code)) return text("account.invisible_name");
       if ("PT409".equals(code)) return text("account.name_in_use");
       if ("23514".equals(code)) return text("account.visible_name_required");
       if ("invalid_credentials".equals(code))

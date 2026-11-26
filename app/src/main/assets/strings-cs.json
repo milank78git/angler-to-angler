@@ -1118,5 +1118,6 @@
   "sync.checking": "Ověřuji nastavení synchronizace deníku…",
   "sync.check_failed": "Uloženo v telefonu. Nepodařilo se ověřit, zda máš v účtu uložený deník.",
   "moderation.report": "Nahlásit obsah",
-  "moderation.report_parking": "Nahlásit parkoviště nebo poznámky"
+  "moderation.report_parking": "Nahlásit parkoviště nebo poznámky",
+  "account.invisible_name": "Odstraň z přezdívky neviditelné formátovací znaky."
 }

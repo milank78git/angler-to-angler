@@ -1,6 +1,6 @@
 # Repository controls
 
-The active [Protect main ruleset](https://github.com/milank78git/angler-to-angler/settings/rules/27878561) applies to the default branch. Changes require a pull request with resolved review conversations. Its branch must be up to date and the versioned policy requires `build`, `profiles`, `register-and-restore` and `bundle`. Force pushes and deletion are blocked. The minimum approval count is zero while the repository has a single maintainer.
+The active [Protect main ruleset](https://github.com/milank78git/angler-to-angler/settings/rules/27878561) applies to the default branch. Changes require a pull request with resolved review conversations. Its branch must be up to date and the required `build` check succeeds only after the Android package and the registration/restore integration job both pass. The portable ruleset also names `field-integration / register-and-restore` alongside `profiles`. Force pushes and deletion are blocked. The minimum approval count is zero while the repository has a single maintainer.
 
 Inspect the effective policy and its settings with an authenticated account:
 

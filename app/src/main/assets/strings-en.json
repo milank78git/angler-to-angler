@@ -1118,5 +1118,6 @@
   "sync.checking": "Checking journal synchronization settings…",
   "sync.check_failed": "Saved on this device. Could not check whether your account has an online journal.",
   "moderation.report": "Report content",
-  "moderation.report_parking": "Report parking point or notes"
+  "moderation.report_parking": "Report parking point or notes",
+  "account.invisible_name": "Remove invisible formatting characters from your display name."
 }

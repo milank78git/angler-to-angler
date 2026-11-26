@@ -39,10 +39,7 @@
             "context": "profiles"
           },
           {
-            "context": "register-and-restore"
-          },
-          {
-            "context": "bundle"
+            "context": "field-integration / register-and-restore"
           }
         ]
       }
