@@ -468,6 +468,13 @@ public final class Runner extends Instrumentation {
    * UI.
    */
   private void checkEvidenceSubmission(AccountChecks accounts) throws Exception {
+    for (String reason : new String[]{"Hourly write limit reached", "Pending review limit"}) {
+      accounts.nextEvidenceLimit = reason;
+      js("window.evidenceLimit = null; import('./profile-api.js').then(async api => {"
+          + "try { await api.rpc('evidence_submit', {}); } catch (error) { window.evidenceLimit = api.failure(error); } })");
+      String key = reason.startsWith("Hourly") ? "limits.hourly" : "verification.queue_full";
+      waitFor("window.evidenceLimit === " + org.json.JSONObject.quote(label(key)));
+    }
     // Returning from the home market restores the journal's public-card screen. Reselect its tab for the trip list.
     clickReady("#tabtrips");
     waitFor("document.querySelector('#screen').dataset.page==='myPublicCards'");

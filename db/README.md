@@ -70,3 +70,23 @@ returning offline devices from replaying deleted documents.
 Back up the private bucket and PostgreSQL together at a consistent recovery point. A SQL dump alone
 does not contain object bodies. Restore the bucket with the Storage API and verify the digest of
 each referenced object before restarting writers. The field-integration job rehearses this sequence.
+
+Only the app writes objects to the `angler-journal` bucket. Keep manual uploads and folder
+placeholders out of it. Maintenance ignores noncanonical object paths. A storage failure leaves
+the affected object for another sweep. Check the PostgreSQL log for counts of deferred migrations
+and deletions. The account quota follows the logical chunks, independently of physical deletion.
+
+After a PostgreSQL or system collation library upgrade, check for duplicate results of
+`angler_private.nickname_key(display_name)` using the new rules. Resolve any collisions with
+the account holders, then run the following as the index owner outside a transaction.
+
+```sql
+select angler_private.nickname_key(display_name), count(*)
+from angler_private.profiles
+group by 1 having count(*) > 1;
+
+reindex index concurrently angler_private.profiles_unique_nickname;
+```
+
+Check that the rebuilt unique index is valid. If PostgreSQL reports a collation version mismatch,
+rebuild all objects affected by that collation before refreshing the recorded version.

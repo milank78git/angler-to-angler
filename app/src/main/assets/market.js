@@ -59,6 +59,7 @@ const waterName = (directory, key) => directory.byKey.get(key)?.name || '';
 const heading = (title) => back(t('common.back')) + '<h1>' + esc(title) + '</h1>';
 
 function errorText(status) {
+  if (status === 429) return t('limits.hourly');
   if (status === 401 || status === 403) return t('market.sign_in_with_a_verified_account');
   if (status === 404) return t('market.this_offer_is_no_longer_available');
   if (status === 409) return t('market.the_terms_or_remaining_availability_changed_review');

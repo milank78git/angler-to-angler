@@ -1138,5 +1138,14 @@
   "sync.check_failed": "Uloženo v telefonu. Nepodařilo se ověřit, zda máš v účtu uložený deník.",
   "moderation.report": "Nahlásit obsah",
   "moderation.report_parking": "Nahlásit parkoviště nebo poznámky",
-  "account.invisible_name": "Odstraň z přezdívky neviditelné formátovací znaky."
+  "account.invisible_name": "Odstraň z přezdívky neviditelné formátovací znaky.",
+  "group_catch.remove": "Odstranit sdílený úlovek",
+  "group_catch.confirm_remove": "Odstranit tento úlovek i s fotografií z party? Zápis v osobním deníku zůstane v telefonu.",
+  "age.choose_date": "Vybrat datum z kalendáře",
+  "age.confirm_date": "Potvrdit datum narození",
+  "age.review_date": "Datum narození: {date}. Tvůj dnešní věk: {age}. Je to správně?",
+  "age.correction_help": "O opravu data narození požádej na info@horistum.com. Podpora tvůj účet ověří soukromě.",
+  "limits.hourly": "Dosáhl jsi hodinového limitu aktivity. Zkus to znovu po uplynutí hodinového limitu.",
+  "verification.queue_full": "Na kontrolu už čeká 10 tvých fotek. Počkej na kontrolu nebo některou čekající fotku stáhni a pak přidej další.",
+  "group_catch.reported": "Úlovek byl předán ke kontrole."
 }

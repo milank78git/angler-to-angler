@@ -151,17 +151,20 @@ final class IdentityService {
       }
       int status = conn.getResponseCode();
       if (status < 200 || status >= 300) {
-        if (status == 429) throw new EmailRateLimit();
+        if (status == 429 && path.startsWith("/auth/v1/")) throw new EmailRateLimit();
         String code = "";
         // Profile registration returns a PostgREST error code when the nickname is taken.
         boolean accountError = path.startsWith("/auth/v1/") || path.equals("/rest/v1/rpc/angler_register");
+        boolean reviewLimit = status == 429 && path.equals("/rest/v1/rpc/angler_evidence_submit");
         InputStream errorBody = conn.getErrorStream();
-        if (accountError && errorBody != null) {
+        if ((accountError || reviewLimit) && errorBody != null) {
           try {
             JSONObject failure = new JSONObject(read(errorBody));
             code = failure.optString("error_code", failure.optString("code", ""));
-          } catch (JSONException ignored) {
-            /* A failed proxy response can be plain text. */
+            if (reviewLimit && "PT429".equals(code) && "Pending review limit".equals(failure.optString("message")))
+              code = "pending_review_limit";
+          } catch (JSONException | IOException ignored) {
+            /* Preserve the HTTP status even if an intermediary sent an unreadable error body. */
           }
         }
         throw new HttpFailure(status, code);

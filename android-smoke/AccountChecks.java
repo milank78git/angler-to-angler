@@ -37,6 +37,7 @@ final class AccountChecks {
   private volatile boolean socialEnabled;
   private volatile int sentEmails;
   private volatile boolean limitNextResend;
+  volatile String nextEvidenceLimit;
   private volatile boolean wrongEmail, expireGroupSession, retryGroup;
   private volatile int passwordSignIns, refreshes;
   private static final String PASSWORD = "fixture-password";
@@ -245,6 +246,11 @@ final class AccountChecks {
                                       .toString();
                               break;
                             case "/rest/v1/rpc/angler_evidence_submit":
+                              if (nextEvidenceLimit != null) {
+                                response = new JSONObject().put("code","PT429").put("message",nextEvidenceLimit).toString();
+                                nextEvidenceLimit = null;
+                                return 429;
+                              }
                               if (!body.getString("photo").startsWith("/9j/")
                                   || body.getInt("lat100") != 5001
                                   || body.getInt("lon100") != 1412
@@ -447,6 +453,11 @@ final class AccountChecks {
                       }
 
                       @Override
+                      public InputStream getErrorStream() {
+                        return new ByteArrayInputStream(response.getBytes(StandardCharsets.UTF_8));
+                      }
+
+                      @Override
                       public InputStream getInputStream() {
                         return new ByteArrayInputStream(response.getBytes(StandardCharsets.UTF_8));
                       }
@@ -538,6 +549,13 @@ final class AccountChecks {
         app.addMonitor("app.anglers.journal.FishingActivity", null, false);
     try {
       click(save);
+      int years = java.time.Period.between(java.time.LocalDate.of(1978, 1, 1),
+          java.time.LocalDate.now(java.time.ZoneId.of("Europe/Prague"))).getYears();
+      find(tr("age.review_date").replace("{date}", "1978-01-01").replace("{age}", Integer.toString(years)));
+      click(tr("common.cancel"));
+      if (accepted) throw new AssertionError("Cancelled birth-date review registered the profile");
+      click(save);
+      click(tr("age.confirm_date"));
       Activity journal = app.waitForMonitorWithTimeout(monitor, 15000);
       if (journal == null || !accepted)
         throw new AssertionError("Verified registration did not open journal");

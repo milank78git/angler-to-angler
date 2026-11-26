@@ -24,6 +24,7 @@ const photoUrl = (bytes) => 'data:image/webp;base64,' + bytes;
 const nominate = () => t('weekly_catch.enter_catch');
 
 function problem(error) {
+  if (error.status === 429) return t('limits.hourly');
   if (error.status === 401) return t('weekly_catch.sign_in_again_to_use_the_competition');
   if (error.status === 403) return t('weekly_catch.check_that_you_are_still_in_the');
   if (error.status === 404) return t('weekly_catch.this_entry_is_no_longer_available');

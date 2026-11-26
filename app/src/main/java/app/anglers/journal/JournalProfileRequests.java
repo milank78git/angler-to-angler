@@ -90,6 +90,7 @@ final class JournalProfileRequests implements AutoCloseable {
     io.execute(
         () -> {
           int status = 200;
+          boolean pendingReviewLimit = false;
           org.json.JSONObject result = null;
           try {
             if (body.length() > 260000) throw new IdentityService.HttpFailure(413);
@@ -103,11 +104,13 @@ final class JournalProfileRequests implements AutoCloseable {
             if ("my_details".equals(operation)) LicenseReminder.remember(activity, subject, result);
           } catch (IdentityService.HttpFailure error) {
             status = error.status;
+            pendingReviewLimit = "pending_review_limit".equals(error.code);
           } catch (Exception error) {
             status = 503;
           }
           final int code = status;
-          final String payload = result == null ? "null" : result.toString();
+          final String payload = pendingReviewLimit ? "\"pending_review_limit\""
+              : result == null ? "null" : result.toString();
           activity.runOnUiThread(
               () -> {
                 if (!activity.isFinishing()

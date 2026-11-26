@@ -160,6 +160,7 @@ def complete_profile(check_duplicate=False):
     tap('account.i_accept_the_terms_of_use')
     tap('account.i_acknowledge_the_privacy_notice')
     tap('common.save_profile')
+    tap('age.confirm_date')
     if check_duplicate:
         control('account.name_in_use')
         tap('account.display_name_2_60_characters', 'android.widget.EditText', visible_text='FieldAngler')
@@ -167,6 +168,7 @@ def complete_profile(check_duplicate=False):
         shell('input', 'text', 'Two')
         shell('input', 'keyevent', '111')
         tap('common.save_profile')
+        tap('age.confirm_date')
     tap('account.fresh_journal', optional=True)
     for _ in range(25):
         state = shell('dumpsys', 'activity', 'activities').splitlines()
