@@ -383,9 +383,9 @@
       "reviewBy": "2026-12-31"
     },
     "rolocal": {
-      "title": "Monitorul Oficial · Ordin 85/662",
-      "url": "https://www.infodosar.ro/monitorul-oficial/ministerul-agriculturii-si-dezvoltarii-rurale/47749-ordin-85-2021",
-      "checked": "2026-11-24",
+      "title": "Monitorul Oficial 403/2021 · Ordin 85/662, art. 3",
+      "url": "https://legislatie.just.ro/Public/DetaliiDocument/241093",
+      "checked": "2026-11-26",
       "reviewBy": "2027-02-01"
     },
     "trlocal": {
@@ -438,10 +438,10 @@
       "reviewBy": "2026-12-31"
     },
     "melocal": {
-      "title": "Nacionalni parkovi Crne Gore · 2026",
-      "url": "https://nparkovi.me/news/408/u-nedjelju-pocinje-ribolovni-zabran-u-np-skadarsko-jezero",
-      "checked": "2026-11-24",
-      "reviewBy": "2026-12-31"
+      "title": "Službeni list Crne Gore 75/2026 · član 3",
+      "url": "https://www.sluzbenilist.me/registri/394601/download",
+      "checked": "2026-11-26",
+      "reviewBy": "2027-02-01"
     },
     "kzlocal": {
       "title": "Эталонный контрольный банк · п. 24(1)",
@@ -453,7 +453,7 @@
     "azlocal": {
       "title": "Ekologiya və Təbii Sərvətlər Nazirliyi · qadağan edilmiş balıqlar",
       "url": "https://www.eco.gov.az/az/nazirlik/xeber?newsID=8775",
-      "checked": "2026-11-24",
+      "checked": "2026-11-26",
       "reviewBy": "2027-02-01"
     },
     "gelocal": {
@@ -2370,8 +2370,7 @@
       "closed": [
         "03-15",
         "05-15"
-      ],
-      "validUntil": "2026-12-31"
+      ]
     },
     {
       "country": "KZ",

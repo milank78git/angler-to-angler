@@ -46,5 +46,15 @@
     "4": "zander",
     "51": "barbel",
     "75": "pike"
+  },
+  "documentMonitors": {
+    "https://www.eco.gov.az/az/nazirlik/xeber?newsID=8775": {
+      "articleClass": "mb-30",
+      "exact": true
+    },
+    "https://legislatie.just.ro/Public/DetaliiDocument/241093": {
+      "articleClass": "tdb_single_content",
+      "mirror": "https://www.info-delta.ro/legislatie/ordin-nr-85-662-2021/"
+    }
   }
 }
