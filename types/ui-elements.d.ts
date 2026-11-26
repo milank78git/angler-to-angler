@@ -1,6 +1,7 @@
 // Element IDs used by the journal forms and dialogs. Other elements keep the standard HTMLElement type.
 type ButtonId =
   | 'account-settings'
+  | 'activity-more'
   | 'activity-older'
   | 'activity-questions'
   | 'activity-retry'
@@ -178,6 +179,7 @@ type InputId =
   | 'rule-water-search'
   | 'water-search'
   | 'activity-month'
+  | 'activity-search'
   | 'include-photo'
   | 'angler-age'
   | 'bait'
@@ -213,6 +215,7 @@ type InputId =
   | 'water-photo-file';
 type SelectId =
   | 'activity-method'
+  | 'activity-scope'
   | 'activity-target'
   | 'catch-country-scope'
   | 'fish'
