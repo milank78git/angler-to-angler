@@ -73,9 +73,25 @@ async function parkingFeedback(host, point, onSummary) {
   const [save, more] = host.querySelectorAll('button'),
     list = host.querySelector('ul');
   function showNotes(page) {
-    for (const text of page.items) {
+    for (const entry of page.noteItems ?? page.items) {
+      const text = typeof entry === 'string' ? entry : entry.text;
       const item = document.createElement('li');
       item.textContent = text;
+      if (entry.id) {
+        const report = document.createElement('button');
+        report.textContent = t('moderation.report');
+        report.onclick = async () => {
+          report.disabled = true;
+          try {
+            await rpc('report_parking_note', { note_id: entry.id, seen_text: text });
+            report.textContent = t('common.reported');
+          } catch (error) {
+            status.textContent = failure(error);
+            report.disabled = false;
+          }
+        };
+        item.append(report);
+      }
       list.append(item);
     }
     data.next = page.next;

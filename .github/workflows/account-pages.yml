@@ -18,12 +18,12 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d
-      - run: python3 scripts/build-account-pages.py build/account-pages
       - name: Build the public catch reader for the pilot database
         env:
           ANGLER_ACCOUNT_CONFIG: ${{ vars.ANGLER_ACCOUNT_CONFIG }}
         run: |
           python3 scripts/account-config.py "$RUNNER_TEMP/catch-reader/account-config.json"
+          python3 scripts/build-account-pages.py build/account-pages --account-config "$RUNNER_TEMP/catch-reader/account-config.json"
           python3 scripts/build-public-reader.py "$RUNNER_TEMP/catch-reader/account-config.json" build/account-pages/catch-card
       - id: name
         run: echo "value=account-pages-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" >> "$GITHUB_OUTPUT"

@@ -11,7 +11,9 @@ PILOT = 'app.anglers.journal'
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('output', type=Path)
 parser.add_argument('--preview', action='store_true', help='Use exclusively with a local Android preview fixture')
+parser.add_argument('--account-config', type=Path, help='Packaged public deployment notices')
 args = parser.parse_args()
+notices = json.loads(args.account_config.read_bytes()).get("deploymentNotices", {}) if args.account_config else {}
 package = PILOT + ('.preview' if args.preview else '')
 script = (ROOT / 'web/account/handoff.js').read_text()
 style = ('html{font:110%/1.55 system-ui,sans-serif;color:#19362f;background:#f6f7f1}'
@@ -56,6 +58,8 @@ for route in ("terms", "privacy", "delete-account"):
             paragraphs = [part for name in names for part in
                           (assets / f"{name}-{locale}.txt").read_text().strip().split("\n\n")]
             title = paragraphs.pop(0)
+            if route == "privacy" and notices.get(locale):
+                paragraphs.append(notices[locale])
         else:
             title = messages["store.delete-account"]
             paragraphs = [messages["store.deletion_steps"], messages["store.deletion_scope"]]

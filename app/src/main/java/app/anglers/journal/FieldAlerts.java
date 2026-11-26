@@ -22,7 +22,7 @@ final class FieldAlerts {
     SharedPreferences.Editor edit = prefs(c).edit().putBoolean(kind,on);
     if (POSTS.equals(kind)) {
       revoke(c);
-      edit.remove("cursor").remove("registered").remove("key");
+      edit.remove("cursor").remove("registered").remove("key").remove("acknowledgedWaters");
       if (on) edit.putString("key",UUID.randomUUID().toString());
     }
     if (NEARBY.equals(kind)) edit.remove("lastNearby");
@@ -61,7 +61,7 @@ final class FieldAlerts {
     if (owner.isEmpty() || !owner.equals(AccountStore.active(c)) || keys.length() > 220000) return;
     SharedPreferences p = prefs(c);
     if (keys.equals(p.getString("watersForPosts", "[]"))) return;
-    p.edit().putString("watersForPosts", keys).remove("registered").apply();
+    p.edit().putString("watersForPosts", keys).remove("cursor").remove("registered").apply();
     if (enabled(c, POSTS)) checkPosts(c, null);
   }
 
@@ -79,6 +79,7 @@ final class FieldAlerts {
         long now=System.currentTimeMillis();
         boolean register=!actor.isEmpty() && now-p.getLong("registered",0)>TimeUnit.DAYS.toMillis(7);
         String selected = p.getString("watersForPosts","[]");
+        if (!register && !selected.equals(p.getString("acknowledgedWaters",null))) return;
         JSONObject signal = register
             ? AccountStore.rpc(c,service,actor,"watch_favourites",args.put("water_keys",new org.json.JSONArray(selected)))
             : service.postSignal(args);
@@ -88,7 +89,7 @@ final class FieldAlerts {
           long previous=p.getLong("cursor",-1);
           if (previous<0 || latest<=previous || post(c,POSTS,AppLanguage.text(c,"alerts.new_post"),signal.optString("water")))
             p.edit().putLong("cursor",Math.max(previous,latest)).apply();
-          if (register) p.edit().putLong("registered",now).apply();
+          if (register) p.edit().putString("acknowledgedWaters",selected).putLong("registered",now).apply();
         }
       } catch (Exception error) { android.util.Log.w("FieldAlerts","Post check unavailable"); }
       finally { if (done!=null) done.run(); }

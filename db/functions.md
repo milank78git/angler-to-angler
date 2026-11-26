@@ -4,17 +4,18 @@ Active signatures in Liquibase deployment order. Each link opens the effective d
 
 | Function signature | Definition | Rename |
 | --- | --- | --- |
-| `angler_activity.archive_parking()` | [20261126060000](../supabase/migrations/20261126060000_community_protection.sql#L109) |  |
+| `angler_activity.archive_parking()` | [20261126060000](../supabase/migrations/20261126060000_community_protection.sql#L112) |  |
 | `angler_activity.change(uuid, integer, text, date, angler_activity.target, angler_activity.method, integer)` | [20261123171108](../supabase/migrations/20261123171108_water_activity.sql#L43) |  |
 | `angler_activity.clear_species()` | [20261124122648](../supabase/migrations/20261124122648_volunteered_species_counts.sql#L3) |  |
 | `angler_activity.mine(bigint)` | [20261123171108](../supabase/migrations/20261123171108_water_activity.sql#L69) |  |
 | `angler_activity.parking_feedback(uuid, boolean, integer, text, bigint)` | [20261125045854](../supabase/migrations/20261125045854_community_parking.sql#L83) |  |
 | `angler_activity.parking_list(text)` | [20261125153400](../supabase/migrations/20261125153400_parking_edit_ownership.sql#L6) |  |
+| `angler_activity.parking_note_items(uuid, bigint)` | [20261126060000](../supabase/migrations/20261126060000_community_protection.sql#L133) |  |
 | `angler_activity.parking_save(text, uuid, integer, numeric, numeric, text)` | [20261125153400](../supabase/migrations/20261125153400_parking_edit_ownership.sql#L20) |  |
 | `angler_activity.parking_waters()` | [20261125045854](../supabase/migrations/20261125045854_community_parking.sql#L32) |  |
 | `angler_activity.rating(text, integer, boolean)` | [20261124122638](../supabase/migrations/20261124122638_water_reviews_and_visit_statistics.sql#L11) |  |
 | `angler_activity.receipt(angler_activity.trips)` | [20261123171108](../supabase/migrations/20261123171108_water_activity.sql#L26) |  |
-| `angler_activity.restore_parking(uuid, integer, integer)` | [20261126060000](../supabase/migrations/20261126060000_community_protection.sql#L119) |  |
+| `angler_activity.restore_parking(uuid, integer, integer)` | [20261126060000](../supabase/migrations/20261126060000_community_protection.sql#L122) |  |
 | `angler_activity.reviewed_contributor(uuid)` | [20261126021000](../supabase/migrations/20261126021000_audit_publication_controls.sql#L52) |  |
 | `angler_activity.species_share(uuid, integer, bigint, jsonb)` | [20261124122648](../supabase/migrations/20261124122648_volunteered_species_counts.sql#L13) |  |
 | `angler_activity.state(uuid)` | [20261123171108](../supabase/migrations/20261123171108_water_activity.sql#L33) |  |
@@ -162,9 +163,9 @@ Active signatures in Liquibase deployment order. Each link opens the effective d
 | `public.angler_message_send(uuid, uuid, uuid, text)` | [20261123155308](../supabase/migrations/20261123155308_private_messages.sql#L158) |  |
 | `public.angler_my_details(jsonb)` | [20261125092414](../supabase/migrations/20261125092414_private_angler_details.sql#L57) |  |
 | `public.angler_open_catch_card(uuid)` | [20261123180057](../supabase/migrations/20261123180057_public_catch_cards.sql#L126) |  |
-| `public.angler_parking_feedback(uuid, bigint)` | [20261125045854](../supabase/migrations/20261125045854_community_parking.sql#L119) |  |
+| `public.angler_parking_feedback(uuid, bigint)` | [20261126060000](../supabase/migrations/20261126060000_community_protection.sql#L141) |  |
 | `public.angler_parking_list(text)` | [20261125045854](../supabase/migrations/20261125045854_community_parking.sql#L115) |  |
-| `public.angler_parking_review(uuid, integer, text)` | [20261125045854](../supabase/migrations/20261125045854_community_parking.sql#L121) |  |
+| `public.angler_parking_review(uuid, integer, text)` | [20261126060000](../supabase/migrations/20261126060000_community_protection.sql#L146) |  |
 | `public.angler_parking_save(text, uuid, integer, numeric, numeric, text)` | [20261125045854](../supabase/migrations/20261125045854_community_parking.sql#L117) |  |
 | `public.angler_parking_waters()` | [20261125045854](../supabase/migrations/20261125045854_community_parking.sql#L113) |  |
 | `public.angler_play_receipt(text, jsonb)` | [20261125075304](../supabase/migrations/20261125075304_play_market_settlement.sql#L247) |  |
@@ -175,8 +176,9 @@ Active signatures in Liquibase deployment order. Each link opens the effective d
 | `public.angler_public_card_withdraw(uuid)` | [20261123180057](../supabase/migrations/20261123180057_public_catch_cards.sql#L124) |  |
 | `public.angler_public_cards(bigint)` | [20261123180057](../supabase/migrations/20261123180057_public_catch_cards.sql#L122) |  |
 | `public.angler_register_post_watch(uuid)` | [20261124101500](../supabase/migrations/20261124101500_post_notifications.sql#L23) |  |
-| `public.angler_report_catch_card(uuid)` | [20261126060000](../supabase/migrations/20261126060000_community_protection.sql#L71) |  |
-| `public.angler_report_content(text, uuid)` | [20261126060000](../supabase/migrations/20261126060000_community_protection.sql#L82) |  |
+| `public.angler_report_catch_card(uuid)` | [20261126060000](../supabase/migrations/20261126060000_community_protection.sql#L74) |  |
+| `public.angler_report_content(text, uuid)` | [20261126060000](../supabase/migrations/20261126060000_community_protection.sql#L85) |  |
+| `public.angler_report_parking_note(bigint, text)` | [20261126060000](../supabase/migrations/20261126060000_community_protection.sql#L153) |  |
 | `public.angler_save_card(integer, text, text, text, integer, text, boolean)` | [20261123112814](../supabase/migrations/20261123112814_angler_profile_cards.sql#L208) |  |
 | `public.angler_top_species()` | [20261124122648](../supabase/migrations/20261124122648_volunteered_species_counts.sql#L50) |  |
 | `public.angler_top_waters()` | [20261124122638](../supabase/migrations/20261124122638_water_reviews_and_visit_statistics.sql#L47) |  |

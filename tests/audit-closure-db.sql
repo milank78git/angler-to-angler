@@ -51,7 +51,31 @@ do $$declare submission uuid; begin
  begin perform public.angler_group_create(gen_random_uuid(),'Over quota'); raise exception 'Seventh group allowed';
  exception when sqlstate 'PT429' then null; end;
 end$$;
+do $$declare owner_id uuid:=(public.angler_profile()->>'id')::uuid; rev integer; point_id uuid:=gen_random_uuid();
+begin
+ rev:=coalesce((public.angler_card(null)->>'revision')::integer,0);
+ perform public.angler_save_card(rev,'','','',1,null,true);
+ perform public.angler_parking_save('CZ:401009',point_id,0,49.880101,14.412121,'First position');
+ perform public.angler_parking_save('CZ:401009',point_id,1,49.880201,14.412221,'Moved position');
+ perform public.angler_parking_review(point_id,3,'Narrow approach');
+ perform pg_temp.as_user(72);
+ perform public.angler_report_parking_note(((public.angler_parking_feedback(point_id)->'noteItems'->0)->>'id')::bigint,'Narrow approach');
+ perform public.angler_report_content('profile',owner_id);
+ perform public.angler_report_content('parking',point_id);
+ perform pg_temp.as_user(71);
+ perform public.angler_save_card(rev+1,'','','',1,null,false);
+ perform pg_temp.as_user(72);
+ begin perform public.angler_report_content('profile',owner_id); raise exception 'Private profile reported';
+ exception when sqlstate 'PT404' then null; end;
+end $$;
 reset role;
+do $$declare p uuid; begin
+ select parking into strict p from angler_private.content_reports where parking is not null;
+ perform angler_activity.restore_parking(p,2,1);
+ perform pg_temp.check_that((select revision=3 and name='First position' from angler_activity.parking_points where id=p),'Restore lost original location');
+ begin perform angler_activity.restore_parking(p,2,1); raise exception 'Stale moderator overwrote a newer location';
+ exception when sqlstate 'PT409' then null; end;
+end $$;
 
 insert into angler_public_cards.cards(author,request,source_id,token,details) values
  ('00000000-0000-4000-8000-000000000071',gen_random_uuid(),gen_random_uuid(),'ab000000-0000-4000-8000-000000000071','{}');
@@ -60,7 +84,7 @@ select public.angler_report_catch_card('ab000000-0000-4000-8000-000000000071');
 select public.angler_report_catch_card('ab000000-0000-4000-8000-000000000071');
 select public.angler_report_catch_card(gen_random_uuid());
 reset role;
-select pg_temp.check_that((select count(*)=1 from angler_private.content_reports),'Anonymous queue unbounded');
+select pg_temp.check_that((select count(*)=1 from angler_private.content_reports where catch_card is not null),'Anonymous queue unbounded');
 
 set local role authenticated;
 select pg_temp.as_user(71);

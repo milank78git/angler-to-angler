@@ -58,8 +58,11 @@ create table angler_private.content_reports (
   catch_card uuid references angler_public_cards.cards(token) on delete cascade,
   profile uuid references angler_private.profile_cards(user_id) on delete cascade,
   parking uuid references angler_activity.parking_points(id) on delete cascade,
+  parking_note bigint references angler_activity.parking_reviews(id) on delete cascade,
+  note_digest bytea,
   revision integer not null, submitted_at timestamptz not null default now(), resolved_at timestamptz,
-  check (num_nonnulls(catch_card,profile,parking)=1),
+  check (num_nonnulls(catch_card,profile,parking,parking_note)=1 and (note_digest is null)=(parking_note is null)),
+  unique(parking_note,note_digest),
   unique(catch_card), unique(profile,revision), unique(parking,revision)
 );
 alter table angler_private.content_reports enable row level security;
@@ -125,3 +128,39 @@ begin
   if not found then raise exception 'Revision unavailable' using errcode='PT409'; end if;
 end $$;
 revoke all on function angler_activity.restore_parking(uuid,integer,integer) from public,anon,authenticated;
+
+-- Keep the string-array response for older clients and add exact, paged moderation targets.
+create function angler_activity.parking_note_items(point_id uuid, before_id bigint) returns jsonb
+language sql stable security definer set search_path='' as $$
+  select jsonb_build_object('noteItems',coalesce(jsonb_agg(jsonb_build_object('id',id::text,'text',note)
+    order by id desc),'[]'::jsonb)) from
+    (select id,note from angler_activity.parking_reviews where point=point_id and note is not null
+      and (before_id is null or id<before_id) and angler_groups_private.subject() is not null
+      order by id desc limit 20) notes;
+$$;
+create or replace function public.angler_parking_feedback(point_id uuid,before_id bigint default null) returns jsonb
+language sql set search_path='' as $$
+  select angler_activity.parking_feedback(point_id,false,null,null,before_id)
+    || angler_activity.parking_note_items(point_id,before_id);
+$$;
+create or replace function public.angler_parking_review(point_id uuid,stars integer,note text) returns jsonb
+language plpgsql set search_path='' as $$
+declare feedback jsonb;
+begin
+  feedback:=angler_activity.parking_feedback(point_id,true,stars,note,null);
+  return feedback || angler_activity.parking_note_items(point_id,null);
+end $$;
+create function public.angler_report_parking_note(note_id bigint, seen_text text) returns jsonb
+language plpgsql security definer set search_path='' as $$
+declare contents text;
+begin
+  perform angler_groups_private.subject();
+  select note into strict contents from angler_activity.parking_reviews where id=note_id and note is not null for share;
+  if contents is distinct from seen_text then raise exception 'Note changed' using errcode='PT409'; end if;
+  insert into angler_private.content_reports(parking_note,note_digest,revision)
+    values(note_id,sha256(convert_to(contents,'UTF8')),1) on conflict do nothing;
+  return '{}'::jsonb;
+exception when no_data_found then raise exception 'Note unavailable' using errcode='PT404';
+end $$;
+revoke all on function angler_activity.parking_note_items(uuid,bigint),public.angler_report_parking_note(bigint,text) from public,anon;
+grant execute on function angler_activity.parking_note_items(uuid,bigint),public.angler_report_parking_note(bigint,text) to authenticated;
