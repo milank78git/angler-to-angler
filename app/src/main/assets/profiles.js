@@ -95,6 +95,7 @@ export async function profileScreen({ view, nav }) {
           '</p>'
         : '') +
       '</article>' +
+      (!own ? button('report-profile', t('moderation.report'), 'secondary') : '') +
       (own
         ? '<div class="actions">' +
           button('edit-card', t('profiles.edit_profile'), 'primary') +
@@ -112,6 +113,18 @@ export async function profileScreen({ view, nav }) {
         : ''),
   );
   bindBack(nav);
+  if (!own)
+    bind('report-profile', async () => {
+      const report = /** @type {HTMLButtonElement} */ (by('report-profile'));
+      report.disabled = true;
+      try {
+        await rpc('report_content', { kind: 'profile', target: id });
+        report.textContent = t('common.reported');
+      } catch (error) {
+        report.disabled = false;
+        if (view.active()) toast(failure(error));
+      }
+    });
   if (own) {
     profileDetailsSummary(view);
     bind('private-details', () => nav.open('anglerDetails'));

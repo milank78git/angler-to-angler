@@ -141,3 +141,15 @@ file from the owner domain root. The project handoff uses a user-initiated Andro
 intent. Direct verified HTTPS links on a separately managed domain remain available
 through `ANGLER_APP_LINK_HOST`, the direct-android-app-links build artifact and
 `scripts/check-account-links.py`. Choose only one HTTPS mode per build.
+
+### Catch links shared from the retired pilot host
+
+Support for links generated on the original pilot host ended with the move to GitHub Pages.
+Open **Profile → My public cards**, select the card and share its current URL. Recipients
+should request a fresh link from the author. The project does not rely on the retired host
+for redirects. To invalidate an old token on every host, revoke the card and publish it again.
+
+Moderators with database access review unresolved rows in `angler_private.content_reports`,
+inspect the indicated published revision, withdraw the card or unpublish the profile when
+appropriate, and set `resolved_at`. Parking corrections retain their previous coordinates.
+Use `angler_activity.restore_parking(point, expected_revision, historical_revision)` to revert a pin.

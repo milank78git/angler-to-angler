@@ -8,7 +8,7 @@ import org.json.JSONObject;
 
 /** Keeps a verified offline lease and a device-authenticated refresh credential for one profile. */
 final class AccountStore {
-  static final String REVISION = "2026-11-23";
+  static final String REVISION = "2026-11-26";
   private static final long WINDOW = TimeUnit.DAYS.toMillis(7);
   private static final Object REFRESH_LOCK = new Object();
   private static IdentityService.Session session;

@@ -12,6 +12,8 @@ document.querySelector('#brand').textContent = title;
 document.querySelector('#heading').textContent = t('public_reader.shared_catch');
 retry.textContent = t('common.try_again');
 const missing = t('public_reader.this_card_is_unavailable_its_author_may');
+const report = /** @type {HTMLButtonElement} */ (document.querySelector('#report'));
+const reportStatus = document.querySelector('#report-status');
 let request;
 
 function status(text) {
@@ -28,6 +30,9 @@ async function refresh() {
   content.replaceChildren();
   document.title = title;
   retry.hidden = true;
+  report.hidden = true;
+  reportStatus.textContent = '';
+  report.onclick = null;
   if (document.hidden) return;
   const id = location.hash.slice(1);
   if (!id) {
@@ -59,6 +64,27 @@ async function refresh() {
       return;
     }
     renderPublicCard(content, card, languageTag, t);
+    report.hidden = report.disabled = false;
+    report.textContent = t('moderation.report');
+    report.onclick = async () => {
+      report.disabled = true;
+      try {
+        const result = await fetch(apiOrigin + '/rest/v1/rpc/angler_report_catch_card', {
+          method: 'POST',
+          headers: { apikey: publishableKey, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ link_id: id }),
+          credentials: 'omit',
+          referrerPolicy: 'no-referrer',
+          signal: current.signal,
+        });
+        if (!result.ok) throw Error('Report unavailable');
+        if (!current.signal.aborted) reportStatus.textContent = t('common.reported');
+      } catch {
+        if (current.signal.aborted) return;
+        reportStatus.textContent = t('common.service_unavailable_check_your_connection_and_retry');
+        report.disabled = false;
+      }
+    };
     document.title = card.species + ' · ' + title;
   } catch {
     if (current.signal.aborted) return;

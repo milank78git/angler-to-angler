@@ -46,8 +46,7 @@ final class AccountDocuments {
       }
       if (kind.equals("privacy"))
         contents +=
-            "\n\n" + AppLanguage.document(activity, "optional-profile")
-                + "\n\n" + text("store.private_data") + "\n\n" + text("store.payment_data") + "\n\n" + text("license.privacy");
+            "\n\n" + AppLanguage.document(activity, "optional-profile");
       if (kind.equals("privacy") && !deploymentNotice.isEmpty())
         contents += "\n\n" + deploymentNotice;
       AccountLayout.Prompt reader = ui.prompt(title);

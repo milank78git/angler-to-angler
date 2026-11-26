@@ -116,4 +116,16 @@
   <changeSet id="20261126045000" author="angler" dbms="postgresql">
     <sqlFile path="../supabase/migrations/20261126045000_nickname_identity.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
   </changeSet>
+  <changeSet id="20261126060000" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261126060000_community_protection.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
+  <changeSet id="20261126060100" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261126060100_favourite_post_watches.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
+  <changeSet id="20261126060200" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261126060200_account_revision.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
+  <changeSet id="20261126060300" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261126060300_journal_object_storage.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
 </databaseChangeLog>

@@ -37,6 +37,12 @@
           },
           {
             "context": "profiles"
+          },
+          {
+            "context": "register-and-restore"
+          },
+          {
+            "context": "bundle"
           }
         ]
       }

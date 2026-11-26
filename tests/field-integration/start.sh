@@ -21,7 +21,7 @@ section=re.sub(r'^additional_redirect_urls\s*=.*$', 'additional_redirect_urls = 
 assert 'milank78git.github.io/angler-to-angler/account/' in section
 p.write_text(s[:start]+section+s[end:])
 PY
-supabase start -x studio,storage-api,imgproxy,realtime,edge-runtime,postgres-meta,logflare,vector,supavisor >/dev/null
+supabase start -x studio,imgproxy,realtime,edge-runtime,postgres-meta,logflare,vector,supavisor >/dev/null
 supabase status -o json > "$stage/local.json"
 chmod 600 "$stage/local.json"
 cd "$repo"
@@ -30,6 +30,7 @@ source tests/field-integration/liquibase.sh
 lb validate
 lb update-to-tag --tag=pilot-0.18
 lb update
+python3 tests/field-integration/journal-storage.py configure "$stage"
 before=$(psql "$url" -XAtc 'select count(*) from liquibase.databasechangelog')
 lb update
 after=$(psql "$url" -XAtc 'select count(*) from liquibase.databasechangelog')

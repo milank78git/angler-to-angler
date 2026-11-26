@@ -2,6 +2,7 @@
 import argparse
 import html
 import json
+import os
 import re
 from pathlib import Path
 
@@ -11,6 +12,12 @@ parser.add_argument('--certificate', default='81:94:98:78:93:A6:4E:E0:AB:F2:50:3
 args = parser.parse_args()
 if not re.fullmatch(r'(?:[0-9a-fA-F]{2}:){31}[0-9a-fA-F]{2}', args.certificate):
     parser.error('Expected a colon-separated SHA-256 fingerprint')
+certificates = [args.certificate.upper()]
+rotated = os.environ.get("ANDROID_ROTATED_CERTIFICATE", "").replace(":", "").upper()
+if rotated:
+    if not re.fullmatch(r"[0-9A-F]{64}", rotated):
+        parser.error("Expected rotated pilot SHA-256 fingerprint")
+    certificates.append(":".join(rotated[i:i+2] for i in range(0, 64, 2)))
 package = 'app.anglers.journal'
 root = args.output
 well_known = root / '.well-known'
@@ -18,7 +25,7 @@ well_known.mkdir(parents=True, exist_ok=True)
 (well_known / 'assetlinks.json').write_text(json.dumps([{
     'relation': ['delegate_permission/common.handle_all_urls'],
     'target': {'namespace': 'android_app', 'package_name': package,
-               'sha256_cert_fingerprints': [args.certificate.upper()]}
+               'sha256_cert_fingerprints': certificates}
 }], indent=2))
 assets = Path(__file__).resolve().parents[1] / 'app/src/main/assets'
 page = ['<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width">',

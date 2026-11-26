@@ -509,7 +509,8 @@ public final class AccountActivity extends LocalizedActivity {
       nickname.setText(profile.optString("name"));
       nickname.setEnabled(false);
     }
-    ui.message(text("sync.new_account"));
+    boolean firstRegistration = !profile.has("name");
+    if (firstRegistration) ui.message(text("sync.new_account"));
     CheckBox terms = ui.check(text("account.i_accept_the_terms_of_use"));
     CheckBox privacy =
         ui.check(
@@ -527,7 +528,7 @@ public final class AccountActivity extends LocalizedActivity {
               }
               if (!terms.isChecked() || !privacy.isChecked()) return;
               run(() -> service.accept(signing.access, name), result -> {
-                if (signing.id.equals(result.optString("id")) && result.optBoolean("current")) {
+                if (firstRegistration && signing.id.equals(result.optString("id")) && result.optBoolean("current")) {
                   AccountStore.prefs(this).edit().putBoolean("cloudJournal." + signing.id, true).apply();
                 }
                 finishProfile(result);

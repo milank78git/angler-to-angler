@@ -99,6 +99,23 @@ public final class SeasonReminder extends BroadcastReceiver {
   }
 
   private static JSONObject catalog(Context c) throws Exception {
+    String key = WaterCatalogue.revision(c);
+    if (!key.isEmpty()) {
+      try (android.util.JsonReader atlas = new android.util.JsonReader(new InputStreamReader(WaterCatalogue.open(c, key), "UTF-8"))) {
+        atlas.beginObject();
+        while (atlas.hasNext()) {
+          if (atlas.nextName().equals("anglingRules")) {
+            atlas.beginObject();
+            while (atlas.hasNext()) {
+              if (atlas.nextName().equals("catalog.json")) return new JSONObject(atlas.nextString());
+              atlas.skipValue();
+            }
+            break;
+          }
+          atlas.skipValue();
+        }
+      }
+    }
     try (BufferedReader r =
         new BufferedReader(new InputStreamReader(c.getAssets().open("catalog.json"), "UTF-8"))) {
       StringBuilder json = new StringBuilder();

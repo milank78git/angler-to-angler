@@ -116,7 +116,7 @@ final class AccountChecks {
                           }
                           JSONObject body = new JSONObject(request.toString("UTF-8"));
                           switch (u.getPath()) {
-                            case "/rest/v1/rpc/angler_register_post_watch":
+                            case "/rest/v1/rpc/angler_watch_favourites":
                               if (!"Bearer fixture-session".equals(getRequestProperty("Authorization"))) return 401;
                               java.util.UUID.fromString(body.getString("device_key"));
                               response = new JSONObject().put("position","7").put("water","CZ:401009").toString();
@@ -423,8 +423,8 @@ final class AccountChecks {
                               break;
                             case "/rest/v1/rpc/angler_accept":
                               if (!body.getString("nickname").equals("River")
-                                  || !body.getString("terms").equals("2026-11-23")
-                                  || !body.getString("privacy").equals("2026-11-23")) return 400;
+                                  || !body.getString("terms").equals("2026-11-26")
+                                  || !body.getString("privacy").equals("2026-11-26")) return 400;
                               response =
                                   new JSONObject()
                                       .put("id", ID)

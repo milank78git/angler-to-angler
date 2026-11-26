@@ -91,6 +91,7 @@ def build(output, cache, stamp, refresh):
     atlas["europe"] = {k: editions[k] for k in sources["providers"] if k in editions}
     sources["providers"] = {k: sources["providers"][k] for k in atlas["europe"]}
     atlas["sources"] = sources
+    atlas["anglingRules"] = {name: (ASSETS / name).read_text() for name in ("catalog.json", "europe-rules.json")}
     raw = encode(atlas)
     if len(raw) > 48 * 1024 * 1024:
         raise ValueError("Atlas exceeds mobile unpacking limit")

@@ -1,4 +1,4 @@
-Account and optional online features · pilot 0.12.0
+Account and optional online features · pilot 2026-11-26
 
 When registering by email, you choose a password. The language of the app at registration determines your account email language. Email verification and password recovery use a single-use link. A secured phone can store an encrypted credential for subsequent unlocks. Android verifies your screen lock or biometrics. Signing out removes the credential from this phone.
 
@@ -18,6 +18,12 @@ You can choose to contribute or update each completed trip, including a blank tr
 
 A public card is created after you confirm its preview. Anyone with the link can see your display name, species and catch month, plus any selected day, water, reviewed length or photo stripped of metadata. The card stores the confirmed snapshot. Revoke a link under Profile → My public cards. Account erasure revokes all links. Recipients can keep copies they saved before revocation.
 
-The tip market shows verified accounts the author name, title, target fish, date fished, shore or boat access, optional water, price and availability. Only the author and buyers see the written technique. Purchases keep their version after an edit or withdrawal. Erasing the author account removes its offers, including purchased instructions. Erasing a buyer account removes its access and balance. Test credits have no cash value.
+The tip market shows verified accounts the author name, title, target fish, date fished, shore or boat access, optional water, price and availability. Only the author and buyers see the written technique. Purchases keep their version after an edit or withdrawal. When an author erases their account, buyers retain their purchased versions without the author name. Erasing a buyer account removes its access and balance. Test credits have no cash value.
 
-After unlocking a tip you may rate its accuracy, technique description and match with the preview once. Your purchased tip shows the scores you submitted. Other anglers see the author’s average and rating count. Erasing your account removes your ratings.
+After paying at least partly with purchased credits you may rate its accuracy, technique description and match with the preview once. Your purchased tip shows the scores you submitted. Other anglers see the author’s average and rating count. Erasing your account removes your ratings.
+
+Verified anglers see parking points, their locations and notes, aggregate parking and water ratings and counts of recent water observations. When you enable post alerts, your device subscription stores your favourite waters. The operator reviews reports of inappropriate content.
+
+Google handles Play checkout. The operator processes purchase references, credit allocations, refunds and payout records to provide the marketplace and maintain its accounts. Public marketplace offers contain the information the author explicitly publishes.
+
+You may save your age, fishing licence expiry date and reminder choice in your private account. Other anglers cannot see them. You can clear them in your profile. Android keeps the date and reminder on this device to notify you offline. Signing out clears that local reminder.

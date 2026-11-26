@@ -1,4 +1,4 @@
-Účet a volitelné online funkce · pilot 0.12.0
+Účet a volitelné online funkce · pilot 2026-11-26
 
 Při registraci e-mailem si volíš heslo a jazyk zpráv vychází z jazyka aplikace. Ověření e-mailu a obnova hesla používají jednorázový odkaz. Pro další odemknutí může zabezpečený telefon uchovat zašifrované oprávnění k účtu. PIN a biometrické údaje ověřuje Android. Odhlášením se toto oprávnění v telefonu smaže.
 
@@ -18,6 +18,12 @@ Do souhrnné statistiky můžeš samostatně zařadit nebo aktualizovat dokonče
 
 Veřejná karta vznikne až po potvrzení náhledu. Kdokoli s odkazem uvidí přezdívku, druh a měsíc úlovku a případně zvolený den, revír, zkontrolovanou délku či fotografii zbavenou metadat. Karta uchovává potvrzenou kopii. Odkaz můžeš kdykoli zneplatnit v Profil → Moje veřejné karty. Smazání účtu zneplatní všechny odkazy. Příjemci si mohou obsah uložit před zneplatněním.
 
-Tržiště zobrazuje ověřeným účtům jméno autora, název, cílovou rybu, datum zkušenosti, způsob lovu, volitelný revír, cenu a dostupnost. Textový postup uvidí autor a kupující. Zakoupená verze zůstává dostupná po úpravě nebo stažení nabídky. Smazání účtu autora odstraní jeho nabídky včetně zakoupených postupů. Smazání účtu kupujícího odstraní jeho přístup a zůstatek. Testovací kredity nemají peněžní hodnotu.
+Tržiště zobrazuje ověřeným účtům jméno autora, název, cílovou rybu, datum zkušenosti, způsob lovu, volitelný revír, cenu a dostupnost. Textový postup uvidí autor a kupující. Zakoupená verze zůstává dostupná po úpravě nebo stažení nabídky. Po smazání účtu autora zůstanou kupujícím jejich zakoupené verze bez jména autora. Smazání účtu kupujícího odstraní jeho přístup a zůstatek. Testovací kredity nemají peněžní hodnotu.
 
-Po odemčení můžeš jednou ohodnotit přesnost údajů, popis techniky a soulad s náhledem. Jednotlivé známky svého nákupu uvidíš v zakoupeném tipu. Ostatní vidí průměr a počet hodnocení autora. Smazáním účtu se tvoje hodnocení odstraní.
+Po nákupu alespoň zčásti hrazeném zakoupenými kredity můžeš jednou ohodnotit přesnost údajů, popis techniky a soulad s náhledem. Jednotlivé známky svého nákupu uvidíš v zakoupeném tipu. Ostatní vidí průměr a počet hodnocení autora. Smazáním účtu se tvoje hodnocení odstraní.
+
+Ověření rybáři vidí parkoviště, jejich polohu, poznámky a souhrnná hodnocení parkovišť i revírů. U revíru se zobrazují počty aktuálních hlášení o stavu vody. Při zapnutí upozornění na příspěvky se k zařízení uloží seznam oblíbených revírů. Hlášení nevhodného obsahu vidí provozovatel při moderaci.
+
+Platby v Google Play zpracovává Google. Provozovatel zpracovává identifikátory nákupů, pohyby kreditů, vratky a záznamy o výplatách pro provoz tržiště a vedení účetnictví. Veřejné nabídky obsahují informace, které autor výslovně zveřejnil.
+
+V soukromém účtu můžeš uložit svůj věk, konec platnosti rybářského lístku a volbu připomínky. Ostatní rybáři tyto údaje neuvidí. V profilu je můžeš smazat. Android si datum a připomínku uloží také v tomto zařízení pro upozornění bez připojení. Odhlášením se místní připomínka odstraní.

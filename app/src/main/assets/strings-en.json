@@ -769,7 +769,7 @@
   "seasons.stop_reminders": "Stop reminders",
   "seasons.the_selected_rule_covers_this_species_and": "The selected rule covers this species and section. Check other local restrictions.",
   "seasons.valid_through": "Valid through",
-  "settings.alert_schedule": "Discussion checks run about hourly when online. New waters are reported after an atlas update. Nearby alerts use your location when you open or return to the guide.",
+  "settings.alert_schedule": "Only posts at favourite waters trigger discussion alerts. Discussion checks run about hourly when online. New waters are reported after an atlas update. Nearby alerts use your location when you open or return to the guide.",
   "settings.filters": "Filters",
   "settings.large": "Larger text (+30%)",
   "settings.notifications": "Notify me about",
@@ -1116,5 +1116,7 @@
   "sync.last_success": "Last successful sync · {time}",
   "sync.trip": "Fishing trip",
   "sync.checking": "Checking journal synchronization settings…",
-  "sync.check_failed": "Saved on this device. Could not check whether your account has an online journal."
+  "sync.check_failed": "Saved on this device. Could not check whether your account has an online journal.",
+  "moderation.report": "Report content",
+  "moderation.report_parking": "Report parking point or notes"
 }

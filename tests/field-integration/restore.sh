@@ -17,12 +17,14 @@ trap 'rm -f "$stage/test-identity.json" "$stage/rehearsal.dump" "$stage/expected
 python3 "$repo/tests/field-integration/probe.py" seed "$stage"
 container_db pg_dump -U supabase_admin -d postgres -Fc --data-only --schema=auth --schema='angler_*' \
   --exclude-table-data=auth.schema_migrations > rehearsal.dump
+python3 "$repo/tests/field-integration/journal-storage.py" backup "$stage"
 supabase stop --no-backup >/dev/null
-supabase start -x studio,storage-api,imgproxy,realtime,edge-runtime,postgres-meta,logflare,vector,supavisor >/dev/null
+supabase start -x studio,imgproxy,realtime,edge-runtime,postgres-meta,logflare,vector,supavisor >/dev/null
 supabase status -o json > local.json
 cd "$repo"
 source tests/field-integration/liquibase.sh
 lb update
+python3 tests/field-integration/journal-storage.py configure "$stage"
 # Drop freshly seeded rows together, including empty dependent tables owned by the local stack.
 container_db psql -Xq -U supabase_admin -d postgres -v ON_ERROR_STOP=1 <<'SQL'
 do $$
@@ -36,4 +38,5 @@ SQL
 container_db pg_restore -U supabase_admin -d postgres --single-transaction --exit-on-error --no-owner \
   --disable-triggers < "$stage/rehearsal.dump"
 psql "$url" -Xq -c "notify pgrst, 'reload schema'"
+python3 tests/field-integration/journal-storage.py restore "$stage"
 python3 tests/field-integration/probe.py verify "$stage"

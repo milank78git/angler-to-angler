@@ -36,7 +36,7 @@ export function failure(error) {
     case 409:
       return t('profile_api.the_record_changed_or_the_photo_was');
     case 429:
-      return t('profile_api.ten_of_your_photos_are_awaiting_review');
+      return t('account.too_many_attempts_please_try_again_later');
     case 400:
       return t('profile_api.the_details_could_not_be_accepted_check');
     default:

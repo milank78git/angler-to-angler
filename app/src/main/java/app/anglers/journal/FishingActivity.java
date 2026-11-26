@@ -151,6 +151,9 @@ public final class FishingActivity extends LocalizedActivity {
   /** Methods are accessible only to packaged scripts. Android UI calls run on the main thread. */
   public final class Device {
     @JavascriptInterface
+    public void postFavourites(String owner, String keys) { FieldAlerts.favourites(FishingActivity.this, owner, keys); }
+
+    @JavascriptInterface
     public String waterCatalogueVersion() { return WaterCatalogue.revision(FishingActivity.this); }
 
     @JavascriptInterface

@@ -19,7 +19,12 @@ import {
 } from './ui.js';
 import { fold, validDay } from './domain.js';
 
-let cache;
+let cache, installedRules;
+
+export function setFishingRules(rules) {
+  installedRules = rules;
+  cache = null;
+}
 let requestId = 1000000;
 const json = async (name) => {
   const response = await fetch(name + '.json');
@@ -34,7 +39,7 @@ export function fishDirectory() {
       json('europe-fish'),
       json('fish-names-en'),
       language === 'en' ? {} : json('fish-names-' + (language === 'no' ? 'nb' : language)).catch(() => ({})),
-      json('europe-rules'),
+      installedRules || json('europe-rules'),
       json('europe-checklists'),
     ])
       .then(([data, english, local, rules, checklists]) => {
