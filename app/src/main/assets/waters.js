@@ -245,6 +245,7 @@ export async function listWaters({ view, pack, nav, waterDirectory }) {
     results();
   };
   bind('atlas-settings', () => window.Device?.openWaterSettings?.());
+  by('home-market').hidden = Boolean(window.Device?.groupSharingOnly?.());
   bind('home-market', () => nav.open('marketShelf'));
   bind('home-fish', () => nav.open('fishCatalogue'));
   const pageSize = 40;
@@ -471,10 +472,15 @@ function waterActions() {
 }
 
 function bindWaterActions(nav, water) {
-  waterParking(by('parking'), water, nav);
-  waterRating(by('water-rating'), water);
   bind('new-trip', () => nav.open('newTrip', { water: water.id }));
   bind('open-rules', () => nav.open('waterRules', { id: water.id }));
+  if (window.Device?.groupSharingOnly?.()) {
+    for (const id of ['open-activity', 'open-discussion', 'water-market', 'parking', 'water-rating'])
+      by(id).hidden = true;
+    return;
+  }
+  waterParking(by('parking'), water, nav);
+  waterRating(by('water-rating'), water);
   bind('open-activity', () => nav.open('waterActivity', { id: water.id }));
   bind('open-discussion', () => nav.open('waterDiscussion', { id: water.id }));
   bind('water-market', () => nav.open('marketShelf', { water: water.key }));
@@ -566,7 +572,8 @@ export function waterScreen({ view, pack, rivers, nav, waterDirectory }) {
     bindWaterActions(nav, site);
     attachWaterPhoto(by('water-photo'), site, bundled, feature, view);
     attachAtlasMap(by('atlas-map'), site, waterDirectory, view, feature);
-    waterReports(by('water-reports'), site.key, view);
+    if (window.Device?.groupSharingOnly?.()) by('water-reports').parentElement.hidden = true;
+    else waterReports(by('water-reports'), site.key, view);
     return;
   }
   const landmark = (mark, text) =>
@@ -599,7 +606,8 @@ export function waterScreen({ view, pack, rivers, nav, waterDirectory }) {
       t('waters.water_reports') +
       '</h2><div id="water-reports"></div></section>',
   );
-  waterReports(by('water-reports'), waterKey, view);
+  if (window.Device?.groupSharingOnly?.()) by('water-reports').parentElement.hidden = true;
+  else waterReports(by('water-reports'), waterKey, view);
   insertMarkup(
     by('water-reports').parentElement,
     'beforebegin',
@@ -607,14 +615,15 @@ export function waterScreen({ view, pack, rivers, nav, waterDirectory }) {
   );
   const marketButton = by('water-market');
   // Availability is online. The atlas and the link remain usable while counts load or fail.
-  rpc('market_discover', { water_key: waterKey, before_position: null })
-    .then((result) => {
-      if (view.active()) marketButton.querySelector('span').textContent += ' (' + result.stats.offers + ')';
-    })
-    .catch(() => {
-      if (view.active())
-        marketButton.querySelector('span').textContent += ' · ' + t('waters.count_unavailable');
-    });
+  if (!marketButton.hidden)
+    rpc('market_discover', { water_key: waterKey, before_position: null })
+      .then((result) => {
+        if (view.active()) marketButton.querySelector('span').textContent += ' (' + result.stats.offers + ')';
+      })
+      .catch(() => {
+        if (view.active())
+          marketButton.querySelector('span').textContent += ' · ' + t('waters.count_unavailable');
+      });
   const fav = /** @type {HTMLButtonElement} */ (screen.querySelector('[data-favorite]'));
   fav.onclick = () => {
     toggleFavorite(pack, w.id);

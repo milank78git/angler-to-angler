@@ -252,6 +252,7 @@ public final class AccountActivity extends LocalizedActivity {
         recovery
             ? text("account.if_you_already_have_an_account_well")
             : text("account.choose_a_password_with_at_least_8"));
+    if (!recovery) ui.label(text("age.before_signup"));
     EditText address = addressField(recovery
         ? text("account.the_password_reset_link_will_go_to")
         : text("account.enter_an_email_address_where_you_can"));
