@@ -1,6 +1,7 @@
 {
   "stats.independent_reviews": "At least five contributors must each have a catch confirmed by an independent reviewer.",
   "account.name_in_use": "That display name is already in use. Choose another name.",
+  "account.visible_name_required": "Choose a display name with at least two visible characters.",
   "account.account_sign_in": "Account sign-in",
   "account.and_tap_the_link_on_this_phone": " and tap the link on this phone. You can also return by tapping the app icon.",
   "account.angler_profile": "Angler profile",

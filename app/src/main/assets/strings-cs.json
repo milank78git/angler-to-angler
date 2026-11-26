@@ -1,6 +1,7 @@
 {
   "stats.independent_reviews": "Alespoň pět přispěvatelů musí mít každý alespoň jeden úlovek potvrzený nezávislým kontrolorem.",
   "account.name_in_use": "Tuto přezdívku už někdo používá. Zvol jinou.",
+  "account.visible_name_required": "Zvol přezdívku s alespoň dvěma viditelnými znaky.",
   "account.account_sign_in": "Přihlášení",
   "account.and_tap_the_link_on_this_phone": " a klepni na odkaz na tomto telefonu. Do aplikace se můžeš také vrátit přes její ikonu.",
   "account.angler_profile": "Rybářský profil",

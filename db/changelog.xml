@@ -113,4 +113,7 @@
   <changeSet id="20261126021000" author="angler" dbms="postgresql">
     <sqlFile path="../supabase/migrations/20261126021000_audit_publication_controls.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
   </changeSet>
+  <changeSet id="20261126045000" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261126045000_nickname_identity.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
 </databaseChangeLog>

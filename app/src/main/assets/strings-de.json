@@ -1,6 +1,7 @@
 {
   "stats.independent_reviews": "Mindestens fünf Beitragende müssen jeweils einen unabhängig bestätigten Fang haben.",
   "account.name_in_use": "Dieser Anzeigename ist bereits vergeben. Wähle einen anderen Namen.",
+  "account.visible_name_required": "Wähle einen Anzeigenamen mit mindestens zwei sichtbaren Zeichen.",
  "account.account_sign_in": "Kontoanmeldung",
  "account.angler_profile": "Anglerprofil",
  "account.back_to_sign_in": "Zurück zum Sign-in",

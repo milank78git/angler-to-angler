@@ -89,7 +89,7 @@ Active signatures in Liquibase deployment order. Each link opens the effective d
 | `angler_messages.send(uuid, uuid, uuid, text)` | [20261123155308](../supabase/migrations/20261123155308_private_messages.sql#L98) |  |
 | `angler_messages.set_block(uuid, boolean)` | [20261123155308](../supabase/migrations/20261123155308_private_messages.sql#L130) |  |
 | `angler_messages.single_emoji(text)` | [20261123160129](../supabase/migrations/20261123160129_message_reactions.sql#L3) |  |
-| `angler_private.nickname_key(text)` | [20261126021000](../supabase/migrations/20261126021000_audit_publication_controls.sql#L110) |  |
+| `angler_private.nickname_key(text)` | [20261126045000](../supabase/migrations/20261126045000_nickname_identity.sql#L12) |  |
 | `angler_public_cards.mine(bigint)` | [20261123180057](../supabase/migrations/20261123180057_public_catch_cards.sql#L91) |  |
 | `angler_public_cards.options(uuid, text)` | [20261123180057](../supabase/migrations/20261123180057_public_catch_cards.sql#L30) |  |
 | `angler_public_cards.owner_item(uuid, jsonb)` | [20261125154159](../supabase/migrations/20261125154159_public_card_reader.sql#L10) |  |
