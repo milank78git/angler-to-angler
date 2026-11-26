@@ -12,7 +12,7 @@ class RegistrationWindowTest(unittest.TestCase):
     @patch('registration.subprocess.run')
     def test_only_taps_once_after_a_transient_read_and_an_incomplete_window(self, run, _sleep):
         label = registration.LABELS['common.save_profile']
-        window = f'<hierarchy><node text="{label}" bounds="[0,0][20,30]"/></hierarchy>'.encode()
+        window = f'<hierarchy><node text="{label}" enabled="true" clickable="true" bounds="[0,0][20,30]"/></hierarchy>'.encode()
         run.side_effect = [subprocess.TimeoutExpired('adb', 15),
                            subprocess.CompletedProcess([], 0, b'<hierarchy>'),
                            subprocess.CompletedProcess([], 0, window),

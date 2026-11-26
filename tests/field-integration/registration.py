@@ -63,13 +63,15 @@ def read_window(key):
     raise RuntimeError('Android window could not be read for ' + key)
 
 
-def control(key, field=None, optional=False, visible_text=None):
+def control(key, field=None, optional=False, visible_text=None, actionable=False):
     label = LABELS[key] if visible_text is None else visible_text
     for _ in range(2 if optional else 15):
         for node in read_window(key).iter('node'):
             attrs = node.attrib
             if (label in (attrs.get('text'), attrs.get('hint'), attrs.get('content-desc'))
-                    and (field is None or attrs.get('class') == field)):
+                    and (field is None or attrs.get('class') == field)
+                    and (not actionable or (attrs.get('enabled') == 'true' and
+                         attrs.get('clickable') == 'true'))):
                 return attrs
         time.sleep(.25)
     if not optional:
@@ -77,7 +79,7 @@ def control(key, field=None, optional=False, visible_text=None):
 
 
 def tap(key, field=None, optional=False, visible_text=None):
-    attrs = control(key, field, optional, visible_text)
+    attrs = control(key, field, optional, visible_text, actionable=True)
     if attrs:
         x, y, right, bottom = map(int, re.findall(r'\d+', attrs['bounds']))
         shell('input', 'tap', str((x+right)//2), str((y+bottom)//2))
@@ -85,7 +87,21 @@ def tap(key, field=None, optional=False, visible_text=None):
 
 def enter(key, value):
     tap(key, 'android.widget.EditText')
+    # Wait for focus before dispatching key events. A form or keyboard can still be moving.
+    for _ in range(8):
+        nodes = read_window(key).iter('node')
+        if any(node.get('class') == 'android.widget.EditText' and node.get('focused') == 'true'
+               and LABELS[key] in (node.get('text'), node.get('hint'), node.get('content-desc'))
+               for node in nodes):
+            break
+    else:
+        raise RuntimeError('Input did not receive focus: ' + key)
     shell('input', 'text', value)
+    # Read only the focused field. Passwords are masked by Android. Never log its contents.
+    fields = [node for node in read_window(key).iter('node') if node.get('focused') == 'true'
+              and node.get('class') == 'android.widget.EditText']
+    if len(fields) != 1 or (fields[0].get('password') != 'true' and fields[0].get('text') != value):
+        raise RuntimeError('Android did not accept input for ' + key)
     shell('input', 'keyevent', '111')
 
 
@@ -197,7 +213,7 @@ def desktop_confirmation():
     address, password = register()
     tap('account.confirmed_sign_in')
     enter('account.password', password)
-    tap('common.sign_in')
+    tap('common.sign_in', 'android.widget.Button')
     control('account.confirm_your_email_on_this_phone_first')
     tap('account.return_to_confirmation')
     confirm_in_mailbox(address)  # Another device consumes the email; Android receives no callback.
@@ -205,7 +221,7 @@ def desktop_confirmation():
     launch(PACKAGE)
     tap('account.confirmed_sign_in')
     enter('account.password', password)  # The registration address must already be filled in.
-    tap('common.sign_in')
+    tap('common.sign_in', 'android.widget.Button')
     complete_profile(check_duplicate=True)
     matching = [m for m in mailbox('messages')['messages'] if any(t['Address'] == address for t in m['To'])]
     assert len(matching) == 1, 'Password continuation unexpectedly requested another email'
