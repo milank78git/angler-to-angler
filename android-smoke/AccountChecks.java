@@ -931,11 +931,19 @@ final class AccountChecks {
     assertAtlasSchedule(true);
     click(daily);
     assertAtlasSchedule(false);
-    atlas.enable(app.getTargetContext(), app.getContext());
+    atlas.enable(app.getTargetContext(), app.getContext(), 1);
     click(manual);
     find(tr("atlas_settings.the_updated_atlas_is_available_offline"));
     click(manual);
     find(tr("atlas_settings.your_atlas_is_up_to_date"));
+    String firstHash = new JSONObject(atlas.manifest).getString("sha256");
+    atlas.enable(app.getTargetContext(), app.getContext(), 2);
+    click(manual);
+    find(tr("atlas_settings.the_updated_atlas_is_available_offline"));
+    click(manual);
+    find(tr("atlas_settings.your_atlas_is_up_to_date"));
+    if (!new File(app.getTargetContext().getDir("atlas", 0), firstHash + ".json").isFile())
+      throw new AssertionError("Rechecking an unchanged edition deleted the previous verified atlas");
     String goodManifest = atlas.manifest;
     atlas.damage();
     click(manual);

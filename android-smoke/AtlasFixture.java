@@ -9,14 +9,16 @@ import java.security.MessageDigest;
 import java.util.zip.GZIPOutputStream;
 import org.json.JSONObject;
 
-/** Serve one immutable edition and then a damaged replacement through the actual download path. */
+/** Serve two distinct signed editions and a damaged replacement through the actual download path. */
 final class AtlasFixture {
-  private static final String COMMIT = "0123456789abcdef0123456789abcdef01234567";
+  private String commit;
   volatile String manifest = "null";
   private byte[] archive = {};
   private int rawSize;
 
-  void enable(Context context, Context instrumentation) throws Exception {
+  void enable(Context context, Context instrumentation, int edition) throws Exception {
+    commit = String.format(java.util.Locale.ROOT, "%040x", edition);
+    rawSize = 0;
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     try (GZIPOutputStream zip = new GZIPOutputStream(bytes)) {
       write(zip, "{\"format\":1");
@@ -31,12 +33,12 @@ final class AtlasFixture {
             write(zip, line.replace("River Suir – Cahir, Co. Tipperary", "Atlas fixture water") + "\n");
         }
       }
-      write(zip, "}");
+      write(zip, edition == 1 ? "}" : "}\n");
     }
     archive = bytes.toByteArray();
     StringBuilder hash = new StringBuilder();
     for (byte b : MessageDigest.getInstance("SHA-256").digest(archive)) hash.append(String.format("%02x", b & 255));
-    JSONObject release = new JSONObject().put("format",1).put("commit",COMMIT).put("asOf","2026-11-24")
+    JSONObject release = new JSONObject().put("format",1).put("commit",commit).put("asOf","2026-11-24")
         .put("bytes",archive.length).put("unpacked",rawSize).put("sha256",hash.toString()).put("registrySha256",hash.toString());
     java.security.Signature signer = java.security.Signature.getInstance("SHA256withECDSA");
     try (InputStream key = instrumentation.getAssets().open("atlas-test.pk8");
@@ -46,7 +48,7 @@ final class AtlasFixture {
       signer.initSign(java.security.KeyFactory.getInstance("EC").generatePrivate(
           new java.security.spec.PKCS8EncodedKeySpec(encoded.toByteArray())));
     }
-    String message = "angler-atlas-v1\n" + COMMIT + "\n" + hash + "\n" + hash + "\n" +
+    String message = "angler-atlas-v1\n" + commit + "\n" + hash + "\n" + hash + "\n" +
         archive.length + "\n" + rawSize + "\n2026-11-24\n";
     signer.update(message.getBytes(StandardCharsets.US_ASCII));
     manifest = release.put("signature", java.util.Base64.getEncoder().encodeToString(signer.sign())).toString();
@@ -63,7 +65,7 @@ final class AtlasFixture {
   }
 
   HttpURLConnection download(URL url) throws IOException {
-    if (!url.getPath().equals("/milank78git/angler-to-angler/" + COMMIT + "/atlas.json.gz"))
+    if (!url.getPath().equals("/milank78git/angler-to-angler/" + commit + "/atlas.json.gz"))
       throw new IOException("Unexpected release URL");
     return new HttpURLConnection(url) {
       public int getResponseCode() { return 200; }

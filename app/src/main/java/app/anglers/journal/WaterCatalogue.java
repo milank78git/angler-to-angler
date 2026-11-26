@@ -113,13 +113,14 @@ final class WaterCatalogue {
               try (InputStream stream = conn.getInputStream()) { install(c, stream, hash, packed, unpacked); }
             } finally { conn.disconnect(); }
           }
+          String retained = previous.equals(hash) ? prefs.getString("previousVerified", "") : previous;
           if (!prefs.edit().putString(REVISION, hash).putString(DATE, edition)
-              .putString("previousVerified", previous.equals(hash) ? prefs.getString("previousVerified", "") : previous)
+              .putString("previousVerified", retained)
               .putString("verifiedSigner", pin).putLong(CHECKED, System.currentTimeMillis()).commit()) throw new IOException("Atlas preferences unavailable");
           if (!previous.equals(hash)) AtlasAdditions.notify(c, previous, hash);
           File[] files = file(c, hash).getParentFile().listFiles();
           if (files != null) for (File old : files)
-            if (!old.equals(file(c, hash)) && !old.equals(file(c, previous))) old.delete();
+            if (!old.equals(file(c, hash)) && !old.equals(file(c, retained))) old.delete();
           result = previous.equals(hash) ? Result.CURRENT : Result.UPDATED;
         } catch (Exception error) {
           android.util.Log.w("WaterCatalogue", "Atlas check failed", error);
