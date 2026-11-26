@@ -154,7 +154,7 @@ final class IdentityService {
         if (status == 429) throw new EmailRateLimit();
         String code = "";
         // Profile registration returns a PostgREST error code when the nickname is taken.
-        boolean accountError = path.startsWith("/auth/v1/") || path.equals("/rest/v1/rpc/angler_accept");
+        boolean accountError = path.startsWith("/auth/v1/") || path.equals("/rest/v1/rpc/angler_register");
         InputStream errorBody = conn.getErrorStream();
         if (accountError && errorBody != null) {
           try {
@@ -279,15 +279,16 @@ final class IdentityService {
   }
 
   JSONObject profile(String token) throws Exception {
-    return request("/rest/v1/rpc/angler_profile", token, new JSONObject());
+    return request("/rest/v1/rpc/angler_registration_profile", token, new JSONObject());
   }
 
-  JSONObject accept(String token, String name) throws Exception {
+  JSONObject accept(String token, String name, String birthDate) throws Exception {
     return request(
-        "/rest/v1/rpc/angler_accept",
+        "/rest/v1/rpc/angler_register",
         token,
         new JSONObject()
             .put("nickname", name)
+            .put("birth_date", birthDate == null ? JSONObject.NULL : birthDate)
             .put("terms", AccountStore.REVISION)
             .put("privacy", AccountStore.REVISION));
   }

@@ -1,5 +1,6 @@
 import { replaceMarkup } from './markup.js';
 import { languageTag } from './i18n.js';
+import { groupCatch } from './group-catch.js';
 import { bindGroupTip, groupTipControls } from './group-tip.js';
 import { Journal } from './journal.js';
 import { pixelJpeg } from './photo.js';
@@ -45,15 +46,17 @@ export async function shareCard({ view, nav, pack }) {
   }
   const species = pack.species[entry?.speciesId];
   const speciesName = species ? loc(species) : entry?.speciesName || entry?.speciesId;
+  if (entry && window.Device?.groupSharingOnly?.()) return groupCatch(view, nav, trip, entry, speciesName);
   const heading = entry ? t('common.share_catch') : t('common.share_a_trip_tip');
   const tipField = field(
     'share-tip-text',
     entry ? t('share_card.tip_for_others_optional') : t('share_card.what_would_you_tell_other_anglers'),
     '<textarea id="share-tip-text" rows="3" maxlength="1600"></textarea>',
   );
-  const fields = cardFields(trip, entry);
+  const restricted = window.Device?.groupSharingOnly?.();
+  const fields = restricted ? [] : cardFields(trip, entry);
   const choices = fields.map(([key, label]) => [key, label]);
-  if (entry?.hasPhoto) choices.push(['photo', t('share_card.photo')]);
+  if (entry?.hasPhoto && !restricted) choices.push(['photo', t('share_card.photo')]);
   replaceMarkup(
     screen,
     back(t('common.trip')) +
@@ -74,13 +77,17 @@ export async function shareCard({ view, nav, pack }) {
         <p id="card-text" aria-live="polite"></p><img id="card-image" class="preview" hidden alt="${esc(t('share_card.catch_photo_for_sharing'))}">
         <p id="card-status" role="status" hidden></p>
         <div class="actions">${button('card-send', entry ? t('share_card.choose_recipient') : t('share_card.share_via_another_app'), 'primary')}</div>
-        ${entry ? '' : groupTipControls()}</section>
+        ${entry ? button('catch-to-group', t('age.catches'), 'secondary') : groupTipControls()}</section>
     </div>`,
   );
   bindBack(nav);
+  if (entry)
+    by('catch-to-group').onclick = () =>
+      groupCatch(view, nav, trip, entry, speciesName).catch(() => toast(t('age.no_permission')));
   const send = by('card-send'),
     image = by('card-image'),
     status = by('card-status');
+  send.hidden = Boolean(restricted);
   let photoTask,
     payload,
     revision = 0;

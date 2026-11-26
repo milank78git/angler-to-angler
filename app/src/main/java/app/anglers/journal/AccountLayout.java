@@ -228,6 +228,18 @@ final class AccountLayout {
     return v;
   }
 
+  void catchPhoto(String encoded, String species) {
+    byte[] frame = android.util.Base64.decode(encoded, android.util.Base64.DEFAULT);
+    Bitmap bitmap = BitmapFactory.decodeByteArray(frame, 0, frame.length);
+    if (bitmap == null) return;
+    ImageView photo = new ImageView(activity);
+    photo.setAdjustViewBounds(true);
+    photo.setMaxHeight(dp(240));
+    photo.setContentDescription(species);
+    photo.setImageBitmap(bitmap);
+    add(form, photo, 8);
+  }
+
   void tip(String byline, String message) {
     LinearLayout card = new LinearLayout(activity);
     card.setOrientation(LinearLayout.VERTICAL);

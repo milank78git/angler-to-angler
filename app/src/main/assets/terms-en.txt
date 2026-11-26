@@ -1,13 +1,15 @@
-Terms of use · revision 2026-11-26
+Terms of use · revision 2026-11-26.2
 
 Operator: Milan Kucera. Contact: info@horistum.com.
 
 Angler to Angler is a free water atlas and private fishing journal. Use your own verified account and a display name. Keep your sign-in private and do not impersonate another person. Contact the operator with service requests, including account closure.
 
-You keep your rights to your journal. You must have permission to share the photos and text you select. Review the preview and recipient before sharing. A recipient may keep a copy. New accounts start with private journal sync enabled, including photos, coordinates and notes. The journal shows its sync status.
+You keep your rights to your journal. You must have permission to share the photos and text you select. Review the preview and recipient before sharing. A recipient may keep a copy. New accounts aged 15 and over start with private journal sync enabled, including photos, coordinates and notes. The journal shows its sync status.
 
 The atlas covers the listed waters and periods. Check current local rules with the fishery authority before fishing. The journal and sign-in do not replace a fishing permit. Mandatory consumer rights and statutory liability are unaffected.
 
 Project source code is available under Apache License 2.0. Maps, images and icons have separate licenses identified in the app and repository. We will present material changes to these terms for acceptance.
 
 Where payments are active, Google Play shows the pack price before purchase and the app shows the credit price before unlocking a tip. Refunds reverse the associated credits and may revoke access to the tip and its author's earnings. Request a refund through Google Play or contact the operator. Welcome and test credits generate no payout. The settled paid share is allocated 85% to the author, 10% to operations and 5% to water restoration. Monthly payout requests start at CZK 100. The first request requires three published tips.
+
+Your date of birth is required and private. The service calculates permissions on your birthdays. Before age 15, the journal stays on this phone. Only current members of your closed group can see catches with an optional photo or trip tips that you share with parental permission. A parent or legal guardian contacts info@horistum.com to verify their authority and link separate accounts. In Fishing groups → Parental permissions they can allow each kind of content for each group and withdraw it, removing previous posts of that kind from that group. Copies already saved by recipients can remain. Public catch links, external sharing, private messages and the marketplace are unavailable before age 15. A group founder must be at least 18.

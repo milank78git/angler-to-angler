@@ -10,7 +10,7 @@ import tempfile
 root = Path(__file__).resolve().parents[1]
 assets = root / "app/src/main/assets"
 store = (root / "app/src/main/java/app/anglers/journal/AccountStore.java").read_text()
-revision = re.search(r'String REVISION = "([0-9-]+)"', store)[1]
+revision = re.search(r'String REVISION = "([0-9.-]+)"', store)[1]
 pins = json.loads((root / "data/account-document-revisions.json").read_bytes())[revision]
 actual = {}
 with tempfile.TemporaryDirectory() as temp:

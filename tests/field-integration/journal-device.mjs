@@ -103,7 +103,7 @@ async function onPhone(action, fixture) {
     return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');};
   async function saveLicence(expiry,lead) {
     await click('#profile'); await click('#private-details'); await until(()=>el('#permit-expiry'),'licence form');
-    el('#angler-age').value='48'; el('#permit-expiry').value=expiry;
+    assert(el('#angler-age').readOnly && el('#angler-age').value==='48', 'Registration age is read-only'); el('#permit-expiry').value=expiry;
     el('#permit-expiry').dispatchEvent(new Event('input',{bubbles:true}));
     el('#permit-lead').value=lead; el('#permit-lead').dispatchEvent(new Event('change',{bubbles:true}));
     await click('#details-form button[type=submit]');

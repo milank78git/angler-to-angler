@@ -10,7 +10,8 @@ import { rpc } from './profile-api.js';
 import { t, confirmAction, displayDay } from './ui.js';
 import { languageTag } from './i18n.js';
 
-const subject = window.Device?.subjectId?.();
+const restricted = window.Device?.groupSharingOnly?.();
+const subject = restricted ? null : window.Device?.subjectId?.();
 const prefix = 'journal.sync.v1.' + subject + '.';
 const call = (op, args) => rpc('journal_sync', { op, args });
 const same = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
@@ -183,6 +184,7 @@ function conflictLabel(conflict, waters) {
 }
 
 export function bindJournalSync(panel, waters) {
+  if (panel && restricted) panel.textContent = t('age.local_journal');
   if (!panel || !subject) return;
   function render() {
     if (!panel.isConnected) {

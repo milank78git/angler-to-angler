@@ -1,4 +1,4 @@
-Account and optional online features · pilot 2026-11-26
+Account and optional online features · pilot 2026-11-26.2
 
 When registering by email, you choose a password. The language of the app at registration determines your account email language. Email verification and password recovery use a single-use link. A secured phone can store an encrypted credential for subsequent unlocks. Android verifies your screen lock or biometrics. Signing out removes the credential from this phone.
 
@@ -26,4 +26,4 @@ Verified anglers see parking points, their locations and notes, aggregate parkin
 
 Google handles Play checkout. The operator processes purchase references, credit allocations, refunds and payout records to provide the marketplace and maintain its accounts. Public marketplace offers contain the information the author explicitly publishes.
 
-You may save your age, fishing licence expiry date and reminder choice in your private account. Other anglers cannot see them. You can clear them in your profile. Android keeps the date and reminder on this device to notify you offline. Signing out clears that local reminder.
+Your profile shows the age calculated from your private registration date. Contact the operator to correct it. You may save or clear your private fishing licence expiry and reminder. Signing out clears the local reminder.

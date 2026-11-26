@@ -20,6 +20,7 @@ interface JournalDevice {
   localeTag(): string;
   systemLocaleTag(): string;
   locale(): string;
+  groupSharingOnly?(): boolean;
   shareCatch(caption: string, jpeg: string): boolean;
   networkCountry(): string;
   atlasLocation(id: number): void;
