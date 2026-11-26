@@ -35,7 +35,13 @@ export async function processNotification(event, services) {
   let purchase;
   try { purchase = await services.lookup(notice.purchaseToken); }
   catch (error) {
-    if (error?.response?.status === 410) throw new IneligiblePurchase('Expired purchase token');
+    const response = error?.response;
+    const reasons = response?.data?.error?.errors;
+    // A 400 can also be a configuration error. Only explicit token errors are terminal.
+    if (response?.status === 410 || (response?.status === 400 && Array.isArray(reasons) &&
+        reasons.some(entry => ['purchaseTokenMismatch', 'invalidValue'].includes(entry?.reason)))) {
+      throw new IneligiblePurchase('Invalid purchase token');
+    }
     throw error;
   }
   if (!purchase?.purchaseStateContext?.purchaseState || purchase.purchaseStateContext.purchaseState==='PENDING') {

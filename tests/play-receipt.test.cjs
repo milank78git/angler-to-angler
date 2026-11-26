@@ -54,5 +54,18 @@ test('authenticated push terminates malformed messages and retries unavailable d
   await assert.rejects(run(envelope(event)), /unavailable/);
   services.lookup = async () => { throw Object.assign(new Error('expired'), {response: {status: 410}}); };
   assert.equal(await run(envelope(event)), 204);
+  const rejected = (status, reason) => async () => {
+    throw Object.assign(new Error('Play lookup failed'), {response: {status, data: {error: {errors: [{reason}]}}}});
+  };
+  for (const reason of ['purchaseTokenMismatch', 'invalidValue']) {
+    services.lookup = rejected(400, reason);
+    assert.equal(await run(envelope(event)), 204);
+  }
+  for (const status of [400, 401, 403, 404, 429, 500]) {
+    services.lookup = rejected(status, 'unknown');
+    await assert.rejects(run(envelope(event)), /Play lookup failed/);
+  }
+  services.lookup = async () => ({purchaseStateContext: {purchaseState: 'PENDING'}});
+  await assert.rejects(run(envelope(event)), /not ready/);
   assert.ok(warnings.length >= 2 && warnings.every(message => !message.includes(token)));
 });
