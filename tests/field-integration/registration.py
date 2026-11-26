@@ -33,6 +33,16 @@ def shell(*args):
     return adb('shell', shlex.join(args))
 
 
+def launch(package):
+    # Android launchers discover MAIN/LAUNCHER activities, then start the resolved component explicitly.
+    selector = ('-a', 'android.intent.action.MAIN', '-c', 'android.intent.category.LAUNCHER')
+    result = shell('cmd', 'package', 'query-activities', '--components', '--user', 'current', *selector, '-p', package)
+    components = [line.strip() for line in result.splitlines() if line.strip().startswith(package + '/')]
+    if len(components) != 1:
+        raise AssertionError(f'Expected one launcher for {package}, found {components}')
+    shell('am', 'start', *selector, '-n', components[0])
+
+
 def read_window(key):
     # A new window can briefly interrupt UiAutomator. Retry only this read, never an input action.
     dump = ('rm -f /sdcard/field-window.xml && '
@@ -117,7 +127,7 @@ def confirm_in_mailbox(address):
 def register():
     address = 'field-' + secrets.token_hex(5) + '@example.test'
     password = secrets.token_hex(12) + 'Aa1'
-    shell('am', 'start', '-a', 'android.intent.action.MAIN', '-c', 'android.intent.category.LAUNCHER', '-p', PACKAGE)
+    launch(PACKAGE)
     tap('account.create_account')
     enter('account.email', address)
     enter('account.new_password', password)
@@ -184,7 +194,7 @@ def desktop_confirmation():
     tap('account.return_to_confirmation')
     confirm_in_mailbox(address)  # Another device consumes the email; Android receives no callback.
     shell('am', 'force-stop', PACKAGE)
-    shell('am', 'start', '-a', 'android.intent.action.MAIN', '-c', 'android.intent.category.LAUNCHER', '-p', PACKAGE)
+    launch(PACKAGE)
     tap('account.confirmed_sign_in')
     enter('account.password', password)  # The registration address must already be filled in.
     tap('common.sign_in')
