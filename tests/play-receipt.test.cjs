@@ -37,3 +37,22 @@ test('authenticated push delivery handles app-closed completion, separate stores
   await processNotification({...envelope,voidedPurchaseNotification:{productType:2,refundType:1,purchaseToken:token}},services);
   assert.deepEqual(voids,[await digest(token)]);
 });
+
+test('authenticated push terminates malformed messages and retries unavailable dependencies', async () => {
+  const { deliverPush } = require('../supabase/functions/play-purchase/verify.mjs');
+  const subscription = 'projects/p/subscriptions/receipts', warnings = [];
+  const token = 'fixture-once', sku = 'credits_50_czk';
+  const event = { packageName: 'app.anglers.journal', oneTimeProductNotification: { notificationType: 1, sku, purchaseToken: token } };
+  const envelope = (payload, topic = subscription) => new Request('https://example.invalid', {
+    method: 'POST', body: JSON.stringify({ subscription: topic, message: { data: btoa(JSON.stringify(payload)) } }),
+  });
+  const services = { mode: 'test', lookup: async () => { throw Error('temporarily unavailable'); } };
+  const run = request => deliverPush(request, subscription, services, message => warnings.push(message));
+  assert.equal(await run(envelope(event, 'other')), 403);
+  assert.equal(await run(new Request('https://example.invalid', { method: 'POST', body: '{' })), 204);
+  assert.equal(await run(envelope({ ...event, oneTimeProductNotification: { notificationType: 1, sku } })), 204);
+  await assert.rejects(run(envelope(event)), /unavailable/);
+  services.lookup = async () => { throw Object.assign(new Error('expired'), {response: {status: 410}}); };
+  assert.equal(await run(envelope(event)), 204);
+  assert.ok(warnings.length >= 2 && warnings.every(message => !message.includes(token)));
+});

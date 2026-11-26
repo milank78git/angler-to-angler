@@ -80,7 +80,13 @@ export async function journalStatistics({ view, nav, pack, waterDirectory }) {
     const [visits, catches] = await Promise.allSettled([rpc('top_waters'), rpc('top_species')]);
     if (!view.active()) return;
     const period = (result) =>
-      '<p>' + esc(result.month.slice(0, 7)) + ' · ' + t('stats.shared_sample') + '</p>';
+      '<p>' +
+      esc(result.month.slice(0, 7)) +
+      ' · ' +
+      esc(t('stats.shared_sample')) +
+      ' ' +
+      esc(t('stats.independent_reviews')) +
+      '</p>';
     const unavailable = (result) => '<p>' + esc(failure(result.reason)) + '</p>';
     const visitsHtml =
       visits.status === 'fulfilled'

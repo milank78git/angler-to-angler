@@ -71,7 +71,7 @@ export async function shareCard({ view, nav, pack }) {
         <p class="meta">
           ${entry ? t('share_card.coordinates_and_journal_notes_stay_private_the') : t('share_card.private_journal_notes_are_never_copied_into')}
           </p></section><section class="surface"><h2>${t('common.recipient_preview')}</h2>
-        <p id="card-text" aria-live="polite"></p><img id="card-image" class="preview" hidden alt="${t('share_card.catch_photo_for_sharing')}">
+        <p id="card-text" aria-live="polite"></p><img id="card-image" class="preview" hidden alt="${esc(t('share_card.catch_photo_for_sharing'))}">
         <p id="card-status" role="status" hidden></p>
         <div class="actions">${button('card-send', entry ? t('share_card.choose_recipient') : t('share_card.share_via_another_app'), 'primary')}</div>
         ${entry ? '' : groupTipControls()}</section>

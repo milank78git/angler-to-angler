@@ -8,6 +8,7 @@ on:
     paths:
       - '.github/workflows/water-directory.yml'
       - 'scripts/*water*.py'
+      - 'scripts/atlas-signature.py'
       - 'data/europe/water-providers.json'
       - 'app/src/main/assets/*waters.json'
       - 'app/src/main/assets/water-sources.json'
@@ -44,9 +45,31 @@ jobs:
           git add atlas.json.gz registry.json
           if ! git diff --cached --quiet; then
             git commit -m "Refresh official fishery data"
-            jq --arg commit "$(git rev-parse HEAD)" '. + {commit:$commit}' "$cache/manifest.json" > manifest.json
-            git add manifest.json
-            git commit -m "Publish the verified atlas manifest"
-            git push origin "HEAD:refs/heads/$channel"
+            content_commit=$(git rev-parse HEAD)
+          elif test -s manifest.json; then
+            content_commit=$(jq -er '.commit' manifest.json)
+          else
+            exit 1
           fi
-          if test -s "$cache/failed-sources.txt"; then cat "$cache/failed-sources.txt"; exit 1; fi
+          jq --arg commit "$content_commit" '. + {commit:$commit}' "$cache/manifest.json" > "$cache/candidate.json"
+      - name: Verify and sign the immutable atlas manifest
+        env:
+          ANGLER_ATLAS_PUBLIC_KEY: ${{ vars.ANGLER_ATLAS_PUBLIC_KEY }}
+          ANGLER_ATLAS_SIGNING_KEY: ${{ secrets.ANGLER_ATLAS_SIGNING_KEY }}
+        run: |
+          candidate="$RUNNER_TEMP/water-cache/candidate.json"
+          published="$RUNNER_TEMP/water-publication"
+          if test -s "$published/manifest.json" &&
+              diff -q <(jq -cS 'del(.signature)' "$published/manifest.json") <(jq -cS . "$candidate") >/dev/null &&
+              python3 scripts/atlas-signature.py "$published/manifest.json"; then
+            exit 0
+          fi
+          python3 scripts/atlas-signature.py --sign "$candidate"
+          cp "$candidate" "$published/manifest.json"
+          git -C "$published" add manifest.json
+          git -C "$published" commit -m "Publish signed atlas manifest"
+          git -C "$published" push origin HEAD:refs/heads/water-atlas-v1
+      - name: Report unavailable providers
+        run: |
+          failures="$RUNNER_TEMP/water-cache/failed-sources.txt"
+          if test -s "$failures"; then cat "$failures"; exit 1; fi

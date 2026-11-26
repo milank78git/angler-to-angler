@@ -336,7 +336,9 @@ export async function waterActivity({ view, nav, pack, rivers, waterDirectory })
               ))
         : '<p>' + t('water_activity.too_little_data_for_this_selection_try') + '</p>') +
       '</section><p class="meta">' +
-      t('water_activity.voluntary_trip_summaries_are_released_seven_days') +
+      esc(t('water_activity.voluntary_trip_summaries_are_released_seven_days')) +
+      ' ' +
+      esc(t('stats.independent_reviews')) +
       '</p>' +
       button('activity-questions', t('common.observations_and_questions'), 'secondary'),
   );

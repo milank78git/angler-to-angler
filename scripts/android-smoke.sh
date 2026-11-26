@@ -6,11 +6,16 @@ bt="${ANDROID_BUILD_TOOLS:-$sdk/build-tools/35.0.0}"
 platform="${ANDROID_PLATFORM_JAR:-$sdk/platforms/android-35/android.jar}"
 app_id=app.anglers.journal.preview
 out=build/smoke
-mkdir -p "$out"/{classes,dex}
+mkdir -p "$out"/{classes,dex,test-assets}
+cp -R android-smoke/assets/. "$out/test-assets/"
+# This ephemeral private key is packaged only in the separate instrumentation APK.
+openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256 -out "$out/atlas-test.pem"
+openssl pkcs8 -topk8 -nocrypt -in "$out/atlas-test.pem" -outform DER -out "$out/test-assets/atlas-test.pk8"
+export ANGLER_ATLAS_PUBLIC_KEY=$(openssl pkey -in "$out/atlas-test.pem" -pubout -outform DER | base64 -w0)
 java -m jdk.compiler/com.sun.tools.javac.Main -source 8 -target 8 -Xlint:-options -bootclasspath "$bt/core-lambda-stubs.jar:$platform" -d "$out/classes" android-smoke/*.java
 java -m jdk.jartool/sun.tools.jar.Main cf "$out/test.jar" -C "$out/classes" .
 "$bt/d8" --lib "$platform" --min-api 26 --output "$out/dex" "$out/test.jar"
-"$bt/aapt2" link -A android-smoke/assets -o "$out/test.apk" --manifest android-smoke/AndroidManifest.xml --rename-instrumentation-target-package "$app_id" -I "$platform"
+"$bt/aapt2" link -A "$out/test-assets" -o "$out/test.apk" --manifest android-smoke/AndroidManifest.xml --rename-instrumentation-target-package "$app_id" -I "$platform"
 zip -q -j "$out/test.apk" "$out/dex/classes.dex"
 "$bt/zipalign" -f 4 "$out/test.apk" "$out/aligned.apk"
 development_key=$(./gradlew --quiet :app:printDebugKeystore)

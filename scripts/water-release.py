@@ -72,7 +72,12 @@ def build(output, cache, stamp, refresh):
         for key in sources["providers"]:
             try:
                 path = cache / (key + ".json")
-                run_import("import-europe-waters.py", key, path, "--as-of", stamp)
+                extra = []
+                if key == "FVO" and key in atlas["europe"]:
+                    reference = cache / "previous-FVO.json"
+                    reference.write_bytes(encode(atlas["europe"][key]))
+                    extra = ["--previous", reference]
+                run_import("import-europe-waters.py", key, path, "--as-of", stamp, *extra)
                 new = read(path)
                 old = atlas["europe"].get(key, {}).get("waters", [])
                 validate_size(new["waters"], old)

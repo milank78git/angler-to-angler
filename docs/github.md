@@ -35,3 +35,22 @@ For PKCS12, configure both password secrets with the new keystore password.
 Configure the public Actions variable `ANGLER_ACCOUNT_CONFIG` as described in [Accounts](accounts.md). The closed-pilot mail configuration still restricts who can sign in.
 
 To promote an already tested APK, open **Actions → Android pilot → Run workflow**, select **main**, and enter the full published pilot tag. The workflow marks that release stable and latest using its existing tag and files. Verify a download by running `sha256sum -c angler-to-angler-<version>-build.<number>.apk.sha256` in the download directory.
+
+### Atlas release signing
+
+Generate a dedicated P-256 key offline and keep its backup under the atlas publisher's control.
+Set the multiline PEM as the Actions secret `ANGLER_ATLAS_SIGNING_KEY`. Set the matching
+base64-encoded DER public key as the Actions variable `ANGLER_ATLAS_PUBLIC_KEY` used by
+both Android builds and atlas publication.
+
+```sh
+umask 077
+openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256 -out atlas-private.pem
+openssl pkey -in atlas-private.pem -pubout -outform DER | openssl base64 -A
+```
+
+Configure the pair before merging the signed-atlas release, run **Publish the water directory**
+and check a manual atlas update on the candidate APK. An absent signer stops publication.
+An APK without a configured public key uses its bundled atlas. The client also drops trust in unsigned
+editions cached by earlier versions. A failed update retains the last verified edition.
+Coordinate key changes with an APK release because existing APKs pin their original signer.

@@ -13,7 +13,7 @@ def sign_in(package, identity, fresh=False):
     else:
         ui.shell('am', 'force-stop', package)
     ui.shell('pm', 'grant', package, 'android.permission.POST_NOTIFICATIONS')
-    ui.shell('am', 'start', '-n', package + '/app.anglers.journal.AccountActivity')
+    ui.shell('am', 'start', '-a', 'android.intent.action.MAIN', '-c', 'android.intent.category.LAUNCHER', '-p', package)
     # The sign-in screen may already contain an email after a cold restart.
     if fresh:
         ui.enter('account.email', identity[0])

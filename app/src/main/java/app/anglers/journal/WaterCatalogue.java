@@ -58,6 +58,8 @@ final class WaterCatalogue {
   }
 
   static String revision(Context c) {
+    String pin = c.getString(R.string.atlas_public_key);
+    if (pin.isEmpty() || !pin.equals(prefs(c).getString("verifiedSigner", ""))) return "";
     String key = prefs(c).getString(REVISION, "");
     return key.matches("[a-f0-9]{64}") && file(c, key).isFile() ? key : "";
   }
@@ -67,7 +69,10 @@ final class WaterCatalogue {
   }
 
   static InputStream open(Context c, String key) throws IOException {
-    if (key == null || !key.matches("[a-f0-9]{64}")) throw new FileNotFoundException();
+    String current = revision(c);
+    if (current.isEmpty() || key == null || !key.matches("[a-f0-9]{64}")
+        || !(current.equals(key) || key.equals(prefs(c).getString("previousVerified", ""))))
+      throw new FileNotFoundException();
     return new BufferedInputStream(new FileInputStream(file(c, key)));
   }
 
@@ -92,7 +97,11 @@ final class WaterCatalogue {
           if (manifest.getInt("format") != 1 || !commit.matches("[a-f0-9]{40}") || !hash.matches("[a-f0-9]{64}")
               || packed < 1 || packed > 16 * 1024 * 1024 || unpacked < 1 || unpacked > 48 * 1024 * 1024)
             throw new IOException("Invalid atlas release");
+          String pin = c.getString(R.string.atlas_public_key);
+          AtlasSignature.verify(pin, manifest);
           String previous = revision(c);
+          if (!previous.isEmpty() && edition.compareTo(prefs.getString(DATE, "")) < 0)
+            throw new IOException("Atlas edition predates the installed release");
           if (!previous.equals(hash)) {
             HttpURLConnection conn = (HttpURLConnection) new URL(ROOT + commit + "/atlas.json.gz").openConnection();
             try {
@@ -105,7 +114,8 @@ final class WaterCatalogue {
             } finally { conn.disconnect(); }
           }
           if (!prefs.edit().putString(REVISION, hash).putString(DATE, edition)
-              .putLong(CHECKED, System.currentTimeMillis()).commit()) throw new IOException("Atlas preferences unavailable");
+              .putString("previousVerified", previous.equals(hash) ? prefs.getString("previousVerified", "") : previous)
+              .putString("verifiedSigner", pin).putLong(CHECKED, System.currentTimeMillis()).commit()) throw new IOException("Atlas preferences unavailable");
           if (!previous.equals(hash)) AtlasAdditions.notify(c, previous, hash);
           File[] files = file(c, hash).getParentFile().listFiles();
           if (files != null) for (File old : files)

@@ -19,7 +19,7 @@
     "active": "Aktiv",
     "name": "Namn",
     "condition": "Status='Aktiv'",
-    "fields": "ID_FVOF,Namn,Status"
+    "fields": "OBJECTID,Namn,Status"
   },
   "FR": {
     "name": "Nom",

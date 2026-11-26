@@ -457,7 +457,12 @@ final class AccountChecks {
         app.getTargetContext()
             .getPackageManager()
             .getLaunchIntentForPackage(app.getTargetContext().getPackageName());
-    gate = app.startActivitySync(launch);
+    // Observe the real account screen behind the public, no-display launcher.
+    Instrumentation.ActivityMonitor loginMonitor = app.addMonitor("app.anglers.journal.AccountActivity", null, false);
+    app.getTargetContext().startActivity(launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+    gate = app.waitForMonitorWithTimeout(loginMonitor, 10000);
+    app.removeMonitor(loginMonitor);
+    if (gate == null) throw new AssertionError("Launcher did not open account");
     if (!find(app.expectedVersionLabel()).isShown())
       throw new AssertionError("Version hidden at sign-in");
     app.waitForIdleSync();
@@ -926,7 +931,7 @@ final class AccountChecks {
     assertAtlasSchedule(true);
     click(daily);
     assertAtlasSchedule(false);
-    atlas.enable(app.getTargetContext());
+    atlas.enable(app.getTargetContext(), app.getContext());
     click(manual);
     find(tr("atlas_settings.the_updated_atlas_is_available_offline"));
     click(manual);

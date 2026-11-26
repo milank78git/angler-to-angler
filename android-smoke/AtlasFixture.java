@@ -16,7 +16,7 @@ final class AtlasFixture {
   private byte[] archive = {};
   private int rawSize;
 
-  void enable(Context context) throws Exception {
+  void enable(Context context, Context instrumentation) throws Exception {
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     try (GZIPOutputStream zip = new GZIPOutputStream(bytes)) {
       write(zip, "{\"format\":1");
@@ -36,8 +36,20 @@ final class AtlasFixture {
     archive = bytes.toByteArray();
     StringBuilder hash = new StringBuilder();
     for (byte b : MessageDigest.getInstance("SHA-256").digest(archive)) hash.append(String.format("%02x", b & 255));
-    manifest = new JSONObject().put("format",1).put("commit",COMMIT).put("asOf","2026-11-24")
-        .put("bytes",archive.length).put("unpacked",rawSize).put("sha256",hash.toString()).toString();
+    JSONObject release = new JSONObject().put("format",1).put("commit",COMMIT).put("asOf","2026-11-24")
+        .put("bytes",archive.length).put("unpacked",rawSize).put("sha256",hash.toString()).put("registrySha256",hash.toString());
+    java.security.Signature signer = java.security.Signature.getInstance("SHA256withECDSA");
+    try (InputStream key = instrumentation.getAssets().open("atlas-test.pk8");
+         ByteArrayOutputStream encoded = new ByteArrayOutputStream()) {
+      byte[] buf = new byte[512];
+      for (int n; (n = key.read(buf)) != -1;) encoded.write(buf, 0, n);
+      signer.initSign(java.security.KeyFactory.getInstance("EC").generatePrivate(
+          new java.security.spec.PKCS8EncodedKeySpec(encoded.toByteArray())));
+    }
+    String message = "angler-atlas-v1\n" + COMMIT + "\n" + hash + "\n" + hash + "\n" +
+        archive.length + "\n" + rawSize + "\n2026-11-24\n";
+    signer.update(message.getBytes(StandardCharsets.US_ASCII));
+    manifest = release.put("signature", java.util.Base64.getEncoder().encodeToString(signer.sign())).toString();
   }
 
   private void write(OutputStream out, String value) throws IOException {

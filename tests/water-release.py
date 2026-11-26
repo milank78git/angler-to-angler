@@ -13,6 +13,18 @@ build = release["build"]
 
 
 class WaterReleaseTest(unittest.TestCase):
+    def test_swedish_identity_survives_renames_moves_and_duplicate_reference_points(self):
+        identify = runpy.run_path(str(root / "scripts/swedish_water_ids.py"))["identify"]
+        old = [{"code":"legacy", "name":"River", "points":[[14, 60]]}]
+        renamed = {"name":"New river name", "points":[[14, 60]]}
+        edition = identify([renamed, renamed], old)
+        self.assertEqual(edition, [dict(renamed, code="legacy")])
+        moved = {"name":"New river name", "points":[[14.01, 60]]}
+        other = {"name":"Another area", "points":[[15, 60]]}
+        updated = identify([moved, other], edition)
+        self.assertEqual(updated[0]["code"], "legacy")
+        self.assertEqual(identify([other, moved], updated), list(reversed(updated)))
+
     def test_offline_rebuild_and_partial_upstream_failure(self):
         with tempfile.TemporaryDirectory() as folder:
             output, cache = Path(folder) / "out", Path(folder) / "cache"

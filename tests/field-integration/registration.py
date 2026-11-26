@@ -117,7 +117,7 @@ def confirm_in_mailbox(address):
 def register():
     address = 'field-' + secrets.token_hex(5) + '@example.test'
     password = secrets.token_hex(12) + 'Aa1'
-    shell('am', 'start', '-n', PACKAGE + '/app.anglers.journal.AccountActivity')
+    shell('am', 'start', '-a', 'android.intent.action.MAIN', '-c', 'android.intent.category.LAUNCHER', '-p', PACKAGE)
     tap('account.create_account')
     enter('account.email', address)
     enter('account.new_password', password)
@@ -184,7 +184,7 @@ def desktop_confirmation():
     tap('account.return_to_confirmation')
     confirm_in_mailbox(address)  # Another device consumes the email; Android receives no callback.
     shell('am', 'force-stop', PACKAGE)
-    shell('am', 'start', '-n', PACKAGE + '/app.anglers.journal.AccountActivity')
+    shell('am', 'start', '-a', 'android.intent.action.MAIN', '-c', 'android.intent.category.LAUNCHER', '-p', PACKAGE)
     tap('account.confirmed_sign_in')
     enter('account.password', password)  # The registration address must already be filled in.
     tap('common.sign_in')

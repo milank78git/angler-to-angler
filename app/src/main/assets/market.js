@@ -422,7 +422,10 @@ export async function marketEditor({ view, nav, waterDirectory }) {
   if (route.id && (!old.mine || old.withdrawn)) return loadError(view, nav, { status: 404 });
   route.requestId ??= newJournalId();
   const commercialTerms = old ? old.commercial === true : playEdition();
-  const currentDay = today('Europe/Prague');
+  const initialWater = old?.water ?? route.water;
+  const deviceZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+  const zoneOf = (water) => water?.zone || deviceZone;
+  const currentDay = today(zoneOf(waterDirectory.byKey.get(initialWater)));
   replaceMarkup(
     screen,
     heading(old ? editLabel() : t('common.offer_a_technique')) +
@@ -478,7 +481,20 @@ export async function marketEditor({ view, nav, waterDirectory }) {
       '</button></form>',
   );
   bindBack(nav);
-  const selectedWater = bindWaterPicker('offer-water', view, waterDirectory, old?.water ?? route.water);
+  const selectedWater = bindWaterPicker('offer-water', view, waterDirectory, initialWater);
+  const dayInput = by('offer-day');
+  let automaticDay = !old?.day && !route.day;
+  dayInput.addEventListener('input', () => {
+    automaticDay = false;
+  });
+  function updateDay() {
+    dayInput.max = today(zoneOf(selectedWater()));
+    if (automaticDay) dayInput.value = dayInput.max;
+  }
+  by('offer-water').addEventListener('change', updateDay);
+  by('offer-water-search').addEventListener('input', updateDay);
+  dayInput.addEventListener('focus', updateDay);
+  by('market-preview').addEventListener('click', updateDay);
   const picker = by('offer-species');
   const country = by('offer-country');
   const search = by('species-filter');
@@ -520,6 +536,7 @@ export async function marketEditor({ view, nav, waterDirectory }) {
       title: val('title'),
       species: val('species'),
       day: val('day'),
+      timeZone: zoneOf(selectedWater()),
       access: val('access'),
       water: val('water') || null,
       price: Number(val('price')),

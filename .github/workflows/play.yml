@@ -6,6 +6,8 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+env:
+  ANGLER_ATLAS_PUBLIC_KEY: ${{ vars.ANGLER_ATLAS_PUBLIC_KEY }}
 jobs:
   bundle:
     runs-on: ubuntu-24.04

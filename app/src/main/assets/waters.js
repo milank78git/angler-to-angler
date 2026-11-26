@@ -58,7 +58,7 @@ export function waterMap(w, rivers, boundariesOnly = false, interactive = false)
       esc(t('atlas_map.open')) +
       '">'
     : '';
-  return `<figure>${open}<svg aria-label="${t('waters.overview_of_river_and_boundary_points')}" role="img" viewBox="0 0 340 170">
+  return `<figure>${open}<svg aria-label="${esc(t('waters.overview_of_river_and_boundary_points'))}" role="img" viewBox="0 0 340 170">
     <defs><pattern id="grid" width="22" height="22" patternUnits="userSpaceOnUse"><path d="M22 0H0V22" fill="none"
       stroke="#cbd8cd" stroke-width=".8"/></pattern></defs>
     <rect width="340" height="170" fill="url(#grid)"/>${paths.join('')}
@@ -169,7 +169,7 @@ export async function listWaters({ view, pack, nav, waterDirectory }) {
       ${button('home-fish', t('fish_catalogue.title'), 'secondary', 'fish-symbol')}</div>
     <div class="catalog-tools"><div class="search-box">${icon('search')}<label class="sr" for="search">
       ${t('waters.name_water_number_or_town')}</label><input type="search" id="search" value="${esc(route.query || '')}"
-      placeholder="${t('waters.search_waters_numbers_or_towns')}"></div>
+      placeholder="${esc(t('waters.search_waters_numbers_or_towns'))}"></div>
     <div class="atlas-actions">${button('atlas-filter-toggle', t('settings.filters'), 'secondary', 'sliders-horizontal')}
       ${button('atlas-settings', t('settings.title'), 'secondary')}${button('map-toggle', t('atlas.map'), 'secondary', 'map')}</div>
     <div id="atlas-filters">

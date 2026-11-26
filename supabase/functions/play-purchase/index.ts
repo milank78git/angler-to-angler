@@ -1,5 +1,5 @@
 import { JWT, OAuth2Client } from 'npm:google-auth-library@9.15.1';
-import { fulfill, processNotification } from './verify.mjs';
+import { fulfill, deliverPush, IneligiblePurchase } from './verify.mjs';
 
 function env(name: string): string {
   const value = Deno.env.get(name);
@@ -26,7 +26,10 @@ async function ledger(op: string, args: object) {
     method: 'POST', headers: {apikey: key, Authorization: 'Bearer ' + key, 'Content-Type': 'application/json'},
     body: JSON.stringify({op, args})
   });
-  if (!saved.ok) throw Error('Ledger unavailable');
+  if (!saved.ok) {
+    if (op === 'credit' && saved.status === 410) throw new IneligiblePurchase('Voided receipt');
+    throw Error('Ledger unavailable');
+  }
   return await saved.json();
 }
 
@@ -47,15 +50,12 @@ async function notification(req: Request, jwt: string) {
     const sender = ticket.getPayload();
     if (sender?.email !== env('PLAY_PUSH_EMAIL') || !sender?.email_verified) return new Response(null, {status: 403});
   } catch { return new Response(null, {status: 401}); }
-  const envelope = await req.json();
-  if (envelope.subscription !== env('PLAY_PUSH_SUBSCRIPTION')) return new Response(null, {status: 403});
-  const event = JSON.parse(atob(envelope.message.data));
-  await processNotification(event, {
+  const status = await deliverPush(req, env('PLAY_PUSH_SUBSCRIPTION'), {
     ...delivery(),
     resolveHolder: async (binding: string) => (await ledger('holder', {binding})).holder,
     voidReceipt: (hash: string) => ledger('void', {hash})
   });
-  return new Response(null, {status: 204});
+  return new Response(null, {status});
 }
 
 Deno.serve(async req => {

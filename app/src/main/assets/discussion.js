@@ -251,6 +251,9 @@ export async function waterDiscussion({ view, nav, waterDirectory }) {
       });
       if (!view.active()) return;
       if (!next) {
+        if (questionId && (!page.question || page.question.id !== questionId)) {
+          throw Object.assign(new Error('Discussion root unavailable'), { status: 404 });
+        }
         question = page.question;
         if (question) {
           by('discussion-root').append(makeCard(question, true));

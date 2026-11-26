@@ -129,3 +129,10 @@ The Journal screen shows whether edits are on this device or synchronized with
 the account. It retains the time of the last successful transfer when offline or
 after a service error. Use **Sync now** to retry. If both installations change
 the same trip, review its fishing date and water before choosing a version.
+
+
+An authenticated notification with an invalid envelope or ineligible product is acknowledged and logged without the token.
+A database or Google API outage requests redelivery. Before enabling live payments, verify the subscription's
+`deadLetterPolicy` with `gcloud pubsub subscriptions describe SUBSCRIPTION --format=json`. Check the
+destination subscription and Pub/Sub service agent permissions. A test delivery to that subscription after
+the configured retry limit verifies forwarding.

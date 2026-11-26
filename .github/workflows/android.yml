@@ -11,6 +11,8 @@ on:
     branches: [main]
 permissions:
   contents: read
+env:
+  ANGLER_ATLAS_PUBLIC_KEY: ${{ vars.ANGLER_ATLAS_PUBLIC_KEY }}
 jobs:
   profiles:
     if: github.event_name != 'workflow_dispatch'
@@ -151,6 +153,12 @@ jobs:
         with:
           name: angler-journal-debug
           path: build/input
+      - name: Check the published atlas against the signer pinned in this release
+        run: |
+          curl --fail --silent --show-error --max-time 30 \
+            https://raw.githubusercontent.com/milank78git/angler-to-angler/water-atlas-v1/manifest.json \
+            -o "$RUNNER_TEMP/atlas-manifest.json"
+          python3 scripts/atlas-signature.py "$RUNNER_TEMP/atlas-manifest.json"
       - name: Sign the tested application for existing pilot installations
         id: package
         env:

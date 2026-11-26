@@ -155,7 +155,8 @@ final class IdentityService {
         String code = "";
         if (path.startsWith("/auth/v1/") && conn.getErrorStream() != null) {
           try {
-            code = new JSONObject(read(conn.getErrorStream())).optString("error_code", "");
+            JSONObject failure = new JSONObject(read(conn.getErrorStream()));
+            code = failure.optString("error_code", failure.optString("code", ""));
           } catch (JSONException ignored) {
             /* A failed proxy response can be plain text. */
           }
