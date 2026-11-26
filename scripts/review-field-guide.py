@@ -94,11 +94,14 @@ def main():
     rules=validate()
     if not (args.check_sources or args.snapshot): return
     deadline = (datetime.date.today() + datetime.timedelta(days=21)).isoformat()
-    dates = {key: row["reviewBy"] for key, row in rules["sources"].items()}
-    dates["local pack"] = json.loads((ASSETS/"catalog.json").read_bytes())["until"]
+    # The signed daily atlas carries live review dates for supported rule adapters.
+    automated = set(json.loads((ROOT / "data/europe/rule-imports.json").read_bytes())["sources"])
+    dates = {key: row["reviewBy"] for key, row in rules["sources"].items() if key not in automated}
+    dates["local pack (remaining manually reviewed exceptions)"] = json.loads((ASSETS/"catalog.json").read_bytes())["until"]
     for row in rules["entries"]:
         if "validUntil" in row:
-            dates[row["source"]] = min(dates[row["source"]], row["validUntil"])
+            key = row["source"]
+            dates[key] = min(dates.get(key, row["validUntil"]), row["validUntil"])
     due = [f"{key} ({day})" for key, day in sorted(dates.items()) if day <= deadline]
     if due:
         print("Review and publish before expiry: " + ", ".join(due), file=sys.stderr)
@@ -108,7 +111,7 @@ def main():
     problems=[]
     today=datetime.date.today().isoformat()
     with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
-        jobs={pool.submit(fingerprint,source['url']):key for key,source in rules['sources'].items() if not source.get('manualReview')}
+        jobs={pool.submit(fingerprint,source['url']):key for key,source in rules['sources'].items() if not source.get('manualReview') and (args.snapshot or key not in automated)}
         for key,source in rules['sources'].items():
             if source.get('manualReview'):
                 print(f'{key}: interactive source review due {source["reviewBy"]}',file=sys.stderr)

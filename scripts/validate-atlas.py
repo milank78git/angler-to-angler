@@ -44,7 +44,7 @@ def validate_edition(edition, czech=False):
                 raise ValueError("Unexpected fishery field: " + field)
 
 
-def validate(folder):
+def validate(folder, expected_rules=None):
     def bounded(name, limit):
         path = folder / name
         if path.is_symlink() or not path.is_file() or not 0 < path.stat().st_size <= limit:
@@ -62,7 +62,7 @@ def validate(folder):
     if set(atlas) != {"format", "cz", "shapes", "europe", "sources", "anglingRules"} or atlas["format"] != 1:
         raise ValueError("Invalid atlas sections")
     assets = release["ASSETS"]
-    approved = {key: (assets / key).read_text() for key in ("catalog.json", "europe-rules.json")}
+    approved = expected_rules or {key: (assets / key).read_text() for key in ("catalog.json", "europe-rules.json")}
     sources = release["read"](assets / "water-sources.json")
     sources["providers"].update(release["read"](release["ROOT"] / "data/europe/water-providers.json"))
     sources["providers"] = {key: sources["providers"][key] for key in atlas["europe"]}
@@ -76,10 +76,12 @@ def validate(folder):
     if release["encode"](release["registry"](atlas)) != registry:
         raise ValueError("Registry differs from the atlas")
     dates = [date.fromisoformat(e["asOf"]) for e in [atlas["cz"], *atlas["europe"].values()]]
-    if max(dates) > date.today() or manifest != dict(format=1, asOf=max(dates).isoformat(),
+    edition = date.fromisoformat(release["edition_date"](atlas))
+    if max(dates + [edition]) > date.today() or manifest != dict(format=1, asOf=edition.isoformat(),
             bytes=len(packed), unpacked=len(raw), sha256=hashlib.sha256(packed).hexdigest(),
             registrySha256=hashlib.sha256(registry).hexdigest()):
         raise ValueError("Manifest differs from the artefact")
+    return atlas
 
 
 if __name__ == "__main__":

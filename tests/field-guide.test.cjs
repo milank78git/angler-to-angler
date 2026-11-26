@@ -122,6 +122,24 @@ test('catch history resolves pilot keys and scientific names without guessing fr
   assert.doesNotMatch(catchRulesHtml(pack, directory, {...trout, country:'US'}, '2027-01-01', 'Esox lucius'), /data-rule-status/);
 });
 
+test('local lookup follows dated fishery limits across seasons and keeps section restrictions', async () => {
+  global.document = { querySelector: () => null };
+  const { localSeasonHtml } = await import('../app/src/main/assets/seasons.js');
+  const pack = json('catalog');
+  const w = {...pack.waters[0], risSince:'2026-11-26', datedRules: {pike:[
+    {from:'2026-11-26', until:'2026-12-31', closed:false, minCm:55, maxCm:80},
+    {from:'2027-01-03', until:'2027-04-30', closed:true}
+  ]}};
+  const show = (section, day) => localSeasonHtml(pack, w, section, 'pike', day);
+  assert.match(show('main','2026-12-31'), /55 cm/);
+  assert.match(show('main','2026-12-31'), /80 cm/);
+  assert.match(show('main','2027-01-01'), /result unknown/);
+  assert.match(show('main','2027-01-03'), /result closed/);
+  assert.match(show('main','2027-05-01'), /result unknown/);
+  assert.match(show('restricted','2026-12-31'), /result prohibited/);
+  assert.doesNotMatch(show('other','2026-12-31'), /55 cm/);
+});
+
 test('atlas country hints favour the local network and time zone over the display language', async () => {
   const { suggestedAtlasCountry, countryAt } = await import('../app/src/main/assets/country-lookup.js');
   const waters = [{country:'CZ',zone:'Europe/Prague'}, {country:'IE',zone:'Europe/Dublin'},

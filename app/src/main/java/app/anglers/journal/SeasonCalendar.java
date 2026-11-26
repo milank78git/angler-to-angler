@@ -5,6 +5,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.MonthDay;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
 
 /** Calculates local season transitions and the regional pack expiry notice at 08:00. */
 final class SeasonCalendar {
@@ -14,7 +16,21 @@ final class SeasonCalendar {
     EXPIRES
   }
 
+  /** One inclusive interval published by the fishery authority for the selected species. */
+  static final class Period {
+    final LocalDate from, until;
+    final boolean closed;
+
+    Period(LocalDate from, LocalDate until, boolean closed) {
+      this.from = from;
+      this.until = until;
+      this.closed = closed;
+    }
+  }
+
   final ZoneId zone;
+  private LocalDate observedFrom;
+  private final List<Period> periods = new ArrayList<>();
   private final LocalDate from, until;
   private final MonthDay first, last;
 
@@ -26,7 +42,19 @@ final class SeasonCalendar {
     this.last = last;
   }
 
-  private boolean closed(LocalDate date) {
+  void useDatedRules(LocalDate since, List<Period> records) {
+    observedFrom = since;
+    periods.clear();
+    periods.addAll(records);
+  }
+
+  private Boolean closed(LocalDate date) {
+    if (observedFrom != null && !date.isBefore(observedFrom)) {
+      for (Period period : periods)
+        if (!date.isBefore(period.from) && !date.isAfter(period.until)) return period.closed;
+      return null;
+    }
+    if (date.isBefore(from) || date.isAfter(until)) return null;
     MonthDay day = MonthDay.from(date);
     return first.isAfter(last)
         ? !day.isBefore(first) || !day.isAfter(last)
@@ -34,14 +62,16 @@ final class SeasonCalendar {
   }
 
   Event event(LocalDate day) {
-    if (day.equals(until.plusDays(1))) return Event.EXPIRES;
-    if (!day.isAfter(from) || day.isAfter(until) || closed(day) == closed(day.minusDays(1)))
-      return null;
-    return closed(day) ? Event.CLOSES : Event.OPENS;
+    Boolean before = closed(day.minusDays(1)), after = closed(day);
+    if (before == null || before.equals(after)) return null;
+    if (after == null) return Event.EXPIRES;
+    return after ? Event.CLOSES : Event.OPENS;
   }
 
   Instant next(Instant now) {
     LocalDate day = now.atZone(zone).toLocalDate(), expiry = until.plusDays(1);
+    for (Period period : periods)
+      if (!period.until.isBefore(expiry)) expiry = period.until.plusDays(1);
     if (day.isBefore(from)) day = from;
     for (; !day.isAfter(expiry); day = day.plusDays(1)) {
       if (event(day) != null) {

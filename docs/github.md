@@ -59,11 +59,13 @@ An APK without a configured public key uses its bundled atlas. The client also d
 editions cached by earlier versions. A failed update retains the last verified edition.
 Coordinate key changes with an APK release because existing APKs pin their original signer.
 
-### Fishing rule review calendar
+### Automatic fishing rule editions
 
-Review the 45 source entries listed in `europe-rules.json` and the Czech pilot pack by
-**15 December 2026**. Record the issuing authority, effective dates and the verified text
-in the rule-data PR. Publish that reviewed edition through the signed atlas channel before
-31 December. Repeat the review for sources due on 1 February by 11 January. The weekly
-field-guide job lists affected sources three weeks ahead, including earlier rule-specific
-expiry dates. An unchanged source fingerprint alone cannot extend a rule's validity.
+The daily water directory workflow also refreshes fishing rules. Its separate read-only job
+fetches authoritative publications, matches supported articles and imports the effective
+periods supplied by the Czech fishery register. It identifies its exact output by SHA-256.
+The publisher validates the water artifact, checks the independent rules digest, combines the
+two editions and signs the final manifest. The app receives updates on its usual atlas check.
+
+See [Field guide maintenance](europe-field-guide.md#maintain-a-release) for source coverage
+and exception handling. Each source follows its own effective dates.
