@@ -7,6 +7,12 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
+      # Supabase and the loopback TLS proxy listen in Linux's ephemeral port range.
+      # Reserve their ports before the runner opens outbound image and SDK download connections.
+      - name: Reserve local service ports
+        run: |
+          reserved=$(sysctl -n net.ipv4.ip_local_reserved_ports)
+          sudo sysctl -w "net.ipv4.ip_local_reserved_ports=${reserved:+$reserved,}54321-54329,58443"
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - name: Check out the last local-only journal for the Android upgrade test
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
