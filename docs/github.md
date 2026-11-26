@@ -38,6 +38,10 @@ rotation boundary. Android 8 continues to require the original signer for an in-
 
 Configure the public Actions variable `ANGLER_ACCOUNT_CONFIG` as described in [Accounts](accounts.md). The closed-pilot mail configuration still restricts who can sign in.
 
+The **Android pilot** run summary links to the Preview APK ZIP as soon as it is uploaded. Extract the APK and install it beside the standard pilot. Published updates for existing pilot installations appear in Releases after signing.
+
+To publish a fresh APK from the current main commit after configuring signing, select **Actions → Android pilot → Run workflow → main**, leave the tag empty and run the workflow. It builds a fresh APK with the configured atlas key, repeats the tests and publishes a pre-release. A failed release lists missing repository signing settings in its summary.
+
 To promote an already tested APK, open **Actions → Android pilot → Run workflow**, select **main**, and enter the full published pilot tag. The workflow marks that release stable and latest using its existing tag and files. Verify a download by running `sha256sum -c angler-to-angler-<version>-build.<number>.apk.sha256` in the download directory.
 
 ### Atlas release signing
