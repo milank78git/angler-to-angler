@@ -237,7 +237,7 @@
  "groups.group_tips": "Hrúppa titingar",
  "groups.group_tips_label": "Hrúppa tækir · ",
  "groups.invitation_code": "Inviktingarkota",
- "groups.invite_one_angler": "Invitir eina vinkeljara",
+ "groups.invite_one_angler": "Bjóða einum fiskimanni",
  "groups.issue_invitation": "Utgáva umbýting",
  "groups.join_with_a_code": "Brúkka við ein koð",
  "groups.leave_group": "Líð inn hópu",
@@ -381,7 +381,7 @@
  "message_emoji.react": "Gera saman",
  "message_emoji.remove_my_reaction": "Fjarlægja viðbrögð mína",
  "message_emoji.use_emoji": "Nýt emoji",
- "messages.block_angler": "Blokka markør",
+ "messages.block_angler": "Sperra fiskimannin",
  "messages.conversation": "Samræð",
  "messages.enter_a_message": "Skriv eina boð.",
  "messages.insert_emoji": "Set inn emoji",
@@ -401,7 +401,7 @@
  "messages.sign_in_again_to_use_messages": "Tag inn aftur til at nýta boðar.",
  "messages.the_contents_of_the_retried_request_have": "Innihald á endurleiðtu biðjuni hefur broytt.",
  "messages.the_question_or_conversation_is_no_longer": "Spurning ella samtalin er ikki longur tøkur.",
- "messages.unblock_angler": "Loka vinkeljari",
+ "messages.unblock_angler": "Tak sperringina av fiskimanninum",
  "messages.write_a_message": "Skriv eina boð",
  "messages.you_have_blocked_this_account": "Tú har blokkað hesin kontu.",
  "messages.your_message": "Tínar boð",
@@ -415,7 +415,7 @@
  "profile_api.you_do_not_have_access_to_this": "Tú har ikki atgongd við hesa tekni.",
  "profiles.about_me": "Om min",
  "profiles.account_and_group_settings": "Kontu og samsett innstillingar",
- "profiles.angler_directory": "Angler finsterur",
+ "profiles.angler_directory": "Listi yvir fiskimenn",
  "profiles.cannot_read_this_image_choose_another_file": "Ikki lesa hesa mynd. Vel annað fílu under 30 MB.",
  "profiles.choose_a_portrait_50": "Vel ein portretning (50)",
  "profiles.edit_profile": "Broyt útformur",
@@ -669,5 +669,6 @@
  "atlas.zoom_out": "Minka",
  "dated_rules.choose_species": "Vel fiskaslag",
  "license.off": "Frá",
- "alerts.messages": "Nýggj einkaboð"
+ "alerts.messages": "Nýggj einkaboð",
+ "account.offline_expired": "Teir sjey dagarnir við atgongd uttan internet eru farnir. Set telefonina í samband við internetið og lat dagbókina upp fyri at halda fram. Tær goymdu skrásetingarnar eru á hesi telefonini."
 }

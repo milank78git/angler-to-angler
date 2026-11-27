@@ -236,7 +236,7 @@
  "groups.group_name_2_60_characters": "Pàirt a 'sòir (2 - 60 characters)",
  "groups.group_tips": "Pàirt",
  "groups.invitation_code": "Pàirt",
- "groups.invite_one_angler": "Gàidhlig · English.",
+ "groups.invite_one_angler": "Thoir cuireadh do dh’iasgair",
  "groups.issue_invitation": "Tha an invitat",
  "groups.join_with_a_code": "Gàidhlig · a cod.",
  "groups.leave_group": "Pàirt",
@@ -378,7 +378,7 @@
  "message_emoji.react": "Pàirt",
  "message_emoji.remove_my_reaction": "Tha mi a dèanamh.",
  "message_emoji.use_emoji": "Tha e emoji.",
- "messages.block_angler": "Pàirt an Angler",
+ "messages.block_angler": "Bac an t-iasgair",
  "messages.conversation": "Gàidhlig · English.",
  "messages.enter_a_message": "Tha sin dìreach lazy.",
  "messages.insert_emoji": "Pàirt a' emoji",
@@ -398,7 +398,7 @@
  "messages.sign_in_again_to_use_messages": "An t-sòile an t-sòile a tha message.",
  "messages.the_contents_of_the_retried_request_have": "Tha an-search a 's e ann an retreats.",
  "messages.the_question_or_conversation_is_no_longer": "Tha e a tha thu fìor mu dàimh, don't make a question.",
- "messages.unblock_angler": "Pàirt an Angler",
+ "messages.unblock_angler": "Thoir am bacadh far an iasgair",
  "messages.write_a_message": "Gàidhlig · Message.",
  "messages.you_have_blocked_this_account": "Tha an account a tha thu.",
  "messages.your_message": "Pàirt",
@@ -412,7 +412,7 @@
  "profile_api.you_do_not_have_access_to_this": "Tha e a dèanamh thu fìor.",
  "profiles.about_me": "Tha mi",
  "profiles.account_and_group_settings": "Account and Group Settings.",
- "profiles.angler_directory": "Gàidhlig · English.",
+ "profiles.angler_directory": "Liosta nan iasgairean",
  "profiles.cannot_read_this_image_choose_another_file": "Tha e a dèanamh.Sò tha e a dèanamh.Dàta a tha 30MB.",
  "profiles.edit_profile": "Pàirt",
  "profiles.group_catch_of_the_week": "Tha an t-àireamh a'th seman",
@@ -663,5 +663,6 @@
  "atlas.zoom_out": "Sùm a-mach",
  "dated_rules.choose_species": "Tagh gnè",
  "license.off": "Dheth",
- "alerts.messages": "Teachdaireachd phrìobhaideach ùr"
+ "alerts.messages": "Teachdaireachd phrìobhaideach ùr",
+ "account.offline_expired": "Tha na seachd làithean de chothrom far loidhne seachad. Ceangail ris an eadar-lìon is fosgail glas an leabhair-latha gus leantainn ort. Tha na h-innteartan a shàbhail thu fhathast air an fhòn seo."
 }

@@ -87,7 +87,7 @@
  "common.account_settings": "Kontoheivehusat",
  "common.all": "Buot",
  "common.angler_position": "Álgodivodussajádat",
- "common.back": "Duogáš",
+ "common.back": "Ruovttoluotta",
  "common.bait": "algeria. kgm",
  "common.cancel": "Gaskkalduhte",
  "common.catch_of_the_week": "Oza vahku",
@@ -117,7 +117,7 @@
  "common.service_unavailable_check_your_connection_and_retry": "Bálvalus lea olamuttus. Dárkkis oktavuođa ja geahččal ođđasit.",
  "common.share_a_trip_tip": "Juohkke trip- tip",
  "common.share_catch": "Juohke válljema",
- "common.sign_in": "Sisačálit",
+ "common.sign_in": "Čálit sisa",
  "common.strike_location": "Sárggo čujuhus",
  "common.technique": "Teknihka",
  "common.trip": "trip",
@@ -664,5 +664,12 @@
  "emoji.fishing": "Guolásteapmi",
  "emoji.fish": "Guolli",
  "waters.organisation": "Organisašuvdna",
- "license.title": "Guolástanlohpi"
+ "license.title": "Guolástanlohpi",
+ "settings.filters": "Sillit",
+ "atlas.list": "Listu",
+ "age.allow": "Divtte",
+ "messages.unread": "Logakeahtes",
+ "atlas.zoom_out": "Unnit",
+ "atlas.zoom_in": "Stuorut",
+ "alerts.messages": "Ođđa priváhta diehtu"
 }

@@ -28,7 +28,7 @@
  "account.licenses_and_credits": "Gråces po les licinces et les gråces",
  "account.link_my_journal": "Loyî mi djournå",
  "account.new_link_requested_check_your_inbox": "Dimandêye di novea hårdêye. Verifyîz vosse boesse d 'ivoye.",
- "account.new_password": "Sicret",
+ "account.new_password": "Noû scret",
  "account.open_inbox": "Drovi boesse d 'inwetaedje",
  "account.open_journal": "Drovi djournå",
  "account.open_the_latest_message_sent_to": "Drovi l' dierin messaedje evoyî ",
@@ -87,7 +87,7 @@
  "common.account_settings": "Apontiaedjes del conte",
  "common.all": "Tos",
  "common.angler_position": "Plaeçmint d' l' angle",
- "common.back": "Erî",
+ "common.back": "Èn erî",
  "common.bait": "Bait",
  "common.cancel": "Rinoncî",
  "common.catch_of_the_week": "Trover l ' samwinne",
@@ -97,7 +97,7 @@
  "common.fish_species": "Sôre di pexhon",
  "common.fishing_groups": "Groupes di pesca",
  "common.gps_is_available_on_android": "GPS est k 'i gn a dins Android.",
- "common.help": "_Assistindje",
+ "common.help": "Aidance",
  "common.my_activity_contributions": "Mes contributions d ' activité",
  "common.my_public_cards": "Mes cåtes oblikes",
  "common.my_submitted_catch_photos": "Mi fotches d 'pårtaedje evoyeyes",
@@ -117,7 +117,7 @@
  "common.service_unavailable_check_your_connection_and_retry": "Siervice nén disponibe. Verifyîz vosse raloyaedje eyet rissayî.",
  "common.share_a_trip_tip": "Partaker ene racsegne di trip",
  "common.share_catch": "Pårtixhî",
- "common.sign_in": "Espagne",
+ "common.sign_in": "S’elodjî",
  "common.strike_location": "Båré l' eplaeçmint",
  "common.technique": "Tecnike",
  "common.trip": "Trip",
@@ -663,5 +663,6 @@
  "catalog.label": "Tchekeye",
  "catalog.species.pike": "Brotchet",
  "catalog.species.roach": "Rossete",
- "catalog.species.barbel": "Bårbea"
+ "catalog.species.barbel": "Bårbea",
+ "settings.filters": "Passetes"
 }

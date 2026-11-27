@@ -28,7 +28,7 @@
  "account.licenses_and_credits": "Leshyansow hag kedhlow",
  "account.link_my_journal": "Meny'n degelvyek a-bervedh",
  "account.new_link_requested_check_your_inbox": "Gwrewgh an gevren nowyth. Gwiri agas boksys omgelmi.",
- "account.new_password": "Ger-tremena nowydh",
+ "account.new_password": "Ger-tremena nowyth",
  "account.open_inbox": "Ygeri bosellgys",
  "account.open_journal": "Ygeri degelvan",
  "account.open_the_latest_message_sent_to": "Ygeri an messach diwettha kendith ",
@@ -660,5 +660,10 @@
  "emoji.fish": "Pysk",
  "waters.organisation": "Kowethyans",
  "waters.water_body": "Korf dowr",
- "catalog.label": "Pow Chek"
+ "catalog.label": "Pow Chek",
+ "settings.filters": "Sidhlow",
+ "atlas.list": "Rol",
+ "settings.title": "Settyansow",
+ "waters.all_countries": "Oll an powyow",
+ "alerts.messages": "Messach privedh nowydh"
 }
