@@ -3,6 +3,7 @@ import base64
 import hashlib
 import json
 import sys
+import subprocess
 import time
 import urllib.error
 import urllib.request
@@ -73,8 +74,7 @@ if mode == 'seed':
         journal('photo_part', **photo, part=start//65536, data=base64.b64encode(jpeg[start:start+65536]).decode())
     journal('photo_prepare', **photo)
     journal('put', hash=digest, data=base64.b64encode(journal_bytes).decode())
-    assert journal('save', key='trip/restore', revision=0, format=2, parts=[digest],
-                   photos=[{'id':'fish', 'hash':photo_hash}])['revision'] == 1
+    assert journal('save', key='trip/restore', revision=0, format=2, parts=[digest])['revision'] == 1
 documents = journal('list', format=2)['rows']
 assert any(row['key'] == 'trip/restore' and row['parts'] == [digest] for row in documents)
 assert base64.b64decode(journal('get', hash=digest)['data']) == journal_bytes
@@ -90,3 +90,33 @@ if mode == 'seed':
     post(details_rpc, {'changes': details_args}, token)
 assert post(details_rpc, {}, token) == {**details_args, 'revision': 1}
 print('Private age, licence and reminder verified (' + mode + ').')
+
+
+# Advance only this restored fixture to its first expiry. Verify the real Storage API
+# purges its object and that a fresh authenticated client still reads the catch metadata.
+if mode == 'verify':
+    owner = str(uuid.UUID(profile['id']))
+    predicate = f"owner='{owner}' and trip='trip/restore' and catch_id='fish' and digest='{photo_hash}'"
+
+    def fixture_sql(query):
+        return subprocess.check_output(['psql', settings['DB_URL'], '-XqAt', '-v', 'ON_ERROR_STOP=1'],
+                                       input=query, text=True).strip()
+
+    object_id = str(uuid.UUID(fixture_sql(f"select object_id from angler_sync.photos where {predicate}")))
+    cycle = str(uuid.UUID(fixture_sql(f"select cycle from angler_sync.photos where {predicate}")))
+    stored = f"bucket_id='angler-catch-photos' and name='{object_id}'"
+    assert fixture_sql(f"select count(*) from storage.objects where {stored}") == '1'
+    fixture_sql(f"update storage.objects set created_at=now()-interval '12 months' where {stored};"
+                f"update angler_sync.photos set expires=now()-interval '1 second' where {predicate};")
+    assert journal('photo_get', **photo, offset=0) == {'expired': True}
+    assert journal('photo_renew', **photo, cycle=cycle) == {'expired': True}
+    for _ in range(5):
+        fixture_sql('select angler_sync.maintain_photos()')
+        if fixture_sql(f"select count(*) from storage.objects where {stored}") == '0':
+            break
+        time.sleep(1)
+    else:
+        raise AssertionError('Expired object still present after Storage maintenance')
+    assert journal('photo_need', **photo) == {'needed': False}
+    assert base64.b64decode(journal('get', hash=digest)['data']) == journal_bytes
+    print('Expired Storage object removed; journal metadata and expiry marker preserved.')
