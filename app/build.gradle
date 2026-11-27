@@ -22,7 +22,7 @@ android {
     defaultConfig {
         applicationId 'app.anglers.journal'
         resValue 'string', 'atlas_public_key', (System.getenv('ANGLER_ATLAS_PUBLIC_KEY') ?: '')
-        minSdk 26
+        minSdk 28
         targetSdk 35
         manifestPlaceholders = [appLinkHost: appLinkHost]
         resValue 'string', 'app_link_host', appLinkHost

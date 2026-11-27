@@ -31,7 +31,8 @@ def check(host, bundle, get=fetch):
     ):
         raise ValueError('Expected a DNS hostname')
     expected = json.loads((bundle / '.well-known/assetlinks.json').read_bytes())
-    missing = set(expected[0]['target']['sha256_cert_fingerprints'])
+    expected_certs = set(expected[0]['target']['sha256_cert_fingerprints'])
+    delegated = set()
     origin = 'https://' + host
 
     def document(path, mime):
@@ -56,8 +57,8 @@ def check(host, bundle, get=fetch):
         relations = statement.get('relation')
         certs = target.get('sha256_cert_fingerprints')
         if isinstance(relations, list) and RELATION in relations and isinstance(certs, list):
-            missing.difference_update(cert.upper() for cert in certs if isinstance(cert, str))
-    if missing:
+            delegated.update(cert.upper() for cert in certs if isinstance(cert, str))
+    if delegated != expected_certs:
         raise ValueError('assetlinks.json does not delegate app links to the pilot package and signing certificate')
 
     headers, body = document(f'/account/{PACKAGE}/callback', 'text/html')
