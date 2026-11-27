@@ -4,17 +4,21 @@ Weekly checks never write fishing rules. The explicit --snapshot option prints c
 fingerprints for a reviewer to compare with the official text and commit through a PR.
 """
 import argparse
+from collections import Counter, defaultdict
+from functools import lru_cache
 import concurrent.futures
 import datetime
 import hashlib
 import html.parser
 import json
 import re
+import os
 import sys
 import urllib.request
 from pathlib import Path
 
 from country_evidence import apply_checklists
+from rule_sources import Article, DATA, SourceChanged, published_rules
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / 'app/src/main/assets'
@@ -32,19 +36,33 @@ class VisibleText(html.parser.HTMLParser):
     def handle_data(self, text):
         if not self.omit: self.blocks.append(text)
 
+@lru_cache(maxsize=1)
+def document_monitors():
+    return json.loads(DATA.read_bytes())["documentMonitors"]
+
+
 def fingerprint(url):
-    request = urllib.request.Request(url,headers={'User-Agent':'AnglerToAngler/0.15 public source monitor'})
+    scope = document_monitors().get(url, {})
+    request = urllib.request.Request(scope.get("mirror", url),headers={'User-Agent':'AnglerToAngler/0.15 public source monitor'})
     with urllib.request.urlopen(request,timeout=22) as response:
         body = response.read(20_000_001)
         mime = response.headers.get_content_type()
         encoding = response.headers.get_content_charset() or 'utf-8'
     if len(body)>20_000_000: raise ValueError('response too large')
     if 'html' in mime:
-        parser = VisibleText()
-        parser.feed(body.decode(encoding,errors='replace'))
-        words = ' '.join(' '.join(parser.blocks).split())
-        if len(words)<500 or re.search(r'just a moment|enable javascript and cookies to continue|checking your browser',words,re.I):
+        document = body.decode(encoding, errors='replace')
+        if re.search(r'<title[^>]*>\s*(?:Just a moment|Access denied|Checking your browser)', document, re.I):
             raise ValueError('source requires interactive review')
+        if 'articleClass' in scope:
+            words = Article(scope['articleClass'], exact=scope.get('exact', False), visible_only=True).extract(document)
+            if not words:
+                raise SourceChanged('Empty authority article')
+        else:
+            parser = VisibleText()
+            parser.feed(document)
+            words = ' '.join(' '.join(parser.blocks).split())
+            if len(words)<500 or re.search(r'just a moment|enable javascript and cookies to continue|checking your browser',words,re.I):
+                raise ValueError('source requires interactive review')
         body=words.encode()
     elif not body.startswith(b'%PDF') and 'json' not in mime:
         raise ValueError('unexpected source representation')
@@ -85,26 +103,51 @@ def validate():
         if 'maxCm' in rule and rule['maxCm'] < rule.get('minCm',0): raise ValueError(rule)
     return rules
 
+def review_deadlines(rules, catalog, automated):
+    reviews = defaultdict(list)
+    ends = defaultdict(Counter)
+    for key, source in rules['sources'].items():
+        if key not in automated:
+            reviews[source['reviewBy']].append(key)
+    for row in rules['entries']:
+        if 'validUntil' in row:
+            ends[row['validUntil']][row['source']] += 1
+    rows = [(day, f'Source reviews × {len(keys)} ({", ".join(sorted(keys))})') for day, keys in reviews.items()]
+    for day, counts in ends.items():
+        detail = ', '.join(f'{key} × {n}' for key, n in sorted(counts.items()))
+        rows.append((day, f'Rule end dates × {sum(counts.values())} ({detail})'))
+    rows.append((catalog['until'], 'local pack review'))
+    return sorted(rows)
+
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     options=parser.add_mutually_exclusive_group()
     options.add_argument('--check-sources',action='store_true')
     options.add_argument('--snapshot',action='store_true')
+    parser.add_argument('--published', type=Path, help='Verify and inspect the edition served to phones')
     args=parser.parse_args()
     rules=validate()
     if not (args.check_sources or args.snapshot): return
-    deadline = (datetime.date.today() + datetime.timedelta(days=21)).isoformat()
-    # The signed daily atlas carries live review dates for supported rule adapters.
-    automated = set(json.loads((ROOT / "data/europe/rule-imports.json").read_bytes())["sources"])
-    dates = {key: row["reviewBy"] for key, row in rules["sources"].items() if key not in automated}
-    dates["local pack (remaining manually reviewed exceptions)"] = json.loads((ASSETS/"catalog.json").read_bytes())["until"]
-    for row in rules["entries"]:
-        if "validUntil" in row:
-            key = row["source"]
-            dates[key] = min(dates.get(key, row["validUntil"]), row["validUntil"])
-    due = [f"{key} ({day})" for key, day in sorted(dates.items()) if day <= deadline]
-    if due:
-        print("Review and publish before expiry: " + ", ".join(due), file=sys.stderr)
+    catalog = json.loads((ASSETS/'catalog.json').read_bytes())
+    if args.published:
+        edition = published_rules(args.published)
+        if not edition:
+            raise ValueError('Published atlas lacks signed rule data')
+        rules = json.loads(edition['europe-rules.json'])
+        catalog = json.loads(edition['catalog.json'])
+    today = datetime.date.today()
+    automated = set(json.loads(DATA.read_bytes())['sources'])
+    deadlines = review_deadlines(rules, catalog, automated)
+    horizon = (today + datetime.timedelta(days=90)).isoformat()
+    rows = [f'- {day} — {description}' for day, description in deadlines if day <= horizon]
+    if rows:
+        report = '## Field guide deadlines (next 90 days and overdue)\n\n' + '\n'.join(rows) + '\n'
+        print(report, file=sys.stderr)
+        if os.environ.get('GITHUB_STEP_SUMMARY'):
+            with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as summary:
+                summary.write(report)
+    due = any(day <= (today + datetime.timedelta(days=21)).isoformat() for day, _ in deadlines)
     pinfile=ROOT/'data/europe/source-fingerprints.json'
     baseline=json.loads(pinfile.read_text()) if pinfile.exists() else {}
     updated={}

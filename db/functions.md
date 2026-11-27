@@ -97,7 +97,7 @@ Active signatures in Liquibase deployment order. Each link opens the effective d
 | `angler_messages.set_block(uuid, boolean)` | [20261123155308](../supabase/migrations/20261123155308_private_messages.sql#L130) |  |
 | `angler_messages.single_emoji(text)` | [20261123160129](../supabase/migrations/20261123160129_message_reactions.sql#L3) |  |
 | `angler_private.age_years(date)` | [20261126080000](../supabase/migrations/20261126080000_age_and_guardians.sql#L3) |  |
-| `angler_private.apply_birth_date_change()` | [20261126150200](../supabase/migrations/20261126150200_birth_date_corrections.sql#L27) |  |
+| `angler_private.apply_birth_date_change()` | [20261126181100](../supabase/migrations/20261126181100_preserve_community_parking.sql#L1) |  |
 | `angler_private.correct_birth_date(uuid, date, date)` | [20261126150200](../supabase/migrations/20261126150200_birth_date_corrections.sql#L77) |  |
 | `angler_private.group_subject(uuid, text, boolean)` | [20261126080000](../supabase/migrations/20261126080000_age_and_guardians.sql#L103) |  |
 | `angler_private.limit_write()` | [20261126060000](../supabase/migrations/20261126060000_community_protection.sql#L10) |  |
@@ -113,7 +113,8 @@ Active signatures in Liquibase deployment order. Each link opens the effective d
 | `angler_sync.chunk_usage()` | [20261126060300](../supabase/migrations/20261126060300_journal_object_storage.sql#L24) |  |
 | `angler_sync.journal(text, jsonb)` | [20261127032314](../supabase/migrations/20261127032314_journal_community_controls.sql#L180) |  |
 | `angler_sync.list_documents(uuid, jsonb)` | [20261125175001](../supabase/migrations/20261125175001_journal_operations.sql#L1) |  |
-| `angler_sync.maintain()` | [20261126150000](../supabase/migrations/20261126150000_journal_maintenance.sql#L12) |  |
+| `angler_sync.maintain()` | [20261126181000](../supabase/migrations/20261126181000_separate_journal_storage.sql#L2) |  |
+| `angler_sync.maintain_storage()` | [20261126181000](../supabase/migrations/20261126181000_separate_journal_storage.sql#L29) |  |
 | `angler_sync.missing_chunks(uuid, jsonb)` | [20261125175001](../supabase/migrations/20261125175001_journal_operations.sql#L12) |  |
 | `angler_sync.put_chunk(uuid, jsonb)` | [20261126060300](../supabase/migrations/20261126060300_journal_object_storage.sql#L66) |  |
 | `angler_sync.read_chunk(uuid, text)` | [20261126060300](../supabase/migrations/20261126060300_journal_object_storage.sql#L54) |  |

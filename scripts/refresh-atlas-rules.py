@@ -3,35 +3,21 @@ import argparse
 from concurrent.futures import ThreadPoolExecutor
 from copy import deepcopy
 from datetime import date, timedelta
-import gzip
 import hashlib
 from http.client import HTTPException
 import json
 import os
 from pathlib import Path
 import runpy
-import subprocess
 import sys
 
-from rule_sources import DATA, SourceChanged, extract_national, fetch_html, local_records
+from rule_sources import DATA, SourceChanged, extract_national, fetch_html, local_records, published_rules
 
 SCRIPTS = Path(__file__).resolve().parent
 validate = runpy.run_path(str(SCRIPTS / "validate-atlas.py"))["validate"]
 release = runpy.run_path(str(SCRIPTS / "water-release.py"))
 monitor = runpy.run_path(str(SCRIPTS / "review-field-guide.py"))
 encode = release["encode"]
-
-
-def previous_rules(folder):
-    """Only a prior edition signed by the pinned publication key may survive an outage."""
-    path = folder / "manifest.json"
-    if not path.exists() or "signature" not in json.loads(path.read_bytes()):
-        return {}
-    subprocess.run([sys.executable, str(SCRIPTS / "atlas-signature.py"), str(path)], check=True, stdout=subprocess.DEVNULL)
-    packed = (folder / "atlas.json.gz").read_bytes()
-    if hashlib.sha256(packed).hexdigest() != json.loads(path.read_bytes())["sha256"]:
-        raise ValueError("Previous signed atlas digest mismatch")
-    return json.loads(gzip.decompress(packed)).get("anglingRules", {})
 
 
 def refresh_rules(bundled, previous, day, fetch=fetch_html, fingerprint=monitor["fingerprint"]):
@@ -68,6 +54,8 @@ def refresh_rules(bundled, previous, day, fetch=fetch_html, fingerprint=monitor[
                 return key, source, rows, None
             try:
                 observed = fingerprint(base["url"])
+            except SourceChanged:
+                raise
             except ValueError as error:
                 raise OSError("Publisher document unavailable") from error
             if observed != pin:
@@ -191,6 +179,6 @@ if __name__ == "__main__":
     apply_args.add_argument("digest")
     args = parser.parse_args()
     if args.operation == "collect":
-        collect(args.output, previous_rules(args.previous), date.today())
+        collect(args.output, published_rules(args.previous), date.today())
     else:
         apply(args.candidate, args.rules, args.digest)
