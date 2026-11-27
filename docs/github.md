@@ -15,26 +15,30 @@ Private vulnerability reporting, the dependency graph, Dependabot alerts and sec
 
 ## Android distribution
 
-Each successful push to main produces a pre-release after the Android and database checks pass. Download the APK directly from [Releases](https://github.com/milank78git/angler-to-angler/releases). The standard application ID and the certificate used for pilot 0.4.4 let Android install it over that pilot. A PR artifact signed with a runner's debug key has a different identity. Uninstalling it deletes its journal.
+Each successful push to main produces a pre-release after the Android and database checks pass. Download the APK directly from [Releases](https://github.com/milank78git/angler-to-angler/releases). On Android 9 and later the standard application ID and signing lineage allow an update over pilot 0.4.4. A PR artifact signed with a runner's debug key has a different identity. Uninstalling it deletes its journal.
 
 The installed version name comes from the manifest. The CI Android build number is 10000 plus the Android pilot workflow run number, so separate merges can share a version name and still upgrade in order. The tag, APK filename and version displayed inside the app identify the same build. A retry uses the same number. Preserve the workflow's run numbering when renaming or replacing it.
 
 ### Rotate the pilot signing identity
 
-Keep an offline backup of the pilot 0.4.4 key. Rewrap it with strong passwords under a release alias.
-Provision the rewrapped key with the existing `ANDROID_PILOT_KEYSTORE`, `ANDROID_PILOT_STORE_PASSWORD`,
-`ANDROID_PILOT_KEY_PASSWORD` secrets and `ANDROID_PILOT_KEY_ALIAS` variable. Generate a separate PKCS12
-pilot release key offline, outside the repository. Keep the Play signing key separate.
+Android 9 (API 28) is the minimum for this release. Keep the original pilot 0.4.4
+key offline. Use it once to authorize the new release signer. The APK build uses
+the rotated private key and the public proof of rotation. Keep the Play key separate.
 
     keytool -genkeypair -storetype PKCS12 -keystore pilot-rotated.p12 -alias pilot-release -keyalg RSA -keysize 4096 -validity 10000
-    apksigner rotate --out pilot.lineage --old-signer --ks pilot-original.p12 --new-signer --ks pilot-rotated.p12
+    apksigner rotate --out pilot.lineage --old-signer --ks pilot-original.p12 --set-installed-data true --set-rollback false --new-signer --ks pilot-rotated.p12
     keytool -list -v -keystore pilot-rotated.p12 -alias pilot-release
 
-Store the base64 PKCS12 and lineage as `ANDROID_ROTATED_KEYSTORE` and `ANDROID_PILOT_LINEAGE` secrets,
-with `ANDROID_ROTATED_PASSWORD`. Set the public variables `ANDROID_ROTATED_ALIAS` and
-`ANDROID_ROTATED_CERTIFICATE` (the new SHA-256 fingerprint). Deploy the generated assetlinks statement
-to the verified App Links host before publishing. The release job checks both certs at the Android 9
-rotation boundary. Android 8 continues to require the original signer for an in-place update.
+Store the base64 PKCS12 and lineage as `ANDROID_ROTATED_KEYSTORE` and `ANDROID_PILOT_LINEAGE`
+secrets, with `ANDROID_ROTATED_PASSWORD`. Set the public variables `ANDROID_ROTATED_ALIAS`
+and `ANDROID_ROTATED_CERTIFICATE` (SHA-256 fingerprint). Deploy the generated
+assetlinks statement on the verified host before publishing. It delegates to the
+rotated certificate only. The release verifies the embedded lineage against the
+original pilot certificate and the active signer from API 28 onwards. It also requires
+installed-data transfer and rejects rollback permission on the original certificate.
+Inspect these public capabilities offline with `apksigner lineage --in pilot.lineage --print-certs --verbose`. Android 8
+installations can continue using their installed version. Keep their local journals
+when moving to a supported device.
 
 Configure the public Actions variable `ANGLER_ACCOUNT_CONFIG` as described in [Accounts](accounts.md). The closed-pilot mail configuration still restricts who can sign in.
 

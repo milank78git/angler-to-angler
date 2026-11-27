@@ -21,7 +21,7 @@ class AccountLinksTest(unittest.TestCase):
         self.addCleanup(temp.cleanup)
         self.bundle = Path(temp.name)
         subprocess.run(['python3', ROOT / 'scripts/build-account-links.py', self.bundle], check=True,
-                       env={k:v for k,v in os.environ.items() if k != 'ANDROID_ROTATED_CERTIFICATE'})
+                       env=os.environ | {'ANDROID_ROTATED_CERTIFICATE': '24' * 32})
         self.statement = json.loads((self.bundle / '.well-known/assetlinks.json').read_bytes())[0]
         self.statements = [self.statement]
         self.callback = (self.bundle / 'account' / links.PACKAGE / 'callback.html').read_bytes()
@@ -43,18 +43,29 @@ class AccountLinksTest(unittest.TestCase):
 
     def test_multiple_apps_and_certificates(self):
         certs = self.statement['target']['sha256_cert_fingerprints']
-        certs[:] = ['00:' * 31 + '00', certs[0].lower()]
+        certs[:] = [certs[0].lower()]
         self.statements.insert(0, {'target': {'namespace': 'web', 'site': 'https://example.test'}})
         self.verify()
 
-    def test_both_certificates_required_after_rotation(self):
+    def test_only_rotated_certificate_delegated_after_rotation(self):
         rotated = "ab" * 32
         subprocess.run(["python3", ROOT / "scripts/build-account-links.py", self.bundle], check=True,
                        env=os.environ | {"ANDROID_ROTATED_CERTIFICATE": rotated})
         with self.assertRaisesRegex(ValueError, "does not delegate"):
             self.verify()
         self.statement["target"]["sha256_cert_fingerprints"].append(":".join(["AB"] * 32))
+        with self.assertRaisesRegex(ValueError, "does not delegate"):
+            self.verify()
+        self.statement["target"]["sha256_cert_fingerprints"] = [":".join(["AB"] * 32)]
         self.verify()
+
+    def test_missing_or_legacy_signer_does_not_generate_a_delegation(self):
+        for pin in ('', '8194987893a64ee0abf250377c54a7d939b81743fa95020dd4a701ea45ad92b6'):
+            with self.subTest(pin=pin), tempfile.TemporaryDirectory() as directory:
+                result = subprocess.run(['python3', ROOT / 'scripts/build-account-links.py', directory],
+                                        env=os.environ | {'ANDROID_ROTATED_CERTIFICATE': pin}, capture_output=True)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertFalse((Path(directory) / '.well-known/assetlinks.json').exists())
 
     def test_preview_or_wrong_certificate_is_insufficient(self):
         self.statement['target']['package_name'] += '.preview'
