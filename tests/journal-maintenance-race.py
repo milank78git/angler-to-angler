@@ -54,7 +54,7 @@ with ThreadPoolExecutor(max_workers=1) as workers:
             sql(f"""begin; set local statement_timeout='2s'; set local role authenticated;
                 set local "request.jwt.claim.sub"='{OWNER}';
                 select public.angler_journal_sync('put', jsonb_build_object(
-                    'epoch',public.angler_journal_sync('settings','{}')->'epoch',
+                    'epoch',public.angler_journal_sync('settings',jsonb_build_object())->'epoch',
                     'hash',encode(sha256('concurrent write'::bytea),'hex'),
                     'data',encode('concurrent write'::bytea,'base64')));
                 commit;""")
