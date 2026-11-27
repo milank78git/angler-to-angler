@@ -86,7 +86,7 @@
  "catch_position.cancel_location_request": "Կրթության հարցը կվերադառնա",
  "common.account_settings": "Գրքերի պայմանագրեր",
  "common.all": "Բոլորը",
- "common.angler_position": "Անգլերեն՝ Angler",
+ "common.angler_position": "Ձկնորսի գտնվելու վայրը",
  "common.back": "Հետ",
  "common.bait": "Խայծ",
  "common.cancel": "Չեղարկել",
@@ -104,7 +104,7 @@
  "common.no_ratings_yet": "Չինաստանում դեռ ոչ մի արժեք չունի",
  "common.no_tips_here_yet": "Ոչ մի քայլ այստեղ.",
  "common.offer_a_technique": "Ներկայացնել մի գործունեություն",
- "common.private_messages": "Private հաղորդագրություն",
+ "common.private_messages": "Անձնական հաղորդագրություններ",
  "common.public_catch_card": "Հասարակական հեղափոխություն",
  "common.ratings": "Կրթություն",
  "common.recipient": "Հաճախորդներ",
@@ -723,5 +723,6 @@
  "groups.edit_tip": "Խմբագրել խորհուրդը",
  "groups.remove_tip": "Հեռացնել խորհուրդը",
  "alerts.community": "Անձնական հաղորդագրություններ, պատասխաններ, խմբերի և շուկայի նորություններ",
- "trips.remove_catch": "Ջնջել այս որսն ու դրա լուսանկարը"
+ "trips.remove_catch": "Ջնջել այս որսն ու դրա լուսանկարը",
+ "waters.angler_contributions": "Ձկնորսների հրապարակումներ"
 }

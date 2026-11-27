@@ -1,7 +1,7 @@
 {
- "account.account_sign_in": "Kontuláhtor",
+ "account.account_sign_in": "Čálit sisa kontui",
  "account.angler_profile": "Guolásteaddji profiila",
- "account.back_to_sign_in": "Máŋos vuolláičáliheapmi",
+ "account.back_to_sign_in": "Máhca sisačáliheapmái",
  "account.check_the_address": "Iskka čujuhusa.",
  "account.check_your_email": "Iskka iežat e- boastta",
  "account.choose_a_different_password": "Vállje eará beassansáni.",
@@ -30,7 +30,7 @@
  "account.new_link_requested_check_your_inbox": "Ođđa liŋkka jearahuvvon. Dárkkis sisabovssa.",
  "account.new_password": "Ođđa beassansátni",
  "account.open_inbox": "Raba sisaboksa",
- "account.open_journal": "Raba dieđuid",
+ "account.open_journal": "Raba guolástanbeaivegirjji",
  "account.open_the_latest_message_sent_to": "Raba maŋemuš reivve sáddejuvvon dása ",
  "account.open_your_webmail_in_the_browser_on": "Raba fierpmádatboasta fierpmádatlogan dán telefonas.",
  "account.password": "Beassansátni",
@@ -51,7 +51,7 @@
  "account.the_pilot_cannot_send_to_this_address": "Ii sáhte viečča dán čujuhussii. Váldde oktavuođa sisačáliheaddji.",
  "account.this_link_was_already_used_or_has": "Dát liŋka lea juo geavahuvvon dahje lea boarásmuvvan. Jeara ođđa liŋkka.",
  "account.too_many_attempts_please_try_again_later": "Menddo máŋga geahččalemiid. Geahččal ođđasit maŋŋeleabbut.",
- "account.unlock_journal": "Ráhkat dieđuid",
+ "account.unlock_journal": "Raba beaivegirjji lohka",
  "account.unlock_with_device": "Raba ovttadagain",
  "account.use_at_least_8_characters": "Geavat unnimus 8 mearka.",
  "app.name": "Guolásteaddjis guolásteaddjái",
@@ -86,7 +86,7 @@
  "catch_position.cancel_location_request": "Gaskkalduhte báikká jearahusa",
  "common.account_settings": "Kontoheivehusat",
  "common.all": "Buot",
- "common.angler_position": "Álgodivodussajádat",
+ "common.angler_position": "Guolásteaddji báiki",
  "common.back": "Ruovttoluotta",
  "common.bait": "algeria. kgm",
  "common.cancel": "Gaskkalduhte",
@@ -104,7 +104,7 @@
  "common.no_ratings_yet": "Eai leat árvosáni eará",
  "common.no_tips_here_yet": "Dás eai leat rávvagiid.",
  "common.offer_a_technique": "@ title: window",
- "common.private_messages": "Priváhta reivvet",
+ "common.private_messages": "Priváhta dieđut",
  "common.public_catch_card": "Almmolaš geavaheapmi goarta",
  "common.ratings": "Árvosátnit",
  "common.recipient": "Vuostáiváldi",
@@ -672,5 +672,6 @@
  "atlas.zoom_out": "Unnit",
  "atlas.zoom_in": "Stuorut",
  "alerts.messages": "Ođđa priváhta diehtu",
- "settings.title": "Ásahusat"
+ "settings.title": "Ásahusat",
+ "waters.angler_contributions": "Guolásteaddjiid čállosat"
 }

@@ -1,7 +1,7 @@
 {
- "account.account_sign_in": "Hesabın imzası",
+ "account.account_sign_in": "Hesaba daxil ol",
  "account.angler_profile": "Balıqçı profili",
- "account.back_to_sign_in": "Yenə qayıtmaq",
+ "account.back_to_sign_in": "Giriş səhifəsinə qayıt",
  "account.check_the_address": "Adresini baxın.",
  "account.check_your_email": "E-mailinizə baxın",
  "account.choose_a_different_password": "Başka bir şifrin seçin.",
@@ -30,7 +30,7 @@
  "account.new_link_requested_check_your_inbox": "Yeni bir link istədiyinizdir.Inboxınızı kontrol edin.",
  "account.new_password": "Yeni şifre",
  "account.open_inbox": "Open Inbox",
- "account.open_journal": "Açıklama jurnalı",
+ "account.open_journal": "Balıqçılıq gündəliyini aç",
  "account.open_the_latest_message_sent_to": "Son mesajı açın ",
  "account.open_your_webmail_in_the_browser_on": "Bu telefonda webmail-inizi bu browserdə açın.",
  "account.password": "Şifrə",
@@ -51,7 +51,7 @@
  "account.the_pilot_cannot_send_to_this_address": "Pilot bu adrese göndərilmə bilməz.Pilot operatörünün qapı ilə iletişime geçin.",
  "account.this_link_was_already_used_or_has": "Bu link artıq istifadə edilmiş və ya sona erdi. yeni birini isteyin.",
  "account.too_many_attempts_please_try_again_later": "Bir çox işləyir, daha sonra tekrar çalışın.",
- "account.unlock_journal": "Günlük jurnal",
+ "account.unlock_journal": "Gündəliyin kilidini aç",
  "account.unlock_with_device": "Xayrı aparatı ilə",
  "account.use_at_least_8_characters": "8 karakterdən çox istifadə edin.",
  "app.name": "Balıqçıdan balıqçıya",
@@ -86,7 +86,7 @@
  "catch_position.cancel_location_request": "Yerleşim isteyi iptal et",
  "common.account_settings": "Hesabın düzəltəsi",
  "common.all": "Bütün",
- "common.angler_position": "Angler pozisyonu",
+ "common.angler_position": "Balıqçının yeri",
  "common.back": "Geri",
  "common.bait": "Yem",
  "common.cancel": "Ləğv edin",
@@ -104,7 +104,7 @@
  "common.no_ratings_yet": "Qalanı nə qədər",
  "common.no_tips_here_yet": "Burada heç bir tip yoxdur.",
  "common.offer_a_technique": "Tekniqlər üçün bir",
- "common.private_messages": "Özel mesajlar",
+ "common.private_messages": "Şəxsi mesajlar",
  "common.public_catch_card": "Public Catch kartı",
  "common.ratings": "Ratifikasiya",
  "common.recipient": "Təbri",
@@ -708,5 +708,6 @@
  "parking.remove": "Dayanacaq nöqtəsini sil",
  "parking.remove_info": "Paylaşılmış dayanacaq nöqtəsi və onun rəyləri silinsin?",
  "alerts.community": "Şəxsi mesajlar, cavablar, qrup və bazar fəaliyyəti",
- "trips.remove_catch": "Bu ovu və şəklini sil"
+ "trips.remove_catch": "Bu ovu və şəklini sil",
+ "waters.angler_contributions": "Balıqçıların paylaşımları"
 }

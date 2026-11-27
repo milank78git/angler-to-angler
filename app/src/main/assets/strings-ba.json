@@ -1,7 +1,7 @@
 {
- "account.account_sign_in": "Хәбәрҙең билдәләүе",
+ "account.account_sign_in": "Иҫәп яҙмаһына инеү",
  "account.angler_profile": "Балыҡсы профиле",
- "account.back_to_sign_in": "Яңы донъяға ҡайтырға",
+ "account.back_to_sign_in": "Инеү битенә ҡайтыу",
  "account.check_the_address": "Адресты тикшереү.",
  "account.check_your_email": "Эл. поштаңды текшерегеҙ",
  "account.choose_a_different_password": "Башҡа шифрды һайлағыҙ.",
@@ -30,7 +30,7 @@
  "account.new_link_requested_check_your_inbox": "Яңы шиғыр талап ителгән. Электронды тикшереп сығығыҙ.",
  "account.new_password": "Яңы серһүҙ",
  "account.open_inbox": "Элекке рамканы ачығыҙ",
- "account.open_journal": "журналы ашығыу",
+ "account.open_journal": "Балыҡсылыҡ көндәлеген асырға",
  "account.open_the_latest_message_sent_to": "Һуңғы хәбәрҙе ашу ",
  "account.open_your_webmail_in_the_browser_on": "Был телефонда веб - почтағыҙҙы ашыҡығыҙ.",
  "account.password": "Серһүҙ",
@@ -51,7 +51,7 @@
  "account.the_pilot_cannot_send_to_this_address": "Пилотер әле был адресҡа ебәрә алмай.",
  "account.this_link_was_already_used_or_has": "Был шиғыр инде ҡулланылған йә үткәрелгән. Яңы бәйләнеште һорағыҙ.",
  "account.too_many_attempts_please_try_again_later": "Һуңыраҡ тағы ла тырышлыҡтарыбыҙҙы бик нығытҡан.",
- "account.unlock_journal": "журналҙы блоксылаштырығыҙ",
+ "account.unlock_journal": "Көндәлектең бикләүен асырға",
  "account.unlock_with_device": "Ғүзмә менән блокһөҙләү",
  "account.use_at_least_8_characters": "Ҡайһы берәүҙәр, камил булмаған 8 тарафты ҡулланығыҙ.",
  "app.name": "Балыҡсынан балыҡсыға",
@@ -86,7 +86,7 @@
  "catch_position.cancel_location_request": "урындың һорауын кире ҡағылдырығыҙ",
  "common.account_settings": "Хәбәр баптаулары",
  "common.all": "Барыһы ла",
- "common.angler_position": "Ангелр урыны",
+ "common.angler_position": "Балыҡсының урынлашҡан ере",
  "common.back": "Артҡа",
  "common.bait": "Байт",
  "common.cancel": "Тормошо",
@@ -104,7 +104,7 @@
  "common.no_ratings_yet": "Әллә рейтинг юҡ",
  "common.no_tips_here_yet": "Бында әлегеҙ кәңәштәр юҡ.",
  "common.offer_a_technique": "Медицина тәҡдим итегеҙ",
- "common.private_messages": "Шәхси хаттар",
+ "common.private_messages": "Шәхси хәбәрҙәр",
  "common.public_catch_card": "Яңы кәңәшмә картаһы",
  "common.ratings": "Бәғәттәр",
  "common.recipient": "Алушы",
@@ -679,5 +679,6 @@
  "sync.erase": "Интернеттағы күсермәне юйырға",
  "parking.remove_info": "Уртаҡ туҡталҡа нөктәһен һәм уның тураһындағы баһаларҙы юйырғамы?",
  "alerts.community": "Шәхси хәбәрҙәр, яуаптар, төркөмдәге һәм баҙарҙағы яңылыҡтар",
- "trips.remove_catch": "Был тотолған балыҡты һәм уның фотоһын юйырға"
+ "trips.remove_catch": "Был тотолған балыҡты һәм уның фотоһын юйырға",
+ "waters.angler_contributions": "Балыҡсыларҙың яҙмалары"
 }

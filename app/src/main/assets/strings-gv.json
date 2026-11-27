@@ -1,7 +1,7 @@
 {
- "account.account_sign_in": "Feddyn magh mynchoontey",
+ "account.account_sign_in": "Loggal stiagh ’sy choontys",
  "account.angler_profile": "Profeil yn eeasteyr",
- "account.back_to_sign_in": "Cur erash dy goll stiagh",
+ "account.back_to_sign_in": "Er ash gys loggal stiagh",
  "account.check_the_address": "Jeagh er yn enmys",
  "account.check_your_email": "Jeagh er yn chaghteragh ayd's",
  "account.choose_a_different_password": "Reih ny fockle follit elley.",
@@ -30,7 +30,7 @@
  "account.new_link_requested_check_your_inbox": "Jeagh er yn kiangley noa. Jeagh trooid yn kiangley stiagh ayd's",
  "account.new_password": "Fockle arrey noa",
  "account.open_inbox": "Foashley boayl mychoine",
- "account.open_journal": "Foashley boayl",
+ "account.open_journal": "Foshil lioar-laa yn eeasteyr",
  "account.open_the_latest_message_sent_to": "Foashley yn çhaghteraght s'jerree currit dys ",
  "account.open_your_webmail_in_the_browser_on": "Foshley ynmail ayd's sy jeaghydeyr eddyr-voggyl shoh",
  "account.password": "Fockle arrey",
@@ -51,7 +51,7 @@
  "account.the_pilot_cannot_send_to_this_address": "Cha nod yn piloot cur dys yn enmys shoh ec y traa t'ayn. Loayrt rish yn roieder piloto.",
  "account.this_link_was_already_used_or_has": "Ta'n kiangley v'eh jannoo ymmydit hannah ny er v'eh jerrey. Briaght son noa.",
  "account.too_many_attempts_please_try_again_later": "Roar smoo prowalyn. Prowal reesht ny sloo my-sailltch.",
- "account.unlock_journal": "Cur yn ghlass ersooyl jeh'n boarder",
+ "account.unlock_journal": "Feayshil gless yn lioar-laa",
  "account.unlock_with_device": "Cur yn ghlass ersooyl lesh saase",
  "account.use_at_least_8_characters": "Jannoo ymmyd jeh ny cooid sloo 8 character.",
  "app.name": "Veih eeasteyr gys eeasteyr",
@@ -86,7 +86,7 @@
  "catch_position.cancel_location_request": "Cur yn feysht boayl ass",
  "common.account_settings": "Reighyn mynchoontey",
  "common.all": "Oilley",
- "common.angler_position": "Boayl yn uillin",
+ "common.angler_position": "Boayl yn eeasteyr",
  "common.back": "Er ash",
  "common.bait": "Bait",
  "common.cancel": "Cur ass",
@@ -104,7 +104,7 @@
  "common.no_ratings_yet": "Cha nel reighyn foast er",
  "common.no_tips_here_yet": "Cha nel cowraghyn ayns shoh foast.",
  "common.offer_a_technique": "Cur chaghteragh er",
- "common.private_messages": "çhaghteraghyn persoonagh",
+ "common.private_messages": "Çhaghteraghtyn preevaadjagh",
  "common.public_catch_card": "Caart caghlaa theay",
  "common.ratings": "Towse",
  "common.recipient": "Tareyder",
@@ -663,5 +663,6 @@
  "catalog.label": "Y Çheck",
  "atlas.list": "Rolley",
  "waters.all_countries": "Oilley ny çheeraghyn",
- "water_reports.low_water": "Ushtey injil"
+ "water_reports.low_water": "Ushtey injil",
+ "waters.angler_contributions": "Screeuyn voish eeasteyryn"
 }

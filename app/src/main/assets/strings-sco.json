@@ -1,7 +1,7 @@
 {
- "account.account_sign_in": "Account sign-in",
- "account.angler_profile": "Angler profile",
- "account.back_to_sign_in": "Back tae signat-in",
+ "account.account_sign_in": "Sign in tae yer accoont",
+ "account.angler_profile": "Angler’s profile",
+ "account.back_to_sign_in": "Back tae sign-in",
  "account.check_the_address": "Check the adresse.",
  "account.check_your_email": "Check ye email",
  "account.choose_a_different_password": "Choe a different wachtpassword.",
@@ -30,7 +30,7 @@
  "account.new_link_requested_check_your_inbox": "New link recoud. Check ye inbox.",
  "account.new_password": "New wachtwung",
  "account.open_inbox": "Open inbox",
- "account.open_journal": "Open journal",
+ "account.open_journal": "Open the fishin journal",
  "account.open_the_latest_message_sent_to": "Open the laest message sent tae ",
  "account.open_your_webmail_in_the_browser_on": "Open ye webmail in the browser on this phone.",
  "account.password": "Password",
@@ -51,7 +51,7 @@
  "account.the_pilot_cannot_send_to_this_address": "The pilot canna sent tae this address yet. Contact the pilot operator.",
  "account.this_link_was_already_used_or_has": "This link wis awreadies uised or haes caipsed. Request a new ane.",
  "account.too_many_attempts_please_try_again_later": "Roo monie tryess. Gilly try again later.",
- "account.unlock_journal": "Unlock journal",
+ "account.unlock_journal": "Unlock the fishin journal",
  "account.unlock_with_device": "Unlock wi device",
  "account.use_at_least_8_characters": "Uise at lhits 8 characters.",
  "app.name": "Angler tae Angler",
@@ -86,7 +86,7 @@
  "catch_position.cancel_location_request": "Cancel location request",
  "common.account_settings": "Account settins",
  "common.all": "Alle",
- "common.angler_position": "Angler position",
+ "common.angler_position": "Whare the angler is",
  "common.back": "Back",
  "common.bait": "Bait",
  "common.cancel": "Cancel",
@@ -686,5 +686,6 @@
  "groups.link_lifetime": "Onybody wi this link can jyn the group within 24 oors. Share it only wi the fowk ye want tae invite.",
  "parking.remove": "Remuive parkin place",
  "parking.remove_info": "Remuive the shared parkin place an its reviews?",
- "alerts.community": "Private messages, replies, an whit’s happenin in the groups an on the mercat"
+ "alerts.community": "Private messages, replies, an whit’s happenin in the groups an on the mercat",
+ "waters.angler_contributions": "Posts fae anglers"
 }

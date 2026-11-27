@@ -86,7 +86,7 @@
  "catch_position.cancel_location_request": "Отместување на локацијата",
  "common.account_settings": "Резервација на сметки",
  "common.all": "Сите",
- "common.angler_position": "Позиција на Англи",
+ "common.angler_position": "Локација на риболовецот",
  "common.back": "Назад",
  "common.bait": "Мамка",
  "common.cancel": "Откажи",
@@ -726,5 +726,6 @@
  "groups.edit_tip": "Уреди го советот",
  "groups.remove_tip": "Отстрани го советот",
  "alerts.community": "Приватни пораки, одговори и активности во групите и на пазарот",
- "trips.remove_catch": "Избриши го овој улов и неговата фотографија"
+ "trips.remove_catch": "Избриши го овој улов и неговата фотографија",
+ "waters.angler_contributions": "Објави од риболовци"
 }

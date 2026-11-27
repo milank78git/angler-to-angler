@@ -1,7 +1,7 @@
 {
- "account.account_sign_in": "Togang- Ünnerschrieven",
- "account.angler_profile": "Fischerprofil",
- "account.back_to_sign_in": "Torüch na' t Ünnerschrieven",
+ "account.account_sign_in": "Bi dat Konto anmellen",
+ "account.angler_profile": "Profil vun den Fischer",
+ "account.back_to_sign_in": "Torüch na de Anmellen",
  "account.check_the_address": "Anskrivt prööv.",
  "account.check_your_email": "Dien Nettbreef pröven",
  "account.choose_a_different_password": "Anner Passwoord utsöken.",
@@ -30,7 +30,7 @@
  "account.new_link_requested_check_your_inbox": "Nieg Verknüppen anfraagt. Bitte prööv Dien Inreekner.",
  "account.new_password": "Nee Passwoort",
  "account.open_inbox": "Ingaav opmaken",
- "account.open_journal": "Daagbook opmaken",
+ "account.open_journal": "Fischerdaagbook opmaken",
  "account.open_the_latest_message_sent_to": "De niegste Naricht opmaken ",
  "account.open_your_webmail_in_the_browser_on": "Dien Nettpost binnen dat Kieker opmaken.",
  "account.password": "Passwoort",
@@ -86,7 +86,7 @@
  "catch_position.cancel_location_request": "Ort anfragen avbreken",
  "common.account_settings": "Toganginstellen",
  "common.all": "Allens",
- "common.angler_position": "Positschoon vun de Winkel",
+ "common.angler_position": "Standsteed vun den Fischer",
  "common.back": "Trüch",
  "common.bait": "Bait",
  "common.cancel": "Avbreken",
@@ -104,7 +104,7 @@
  "common.no_ratings_yet": "Noch keen Beweerten",
  "common.no_tips_here_yet": "Hier noch keen Tipps.",
  "common.offer_a_technique": "En Teken angeven",
- "common.private_messages": "Privaat Narichten",
+ "common.private_messages": "Private Narichten",
  "common.public_catch_card": "Apen Fangenkoort",
  "common.ratings": "Beweerten",
  "common.recipient": "Adressaat",
@@ -687,5 +687,6 @@
  "parking.remove_info": "De deelt Parksteed un de Beoordelen doröver wegmaken?",
  "alerts.community": "Private Narichten, Antern un wat in de Gruppen un op den Marktplatz passeert",
  "trips.remove_catch": "Dissen Fang un sien Foto löschen",
- "catalog.species.pike": "Esox lucius"
+ "catalog.species.pike": "Esox lucius",
+ "waters.angler_contributions": "Bidrääg vun Fischers"
 }

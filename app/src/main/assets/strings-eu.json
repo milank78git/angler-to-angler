@@ -86,7 +86,7 @@
  "catch_position.cancel_location_request": "Utzi kokalekuaren eskaera",
  "common.account_settings": "Kontuaren ezarpenak",
  "common.all": "Denak",
- "common.angler_position": "Angelaren posizioa",
+ "common.angler_position": "Arrantzalearen kokapena",
  "common.back": "Atzera",
  "common.bait": "Beita",
  "common.cancel": "Utzi",
@@ -730,5 +730,6 @@
  "groups.edit_tip": "Editatu aholkua",
  "groups.remove_tip": "Ezabatu aholkua",
  "alerts.community": "Mezu pribatuak, erantzunak eta taldeetako eta azokako jarduera",
- "trips.remove_catch": "Ezabatu harrapaketa hau eta bere argazkia"
+ "trips.remove_catch": "Ezabatu harrapaketa hau eta bere argazkia",
+ "waters.angler_contributions": "Arrantzaleen ekarpenak"
 }

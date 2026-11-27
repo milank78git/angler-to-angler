@@ -1,7 +1,7 @@
 {
- "account.account_sign_in": "Kontowy podpisanje",
+ "account.account_sign_in": "Do konta přizjewić",
  "account.angler_profile": "Profil rybarja",
- "account.back_to_sign_in": "Znowa za podpisanje",
+ "account.back_to_sign_in": "Wróćo k přizjewjenju",
  "account.check_the_address": "Přepruwuj adresu.",
  "account.check_your_email": "Přepruwuj swóju email",
  "account.choose_a_different_password": "Wubjerće hinaše hesło.",
@@ -29,7 +29,7 @@
  "account.new_link_requested_check_your_inbox": "Nowy wotkaz pominany. Přepruwujće swoju póštu.",
  "account.new_password": "Nowe hesło",
  "account.open_inbox": "Zapis wočinić",
- "account.open_journal": "Wočinić",
+ "account.open_journal": "Rybarski dźenik wočinić",
  "account.open_the_latest_message_sent_to": "Powěsć wočinić ",
  "account.open_your_webmail_in_the_browser_on": "W tutym telefonu wočinić.",
  "account.password": "Hesło",
@@ -50,7 +50,7 @@
  "account.the_pilot_cannot_send_to_this_address": "Pilot njehodźi hišće na tute adresu pósłać. Kontaktujće so z operatorom.",
  "account.this_link_was_already_used_or_has": "Tutón wotkaz je hižo wužiwał abo njeje zestarjeny. Pominaj nowu.",
  "account.too_many_attempts_please_try_again_later": "Přewjele spyta. Prošu spytajće hišće raz pozdźišo.",
- "account.unlock_journal": "Dźěłowy powjerch wotmontować",
+ "account.unlock_journal": "Dźenik wotamknyć",
  "account.unlock_with_device": "Z gratom wotmontować",
  "account.use_at_least_8_characters": "Znajmjeńša 8 pismikow wužiwać",
  "app.name": "Wot rybarja k rybarjej",
@@ -85,7 +85,7 @@
  "catch_position.cancel_location_request": "Městno pominanje přetorhnyć",
  "common.account_settings": "Kontowe nastajenja",
  "common.all": "Wšitke",
- "common.angler_position": "Pozicija anglera",
+ "common.angler_position": "Stejnišćo rybarja",
  "common.back": "Wróćo",
  "common.bait": "Bait",
  "common.cancel": "Přetorhnyć",
@@ -675,5 +675,6 @@
  "parking.remove": "Parkowanišćo wotstronić",
  "parking.remove_info": "Zhromadnje dźělene parkowanišćo a jeho pohódnoćenja wotstronić?",
  "alerts.community": "Priwatne powěsće, wotmołwy a aktiwita w skupinach a na torhošću",
- "trips.remove_catch": "Tutón popad a jeho foto zhašeć"
+ "trips.remove_catch": "Tutón popad a jeho foto zhašeć",
+ "waters.angler_contributions": "Přinoški rybarjow"
 }

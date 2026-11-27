@@ -86,7 +86,7 @@
  "catch_position.cancel_location_request": "Atšaukti prašymą dėl vietos",
  "common.account_settings": "sąskaitos nustatymai",
  "common.all": "Visi",
- "common.angler_position": "Angler pozicija",
+ "common.angler_position": "Žvejo buvimo vieta",
  "common.back": "Atgal",
  "common.bait": "Masalas",
  "common.cancel": "Atšaukti",
@@ -104,7 +104,7 @@
  "common.no_ratings_yet": "Dar nėra reitingų",
  "common.no_tips_here_yet": "Nėra čia dar patarimų.",
  "common.offer_a_technique": "Siūlome techniką",
- "common.private_messages": "Privatūs pranešimai",
+ "common.private_messages": "Asmeninės žinutės",
  "common.public_catch_card": "Viešoji paėmimo kortelė",
  "common.ratings": "reitingų",
  "common.recipient": "Priėmėjas",
@@ -725,5 +725,6 @@
  "groups.edit_tip": "Keisti patarimą",
  "groups.remove_tip": "Pašalinti patarimą",
  "alerts.community": "Asmeninės žinutės, atsakymai ir veikla grupėse bei prekyvietėje",
- "trips.remove_catch": "Ištrinti šį laimikį ir jo nuotrauką"
+ "trips.remove_catch": "Ištrinti šį laimikį ir jo nuotrauką",
+ "waters.angler_contributions": "Žvejų įrašai"
 }

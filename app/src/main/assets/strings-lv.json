@@ -86,7 +86,7 @@
  "catch_position.cancel_location_request": "Atcelt atrašanās vietas pieprasījumu",
  "common.account_settings": "Konta iestatījumi",
  "common.all": "Visiem",
- "common.angler_position": "Angļu pozīcija",
+ "common.angler_position": "Makšķernieka atrašanās vieta",
  "common.back": "Atpakaļ",
  "common.bait": "Ēsma",
  "common.cancel": "Atcelt",
@@ -727,5 +727,6 @@
  "groups.edit_tip": "Rediģēt padomu",
  "groups.remove_tip": "Dzēst padomu",
  "alerts.community": "Privātās ziņas, atbildes un aktivitātes grupās un tirgū",
- "trips.remove_catch": "Dzēst šo lomu un tā fotoattēlu"
+ "trips.remove_catch": "Dzēst šo lomu un tā fotoattēlu",
+ "waters.angler_contributions": "Makšķernieku ieraksti"
 }

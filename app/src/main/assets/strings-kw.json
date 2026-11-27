@@ -1,7 +1,7 @@
 {
- "account.account_sign_in": "Gwitha an akont",
+ "account.account_sign_in": "Omgelmi dhe’n akont",
  "account.angler_profile": "Profil an pyskador",
- "account.back_to_sign_in": "War-dhes dhe'n junya",
+ "account.back_to_sign_in": "Dehweles dhe omgelmi",
  "account.check_the_address": "Gwerethya an trigva.",
  "account.check_your_email": "Gwrewgh agas ebost",
  "account.choose_a_different_password": "Dewis ger-tremena keur.",
@@ -30,7 +30,7 @@
  "account.new_link_requested_check_your_inbox": "Gwrewgh an gevren nowyth. Gwiri agas boksys omgelmi.",
  "account.new_password": "Ger-tremena nowyth",
  "account.open_inbox": "Ygeri bosellgys",
- "account.open_journal": "Ygeri degelvan",
+ "account.open_journal": "Ygeri an dydhlyver pyskessa",
  "account.open_the_latest_message_sent_to": "Ygeri an messach diwettha kendith ",
  "account.open_your_webmail_in_the_browser_on": "Ygeri agas gwias y'n peurell ma.",
  "account.password": "Ger-tremena",
@@ -51,7 +51,7 @@
  "account.the_pilot_cannot_send_to_this_address": "Peyot y'n tra dhe'n trigva ma. Kemynna operator pilote.",
  "account.this_link_was_already_used_or_has": "Kowlwrys an gevren ma eus hwath po bos dhywgh. Sorra unn nowydh.",
  "account.too_many_attempts_please_try_again_later": "Çok fazla deneyler. Lütfen sonra tekrar deneyin.",
- "account.unlock_journal": "Digelmi an degea",
+ "account.unlock_journal": "Dialwedha an dydhlyver",
  "account.unlock_with_device": "Dyllowgh gans devis",
  "account.use_at_least_8_characters": "Usyewgh a-bytteg 8 caradow.",
  "app.name": "Dhyworth pyskador dhe byskador",
@@ -86,7 +86,7 @@
  "catch_position.cancel_location_request": "Hedhi adhywgh an loghen",
  "common.account_settings": "Settyansow an akont",
  "common.all": "Oll",
- "common.angler_position": "Posys an angel",
+ "common.angler_position": "Tyller an pyskador",
  "common.back": "War-dhelergh",
  "common.bait": "Bait",
  "common.cancel": "Hedhi",
@@ -665,5 +665,6 @@
  "atlas.list": "Rol",
  "settings.title": "Settyansow",
  "waters.all_countries": "Oll an powyow",
- "alerts.messages": "Messach privedh nowydh"
+ "alerts.messages": "Messach privedh nowydh",
+ "waters.angler_contributions": "Kevrohow an byskadoryon"
 }

@@ -1,6 +1,6 @@
 {
  "account.account_sign_in": "Аххӕст кӕнын",
- "account.angler_profile": "Angler профиль",
+ "account.angler_profile": "Кӕсагахсӕджы профиль",
  "account.back_to_sign_in": "Ахицӕн кӕнынмӕ",
  "account.check_the_address": "Ӕркӕс адрес.",
  "account.check_your_email": "Ӕркӕс дӕ электронæ",
@@ -54,7 +54,7 @@
  "account.unlock_journal": "Хицæн журнал",
  "account.unlock_with_device": "Суадзын ӕхсӕнмӕ",
  "account.use_at_least_8_characters": "Ӕрмӕстдӕр 8 адӕймагӕй пайда кӕн.",
- "app.name": "Angler to Angler",
+ "app.name": "Кӕсагахсӕгӕй кӕсагахсӕгмӕ",
  "app.waters": "Доны",
  "atlas.title": "Атлас дон",
  "catch-form.fishing.technique": "Фӕсвӕллӕттӕ",
@@ -86,7 +86,7 @@
  "catch_position.cancel_location_request": "Ныууадзын ӕндӕр бынатмӕ курдиат",
  "common.account_settings": "Акаунтæ ӕвдисӕнтӕ",
  "common.all": "Иууылдӕр",
- "common.angler_position": "Ангелӕны ран",
+ "common.angler_position": "Кӕсагахсӕджы бынат",
  "common.back": "Фӕстӕмӕ",
  "common.bait": "Байт",
  "common.cancel": "Ныууадзын",
@@ -104,7 +104,7 @@
  "common.no_ratings_yet": "Нӕ райтингтӕ",
  "common.no_tips_here_yet": "Ацы ныхӕстӕ нӕй фӕдзӕхст.",
  "common.offer_a_technique": "Хъуамӕ аразӕм",
- "common.private_messages": "Ӕппӕт уацтӕ",
+ "common.private_messages": "Хи хъусынгӕнинӕгтӕ",
  "common.public_catch_card": "Арӕхстæн картӕ",
  "common.ratings": "Рейтингтӕ",
  "common.recipient": "Ӕххуысгӕнӕг",
@@ -659,5 +659,6 @@
  "waters.organisation": "Организаци",
  "catalog.label": "Чехи",
  "catalog.species.pike": "Хихор",
- "settings.title": "Уагæвæрдтæ"
+ "settings.title": "Уагæвæрдтæ",
+ "waters.angler_contributions": "Кӕсагахсджыты фыстытӕ"
 }

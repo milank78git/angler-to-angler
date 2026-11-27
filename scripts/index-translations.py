@@ -41,9 +41,9 @@ def check(show_coverage=False):
     english = read(ASSETS / "strings-en.json")
     czech = read(ASSETS / "strings-cs.json")
     fully_translated = {
-        "an", "ast", "bg", "bs", "ca", "cs", "da", "de", "el", "en", "es", "et",
-        "fi", "fr", "gl", "hr", "hu", "it", "nl", "nn", "no", "oc", "pl", "pt",
-        "ro", "ru", "sk", "sl", "sr", "sv", "tr", "uk",
+        "an", "ast", "be", "bg", "bs", "ca", "cs", "da", "de", "el", "en", "es",
+        "et", "fi", "fr", "gl", "hr", "hu", "it", "mt", "nl", "nn", "no", "oc",
+        "pl", "pt", "ro", "ru", "sk", "sl", "sr", "sv", "tr", "uk",
     }
     missing_total = 0
     complete = 0
@@ -64,6 +64,10 @@ def check(show_coverage=False):
                 raise ValueError(f"{p.name}: invalid message {key!r}")
             if re.search(r"<(?:[A-Za-z/!?])", value):
                 raise ValueError(f"{p.name}: UI labels must be plain text: {key}")
+            if re.search(r"\b(?:brazzers|pornhub)\b", value, flags=re.IGNORECASE):
+                raise ValueError(f"{p.name}: unrelated adult-site text in the translation for {key}")
+            if re.search(r"([^\W\d_])\1{7,}", value, flags=re.IGNORECASE):
+                raise ValueError(f"{p.name}: repeated letters in the translation for {key}")
             if key.startswith("europe-rules.scopes."):
                 # Dates, sizes, area numbers and legal references carry the scope of a rule.
                 if rule_numbers(value) != rule_numbers(english[key]):

@@ -86,7 +86,7 @@
  "catch_position.cancel_location_request": "Anulimi i kërkesës për vendndodhje",
  "common.account_settings": "Kontabiliteti i llogarisë",
  "common.all": "Të gjithë",
- "common.angler_position": "Angler pozicion",
+ "common.angler_position": "Vendndodhja e peshkatarit",
  "common.back": "Prapa",
  "common.bait": "Karrem",
  "common.cancel": "Anulo",
@@ -724,5 +724,6 @@
  "groups.edit_tip": "Ndrysho këshillën",
  "groups.remove_tip": "Hiq këshillën",
  "alerts.community": "Mesazhe private, përgjigje dhe aktivitet në grupe e në treg",
- "trips.remove_catch": "Fshi këtë kapje dhe foton e saj"
+ "trips.remove_catch": "Fshi këtë kapje dhe foton e saj",
+ "waters.angler_contributions": "Postimet e peshkatarëve"
 }

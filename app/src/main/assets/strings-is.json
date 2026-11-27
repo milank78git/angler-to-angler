@@ -86,7 +86,7 @@
  "catch_position.cancel_location_request": "Að hætta staðsetningu",
  "common.account_settings": "Hægt að setja reikning",
  "common.all": "Allir",
- "common.angler_position": "Anglar staðsetningu",
+ "common.angler_position": "Staðsetning veiðimanns",
  "common.back": "Til baka",
  "common.bait": "Beita",
  "common.cancel": "Hætta við",
@@ -104,7 +104,7 @@
  "common.no_ratings_yet": "Engin hæðing enn",
  "common.no_tips_here_yet": "Engin þekkja hér enn.",
  "common.offer_a_technique": "Að bjóða upp tækni",
- "common.private_messages": "Persónuleg skilaboð",
+ "common.private_messages": "Einkaskilaboð",
  "common.public_catch_card": "Sjálfþekkingu kort",
  "common.ratings": "Réttað",
  "common.recipient": "Reyfing",
@@ -723,5 +723,6 @@
  "groups.edit_tip": "Breyta ábendingu",
  "groups.remove_tip": "Fjarlægja ábendingu",
  "alerts.community": "Einkaskilaboð, svör og virkni í hópum og á markaðnum",
- "trips.remove_catch": "Eyða þessum afla og myndinni af honum"
+ "trips.remove_catch": "Eyða þessum afla og myndinni af honum",
+ "waters.angler_contributions": "Færslur veiðimanna"
 }

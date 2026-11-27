@@ -1,6 +1,6 @@
 {
  "account.account_sign_in": "Акуаԥхьара аинтерес",
- "account.angler_profile": "Ангелр профиль",
+ "account.angler_profile": "Аԥсыӡкҩы иҿырԥш",
  "account.back_to_sign_in": "Ааԥхьара аҭахын",
  "account.check_the_address": "Аҭыԥ аҿы ишәзеиҭашәҳәала.",
  "account.check_your_email": "Шәхы иашәырхәала",
@@ -86,7 +86,7 @@
  "catch_position.cancel_location_request": "аҭыԥан ааԥхьара акәын",
  "common.account_settings": "Аконта ҟарҵоит",
  "common.all": "Ҳара зегьы",
- "common.angler_position": "Ангелр аҭыԥ",
+ "common.angler_position": "Аԥсыӡкҩы иахьгылоу",
  "common.back": "Шьҭахьҟа",
  "common.bait": "Баит",
  "common.cancel": "Аҭакԥхықәра",
@@ -104,7 +104,7 @@
  "common.no_ratings_yet": "уажәы аракетациим",
  "common.no_tips_here_yet": "Ари алабжьара уажәы аӡәгьы иамоу.",
  "common.offer_a_technique": "Аметод шәылашәырго",
- "common.private_messages": "Ауаа жәабжьқәа",
+ "common.private_messages": "Хазхаҭалатәи ацҳамҭақәа",
  "common.public_catch_card": "Ауаа атҟәара акарта",
  "common.ratings": "Аброақәа",
  "common.recipient": "Аԥааимбар",
@@ -661,5 +661,6 @@
  "emoji.heart": "Агәы",
  "waters.all_countries": "Атәылақәа зегьы",
  "settings.filters": "Афильтрқәа",
- "settings.title": "Архиарақәа"
+ "settings.title": "Архиарақәа",
+ "waters.angler_contributions": "Аԥсыӡкҩцәа раацҳамҭақәа"
 }
