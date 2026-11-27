@@ -1,5 +1,6 @@
 """Index the effective SQL definitions in Liquibase deployment order."""
 import argparse
+from difflib import unified_diff
 from pathlib import Path
 import re
 import xml.etree.ElementTree as ET
@@ -14,8 +15,15 @@ declaration = re.compile(r'^\s*(?:create (?:or replace )?function|alter function
 
 def signatures():
     current = {}
-    for entry in ET.parse(changelog).findall('./{*}changeSet/{*}sqlFile'):
-        path = (changelog.parent / entry.attrib['path']).resolve()
+    entries = ET.parse(changelog).findall('./{*}changeSet/{*}sqlFile')
+    paths = [(changelog.parent / entry.attrib['path']).resolve() for entry in entries]
+    expected = sorted((root / 'supabase/migrations').glob('*.sql'))
+    if paths != expected:
+        delta = unified_diff([str(p.relative_to(root)) for p in paths],
+                             [str(p.relative_to(root)) for p in expected],
+                             fromfile='db/changelog.xml', tofile='migration files in timestamp order', lineterm='')
+        raise SystemExit('\n'.join(delta))
+    for path in paths:
         sql = path.read_text()
         for header in declaration.finditer(sql):
             match = definition.match(sql, header.start())
