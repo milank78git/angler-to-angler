@@ -1,6 +1,6 @@
 {
  "account.account_sign_in": "Kontosigner",
- "account.angler_profile": "Anglerprofil",
+ "account.angler_profile": "Fiskarprofil",
  "account.back_to_sign_in": "Tilbake til å signere",
  "account.check_the_address": "Sjekk adressen.",
  "account.check_your_email": "Sjekk e-post",
@@ -54,13 +54,13 @@
  "account.unlock_journal": "Lås opp dagbok",
  "account.unlock_with_device": "Lås opp med eining",
  "account.use_at_least_8_characters": "Bruk minst 8 teikn.",
- "app.name": "Vinker til vinkel",
+ "app.name": "Frå fiskar til fiskar",
  "app.waters": "Fiskevatn",
  "atlas.title": "Vann atlas",
  "catch-form.fishing.technique": "Fisketeknik",
  "catch-form.other.species": "Andre arter",
  "catch_form.add_photo": "Legg til bilete",
- "catch_form.bait_and_technique": "Bait og teknikk",
+ "catch_form.bait_and_technique": "Agn og teknikk",
  "catch_form.bait_or_lure": "Bait eller lukk",
  "catch_form.cannot_read_the_photo_choose_an_image": "Klarte ikkje lesa bilete. Vel eit biletet under 30 MB.",
  "catch_form.change_photo": "Endra bilete",
@@ -88,7 +88,7 @@
  "common.all": "Alle",
  "common.angler_position": "Plassering av vinkel",
  "common.back": "Tilbake",
- "common.bait": "Bait",
+ "common.bait": "Agn",
  "common.cancel": "Avbryt",
  "common.catch_of_the_week": "Fangst veke",
  "common.close": "Lukk",
@@ -660,5 +660,7 @@
  "catalog.species.roach": "Mort",
  "catalog.species.zander": "Gjørs",
  "parking.notes": "Notat",
- "rating.mine": "Din verdi"
+ "rating.mine": "Din verdi",
+ "trips.edit_catch": "Rediger fangst",
+ "trips.edit": "Rediger fisketur"
 }

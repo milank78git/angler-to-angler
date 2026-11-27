@@ -36,7 +36,7 @@ def read(path):
 def check():
     english = read(ASSETS / "strings-en.json")
     czech = read(ASSETS / "strings-cs.json")
-    fully_translated = {"cs", "de", "en", "fr", "nl", "pl", "sk"}
+    fully_translated = {"cs", "de", "en", "es", "fr", "it", "nl", "pl", "pt", "ro", "sk"}
     missing_total = 0
     complete = 0
     packs = sorted(ASSETS.glob("strings-*.json"))
