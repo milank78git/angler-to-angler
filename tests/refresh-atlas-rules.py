@@ -44,6 +44,25 @@ def ris(water, cm, upper=None):
 
 
 class DailyRulesTest(unittest.TestCase):
+    def test_scoped_article_ignores_layout_and_detects_missing_or_repeated_sections(self):
+        def extract(document):
+            return sources.Article("mb-30", exact=True, visible_only=True).extract(document)
+
+        article = '<div class="mb-30"><div>Season</div>ends in May</div>'
+        self.assertEqual(extract(article), extract('<div class="menu mb-30">New menu</div>' + article))
+        self.assertEqual(extract(article), extract(article.replace('Season', '<style>.updated{}</style>Season')))
+        self.assertNotEqual(extract(article), extract(article.replace('May', 'June')))
+        for page in (article + article, article[:-6], '<div class="menu mb-30">No article</div>'):
+            with self.assertRaises(sources.SourceChanged):
+                extract(page)
+
+    def test_legal_end_dates_count_each_rule_separately_from_source_reviews(self):
+        rules = {'sources': {'a': {'reviewBy': '2027-02-01'}, 'b': {'reviewBy': '2026-11-25'}},
+                 'entries': [{'source': 'a', 'validUntil': '2026-12-31'}] * 2}
+        dates = job['monitor']['review_deadlines'](rules, {'until': '2027-02-01'}, set())
+        self.assertIn(('2026-11-25', 'Source reviews × 1 (b)'), dates)
+        self.assertIn(('2026-12-31', 'Rule end dates × 2 (a × 2)'), dates)
+
     def test_czech_sizes_keep_different_trout_and_nontrout_limits(self):
         text = "Title (2) a) Z (Sander lucioperca) 45 cm, b) H (Hucho hucho) 65 cm. (3) a) H (Hucho hucho) 70 cm."
         wrapped = definition(text.replace("45 cm", "# cm").replace("65 cm", "# cm").replace("70 cm", "# cm"))

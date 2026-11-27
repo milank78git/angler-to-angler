@@ -206,7 +206,10 @@ begin
   end if;
   if op='enable' then
     insert into angler_sync.accounts(owner) values(actor) on conflict(owner) do update set erased=false;
-    return jsonb_build_object('enabled',true);  elsif op='list' then return angler_sync.list_documents(actor,args) || jsonb_build_object('floor',coalesce((select deletion_floor from angler_sync.accounts where owner=actor),0));
+    return jsonb_build_object('enabled',true);
+  elsif op='list' then
+    return angler_sync.list_documents(actor,args) || jsonb_build_object(
+      'floor',coalesce((select deletion_floor from angler_sync.accounts where owner=actor),0));
   elsif op='missing' then return angler_sync.missing_chunks(actor,args);
   elsif op='get' then
     return angler_sync.read_chunk(actor,h);

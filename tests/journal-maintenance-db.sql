@@ -1,4 +1,5 @@
 \ir ../supabase/migrations/20261126150000_journal_maintenance.sql
+\ir ../supabase/migrations/20261126181000_separate_journal_storage.sql
 
 -- The fake Storage transport can fail an entire page. Database cleanup must still commit.
 create function pg_temp.refuse_object_delete() returns trigger language plpgsql as $$
@@ -29,15 +30,18 @@ begin
   insert into angler_sync.documents(owner,key,revision,parts,changed_at)
     values(person,'trip/maintenance-tombstone',1,'{}',now()-interval '91 days');
   perform angler_sync.maintain();
+  perform angler_sync.maintain_storage();
   perform pg_temp.check_that((select total=used_before from angler_sync.usage where owner=person)
     and not exists(select from angler_sync.documents where owner=person and key='trip/maintenance-tombstone'),
     'Storage failure rolled back quota or deletion history cleanup');
   perform angler_sync.maintain();
+  perform angler_sync.maintain_storage();
   perform pg_temp.check_that(not exists(select from storage.objects where name in (stale::text,healthy::text))
     and (select count(*)=4 from storage.objects where name in (unusual,upper(live::text),live::text,recent::text)),
     'Failed page starved later objects or touched a protected key');
   update storage.objects set content=null where content='temporarily unavailable';
   perform angler_sync.maintain();
+  perform angler_sync.maintain_storage();
   perform pg_temp.check_that(not exists(select from storage.objects where name='00000000-0000-4000-8000-000000000001'),'Recovered delete was not retried');
 end $$;
 drop trigger simulate_unavailable on storage.objects;

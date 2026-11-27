@@ -384,7 +384,7 @@ public final class GroupsActivity extends LocalizedActivity {
     dialog.description(
         t("groups.link_lifetime"));
     dialog.action(
-        t("groups.share_code"),
+        t("public_cards.share_link"),
         AccountLayout.Action.PRIMARY,
         () ->
             startActivity(

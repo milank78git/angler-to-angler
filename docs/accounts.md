@@ -195,3 +195,11 @@ and quota records in the same transaction. The storage job deletes orphaned obje
 one-day grace period. The journal on the phone remains local. Restoring an adult date does
 not republish previous content. Existing purchasers retain their private contractual copies.
 Cloud backups follow their own retention period.
+
+The correction removes the child's parking reviews. A point they created is deleted if no
+other reviewer contributed. A point with independent reviews keeps its coordinates and
+those reviews. The correction clears the child's creator/editor attribution and any name
+they last edited. Previous private messages remain stored. During the under-15 restriction
+neither participant can open their conversation or see it in the inbox. Copies already
+received on another device cannot be recalled. When both users qualify again the stored
+conversation becomes accessible again.
