@@ -102,17 +102,20 @@ export async function listTrips({ view, nav, waterDirectory }) {
   view.refreshWaters(waterDirectory);
 }
 /** @param {import('../../../../types/screens.js').ScreenContext} context */
-export function tripForm({ view, nav, pack, waterDirectory }) {
+export async function tripForm({ view, nav, pack, waterDirectory }) {
   const { route } = view;
-  const initialWater = waterDirectory.byId.get(route.water);
+  const original = route.id ? await Journal.trip(route.id) : null;
+  if (!view.active()) return;
+  if (route.id && !original) return nav.journalAfterWrite(null);
+  const initialWater = original ? tripWater(waterDirectory, original) : waterDirectory.byId.get(route.water);
   replaceMarkup(
     screen,
     back(t('common.back')) +
-      `<div class="page-intro"><div class="title-mark">${icon('notebook-pen')}</div><h1>${t('trips.new_trip')}</h1></div>
+      `<div class="page-intro"><div class="title-mark">${icon('notebook-pen')}</div><h1>${t(original ? 'trips.edit' : 'trips.new_trip')}</h1></div>
   <form id="form" class="entry-form"><section class="surface">${waterPicker('water', t('trips.fishing_water'), t('trips.other_water'), { suggestions: true })}
   ${button('use-water-name', t('trips.use_private_name'), 'secondary')}
   <div id="custom">${textInput('water-name', t('trips.water_name'), '', 'maxlength="100"')}</div>
-  ${textInput('day', t('common.trip_date'), Domain.today(initialWater?.zone), 'type="date" required')}
+  ${textInput('day', t('common.trip_date'), original?.day || Domain.today(initialWater?.zone), 'type="date" required')}
   ${field('notes', t('trips.notes'), '<textarea id="notes" maxlength="4000" rows="3"></textarea>')}</section>
   <div class="savebar"><button class="primary">${icon('check')}${t('trips.save_trip')}</button></div></form>`,
   );
@@ -122,6 +125,8 @@ export function tripForm({ view, nav, pack, waterDirectory }) {
   const search = by('water-search'),
     water = by('water'),
     customName = by('water-name');
+  customName.value = original?.waterName || '';
+  by('notes').value = original?.notes || '';
   search.maxLength = customName.maxLength;
   function updateWaterFields() {
     const pending = !!search.value.trim();
@@ -137,7 +142,7 @@ export function tripForm({ view, nav, pack, waterDirectory }) {
     water.dispatchEvent(new Event('change', { bubbles: true }));
     customName.focus();
   });
-  let autoDay = by('day').value;
+  let autoDay = original ? null : by('day').value;
   by('day').oninput = () => {
     autoDay = null;
   };
@@ -146,8 +151,8 @@ export function tripForm({ view, nav, pack, waterDirectory }) {
     if (by('day').value === autoDay) by('day').value = autoDay = Domain.today(selectedWater()?.zone);
   };
   updateWaterFields();
-  const id = newJournalId(),
-    created = Date.now();
+  const id = original?.id || newJournalId(),
+    created = original?.created ?? Date.now();
   by('form').onsubmit = async (e) => {
     e.preventDefault();
     const w = selectedWater(),
@@ -162,18 +167,31 @@ export function tripForm({ view, nav, pack, waterDirectory }) {
       nav,
       id,
       () =>
-        Journal.saveTrip({
-          id,
-          created,
-          waterId: w ? w.id : null,
-          packId: localRuleWater(pack, w) ? pack.id : null,
-          country: w?.country ?? null,
-          zone: w?.zone ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
-          waterName: name,
-          waterNumber: w?.number || w?.code || null,
-          day,
-          notes: by('notes').value.trim(),
-        }),
+        Journal.saveTrip(
+          {
+            ...original,
+            id,
+            created,
+            waterId: w ? w.id : null,
+            packId: localRuleWater(pack, w) ? pack.id : null,
+            country: w?.country ?? null,
+            zone: w?.zone ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
+            waterName: name,
+            waterNumber: w?.number || w?.code || null,
+            ...(!w && original && !initialWater && name === original.waterName
+              ? {
+                  waterId: original.waterId,
+                  country: original.country,
+                  zone: original.zone,
+                  packId: original.packId,
+                  waterNumber: original.waterNumber,
+                }
+              : {}),
+            day,
+            notes: by('notes').value.trim(),
+          },
+          original,
+        ),
       () => toast(t('trips.saving_failed_you_can_retry')),
     );
   };
@@ -206,9 +224,10 @@ export async function tripScreen({ view, nav, pack, waterDirectory }) {
           : ''
       }</div>
     <h2>${t('trips.catches')} · ${catches.length}</h2><div id="catch-list"></div>
-    <div class="actions">${button('delete', t('trips.delete_trip'), 'danger')}</div>`,
+    <div class="actions">${button('edit-trip', t('trips.edit'), 'secondary')}${button('delete', t('trips.delete_trip'), 'danger')}</div>`,
   );
   bindBack(nav);
+  bind('edit-trip', () => nav.open('newTrip', { id }));
   bind('add', () => nav.open('newCatch', { id }));
   if (water) {
     bind('trip-rules', () => nav.open('waterRules', { id: water.id, day: trip.day }));
@@ -260,6 +279,34 @@ export async function tripScreen({ view, nav, pack, waterDirectory }) {
       details.append(summary, body);
       article.append(details);
     }
+    const edit = document.createElement('button');
+    edit.className = 'secondary';
+    edit.dataset.editCatch = c.id;
+    edit.textContent = t('trips.edit_catch');
+    edit.onclick = () => nav.open('newCatch', { id, catchId: c.id });
+    const remove = document.createElement('button');
+    remove.className = 'danger';
+    remove.dataset.removeCatch = c.id;
+    remove.textContent = t('trips.remove_catch');
+    remove.onclick = async () => {
+      if (
+        (await confirmAction({
+          title: remove.textContent,
+          message: name,
+          accept: remove.textContent,
+          destructive: true,
+        })) &&
+        view.active()
+      )
+        await writeEntry(
+          view,
+          nav,
+          id,
+          () => Journal.removeCatch(id, c.id),
+          () => toast(t('trips.deletion_failed')),
+        );
+    };
+    article.append(edit, remove);
     const share = document.createElement('button');
     share.className = 'secondary';
     share.type = 'button';

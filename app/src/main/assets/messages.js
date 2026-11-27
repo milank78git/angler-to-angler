@@ -93,7 +93,11 @@ export async function messageInbox({ view, nav }) {
         const row = document.createElement('button');
         row.type = 'button';
         row.className = 'secondary';
-        row.textContent = item.peerName + ' · ' + stamp.format(new Date(item.postedAt));
+        row.textContent =
+          (item.unread ? t('messages.unread') + ' · ' : '') +
+          item.peerName +
+          ' · ' +
+          stamp.format(new Date(item.postedAt));
         row.onclick = () => nav.open('messageThread', { threadId: item.threadId });
         by('message-items').append(row);
       }
@@ -128,6 +132,10 @@ export async function messageThread({ view, nav }) {
     read,
     (data, first) => {
       if (first) {
+        if (data.threadId && data.items.length)
+          rpc('message_read', { thread_id: data.threadId, through_position: data.items[0].id }).catch(
+            () => {},
+          );
         by('peer-name').textContent = data.peerName;
         by('message-tools').hidden = false;
         if (data.questionText)

@@ -93,6 +93,11 @@ public final class GroupsActivity extends LocalizedActivity {
       if (result.has("ageBand"))
         AccountStore.prefs(this).edit().putString("ageBand", result.getString("ageBand")).apply();
       render(result.getJSONArray("groups"));
+      if (getIntent().hasExtra("invite")) {
+        editor(false);
+        dialogInput.setText(getIntent().getStringExtra("invite"));
+        getIntent().removeExtra("invite");
+      }
     });
   }
 
@@ -222,7 +227,7 @@ public final class GroupsActivity extends LocalizedActivity {
           AccountLayout.Action.PRIMARY,
           () ->
               request(
-                  "group_invite",
+                  "group_link",
                   args("group_id", id),
                   result -> invitation(result.getString("code"))));
     dialog.choice(leave, AccountLayout.Action.DANGER, () -> confirmLeave(id, name, owner, leave));
@@ -305,6 +310,12 @@ public final class GroupsActivity extends LocalizedActivity {
                     + " · "
                     + dates.format(new java.util.Date(tip.getLong("postedAt"))),
                 tip.getString("text"));
+            if (tip.optBoolean("mine")) button(t("groups.edit_tip"), AccountLayout.Action.SECONDARY,
+                () -> tipAction(id, name, cursor, tip, "edit"));
+            else if (tip.has("position")) button(t("moderation.report"), AccountLayout.Action.SECONDARY,
+                () -> tipAction(id, name, cursor, tip, "report"));
+            if (tip.optBoolean("canRemove")) button(t("groups.remove_tip"), AccountLayout.Action.DANGER,
+                () -> tipAction(id, name, cursor, tip, "remove"));
           }
           if (!result.isNull("next")) {
             String next = result.getString("next");
@@ -340,20 +351,47 @@ public final class GroupsActivity extends LocalizedActivity {
     dialog.show();
   }
 
+  private void tipAction(String group, String name, String cursor, JSONObject tip, String action) {
+    boolean edit = action.equals("edit"), remove = action.equals("remove");
+    String label = t(edit ? "groups.edit_tip" : remove ? "groups.remove_tip" : "moderation.report");
+    dialog = ui.prompt(label);
+    String previous = tip.optString("text");
+    EditText input = edit ? dialog.input(label, InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE) : null;
+    if (edit) input.setText(previous);
+    else dialog.description(previous);
+    dialogInput = input;
+    dialog.submit(label, () -> {
+      JSONObject change = args("group_id", group, "post_position", tip.optString("position"), "action", action);
+      if (edit) {
+        String value = input.getText().toString().trim();
+        if (value.isEmpty() || value.codePointCount(0, value.length()) > 4096) { input.setError(label); return; }
+        change = args("group_id", group, "post_position", tip.optString("position"), "action", action,
+            "message", value, "previous", previous);
+      }
+      request("group_tip_change", change, ignored -> {
+        closeDialog();
+        if (action.equals("report")) ui.message(t("common.reported"));
+        else tips(group, name, cursor);
+      });
+    });
+    dialog.action(t("common.cancel"), AccountLayout.Action.SECONDARY, null);
+    dialog.show();
+  }
+
   private void invitation(String code) {
-    dialog = ui.prompt(t("groups.invite_one_angler"));
+    dialog = ui.prompt(t("groups.issue_invitation"));
     dialog.code(code);
     dialog.description(
-        t("groups.the_code_lasts_24_hours_a_new"));
+        t("groups.link_lifetime"));
     dialog.action(
-        t("groups.share_code"),
+        t("public_cards.share_link"),
         AccountLayout.Action.PRIMARY,
         () ->
             startActivity(
                 Intent.createChooser(
                     new Intent(Intent.ACTION_SEND)
                         .setType("text/plain")
-                        .putExtra(Intent.EXTRA_TEXT, code),
+                        .putExtra(Intent.EXTRA_TEXT, "https://milank78git.github.io/angler-to-angler/invite/#" + code),
                     null)));
     dialog.action(t("common.close"), AccountLayout.Action.SECONDARY, null);
     dialog.show();

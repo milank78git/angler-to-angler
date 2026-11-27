@@ -30,6 +30,7 @@ interface JournalDevice {
   navigate(lat: number, lon: number): void;
   findWater(name: string): void;
   reportFish(title: string, body: string): void;
+  openGroups(): void;
   fieldKind(): string;
   fieldWater(): string;
   addedWaters(): string;

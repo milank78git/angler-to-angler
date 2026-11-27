@@ -61,6 +61,7 @@ export async function parkingEditor({ view, nav, waterDirectory }) {
       esc(t('parking.name')) +
       '</label><input id="parking-name" maxlength="80">' +
       button('parking-confirm', t('parking.check'), 'primary') +
+      (original?.canEdit ? button('parking-remove', t('parking.remove'), 'danger') : '') +
       '<p id="parking-error" role="status"></p>',
   );
   bindBack(nav);
@@ -98,6 +99,31 @@ export async function parkingEditor({ view, nav, waterDirectory }) {
     const [lon, lat] = picker.point || origin;
     window.Device.navigate(lat, lon);
   };
+  if (original?.canEdit)
+    by('parking-remove').onclick = async () => {
+      if (
+        !(await confirmAction({
+          title: t('parking.remove'),
+          message: t('parking.remove_info'),
+          accept: t('parking.remove'),
+          destructive: true,
+        })) ||
+        !view.active()
+      )
+        return;
+      await submitChange(
+        view,
+        () =>
+          rpc('parking_remove', { water_key: water.key, point_id: id, expected_revision: original.revision }),
+        () => {
+          view.dirty = false;
+          nav.back();
+        },
+        (error) => {
+          by('parking-error').textContent = failure(error);
+        },
+      );
+    };
   save.onclick = async () => {
     if (!picker.point || view.saving) return;
     const [lon, lat] = picker.point,

@@ -33,20 +33,54 @@ def read(path):
     return json.loads(path.read_text(), object_pairs_hook=unique)
 
 
-def check():
+def rule_numbers(text):
+    return sorted(int(n) for n in re.findall(r"\d+", text))
+
+
+def check(show_coverage=False):
     english = read(ASSETS / "strings-en.json")
     czech = read(ASSETS / "strings-cs.json")
-    if english.keys() != czech.keys():
-        raise ValueError(f"English/Czech message IDs differ: {english.keys() ^ czech.keys()}")
+    fully_translated = {
+        "an", "ast", "az", "be", "bg", "bs", "ca", "cs", "cy", "da", "de", "el",
+        "en", "es", "et", "eu", "fi", "fr", "fy", "ga", "gl", "hr", "hu", "hy",
+        "is", "it", "lt", "lv", "mk", "mt", "nl", "nn", "no", "oc", "pl", "pt",
+        "ro", "ru", "sco", "sk", "sl", "sq", "sr", "sv", "tr", "uk",
+    }
+    missing_total = 0
+    complete = 0
     packs = sorted(ASSETS.glob("strings-*.json"))
     if read(ASSETS / "ui-locales.json") != [p.stem[8:] for p in packs]:
         raise ValueError("Update ui-locales.json to match the packaged dictionaries")
     for p in packs:
-        for key, value in read(p).items():
+        entries = read(p)
+        missing = english.keys() - entries.keys()
+        if missing and p.stem[8:] in fully_translated:
+            raise ValueError(f"{p.name}: missing {len(missing)} messages: {sorted(missing)[:8]}")
+        if show_coverage:
+            print(f"{p.stem[8:]:4} {len(entries):4}/{len(english)}  ({len(missing)} missing)")
+        missing_total += len(missing)
+        complete += not missing
+        for key, value in entries.items():
             if key not in english or not MESSAGE_ID.fullmatch(key) or not isinstance(value, str) or not value.strip():
                 raise ValueError(f"{p.name}: invalid message {key!r}")
             if re.search(r"<(?:[A-Za-z/!?])", value):
                 raise ValueError(f"{p.name}: UI labels must be plain text: {key}")
+            source = english[key]
+            if (source[0].isspace() and not value[0].isspace()
+                    or source[-1].isspace() and not value[-1].isspace()):
+                raise ValueError(f"{p.name}: missing separator for concatenated text in {key}")
+            if re.search(r"\b(?:brazzers|pornhub)\b", value, flags=re.IGNORECASE):
+                raise ValueError(f"{p.name}: unrelated adult-site text in the translation for {key}")
+            if re.search(r"\u2047|\bQShortcut\b|^@\s*(?:info|title|action|item)\b|[A-Za-z]+\.\s*kgm\b", value):
+                raise ValueError(f"{p.name}: unrelated translation metadata in {key}")
+            if re.search(r"([^\W\d_])\1{7,}", value, flags=re.IGNORECASE):
+                raise ValueError(f"{p.name}: repeated letters in the translation for {key}")
+            if key.startswith("europe-rules.scopes."):
+                # Dates, sizes, area numbers and legal references carry the scope of a rule.
+                if rule_numbers(value) != rule_numbers(english[key]):
+                    raise ValueError(f"{p.name}: fishery rule numbers differ for {key}")
+            if key == "europe-rules.scopes.delocal" and "D/E/R/W" not in value:
+                raise ValueError(f"{p.name}: keep the official D/E/R/W basin codes for {key}")
             if sorted(PLACEHOLDER.findall(value)) != sorted(PLACEHOLDER.findall(english[key])):
                 raise ValueError(f"{p.name}: placeholders differ for {key}")
 
@@ -104,11 +138,12 @@ def check():
             lookup = r"\bAppLanguage\.text\(\s*\w+,\s*"
         for match in re.finditer(lookup + r"\s*" + LITERAL + r"\s*\)", source):
             reference(ast.literal_eval(match[1]), name)
-    print(f"Validated {len(english)} English and Czech messages and {len(packs)} locale packs")
+    print(f"Validated {len(english)} message IDs. {complete}/{len(packs)} dictionaries have every key. "
+          f"{missing_total} localized messages are missing in total.")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true", help="Validate without modifying any resources (default)")
-    parser.parse_args()
-    check()
+    parser.add_argument("--coverage", action="store_true", help="Also list coverage for every packaged locale")
+    check(parser.parse_args().coverage)

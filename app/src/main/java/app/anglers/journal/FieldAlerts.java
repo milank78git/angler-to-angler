@@ -12,6 +12,7 @@ import org.json.JSONObject;
 /** Opt-in field alerts share no account credentials with scheduled background work. */
 final class FieldAlerts {
   static final String POSTS="posts", WATERS="waters", NEARBY="nearby";
+  static final String COMMUNITY="community";
   private static final int JOB = 473002;
   private static final ExecutorService IO = Executors.newSingleThreadExecutor();
 
@@ -21,16 +22,22 @@ final class FieldAlerts {
   static synchronized void set(Context c, String kind, boolean on) {
     SharedPreferences.Editor edit = prefs(c).edit().putBoolean(kind,on);
     if (POSTS.equals(kind)) {
-      revoke(c);
+      revoke(c, "key");
       edit.remove("cursor").remove("registered").remove("key").remove("acknowledgedWaters");
       if (on) edit.putString("key",UUID.randomUUID().toString());
+    }
+    if (COMMUNITY.equals(kind)) {
+      revoke(c, "communityKey");
+      edit.remove("communityKey").remove("communityRegistered").remove("communitySeen");
+      if (on) edit.putString("communityKey", UUID.randomUUID().toString());
+      else cancelCommunity(c);
     }
     if (NEARBY.equals(kind)) edit.remove("lastNearby");
     edit.apply();
     if (!on) c.getSystemService(NotificationManager.class).cancel(kind,1);
-    if (POSTS.equals(kind)) {
+    if (POSTS.equals(kind) || COMMUNITY.equals(kind)) {
       JobScheduler scheduler=c.getSystemService(JobScheduler.class);
-      if (on) {
+      if (enabled(c, POSTS) || enabled(c, COMMUNITY)) {
         scheduler.schedule(new JobInfo.Builder(JOB,new ComponentName(c,FieldAlertJob.class))
           .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY).setPersisted(true)
           .setPeriodic(TimeUnit.HOURS.toMillis(1)).build());
@@ -40,16 +47,18 @@ final class FieldAlerts {
   }
 
   static synchronized void clear(Context c) {
-    revoke(c);
+    revoke(c, "key");
+    revoke(c, "communityKey");
+    cancelCommunity(c);
     prefs(c).edit().clear().apply();
     c.getSystemService(JobScheduler.class).cancel(JOB);
     for (String kind : new String[]{POSTS,WATERS,NEARBY}) c.getSystemService(NotificationManager.class).cancel(kind,1);
   }
 
   /** Invalidate the previous device subscription. Offline subscriptions expire on the server. */
-  private static void revoke(Context context) {
+  private static void revoke(Context context, String preference) {
     Context c = context.getApplicationContext();
-    String key = prefs(c).getString("key", "");
+    String key = prefs(c).getString(preference, "");
     if (key.isEmpty()) return;
     IO.execute(() -> {
       try { new IdentityService(c).endPostWatch(new JSONObject().put("device_key", key)); }
@@ -72,6 +81,10 @@ final class FieldAlerts {
       SharedPreferences p=prefs(c);
       String key=p.getString("key","");
       try {
+        if (enabled(c, COMMUNITY)) {
+          try { checkCommunity(c); }
+          catch (Exception unavailable) { android.util.Log.w("FieldAlerts","Community check unavailable"); }
+        }
         if (key.isEmpty() || !enabled(c,POSTS)) return;
         IdentityService service=new IdentityService(c);
         JSONObject args=new JSONObject().put("device_key",key);
@@ -96,16 +109,47 @@ final class FieldAlerts {
     });
   }
 
+  private static final String[] COMMUNITY_KINDS={"messages","replies","tips","catches","weekly","sales","ratings"};
+
+  private static void cancelCommunity(Context c) {
+    for (String kind : COMMUNITY_KINDS) c.getSystemService(NotificationManager.class).cancel(kind,1);
+  }
+
+  private static void checkCommunity(Context c) throws Exception {
+    SharedPreferences p=prefs(c);
+    String key=p.getString("communityKey","");
+    if (key.isEmpty()) return;
+    IdentityService service=new IdentityService(c);
+    JSONObject args=new JSONObject().put("device_key",key);
+    String actor=AccountStore.active(c);
+    long now=System.currentTimeMillis();
+    boolean register=!actor.isEmpty() && now-p.getLong("communityRegistered",0)>TimeUnit.DAYS.toMillis(7);
+    JSONObject signal=register ? AccountStore.rpc(c,service,actor,"watch_community",args) : service.communitySignal(args);
+    synchronized (FieldAlerts.class) {
+      if (!key.equals(p.getString("communityKey",""))) return;
+      JSONObject seen=new JSONObject(p.getString("communitySeen","{}"));
+      for (String kind : COMMUNITY_KINDS) {
+        long latest=signal.getLong(kind);
+        if (!seen.has(kind) || (latest>seen.getLong(kind) &&
+            post(c,kind,AppLanguage.text(c,"alerts."+kind),""))) seen.put(kind,latest);
+      }
+      SharedPreferences.Editor edit=p.edit().putString("communitySeen",seen.toString());
+      if (register) edit.putLong("communityRegistered",now);
+      edit.apply();
+    }
+  }
+
   static synchronized void nearby(Context c, String id, String name) {
     if (!id.equals(prefs(c).getString("lastNearby","")) && post(c,NEARBY,name,id))
       prefs(c).edit().putString("lastNearby",id).apply();
   }
 
   static synchronized boolean post(Context c, String kind, String body, String water) {
-    if (!enabled(c,kind)) return false;
+    String setting=java.util.Arrays.asList(COMMUNITY_KINDS).contains(kind) ? COMMUNITY : kind;
+    if (!enabled(c,setting)) return false;
     NotificationManager manager=c.getSystemService(NotificationManager.class);
-    String channel="field-"+kind;
-    manager.createNotificationChannel(new NotificationChannel(channel,AppLanguage.text(c,"alerts."+kind),
+    String channel="field-"+setting;
+    manager.createNotificationChannel(new NotificationChannel(channel,AppLanguage.text(c,"alerts."+setting),
         NotificationManager.IMPORTANCE_DEFAULT));
     if (!manager.areNotificationsEnabled() || manager.getNotificationChannel(channel).getImportance()==NotificationManager.IMPORTANCE_NONE) return false;
     Intent open=new Intent(c,AccountActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)

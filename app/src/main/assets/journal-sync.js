@@ -13,7 +13,8 @@ import { languageTag } from './i18n.js';
 const restricted = window.Device?.groupSharingOnly?.();
 const subject = restricted ? null : window.Device?.subjectId?.();
 const prefix = 'journal.sync.v1.' + subject + '.';
-const call = (op, args) => rpc('journal_sync', { op, args });
+const call = (op, args) =>
+  rpc('journal_sync', { op, args: { epoch: localStorage.getItem(prefix + 'epoch'), ...args } });
 const same = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
 const choiceKey = prefix + 'enabled';
 let status = enabled() ? 'waiting' : 'disabled';
@@ -29,6 +30,14 @@ function online() {
 function notify(value) {
   status = value;
   window.dispatchEvent(new Event('journal-sync-status'));
+}
+function forgetCopy() {
+  for (let index = localStorage.length - 1; index >= 0; index--) {
+    const key = localStorage.key(index);
+    if (key?.startsWith(prefix)) localStorage.removeItem(key);
+  }
+  localStorage.setItem(choiceKey, '0');
+  conflicts = [];
 }
 function enabled() {
   return !!subject && localStorage.getItem(choiceKey) === '1';
@@ -145,7 +154,10 @@ async function run(resolution, retryRevision = true) {
     }
   } catch (error) {
     if (enabled()) {
-      if (!online()) notify('offline');
+      if (error.status === 410) {
+        forgetCopy();
+        notify('disabled');
+      } else if (!online()) notify('offline');
       else if (error.status === 409 && retryRevision) reread = true;
       else if (error.status === 413) notify('full');
       else if (error.status === 401 || error.status === 403) notify('signin');
@@ -153,6 +165,7 @@ async function run(resolution, retryRevision = true) {
     }
   } finally {
     busy = false;
+    notify(status);
     if (changed) window.dispatchEvent(new Event('journal-restored'));
     if (again) {
       again = false;
@@ -218,6 +231,7 @@ export function bindJournalSync(panel, waters) {
       el.onclick = action;
       panel.append(el);
     };
+    if (busy || checking) return;
     if (!enabled() && status === 'check_failed') button('sync.retry', start);
     if (!enabled() && status !== 'checking')
       button('sync.enable', async () => {
@@ -228,8 +242,23 @@ export function bindJournalSync(panel, waters) {
             accept: t('sync.enable'),
           })
         ) {
-          localStorage.setItem(choiceKey, '1');
-          schedule();
+          if (busy || checking) return;
+          busy = true;
+          notify('working');
+          try {
+            const { epoch } = await call('settings', {});
+            await call('enable', { epoch: epoch || null, consent: true });
+            if (epoch && epoch !== localStorage.getItem(prefix + 'epoch')) forgetCopy();
+            if (epoch) localStorage.setItem(prefix + 'epoch', epoch);
+            localStorage.setItem(prefix + 'registered', '1');
+            localStorage.setItem(choiceKey, '1');
+          } catch {
+            notify('failed');
+          } finally {
+            busy = false;
+          }
+          if (enabled()) schedule();
+          else notify('failed');
         }
       });
     else if (enabled() && status !== 'working') {
@@ -249,6 +278,34 @@ export function bindJournalSync(panel, waters) {
         }
       });
     }
+    button('sync.erase', async () => {
+      if (
+        !(await confirmAction({
+          title: t('sync.erase'),
+          message: t('sync.erase_info'),
+          accept: t('sync.erase'),
+          destructive: true,
+        })) ||
+        busy ||
+        checking
+      )
+        return;
+      clearTimeout(timer);
+      busy = true;
+      localStorage.setItem(choiceKey, '0');
+      notify('working');
+      try {
+        const { epoch } = await call('settings', {});
+        await call('erase', { epoch: epoch || null });
+        forgetCopy();
+        status = 'erased';
+      } catch {
+        status = 'failed';
+      } finally {
+        busy = false;
+        notify(status);
+      }
+    });
     if (status !== 'conflict') return;
     for (const c of conflicts) {
       const name = document.createElement('p');
@@ -297,7 +354,8 @@ async function start() {
   checking = true;
   notify('checking');
   try {
-    const canRestore = window.Device?.journalCloudDefault?.() || (await call('settings', {})).enabled;
+    const settings = await call('settings', {});
+    const canRestore = settings.enabled || (!settings.epoch && window.Device?.journalCloudDefault?.());
     if (canRestore) {
       // Use the journal writer lock so the empty check and local opt-in cannot straddle a trip edit.
       await Journal.lock(async () => {
@@ -306,6 +364,7 @@ async function start() {
         const hasHistory = keys.some(
           (key) => key.startsWith('trip/') || key.startsWith('photo/') || key.startsWith('pref/water/'),
         );
+        if (!hasHistory && settings.epoch) localStorage.setItem(prefix + 'epoch', settings.epoch);
         localStorage.setItem(choiceKey, hasHistory ? '0' : '1');
       });
     }
@@ -315,6 +374,7 @@ async function start() {
     if (localStorage.getItem(choiceKey) === null) notify('check_failed');
   } finally {
     checking = false;
+    notify(status);
   }
 }
 window.addEventListener('online', start);

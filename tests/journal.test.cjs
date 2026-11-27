@@ -88,3 +88,23 @@ test('water photographs survive trip deletion and stay isolated by water and dev
   await j.setWaterPhoto(key, null);
   assert.equal(await j.waterPhoto(key), undefined);
 });
+
+test('editing an existing catch keeps its photo and rejects a stale edit after deletion', async () => {
+  const journal = createJournal(new IDBFactory());
+  const trip = {id: 'lake', day: '2026-11-24'};
+  await journal.saveTrip(trip);
+  await journal.saveCatch({id:'one', tripId:trip.id, lengthMm:300}, new Blob(['original']));
+  await journal.saveCatch({id:'two', tripId:trip.id}, null);
+  const original = await journal.catchById('one');
+  await journal.saveCatch({...original, lengthMm:400}, undefined, original);
+  assert.equal(await (await journal.photo('one')).text(), 'original');
+  await journal.removeCatch('different-trip', 'one');
+  assert.equal((await journal.catchById('one')).lengthMm, 400);
+  await journal.removeCatch(trip.id, 'one');
+  await assert.rejects(journal.saveCatch(original, undefined, original));
+  assert.equal(await journal.photo('one'), undefined);
+  assert.deepEqual((await journal.catches(trip.id)).map(row => row.id), ['two']);
+  await journal.saveTrip({...trip, notes:'Revised'}, trip);
+  await assert.rejects(journal.saveTrip({...trip, notes:'Outdated'}, trip));
+  assert.equal((await journal.trip(trip.id)).notes, 'Revised');
+});

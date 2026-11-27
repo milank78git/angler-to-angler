@@ -26,8 +26,14 @@ const exampleNumber = new Intl.NumberFormat(languageTag, {
   useGrouping: false,
   numberingSystem: 'latn',
 });
-function bindPhotoPreview() {
+function bindPhotoPreview(existing) {
   let preview, file, capture;
+  if (existing) {
+    preview = URL.createObjectURL(existing);
+    by('photo-preview').src = preview;
+    by('photo-preview').hidden = false;
+    by('photo-label').textContent = t('catch_form.change_photo');
+  }
   function choose(input, camera) {
     if (!input.files[0]) return;
     file = input.files[0];
@@ -61,17 +67,28 @@ function bindPhotoPreview() {
 /** @param {import('../../../../types/screens.js').ScreenContext} context */
 export async function catchForm({ view, nav, pack, waterDirectory }) {
   const { id } = view.route,
-    catchId = newJournalId(),
+    catchId = view.route.catchId || newJournalId(),
     created = Date.now();
-  const [trip, directory] = await Promise.all([Journal.trip(id), fishDirectory().catch(() => null)]);
+  const [trip, directory, original] = await Promise.all([
+    Journal.trip(id),
+    fishDirectory().catch(() => null),
+    view.route.catchId ? Journal.catchById(catchId) : null,
+  ]);
   if (!view.active()) return;
-  if (!trip) return nav.journalAfterWrite(null);
-  replaceMarkup(screen, catchFields());
-  const species = bindCatchSpecies(pack, trip, directory);
+  if (!trip || (view.route.catchId && original?.tripId !== id)) return nav.journalAfterWrite(null);
+  const existingPhoto = original?.hasPhoto ? await Journal.photo(original.id) : null;
+  if (!view.active()) return;
+  replaceMarkup(screen, catchFields(original));
+  if (original) {
+    by('catch-length').value = original.lengthMm == null ? '' : String(original.lengthMm / 10);
+    by('bait').value = original.bait || '';
+    by('technique').value = original.technique || '';
+  }
+  const species = bindCatchSpecies(pack, trip, directory, original);
   view.refreshWaters = (edition) => species.setWater(tripWater(edition, trip));
   view.refreshWaters(waterDirectory);
-  const positionInput = bindCatchPosition(view);
-  const photoInput = bindPhotoPreview();
+  const positionInput = bindCatchPosition(view, original?.position);
+  const photoInput = bindPhotoPreview(existingPhoto);
   by('camera-photo').onclick = (event) => {
     if (positionInput.waiting()) {
       event.preventDefault();
@@ -120,13 +137,14 @@ export async function catchForm({ view, nav, pack, waterDirectory }) {
     }
     const file = photoInput.file();
     const record = {
+      ...original,
       id: catchId,
       tripId: id,
-      created,
+      created: original?.created ?? created,
       ...fish,
       lengthMm,
       position,
-      capture: photoInput.capture() || null,
+      capture: file ? photoInput.capture() || null : (original?.capture ?? null),
       bait: by('bait').value.trim(),
       technique: by('technique').value.trim(),
     };
@@ -135,8 +153,8 @@ export async function catchForm({ view, nav, pack, waterDirectory }) {
       nav,
       id,
       async () => {
-        const photo = await pixelJpeg(file, 1920);
-        await Journal.saveCatch(record, photo);
+        const photo = original && !file ? undefined : await pixelJpeg(file, 1920);
+        await Journal.saveCatch(record, photo, original);
       },
       (error) =>
         toast(
@@ -147,14 +165,14 @@ export async function catchForm({ view, nav, pack, waterDirectory }) {
     );
   };
 }
-function catchFields() {
+function catchFields(original) {
   const kinds = [
     ['stand', t('common.angler_position')],
     ['strike', t('common.strike_location')],
   ];
   return (
     back(t('common.trip')) +
-    `<div class="page-intro"><div class="title-mark">${icon('fish')}</div><h1>${t('catch_form.new_catch')}</h1></div>
+    `<div class="page-intro"><div class="title-mark">${icon('fish')}</div><h1>${t(original ? 'trips.edit_catch' : 'catch_form.new_catch')}</h1></div>
   <form id="form" class="entry-form"><section class="surface">${catchSpeciesFields()}
     ${textInput('catch-length', t('catch_form.measured_length_cm'), '', 'inputmode="decimal" placeholder="' + exampleNumber.format(64.5) + '"')}
     <details id="catch-rules" class="fold" hidden><summary>${t('catch_picker.rules')}</summary><div class="fold-body" id="catch-rule-body"></div></details>
