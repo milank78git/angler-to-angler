@@ -1179,5 +1179,6 @@
  "waters.trout_water": "Voda za pastrve",
  "waters.water_reports": "Izvješća o vodama",
  "groups.remove_member_confirm": "Ukloniti člana i njegove objave iz grupe?",
- "trips.shared_copies": "Dijeljene kopije ostaju. Ukloni ih zasebno."
+ "trips.shared_copies": "Dijeljene kopije ostaju. Ukloni ih zasebno.",
+ "retention.unavailable": "Fotografija u oblaku nije dostupna"
 }

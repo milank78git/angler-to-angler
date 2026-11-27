@@ -703,5 +703,6 @@
  "groups.remove_member_confirm": "Tennañ an ezel-mañ hag e zegasadennoù eus ar strollad ?",
  "trips.shared_copies": "Chom a ra ar c’hopiennoù rannet. Dilemel anezho a ranker a-ziforc’h.",
  "retention.renew": "Nevesaat evit 12 miz adalek hiziv",
- "retention.title": "Luc’hskeudennoù er c’houmoul"
+ "retention.title": "Luc’hskeudennoù er c’houmoul",
+ "retention.unavailable": "N’haller ket diraez al luc’hskeudenn er c’houmoul"
 }

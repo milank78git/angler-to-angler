@@ -1179,5 +1179,6 @@
  "retention.due": "Zdjęcia wygasające w ciągu 30 dni: {count}",
  "retention.policy": "Zdjęcia połowów pozostają w chmurze przez 12 miesięcy. Otwórz szczegóły zdjęcia lub przedłuż jego ważność. Zdjęcie na urządzeniu pozostaje.",
  "groups.remove_member_confirm": "Usunąć uczestnika i jego wpisy z grupy?",
- "trips.shared_copies": "Udostępnione kopie pozostaną. Usuń je osobno."
+ "trips.shared_copies": "Udostępnione kopie pozostaną. Usuń je osobno.",
+ "retention.unavailable": "Zdjęcie w chmurze jest niedostępne"
 }

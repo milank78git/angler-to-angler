@@ -717,5 +717,6 @@
  "groups.remove_member_confirm": "A bheil thu airson am ball seo agus na chuir iad ris a thoirt às a’ bhuidheann?",
  "trips.shared_copies": "Fuirichidh na lethbhreacan a chaidh a cho-roinneadh. Thoir air falbh iad fa leth.",
  "retention.renew": "Ùraich airson 12 mìosan bhon latha an-diugh",
- "retention.title": "Dealbhan san neul"
+ "retention.title": "Dealbhan san neul",
+ "retention.unavailable": "Chan eil an dealbh san neul ri fhaighinn"
 }

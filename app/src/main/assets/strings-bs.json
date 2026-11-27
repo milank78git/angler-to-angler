@@ -1179,5 +1179,6 @@
  "retention.due": "Broj fotografija kojima rok ističe u narednih 30 dana: {count}",
  "retention.policy": "Fotografije ulova čuvaju se u oblaku 12 mjeseci. Da zadržite kopiju u oblaku, otvorite fotografiju u punom prikazu ili produžite rok čuvanja. Fotografija ostaje na uređaju.",
  "groups.remove_member_confirm": "Ukloniti člana i njegove objave iz grupe?",
- "trips.shared_copies": "Podijeljene kopije ostaju. Ukloni ih zasebno."
+ "trips.shared_copies": "Podijeljene kopije ostaju. Ukloni ih zasebno.",
+ "retention.unavailable": "Fotografija u oblaku nije dostupna"
 }

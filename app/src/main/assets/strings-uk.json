@@ -1179,5 +1179,6 @@
  "waters.trout_water": "Вода для форелі",
  "waters.water_reports": "Звіти про воду",
  "groups.remove_member_confirm": "Вилучити учасника та його дописи з групи?",
- "trips.shared_copies": "Опубліковані копії залишаться. Видали їх окремо."
+ "trips.shared_copies": "Опубліковані копії залишаться. Видали їх окремо.",
+ "retention.unavailable": "Фото недоступне у хмарі"
 }

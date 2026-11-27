@@ -710,5 +710,6 @@
  "groups.remove_member_confirm": "Dissen Liddmaat un de Bidrääg vun dissen Liddmaat ut de Grupp nehmen?",
  "trips.shared_copies": "De deelten Kopien blievt bestahn. Do se enkelt weg.",
  "retention.renew": "Vun vundaag af för 12 Maanden verlengern",
- "retention.title": "Biller in de Cloud"
+ "retention.title": "Biller in de Cloud",
+ "retention.unavailable": "Dat Bild in de Cloud is nich verföögbor"
 }

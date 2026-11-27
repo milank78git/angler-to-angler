@@ -1179,5 +1179,6 @@
  "retention.due": "30 gün ərzində müddəti bitəcək fotoların sayı: {count}",
  "retention.policy": "Tutduğunuz balıqların fotoları buludda 12 ay saxlanılır. Bulud nüsxəsini saxlamaq üçün fotonu tam ölçüdə açın və ya müddətini uzadın. Cihazınızdakı foto qalır.",
  "groups.remove_member_confirm": "Üzv və onun qrupdakı paylaşımları silinsin?",
- "trips.shared_copies": "Paylaşılmış nüsxələr qalır. Onları ayrıca sil."
+ "trips.shared_copies": "Paylaşılmış nüsxələr qalır. Onları ayrıca sil.",
+ "retention.unavailable": "Buluddakı foto əlçatan deyil"
 }

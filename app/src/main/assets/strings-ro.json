@@ -1179,5 +1179,6 @@
  "retention.due": "Fotografii care expiră în 30 de zile: {count}",
  "retention.policy": "Fotografiile capturilor sunt păstrate în cloud timp de 12 luni. Deschide fotografia în detaliu sau prelungește termenul. Fotografia de pe dispozitiv rămâne.",
  "groups.remove_member_confirm": "Elimini membrul și contribuțiile sale din grup?",
- "trips.shared_copies": "Copiile partajate se păstrează. Șterge-le separat."
+ "trips.shared_copies": "Copiile partajate se păstrează. Șterge-le separat.",
+ "retention.unavailable": "Fotografia din cloud nu este disponibilă"
 }

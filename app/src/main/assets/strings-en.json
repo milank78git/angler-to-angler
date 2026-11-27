@@ -1179,5 +1179,6 @@
   "retention.due": "Photos expiring within 30 days: {count}",
   "retention.policy": "Cloud catch photos are kept for 12 months. Open a photo in detail or renew it to keep its cloud copy. The photo on your device stays.",
   "groups.remove_member_confirm": "Remove this member and their group contributions?",
-  "trips.shared_copies": "Shared copies remain on public cards, in groups and competitions, and in catch verification. Remove them separately."
+  "trips.shared_copies": "Shared copies remain on public cards, in groups and competitions, and in catch verification. Remove them separately.",
+  "retention.unavailable": "Cloud photo unavailable"
 }

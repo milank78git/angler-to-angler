@@ -1179,5 +1179,6 @@
  "retention.due": "Saklama süresi 30 gün içinde dolacak fotoğraf sayısı: {count}",
  "retention.policy": "Avladığınız balıkların fotoğrafları bulutta 12 ay saklanır. Bulut kopyasını korumak için fotoğrafı tam boyutta açın veya saklama süresini uzatın. Cihazınızdaki fotoğraf cihazda kalır.",
  "groups.remove_member_confirm": "Bu üye ve gruptaki paylaşımları kaldırılsın mı?",
- "trips.shared_copies": "Paylaşılan kopyalar kalır. Bunları ayrı ayrı sil."
+ "trips.shared_copies": "Paylaşılan kopyalar kalır. Bunları ayrı ayrı sil.",
+ "retention.unavailable": "Buluttaki fotoğrafa erişilemiyor"
 }

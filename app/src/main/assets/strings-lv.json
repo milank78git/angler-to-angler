@@ -1179,5 +1179,6 @@
  "retention.due": "Fotoattēlu skaits, kuru glabāšanas termiņš beigsies 30 dienu laikā: {count}",
  "retention.policy": "Lomu fotoattēli mākonī tiek glabāti 12 mēnešus. Lai saglabātu kopiju mākonī, atveriet fotoattēlu pilnā izmērā vai pagariniet glabāšanas termiņu. Fotoattēls jūsu ierīcē paliks.",
  "groups.remove_member_confirm": "Noņemt dalībnieku un viņa ierakstus no grupas?",
- "trips.shared_copies": "Kopīgotās kopijas paliek. Dzēs tās atsevišķi."
+ "trips.shared_copies": "Kopīgotās kopijas paliek. Dzēs tās atsevišķi.",
+ "retention.unavailable": "Fotoattēls mākonī nav pieejams"
 }

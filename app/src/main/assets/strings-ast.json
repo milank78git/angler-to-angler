@@ -1179,5 +1179,6 @@
   "retention.due": "Semeyes que caduquen en 30 díes: {count}",
   "retention.policy": "Les semeyes de les captures guárdense na nube 12 meses. Abrir el detalle de la semeya o renovala a mano entama un plazu nuevu. La semeya del preséu consérvase.",
   "groups.remove_member_confirm": "¿Quitar a esti miembru y les sos aportaciones del grupu?",
-  "trips.shared_copies": "Les copies compartíes caltiénense. Desániciales por separao."
+  "trips.shared_copies": "Les copies compartíes caltiénense. Desániciales por separao.",
+  "retention.unavailable": "La foto na nube nun ta disponible"
 }

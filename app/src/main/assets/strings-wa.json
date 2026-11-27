@@ -816,5 +816,6 @@
  "groups.remove_member_confirm": "Oister ci mimbre eyet ses contribucions do groupe ?",
  "trips.shared_copies": "Les copeyes pårtaedjeyes dimorèt. Disfacez les a pårt.",
  "retention.renew": "Rinovler po 12 moes a pårti d’ ouy",
- "retention.title": "Fotos sol nûlêye"
+ "retention.title": "Fotos sol nûlêye",
+ "retention.unavailable": "Li foto sol nûlêye n’ est nén disponibe"
 }

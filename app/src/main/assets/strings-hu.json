@@ -1179,5 +1179,6 @@
  "retention.due": "A 30 napon belül lejáró fényképek száma: {count}",
  "retention.policy": "A fogásokról készült fényképeket 12 hónapig őrizzük meg a felhőben. A felhőbeli másolat megtartásához nyisd meg a képet teljes méretben, vagy hosszabbítsd meg a megőrzési időt. A fénykép az eszközödön megmarad.",
  "groups.remove_member_confirm": "Eltávolítod a tagot és a csoportbeli bejegyzéseit?",
- "trips.shared_copies": "A megosztott másolatok megmaradnak. Ezeket külön törölheted."
+ "trips.shared_copies": "A megosztott másolatok megmaradnak. Ezeket külön törölheted.",
+ "retention.unavailable": "A felhőben tárolt fénykép nem érhető el"
 }

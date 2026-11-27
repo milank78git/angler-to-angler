@@ -1179,5 +1179,6 @@
  "retention.due": "Fòtos qu’expiran dins 30 jorns : {count}",
  "retention.policy": "Las fòtos de las capturas demòran dins lo nívol pendent 12 meses. Dobrissètz la fòto en detalh o renovelatz lo delai. La fòto sus l’aparelh demòra.",
  "groups.remove_member_confirm": "Levar aqueste membre e sas contribucions del grop ?",
- "trips.shared_copies": "Las còpias partejadas demòran. Suprimís-las a despart."
+ "trips.shared_copies": "Las còpias partejadas demòran. Suprimís-las a despart.",
+ "retention.unavailable": "La fòto dins lo nívol es indisponibla"
 }

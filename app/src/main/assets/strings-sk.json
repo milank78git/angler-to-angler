@@ -1179,5 +1179,6 @@
  "retention.due": "Počet fotiek, ktorým do 30 dní skončí platnosť: {count}",
  "retention.policy": "Fotky úlovkov sa v cloude uchovávajú 12 mesiacov. Otvorením detailu alebo ručným predĺžením začne nová lehota. Fotka v telefóne zostane.",
  "groups.remove_member_confirm": "Odobrať člena aj jeho príspevky v skupine?",
- "trips.shared_copies": "Zdieľané kópie zostanú. Odstráň ich samostatne."
+ "trips.shared_copies": "Zdieľané kópie zostanú. Odstráň ich samostatne.",
+ "retention.unavailable": "Fotka v cloude nie je dostupná"
 }

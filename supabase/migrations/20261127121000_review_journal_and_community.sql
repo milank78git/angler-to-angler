@@ -1,5 +1,12 @@
 -- An erased account has no prior journal history in its new epoch.
 update angler_sync.accounts set deletion_floor=0 where erased and deletion_floor<>0;
+-- A masked or temporarily missing Storage object retains its identity and lease.
+alter table angler_sync.photos add column retry_read_at timestamptz;
+create index journal_missing_original_retry on angler_sync.photos(retry_read_at) where retry_read_at is not null;
+drop trigger photo_quota on angler_sync.photos;
+create trigger photo_quota after insert or update of object_id,expires,attached,retry_read_at or delete on angler_sync.photos
+  for each row execute function angler_sync.photo_quota();
+
 alter table angler_sync.photos drop constraint photos_size_check,
   add constraint photos_size_check check(size between 1 and 16777216 or (size=0 and object_id is null));
 
@@ -97,7 +104,7 @@ begin
   if verb in ('GET','DELETE') and reply.status in (400,404) then
     begin detail:=reply.content::jsonb;
     exception when invalid_text_representation then detail:=null; end;
-    if detail->>'code'='NoSuchKey' or (detail->>'message'='Object not found'
+    if coalesce(detail->>'code',detail->>'error')='NoSuchKey' or (detail->>'message'='Object not found'
         and coalesce(detail->>'statusCode',reply.status::text)='404') then return null; end if;
   end if;
   if reply.status not between 200 and 299 then raise exception 'Photo storage unavailable (%)',reply.status using errcode='PT503'; end if;
@@ -116,7 +123,8 @@ declare k text:=args->>'trip'; id text:=args->>'id'; h text:=args->>'hash'; p an
 begin
   if op='photo_list' then
     return (select jsonb_build_object('revision',(select photo_revision::text from angler_sync.accounts where owner=actor),'photos',coalesce(jsonb_agg(to_jsonb(page) order by page.trip,page.id),'[]'))
-      from (select trip,catch_id as id,digest as hash,cycle,expires,object_id is not null and expires>now() as active
+      from (select trip,catch_id as id,digest as hash,cycle,expires,object_id is not null and expires>now() and retry_read_at is null as active,
+        size=0 or retry_read_at is not null as missing
         from angler_sync.photos where owner=actor and attached
         and (trip,catch_id)>(coalesce(args->>'trip',''),coalesce(args->>'id',''))
         order by trip,catch_id limit 100) page);
@@ -127,13 +135,13 @@ begin
   if op='photo_need' then return jsonb_build_object('needed',p.owner is null); end if;
   if op='photo_get' then
     if not coalesce(p.attached,false) then raise exception 'Photo manifest changed' using errcode='PT409'; end if;
-    if p.object_id is null or p.expires<=clock_timestamp() then return '{"expired":true}'; end if;
+    if p.retry_read_at is not null or p.object_id is null or p.expires<=clock_timestamp() then return '{"expired":true}'; end if;
     offset_bytes:=(args->>'offset')::int;
     if offset_bytes is null or offset_bytes<0 or offset_bytes>=p.size or offset_bytes%65536<>0 then raise exception 'Invalid offset' using errcode='PT422'; end if;
     -- Some Storage backends report the requested Content-Length verbatim, even past EOF.
     raw:=angler_sync.photo_storage('GET',p.object_id,null,offset_bytes,least(offset_bytes+65535,p.size-1));
     if raw is null then
-      update angler_sync.photos set object_id=null,expires=least(expires,clock_timestamp())
+      update angler_sync.photos set retry_read_at=clock_timestamp()+interval '1 day'
         where owner=actor and trip=k and catch_id=id and digest=h and object_id=p.object_id;
       return '{"expired":true}';
     end if;
@@ -141,7 +149,7 @@ begin
     return jsonb_build_object('data',replace(encode(raw,'base64'),chr(10),''),'size',p.size);
   elsif op='photo_renew' then
     if not coalesce(p.attached,false) or p.cycle is distinct from (args->>'cycle')::uuid
-       or p.object_id is null or p.expires<=clock_timestamp() then return '{"expired":true}'; end if;
+       or p.retry_read_at is not null or p.object_id is null or p.expires<=clock_timestamp() then return '{"expired":true}'; end if;
     update angler_sync.photos set expires=clock_timestamp()+interval '12 months'
       where owner=actor and trip=k and catch_id=id and digest=h returning expires into expiry;
     return jsonb_build_object('expires',expiry);
@@ -158,7 +166,7 @@ begin
     if op='photo_prepare' and p.owner is not null then return '{}'; end if;
     if op='photo_reupload' then
       if not coalesce(p.attached,false) then raise exception 'Photo removed' using errcode='PT409'; end if;
-      if p.cycle is distinct from (args->>'cycle')::uuid or p.expires>clock_timestamp() then return '{}'; end if;
+      if p.cycle is distinct from (args->>'cycle')::uuid or (p.expires>clock_timestamp() and p.retry_read_at is null) then return '{}'; end if;
     end if;
     select string_agg(bytes,''::bytea order by part),count(*)=max(part)+1 into raw,saved
       from angler_sync.photo_parts where owner=actor and digest=h;
@@ -168,7 +176,7 @@ begin
     insert into angler_sync.photos as current(owner,trip,catch_id,digest,object_id,size,expires)
       values(actor,k,id,h,object_key,octet_length(raw),clock_timestamp()+interval '12 months')
       on conflict(owner,trip,catch_id,digest) do update set object_id=excluded.object_id,size=excluded.size,
-        expires=excluded.expires,cycle=gen_random_uuid();
+        expires=excluded.expires,retry_read_at=null,cycle=gen_random_uuid();
     perform angler_sync.photo_storage('POST',object_key,raw);
     delete from angler_sync.photo_parts where owner=actor and digest=h;
     return '{}';
@@ -193,12 +201,15 @@ begin
     end;
   end loop;
   for item in select owner,trip,catch_id,digest from angler_sync.photos
-      where (object_id is not null and expires<=now()) or (not attached and created_at<now()-interval '1 day')
+      where retry_read_at<=now() or (object_id is not null and expires<=now()) or (not attached and created_at<now()-interval '1 day')
       order by expires limit 256 loop
     if not pg_try_advisory_xact_lock(hashtextextended(item.owner::text,13)) then continue; end if;
     delete from angler_sync.photos where owner=item.owner and trip=item.trip and catch_id=item.catch_id and digest=item.digest
       and not attached and created_at<now()-interval '1 day';
-    update angler_sync.photos set object_id=null where owner=item.owner and trip=item.trip and catch_id=item.catch_id
+    -- A new photo revision lets devices retry a previously missing original after a restore.
+    update angler_sync.photos set retry_read_at=null where owner=item.owner and trip=item.trip
+      and catch_id=item.catch_id and digest=item.digest and retry_read_at<=now();
+    update angler_sync.photos set object_id=null,retry_read_at=null where owner=item.owner and trip=item.trip and catch_id=item.catch_id
       and digest=item.digest and expires<=clock_timestamp() and object_id is not null;
   end loop;
   delete from angler_sync.photo_parts where ctid in (select ctid from angler_sync.photo_parts
@@ -286,7 +297,8 @@ begin
       join angler_private.profiles p on p.user_id=m.user_id where m.group_id=$1 and ($2 is null or m.user_id>$2)
       order by m.user_id limit 26
   ), page as (select * from batch order by user_id limit 25)
-  select jsonb_build_object('items',coalesce(jsonb_agg(jsonb_build_object('id',user_id,'name',display_name) order by user_id),'[]'),
+  select jsonb_build_object('ownerName',(select p.display_name from angler_private.profiles p where p.user_id=auth.uid()),
+      'items',coalesce(jsonb_agg(jsonb_build_object('id',user_id,'name',display_name) order by user_id),'[]'),
       'next',case when (select count(*) from batch)>25 then max(user_id::text) end) from page);
 end $$;
 

@@ -1179,5 +1179,6 @@
  "retention.due": "Foto’s die binnen 30 dagen verlopen: {count}",
  "retention.policy": "Vangstfoto’s blijven 12 maanden in de cloud. Open een foto in detail of verleng de termijn. De foto op je apparaat blijft behouden.",
  "groups.remove_member_confirm": "Dit lid en diens bijdragen aan de groep verwijderen?",
- "trips.shared_copies": "Gedeelde kopieën blijven bestaan. Verwijder ze afzonderlijk."
+ "trips.shared_copies": "Gedeelde kopieën blijven bestaan. Verwijder ze afzonderlijk.",
+ "retention.unavailable": "Foto in de cloud niet beschikbaar"
 }

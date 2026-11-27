@@ -1179,5 +1179,6 @@
   "retention.due": "Billeder, der udløber inden for 30 dage: {count}",
   "retention.policy": "Fangstbilleder gemmes i skyen i 12 måneder. Åbn selve billedet, eller forny det manuelt for at starte en ny periode. Billedet på din enhed bevares.",
   "groups.remove_member_confirm": "Fjern medlemmet og medlemmets bidrag til gruppen?",
-  "trips.shared_copies": "Delte kopier bevares. Fjern dem separat."
+  "trips.shared_copies": "Delte kopier bevares. Fjern dem separat.",
+  "retention.unavailable": "Billedet i skyen er ikke tilgængeligt"
 }

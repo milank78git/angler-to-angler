@@ -1179,5 +1179,6 @@
  "retention.due": "In 30 Tagen ablaufende Fotos: {count}",
  "retention.policy": "Fangfotos bleiben 12 Monate in der Cloud. Öffnen Sie ein Foto in der Detailansicht oder verlängern Sie die Frist. Das Foto auf dem Gerät bleibt erhalten.",
  "groups.remove_member_confirm": "Dieses Mitglied und seine Gruppenbeiträge entfernen?",
- "trips.shared_copies": "Geteilte Kopien bleiben erhalten. Entferne sie separat."
+ "trips.shared_copies": "Geteilte Kopien bleiben erhalten. Entferne sie separat.",
+ "retention.unavailable": "Cloud-Foto nicht verfügbar"
 }

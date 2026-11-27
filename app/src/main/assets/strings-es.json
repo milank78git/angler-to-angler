@@ -1179,5 +1179,6 @@
  "retention.due": "Fotos que caducan en 30 días: {count}",
  "retention.policy": "Las fotos de capturas se guardan en la nube durante 12 meses. Abre el detalle de una foto o renuévala para conservarla. La copia del dispositivo se mantiene.",
  "groups.remove_member_confirm": "¿Quitar a este miembro y sus aportaciones al grupo?",
- "trips.shared_copies": "Las copias compartidas se conservan. Elimínalas por separado."
+ "trips.shared_copies": "Las copias compartidas se conservan. Elimínalas por separado.",
+ "retention.unavailable": "Foto no disponible en la nube"
 }

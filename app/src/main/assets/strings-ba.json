@@ -707,5 +707,6 @@
  "groups.remove_member_confirm": "Был ҡатнашыусыны һәм уның төркөмдәге яҙмаларын алып ташларғамы?",
  "trips.shared_copies": "Уртаҡлашҡан күсермәләр ҡала. Уларҙы айырым юй.",
  "retention.renew": "Бөгөндән башлап 12 айға оҙайтыу",
- "retention.title": "Болоттағы фотолар"
+ "retention.title": "Болоттағы фотолар",
+ "retention.unavailable": "Болоттағы фото асылмай"
 }

@@ -1179,5 +1179,6 @@
  "retention.due": "Nifer y lluniau y bydd eu cyfnod cadw yn dod i ben o fewn 30 diwrnod: {count}",
  "retention.policy": "Cedwir lluniau o’ch dalfeydd yn y cwmwl am 12 mis. Agorwch lun i’w weld yn llawn neu adnewyddwch y cyfnod cadw i gadw’r copi yn y cwmwl. Bydd y llun ar eich dyfais yn aros yno.",
  "groups.remove_member_confirm": "Dileu’r aelod a’i gyfraniadau o’r grŵp?",
- "trips.shared_copies": "Bydd copïau a rannwyd yn aros. Dilea nhw ar wahân."
+ "trips.shared_copies": "Bydd copïau a rannwyd yn aros. Dilea nhw ar wahân.",
+ "retention.unavailable": "Nid yw’r llun yn y cwmwl ar gael"
 }

@@ -78,6 +78,13 @@ begin
   perform set_config('fixture.storage_status','400',true);
   perform set_config('fixture.storage_error','{"statusCode":"404","error":"not_found","message":"Object not found"}',true);
   perform pg_temp.check_that(public.angler_journal_sync('photo_get',ref)->>'expired'='true','Missing original blocked sync');
-  perform pg_temp.check_that((select object_id is null and attached from angler_sync.photos where owner=actor and trip=k),'Missing object retried indefinitely');
+  perform pg_temp.check_that((select object_id is not null and attached and retry_read_at>now() and expires>now() from angler_sync.photos where owner=actor and trip=k),'Missing object lost its identity or lease');
+  perform set_config('fixture.storage_status','503',true);
+  perform pg_temp.check_that(public.angler_journal_sync('photo_get',ref)->>'expired'='true','Retried before the recovery window');
+  update angler_sync.photos set retry_read_at=now()-interval '1 second' where owner=actor and trip=k;
+  perform angler_sync.maintain_photos();
+  perform set_config('fixture.storage_status','200',true);
+  perform set_config('fixture.storage_error',repeat('x',123),true);
+  perform pg_temp.check_that(public.angler_journal_sync('photo_get',ref)->>'size'='123','Restored object remained unreachable');
   perform pg_temp.check_that((select cardinality(parts)=1 from angler_sync.documents where owner=actor and key=k),'Missing original removed trip');
 end $$;

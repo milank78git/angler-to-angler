@@ -704,5 +704,6 @@
  "groups.remove_member_confirm": "Toho člona a jeho přinoški ze skupiny wotstronić?",
  "trips.shared_copies": "Dźělene kopije wostanu. Wotstroń je wosebje.",
  "retention.renew": "Na 12 měsacow wot dźensnišeho dnja podlěšić",
- "retention.title": "Fota w mróčeli"
+ "retention.title": "Fota w mróčeli",
+ "retention.unavailable": "Foto w mróčeli k dispoziciji njeje"
 }

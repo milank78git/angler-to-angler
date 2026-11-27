@@ -722,5 +722,6 @@
  "groups.remove_member_confirm": "Tak limin og íkøstini hjá viðkomandi úr bólkinum?",
  "trips.shared_copies": "Deild avrit verða varðveitt. Tak tey burtur hvørt sær.",
  "retention.renew": "Leing í 12 mánaðir frá í dag",
- "retention.title": "Myndir í skýnum"
+ "retention.title": "Myndir í skýnum",
+ "retention.unavailable": "Myndin í skýnum er ikki tøk"
 }

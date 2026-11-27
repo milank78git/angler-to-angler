@@ -1179,5 +1179,6 @@
   "retention.due": "Do 30 dnů vyprší platnost tohoto počtu fotek: {count}",
   "retention.policy": "Fotky úlovků uchováváme v cloudu 12 měsíců. Otevřením detailu fotky nebo ručním prodloužením začne nová lhůta. Fotka v telefonu zůstane.",
   "groups.remove_member_confirm": "Odebrat člena i jeho příspěvky v partě?",
-  "trips.shared_copies": "Sdílené kopie zůstanou na veřejné kartě, v partě, v soutěži i v doložených úlovcích. Pokud je chceš smazat, odeber je zvlášť."
+  "trips.shared_copies": "Sdílené kopie zůstanou na veřejné kartě, v partě, v soutěži i v doložených úlovcích. Pokud je chceš smazat, odeber je zvlášť.",
+  "retention.unavailable": "Fotka v cloudu není dostupná"
 }

@@ -1179,5 +1179,6 @@
   "retention.due": "Bilete som går ut innan 30 dagar: {count}",
   "retention.policy": "Fangstbilete vert lagra i skya i 12 månader. Opne sjølve biletet eller forny det manuelt for å starte ein ny periode. Biletet på eininga vert teke vare på.",
   "groups.remove_member_confirm": "Fjerne medlemmen og bidraga deira frå gruppa?",
-  "trips.shared_copies": "Delte kopiar blir verande. Fjern dei kvar for seg."
+  "trips.shared_copies": "Delte kopiar blir verande. Fjern dei kvar for seg.",
+  "retention.unavailable": "Biletet i skya er ikkje tilgjengeleg"
 }

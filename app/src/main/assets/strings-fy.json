@@ -1179,5 +1179,6 @@
  "retention.due": "Tal foto’s dat binnen 30 dagen ferrint: {count}",
  "retention.policy": "Foto’s fan dyn fangsten wurde 12 moannen yn de wolk bewarre. Iepenje in foto yn it grut of ferlingje de bewarperioade om de kopy yn de wolk te hâlden. De foto bliuwt op dyn apparaat stean.",
  "groups.remove_member_confirm": "Dit lid en de bydragen fan dit lid út de groep helje?",
- "trips.shared_copies": "Dielde kopyen bliuwe bestean. Helje se apart fuort."
+ "trips.shared_copies": "Dielde kopyen bliuwe bestean. Helje se apart fuort.",
+ "retention.unavailable": "De foto yn de wolk is net beskikber"
 }

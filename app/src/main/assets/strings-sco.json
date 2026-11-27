@@ -1179,5 +1179,6 @@
  "retention.due": "Photies expirin within 30 days: {count}",
  "retention.policy": "Photies o yer catch are keepit in the cloud for 12 month. Open a photie at its full size or renew it tae keep the cloud copy. The photie on yer device bides there.",
  "groups.remove_member_confirm": "Tak this member an their posts oot o the group?",
- "trips.shared_copies": "Shared copies bide. Tak them awa separately."
+ "trips.shared_copies": "Shared copies bide. Tak them awa separately.",
+ "retention.unavailable": "The cloud photo isna available"
 }

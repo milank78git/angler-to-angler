@@ -251,6 +251,10 @@ public final class GroupsActivity extends LocalizedActivity {
       ui.page(t("groups.members") + groupName, false);
       button(t("groups.back_to_groups"), AccountLayout.Action.LINK, this::refresh);
       JSONArray items = result.getJSONArray("items");
+      if (after == null) {
+        ui.label(result.getString("ownerName") + t("groups.owner"));
+        if (items.length() == 0) ui.label(t("groups.members") + "1");
+      }
       for (int i = 0; i < items.length(); i++) {
         JSONObject item = items.getJSONObject(i);
         String id = item.getString("id"), name = item.getString("name");

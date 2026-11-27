@@ -1179,5 +1179,6 @@
  "retention.due": "Fotos que caduquen en 30 dies: {count}",
  "retention.policy": "Les fotos de captures es desen al núvol durant 12 mesos. Obre el detall de la foto o renova el termini. La foto del dispositiu es conserva.",
  "groups.remove_member_confirm": "Vols treure el membre i les seves aportacions del grup?",
- "trips.shared_copies": "Les còpies compartides es conserven. Elimina-les per separat."
+ "trips.shared_copies": "Les còpies compartides es conserven. Elimina-les per separat.",
+ "retention.unavailable": "La foto al núvol no està disponible"
 }

@@ -722,5 +722,6 @@
  "groups.remove_member_confirm": "Осы қатысушы мен оның жазбаларын топтан өшіру керек пе?",
  "trips.shared_copies": "Бөліскен көшірмелер сақталады. Оларды бөлек өшір.",
  "retention.renew": "Бүгіннен бастап 12 айға ұзарту",
- "retention.title": "Бұлттағы фотолар"
+ "retention.title": "Бұлттағы фотолар",
+ "retention.unavailable": "Бұлттағы фото қолжетімсіз"
 }

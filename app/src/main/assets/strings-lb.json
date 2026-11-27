@@ -723,5 +723,6 @@
  "groups.remove_member_confirm": "Dëse Member a seng Bäiträg aus der Grupp huelen?",
  "trips.shared_copies": "Gedeelt Kopië bleiwen erhalen. Läsch se separat.",
  "retention.renew": "Vun haut u fir 12 Méint verlängeren",
- "retention.title": "Fotoen an der Cloud"
+ "retention.title": "Fotoen an der Cloud",
+ "retention.unavailable": "D’Foto an der Cloud ass net disponibel"
 }

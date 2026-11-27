@@ -1179,5 +1179,6 @@
  "retention.due": "Fjöldi mynda sem renna út innan 30 daga: {count}",
  "retention.policy": "Myndir af aflanum eru geymdar í skýinu í 12 mánuði. Opnaðu mynd í fullri stærð eða framlengdu geymslutímann til að halda afritinu í skýinu. Myndin verður áfram á tækinu þínu.",
  "groups.remove_member_confirm": "Fjarlægja meðliminn og framlög hans úr hópnum?",
- "trips.shared_copies": "Deild eintök verða áfram til. Fjarlægðu þau sérstaklega."
+ "trips.shared_copies": "Deild eintök verða áfram til. Fjarlægðu þau sérstaklega.",
+ "retention.unavailable": "Myndin í skýinu er ekki tiltæk"
 }

@@ -1179,5 +1179,6 @@
  "retention.due": "Fotografias que expiram em 30 dias: {count}",
  "retention.policy": "As fotografias das capturas ficam na nuvem durante 12 meses. Abra uma fotografia em detalhe ou renove o prazo. A fotografia no dispositivo é mantida.",
  "groups.remove_member_confirm": "Remover este membro e as suas contribuições para o grupo?",
- "trips.shared_copies": "As cópias partilhadas permanecem. Elimina-as separadamente."
+ "trips.shared_copies": "As cópias partilhadas permanecem. Elimina-as separadamente.",
+ "retention.unavailable": "Fotografia indisponível na nuvem"
 }

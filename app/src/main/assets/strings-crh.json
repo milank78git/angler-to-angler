@@ -684,5 +684,6 @@
  "groups.remove_member_confirm": "Bu azanı ve onıñ gruppadaki paylaşımlarını silmege isteysiñmi?",
  "trips.shared_copies": "Paylaşılğan kopiyalar qala. Olarnı ayrı-ayrı sil.",
  "retention.renew": "Bugünden itibaren 12 ayğa uzat",
- "retention.title": "Buluttaki fotolar"
+ "retention.title": "Buluttaki fotolar",
+ "retention.unavailable": "Buluttaki fotoğa irişip olamay"
 }
