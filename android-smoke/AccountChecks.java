@@ -762,6 +762,29 @@ final class AccountChecks {
     find("River crew" + tr("groups.owner"));
   }
 
+  /** Exercise foreground renewal and force an expired lease while a real trip form is open. */
+  void checkJournalLease() throws Exception {
+    android.content.SharedPreferences preferences = app.getTargetContext()
+        .getSharedPreferences("angler-account", android.content.Context.MODE_PRIVATE);
+    Activity settings = next("WaterSettingsActivity", () -> app.js("window.Device.openWaterSettings()"));
+    long now = System.currentTimeMillis();
+    preferences.edit().putLong("verified", now - java.util.concurrent.TimeUnit.DAYS.toMillis(3)).commit();
+    app.runOnMainSync(settings::finish);
+    long timeout = android.os.SystemClock.elapsedRealtime() + 15000;
+    while (preferences.getLong("verified", 0) < now && android.os.SystemClock.elapsedRealtime() < timeout)
+      Thread.sleep(100);
+    if (preferences.getLong("verified", 0) < now)
+      throw new AssertionError("Resuming the journal did not renew the offline lease");
+    Activity reopened = next("WaterSettingsActivity", () -> app.js("window.Device.openWaterSettings()"));
+    preferences.edit().putLong("verified", now - java.util.concurrent.TimeUnit.DAYS.toMillis(8)).commit();
+    gate = next("AccountActivity", () -> app.runOnMainSync(reopened::finish));
+    find(tr("account.offline_expired"));
+    type(tr("account.email"), "test@example.invalid");
+    type(tr("account.password"), PASSWORD);
+    click(tr("common.sign_in"));
+    app.waitForJournalWindow();
+  }
+
   private Activity profileGate;
 
   private interface Step {

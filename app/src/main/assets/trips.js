@@ -281,10 +281,12 @@ export async function tripScreen({ view, nav, pack, waterDirectory }) {
     }
     const edit = document.createElement('button');
     edit.className = 'secondary';
+    edit.dataset.editCatch = c.id;
     edit.textContent = t('trips.edit_catch');
     edit.onclick = () => nav.open('newCatch', { id, catchId: c.id });
     const remove = document.createElement('button');
     remove.className = 'danger';
+    remove.dataset.removeCatch = c.id;
     remove.textContent = t('trips.remove_catch');
     remove.onclick = async () => {
       if (

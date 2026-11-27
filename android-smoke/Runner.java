@@ -90,6 +90,17 @@ public final class Runner extends Instrumentation {
             + org.json.JSONObject.quote(expectedVersionLabel()));
   }
 
+  void waitForJournalWindow() throws InterruptedException {
+    long deadline = android.os.SystemClock.elapsedRealtime() + 15000;
+    boolean[] visible = new boolean[1];
+    do {
+      runOnMainSync(() -> visible[0] = web.isShown() && activity.hasWindowFocus());
+      if (visible[0]) return;
+      Thread.sleep(100);
+    } while (android.os.SystemClock.elapsedRealtime() < deadline);
+    throw new AssertionError("Unlock did not return to the original journal window");
+  }
+
   int textZoom() {
     int[] scale = new int[1];
     runOnMainSync(() -> scale[0] = web.getSettings().getTextZoom());
@@ -313,7 +324,7 @@ public final class Runner extends Instrumentation {
   }
 
   /** An unresolved search cannot save the old water. A private name can be saved and found offline. */
-  private void checkPrivateWaterName() throws Exception {
+  private void checkPrivateWaterName(AccountChecks accounts) throws Exception {
     setControl("#water-search", "Lipno", "input");
     waitFor("!document.querySelector('#form').checkValidity() && document.querySelector('#water').value===''");
     setControl("#water-search", "", "input");
@@ -330,6 +341,24 @@ public final class Runner extends Instrumentation {
     clickReady("#back");
     waitFor("document.querySelector('#trip-search')?.value==='fixture pond'");
     clickReady("[data-trip]");
+    clickReady("#edit-trip");
+    waitFor("document.querySelector('#water-name')?.value==='Private fixture pond'");
+    setControl("#notes", "Keep this draft across unlock", "input");
+    accounts.checkJournalLease();
+    waitFor("document.querySelector('#notes')?.value==='Keep this draft across unlock'");
+    clickReady("#form .savebar button");
+    waitFor("document.querySelector('.trip-note')?.textContent==='Keep this draft across unlock'");
+    clickReady("#add");
+    waitFor("!!document.querySelector('#fish-name')");
+    setControl("#fish", "manual", "change");
+    form("document.querySelector('#fish-name').value='Bream';document.querySelector('#catch-length').value='28'");
+    clickReady("[data-edit-catch]");
+    waitFor("document.querySelector('#fish-name')?.value==='Bream' && document.querySelector('#catch-length').value==='28'");
+    form("document.querySelector('#catch-length').value='35'");
+    waitFor("document.querySelectorAll('#catch-list article').length===1 && document.querySelector('#catch-list article').textContent.includes('35')");
+    clickReady("[data-remove-catch]");
+    clickReady("#confirmation-accept");
+    waitFor("!!document.querySelector('#edit-trip') && !document.querySelector('#catch-list article')");
     clickReady("#delete");
     clickReady("#confirmation-accept");
     waitFor("!!document.querySelector('#add-trip') && !document.querySelector('[data-trip]')");
@@ -850,7 +879,7 @@ public final class Runner extends Instrumentation {
       clickReady("#water-suggestions [data-key='IE:IFI:1']");
       waitFor("document.querySelector('#water').selectedOptions[0].textContent.includes('Atlas fixture water')"
           + " && document.querySelector('#custom').hidden");
-      checkPrivateWaterName();
+      checkPrivateWaterName(accounts);
       clickReady("#tabwaters");
       setControl("#search", "", "input");
       setControl("#water-country", "PL", "change");
