@@ -77,13 +77,13 @@ test('a cloud-only catch uploads its metadata with an explicit missing-photo ref
   const digest = 'a'.repeat(64), calls = [];
   const remote = async (op,args) => {
     calls.push(op);
-    if (op==='photo_need') return {needed:true};
+    if (op==='photo_need') return {needed:args.id==='fish'};
     if (op==='missing') return {hashes:[]};
     assert.equal(op,'save');
-    assert.deepEqual(args.unavailable,[{id:'fish',hash:digest}]);
+    assert.deepEqual(args.unavailable,{'1':true});
     return {revision:3};
   };
   assert.equal(await uploadDocument(remote,'trip/day',{hashes:['manifest'],blocks:new Map(),
-    photos:[{id:'fish',hash:digest,file:null}]},2,8),3);
-  assert.deepEqual(calls,['photo_need','missing','save']);
+    photos:[{id:'available',hash:digest,file:null},{id:'fish',hash:digest,file:null}]},2,8),3);
+  assert.deepEqual(calls,['photo_need','photo_need','missing','save']);
 });

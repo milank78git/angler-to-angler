@@ -67,7 +67,7 @@ begin
   part:=encode(sha256(raw),'hex');
   perform public.angler_journal_sync('put',epoch||jsonb_build_object('hash',part,'data',encode(raw,'base64')));
   perform public.angler_journal_sync('save',epoch||jsonb_build_object('format',2,'key',k,'revision',0,'floor',0,
-    'parts',jsonb_build_array(part),'unavailable',jsonb_build_array(ref)));
+    'parts',jsonb_build_array(part),'unavailable',jsonb_build_object('0',true)));
   ref:=ref||epoch||jsonb_build_object('trip',k,'offset',0);
   perform pg_temp.check_that(public.angler_journal_sync('photo_get',ref)->>'expired'='true','Missing file blocked trip');
   update angler_sync.photos set object_id=gen_random_uuid(),size=123,expires=now()+interval '1 day' where owner=actor and trip=k;

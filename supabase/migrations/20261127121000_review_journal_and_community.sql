@@ -55,7 +55,7 @@ begin
 end $$;
 
 create or replace function angler_sync.attach_photos(actor uuid,args jsonb) returns void language plpgsql set search_path='' as $$
-declare k text:=args->>'key'; refs jsonb:='[]'::jsonb; ref jsonb; manifest jsonb; catches jsonb;
+declare k text:=args->>'key'; refs jsonb:='[]'::jsonb; ref jsonb; photo_index bigint; manifest jsonb; catches jsonb;
 begin
   if jsonb_array_length(args->'parts')>0 then
     manifest:=angler_sync.document_json(actor,array(select jsonb_array_elements_text(args->'parts')));
@@ -71,10 +71,10 @@ begin
       into refs from jsonb_array_elements(catches) with ordinality a(x,i) where x->>'photoHash' is not null;
   end if;
   if jsonb_array_length(refs)>4096 then raise exception 'Invalid photo manifest' using errcode='PT422'; end if;
-  for ref in select * from jsonb_array_elements(refs) loop
+  for ref,photo_index in select val,ord-1 from jsonb_array_elements(refs) with ordinality r(val,ord) loop
     perform 1 from angler_sync.photos where owner=actor and trip=k and catch_id=ref->>'id' and digest=ref->>'hash';
     if not found then
-      if not coalesce((args->'unavailable') @> jsonb_build_array(ref),false) then
+      if args->'unavailable'->(photo_index::text) is distinct from 'true'::jsonb then
         raise exception 'Photo not ready' using errcode='PT409';
       end if;
       -- Only a referenced catch can receive a zero-byte marker. A stale phone cannot
@@ -299,7 +299,7 @@ begin
   ), page as (select * from batch order by user_id limit 25)
   select jsonb_build_object('ownerName',(select p.display_name from angler_private.profiles p where p.user_id=auth.uid()),
       'items',coalesce(jsonb_agg(jsonb_build_object('id',user_id,'name',display_name) order by user_id),'[]'),
-      'next',case when (select count(*) from batch)>25 then max(user_id::text) end) from page);
+      'next',case when (select count(*) from batch)>25 then (select user_id from page order by user_id desc limit 1) end) from page);
 end $$;
 
 create function public.angler_group_remove_member(group_id uuid, member_id uuid) returns jsonb

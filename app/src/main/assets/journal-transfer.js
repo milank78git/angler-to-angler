@@ -97,12 +97,13 @@ export async function localDocument(db, storage, subject, key, needBlocks = fals
 }
 
 export async function uploadDocument(call, key, local, revision, floor = 0) {
-  const unavailable = [];
-  for (const { id, hash, file } of local.photos || []) {
+  // Positions refer to the ordered photo references in this exact manifest.
+  const unavailable = {};
+  for (const [index, { id, hash, file }] of (local.photos || []).entries()) {
     const ref = { trip: key, id, hash };
     if (!(await call('photo_need', ref)).needed) continue;
     if (file) await stagePhoto(call, ref, file);
-    else unavailable.push({ id, hash });
+    else unavailable[index] = true;
   }
   if (local.hashes.length) {
     const { hashes } = await call('missing', { hashes: [...local.blocks.keys()] });
@@ -114,7 +115,7 @@ export async function uploadDocument(call, key, local, revision, floor = 0) {
       revision,
       floor,
       parts: local.hashes,
-      ...(unavailable.length ? { unavailable } : {}),
+      ...(Object.keys(unavailable).length ? { unavailable } : {}),
       ...(local.photos ? { format: 2 } : {}),
     })
   ).revision;
