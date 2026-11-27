@@ -47,7 +47,7 @@ for each row execute function angler_sync.photo_quota();
 
 -- Use the extension's binary-safe conversion. Storage object names are immutable,
 -- server-generated UUIDs. A rollback leaves only an unreferenced object for cleanup.
-create function angler_sync.photo_storage(verb text, object_key uuid, body bytea default null, start_byte integer default null)
+create function angler_sync.photo_storage(verb text, object_key uuid, body bytea default null, start_byte integer default null, end_byte integer default null)
 returns bytea language plpgsql set search_path='' as $$
 declare base text; secret text; reply extensions.http_response; headers extensions.http_header[];
 begin
@@ -55,7 +55,7 @@ begin
   select decrypted_secret into strict secret from vault.decrypted_secrets where name='angler_storage_key';
   headers:=array[extensions.http_header('Authorization','Bearer '||secret),extensions.http_header('apikey',secret)];
   if start_byte is not null then
-    headers:=array_append(headers,extensions.http_header('Range',format('bytes=%s-%s',start_byte,start_byte+65535)));
+    headers:=array_append(headers,extensions.http_header('Range',format('bytes=%s-%s',start_byte,end_byte)));
   end if;
   select * into reply from extensions.http((verb,base||'/object/angler-catch-photos/'||object_key,headers,
     case when body is not null then 'image/jpeg' end,extensions.bytea_to_text(body))::extensions.http_request);
@@ -63,7 +63,7 @@ begin
   if reply.status not between 200 and 299 then raise exception 'Photo storage unavailable (%)',reply.status using errcode='PT503'; end if;
   if verb='GET' then
     if start_byte is null then return extensions.text_to_bytea(reply.content); end if;
-    if reply.status=200 then return substring(extensions.text_to_bytea(reply.content) from start_byte+1 for 65536); end if;
+    if reply.status=200 then return substring(extensions.text_to_bytea(reply.content) from start_byte+1 for end_byte-start_byte+1); end if;
     return extensions.text_to_bytea(reply.content);
   end if;
   return null;
@@ -91,7 +91,8 @@ begin
     if p.object_id is null or p.expires<=clock_timestamp() then return '{"expired":true}'; end if;
     offset_bytes:=(args->>'offset')::int;
     if offset_bytes is null or offset_bytes<0 or offset_bytes>=p.size or offset_bytes%65536<>0 then raise exception 'Invalid offset' using errcode='PT422'; end if;
-    raw:=angler_sync.photo_storage('GET',p.object_id,null,offset_bytes);
+    -- Some Storage backends report the requested Content-Length verbatim, even past EOF.
+    raw:=angler_sync.photo_storage('GET',p.object_id,null,offset_bytes,least(offset_bytes+65535,p.size-1));
     if octet_length(raw) is distinct from least(65536,p.size-offset_bytes) then raise exception 'Incomplete photo' using errcode='PT503'; end if;
     return jsonb_build_object('data',replace(encode(raw,'base64'),chr(10),''),'size',p.size);
   elsif op='photo_renew' then
@@ -278,7 +279,7 @@ end $$;
 create or replace function public.angler_journal_sync(op text,args jsonb) returns jsonb language sql set search_path=''
 as $$select angler_sync.journal(op,args)$$;
 revoke all on function angler_sync.journal(text,jsonb),angler_sync.photo_operation(uuid,text,jsonb),
-  angler_sync.photo_storage(text,uuid,bytea,integer),angler_sync.photo_quota(),angler_sync.attach_photos(uuid,jsonb)
+  angler_sync.photo_storage(text,uuid,bytea,integer,integer),angler_sync.photo_quota(),angler_sync.attach_photos(uuid,jsonb)
   from public,anon,authenticated;
 grant execute on function angler_sync.journal(text,jsonb) to authenticated;
 

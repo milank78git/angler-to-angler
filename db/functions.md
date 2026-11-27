@@ -110,20 +110,20 @@ Active signatures in Liquibase deployment order. Each link opens the effective d
 | `angler_public_cards.publish(uuid, uuid, jsonb, text, text)` | [20261123180057](../supabase/migrations/20261123180057_public_catch_cards.sql#L45) |  |
 | `angler_public_cards.read_link(uuid)` | [20261123180057](../supabase/migrations/20261123180057_public_catch_cards.sql#L113) |  |
 | `angler_public_cards.withdraw(uuid)` | [20261123180057](../supabase/migrations/20261123180057_public_catch_cards.sql#L102) |  |
-| `angler_sync.attach_photos(uuid, jsonb)` | [20261127100000](../supabase/migrations/20261127100000_private_photo_retention.sql#L205) |  |
-| `angler_sync.canonical_json(jsonb)` | [20261127100000](../supabase/migrations/20261127100000_private_photo_retention.sql#L150) |  |
+| `angler_sync.attach_photos(uuid, jsonb)` | [20261127100000](../supabase/migrations/20261127100000_private_photo_retention.sql#L206) |  |
+| `angler_sync.canonical_json(jsonb)` | [20261127100000](../supabase/migrations/20261127100000_private_photo_retention.sql#L151) |  |
 | `angler_sync.chunk_usage()` | [20261126060300](../supabase/migrations/20261126060300_journal_object_storage.sql#L24) |  |
-| `angler_sync.convert_trip(uuid, text, timestamp with time zone)` | [20261127100000](../supabase/migrations/20261127100000_private_photo_retention.sql#L159) |  |
-| `angler_sync.document_json(uuid, text[])` | [20261127100000](../supabase/migrations/20261127100000_private_photo_retention.sql#L143) |  |
-| `angler_sync.journal(text, jsonb)` | [20261127100000](../supabase/migrations/20261127100000_private_photo_retention.sql#L236) |  |
-| `angler_sync.journal_v1(text, jsonb)` | [20261127032314](../supabase/migrations/20261127032314_journal_community_controls.sql#L180) | [20261127100000](../supabase/migrations/20261127100000_private_photo_retention.sql#L234) |
+| `angler_sync.convert_trip(uuid, text, timestamp with time zone)` | [20261127100000](../supabase/migrations/20261127100000_private_photo_retention.sql#L160) |  |
+| `angler_sync.document_json(uuid, text[])` | [20261127100000](../supabase/migrations/20261127100000_private_photo_retention.sql#L144) |  |
+| `angler_sync.journal(text, jsonb)` | [20261127100000](../supabase/migrations/20261127100000_private_photo_retention.sql#L237) |  |
+| `angler_sync.journal_v1(text, jsonb)` | [20261127032314](../supabase/migrations/20261127032314_journal_community_controls.sql#L180) | [20261127100000](../supabase/migrations/20261127100000_private_photo_retention.sql#L235) |
 | `angler_sync.list_documents(uuid, jsonb)` | [20261125175001](../supabase/migrations/20261125175001_journal_operations.sql#L1) |  |
 | `angler_sync.maintain()` | [20261126150000](../supabase/migrations/20261126150000_journal_maintenance.sql#L12) |  |
-| `angler_sync.maintain_photos()` | [20261127100000](../supabase/migrations/20261127100000_private_photo_retention.sql#L287) |  |
+| `angler_sync.maintain_photos()` | [20261127100000](../supabase/migrations/20261127100000_private_photo_retention.sql#L288) |  |
 | `angler_sync.missing_chunks(uuid, jsonb)` | [20261125175001](../supabase/migrations/20261125175001_journal_operations.sql#L12) |  |
 | `angler_sync.photo_operation(uuid, text, jsonb)` | [20261127100000](../supabase/migrations/20261127100000_private_photo_retention.sql#L73) |  |
 | `angler_sync.photo_quota()` | [20261127100000](../supabase/migrations/20261127100000_private_photo_retention.sql#L30) |  |
-| `angler_sync.photo_storage(text, uuid, bytea, integer)` | [20261127100000](../supabase/migrations/20261127100000_private_photo_retention.sql#L50) |  |
+| `angler_sync.photo_storage(text, uuid, bytea, integer, integer)` | [20261127100000](../supabase/migrations/20261127100000_private_photo_retention.sql#L50) |  |
 | `angler_sync.put_chunk(uuid, jsonb)` | [20261126060300](../supabase/migrations/20261126060300_journal_object_storage.sql#L66) |  |
 | `angler_sync.read_chunk(uuid, text)` | [20261126060300](../supabase/migrations/20261126060300_journal_object_storage.sql#L54) |  |
 | `angler_sync.save_document(uuid, jsonb)` | [20261126060300](../supabase/migrations/20261126060300_journal_object_storage.sql#L130) |  |
@@ -174,7 +174,7 @@ Active signatures in Liquibase deployment order. Each link opens the effective d
 | `public.angler_group_tip_post(uuid, uuid, text)` | [20261123142819](../supabase/migrations/20261123142819_private_group_tips.sql#L76) |  |
 | `public.angler_group_tips(uuid, bigint)` | [20261123142819](../supabase/migrations/20261123142819_private_group_tips.sql#L79) |  |
 | `public.angler_groups()` | [20261123110524](../supabase/migrations/20261123110524_private_fishing_groups.sql#L123) |  |
-| `public.angler_journal_sync(text, jsonb)` | [20261127100000](../supabase/migrations/20261127100000_private_photo_retention.sql#L278) |  |
+| `public.angler_journal_sync(text, jsonb)` | [20261127100000](../supabase/migrations/20261127100000_private_photo_retention.sql#L279) |  |
 | `public.angler_latest_reply()` | [20261127032314](../supabase/migrations/20261127032314_journal_community_controls.sql#L326) |  |
 | `public.angler_market_activate()` | [20261123232227](../supabase/migrations/20261123232227_test_tip_market.sql#L172) |  |
 | `public.angler_market_buy(uuid, integer, integer)` | [20261125075304](../supabase/migrations/20261125075304_play_market_settlement.sql#L112) |  |

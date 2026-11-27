@@ -2,7 +2,7 @@
 -- Only the byte transport is substituted. Exercise the public RPC, real manifests,
 -- row locks, account gates, expiry, quota and maintenance in the PostgreSQL fixture.
 create table pg_temp.photo_files(id uuid primary key, data bytea);
-create or replace function angler_sync.photo_storage(verb text,object_key uuid,body bytea default null,start_byte integer default null)
+create or replace function angler_sync.photo_storage(verb text,object_key uuid,body bytea default null,start_byte integer default null,end_byte integer default null)
 returns bytea language plpgsql set search_path='' as $$
 declare data bytea;
 begin
@@ -11,7 +11,10 @@ begin
   end if;
   if verb='POST' then insert into pg_temp.photo_files values(object_key,body); return null; end if;
   if verb='GET' then select f.data into strict data from pg_temp.photo_files f where id=object_key;
-    if start_byte is not null then return substring(data from start_byte+1 for 65536); end if;
+    if start_byte is not null then
+      if end_byte is null or end_byte<start_byte or end_byte>=octet_length(data) then raise exception 'Range exceeds stored bytes'; end if;
+      return substring(data from start_byte+1 for end_byte-start_byte+1);
+    end if;
     return data;
   end if;
   delete from pg_temp.photo_files where id=object_key; return null;
