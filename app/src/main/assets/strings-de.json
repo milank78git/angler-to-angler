@@ -290,7 +290,7 @@
  "help-topics.catalog.steps.3": "Überprüfen Sie die Regeln für das tatsächliche Wasser und Datum vor dem Fischern.Eine leere Größengrenze oder fehlende Saison bedeutet, dass die Informationen noch überprüft werden müssen.",
  "help-topics.catalog.title": "Fischkatalog und Standort",
  "help-topics.catch.steps.1": "Wählen Sie den Fisch aus, geben Sie seine gemessene Länge in Zentimeter und optionell seine Bade oder Technik ein. Sie können einen unidentifizierten Fisch in Ihrem privaten Zeitschrift beschreiben.",
- "help-topics.catch.steps.2": "Um eine Fang zu dokumentieren, fotografieren Sie den ganzen Fisch am Wasser mit einer Skala. Ein privater Punkt kann die Position des Angels oder die Bitterung anzeigen. Der Telefon fordert die Position, wenn Sie klicken.",
+ "help-topics.catch.steps.2": "Fotografiere den ganzen Fisch am Gewässer neben einem Maßstab, um deinen Fang zu dokumentieren. Du kannst deinen Angelplatz oder die Bissstelle auf deiner privaten Karte markieren. Dein Telefon fragt nach dem Standort, wenn du auf die Schaltfläche tippst.",
  "help-topics.catch.title": "Fangen, Fotos und Lage",
  "help-topics.evidence.steps.1": "Speichern Sie die Fangnahme zum ersten Mal. Senden Sie sie aus ihren Details und öffnen Sie meine vorgelegten Fangbilder unter Profil, um das Ergebnis oder die Rückgabe zu sehen.",
  "help-topics.evidence.steps.2": "Ein angegebener Reviewer unterscheidet eine gemessene Länge von einer Schätzung mit einer bekannten Größe-Referenz.",
@@ -1180,5 +1180,12 @@
  "retention.policy": "Fangfotos bleiben 12 Monate in der Cloud. Öffnen Sie ein Foto in der Detailansicht oder verlängern Sie die Frist. Das Foto auf dem Gerät bleibt erhalten.",
  "groups.remove_member_confirm": "Dieses Mitglied und seine Gruppenbeiträge entfernen?",
  "trips.shared_copies": "Geteilte Kopien bleiben erhalten. Entferne sie separat.",
- "retention.unavailable": "Cloud-Foto nicht verfügbar"
+ "retention.unavailable": "Cloud-Foto nicht verfügbar",
+ "account.mixed_script_name": "Verwende in jedem Wort deines Spitznamens nur ein Schriftsystem. Verschiedene Wörter dürfen unterschiedliche Schriftsysteme verwenden.",
+ "account.review_profile": "Melde dich online an, um dein Profil und die aktuellen Bedingungen zu prüfen.",
+ "groups.member_list": "Gruppenmitglieder",
+ "groups.more_members": "Weitere Mitglieder",
+ "groups.remove_member": "Mitglied entfernen",
+ "sync.device_only": "Diese Einträge befinden sich nur auf diesem Telefon.",
+ "sync.upload_copy": "Im Konto speichern"
 }

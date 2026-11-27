@@ -266,7 +266,7 @@
  "help-topics.catalog.steps.3": "Kontrollige reeglid tegelikku vett ja kuupäeva enne kalapüüki. tühja suuruse piir või puuduv hooaj tähendab, et teave vajab veel kontrollimist.",
  "help-topics.catalog.title": "Kalade kataloog ja asukoht",
  "help-topics.catch.steps.1": "Valige kala, sisestage selle mõõdetud pikkus sentimeetrites ja valikuliselt selle bait või tehnika.",
- "help-topics.catch.steps.2": "Dokumenteerida püük pildistada kogu kala vees skaalal. eripunkt võib märgata ingli asukoha või suudlemise asukoha.",
+ "help-topics.catch.steps.2": "Püügi jäädvustamiseks pildista veekogu ääres tervet kala, mõõtejoonlaud selle kõrval. Isiklikule kaardile saad märkida oma asukoha või koha, kus kala võttis. Telefon küsib asukoha kasutamise luba, kui puudutad nuppu.",
  "help-topics.catch.title": "Pildid, fotod ja asukoht",
  "help-topics.evidence.steps.1": "Saada pildistamine esimesena. esitage see üksikasjalikumalt ja avage minu esitatud pildid profiili all, et näha tulemust või taganemist.",
  "help-topics.evidence.steps.2": "Määratud läbivaatajaks eristatakse mõõdetud pikkus hinnangust, kasutades tuntud suuruse viidet.",
@@ -1180,5 +1180,12 @@
  "retention.policy": "Saagifotosid säilitatakse pilves 12 kuud. Ava foto suurelt või pikenda säilitusaega. Foto jääb seadmesse alles.",
  "groups.remove_member_confirm": "Kas eemaldada liige ja tema postitused rühmast?",
  "trips.shared_copies": "Jagatud koopiad jäävad alles. Eemalda need eraldi.",
- "retention.unavailable": "Pilves olev foto pole saadaval"
+ "retention.unavailable": "Pilves olev foto pole saadaval",
+ "account.mixed_script_name": "Kasuta hüüdnime igas sõnas ainult üht kirjasüsteemi. Eri sõnades võid kasutada erinevaid kirjasüsteeme.",
+ "account.review_profile": "Logi interneti kaudu sisse, et kontrollida oma profiili ja kehtivaid tingimusi.",
+ "groups.member_list": "Rühma liikmed",
+ "groups.more_members": "Rohkem liikmeid",
+ "groups.remove_member": "Eemalda liige",
+ "sync.device_only": "Need kirjed on ainult selles telefonis.",
+ "sync.upload_copy": "Salvesta kontole"
 }

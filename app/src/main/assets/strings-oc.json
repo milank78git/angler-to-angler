@@ -267,7 +267,7 @@
  "help-topics.catalog.steps.3": "Verifique las reglas per l'aiga e la data real abans de la pesca. Un limit de grandària vaz o una temporada ausenta significa que l'informacion encara necessita de verificacion.",
  "help-topics.catalog.title": "Catálogo de peix e localitat",
  "help-topics.catch.steps.1": "Seleccion del peix, introduire sa longitud mesurada en centimetres e opcionalmente sa bat o tehnica. Podètz descriure un peix non identificat dins lo vòstre jurnal privat.",
- "help-topics.catch.steps.2": "Per documentar un captura, fotografièt lo pes entièr a l'aiga amb una escala. Un punt privat pòt marcar la posicion de l'angle o la localitat de la bita. Lo telèfon demandèt la localitat quand tòp.",
+ "help-topics.catch.steps.2": "Per documentar la captura, fotografia lo peis entièr al bòrd de l’aiga amb una règla al costat. Sus ta mapa privada, pòdes marcar ton pòst de pesca o l’endreit ont lo peis a mossegat. Lo telefòn te demanda l’autorizacion d’utilizar ta posicion quand tocas lo boton.",
  "help-topics.catch.title": "Fotografia, localitat e captura",
  "help-topics.evidence.steps.1": "S'envia de son detalh e aprèn las fotos de la captura que m'envièt dins lo perfil per veire lo resultat o retirar.",
  "help-topics.evidence.steps.2": "Un revisièr assignat distingue una longitud mesurada d'una estimada utilizant una referéncia de grandària coneguda.",
@@ -1180,5 +1180,12 @@
  "retention.policy": "Las fòtos de las capturas demòran dins lo nívol pendent 12 meses. Dobrissètz la fòto en detalh o renovelatz lo delai. La fòto sus l’aparelh demòra.",
  "groups.remove_member_confirm": "Levar aqueste membre e sas contribucions del grop ?",
  "trips.shared_copies": "Las còpias partejadas demòran. Suprimís-las a despart.",
- "retention.unavailable": "La fòto dins lo nívol es indisponibla"
+ "retention.unavailable": "La fòto dins lo nívol es indisponibla",
+ "account.mixed_script_name": "Utiliza un sol alfabet dins cada mot de ton escais. Pòdes utilizar d’alfabets diferents dins de mots diferents.",
+ "account.review_profile": "Connecta-te en linha per verificar ton perfil e las condicions en vigor.",
+ "groups.member_list": "Membres del grop",
+ "groups.more_members": "Mai de membres",
+ "groups.remove_member": "Levar lo membre",
+ "sync.device_only": "Aquelas entradas son sonque sus aqueste telefòn.",
+ "sync.upload_copy": "Enregistrar dins lo compte"
 }

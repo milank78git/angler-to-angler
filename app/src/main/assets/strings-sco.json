@@ -267,7 +267,7 @@
  "help-topics.catalog.steps.3": "Check the rules for the actual water an date before fishing. An each size limit or missing seasson means that the information still need verify.",
  "help-topics.catalog.title": "Fish catalog an location",
  "help-topics.catch.steps.1": "Choice the fish, enter its mesed length in centimeters an optionaly its eap or technic. Ye may describe a unidentified fisk in your private journal.",
- "help-topics.catch.steps.2": "Tae document a catch photo the while fish at the water wi a scale. A private point can mark the angler's position or the bith location. The phone requess location when ye tap.",
+ "help-topics.catch.steps.2": "Tae record the catch, tak a pictur o the hale fish at the watter wi a ruler beside it. On yer private cairt ye can merk yer fishin spot or whaur the fish took the bait. The phone asks tae uise yer location whan ye tap the button.",
  "help-topics.catch.title": "Catch, photo an location",
  "help-topics.evidence.steps.1": "Sauf the capting tae the catch first. See it frae its detail an open My submitted catch photoes under Profile tae see the resultat or retrack.",
  "help-topics.evidence.steps.2": "An assidied recenser distinctions ae mesure length frae an estimate think a kent-size reference. A gallery photo can stay in the journal.",
@@ -1180,5 +1180,12 @@
  "retention.policy": "Photies o yer catch are keepit in the cloud for 12 month. Open a photie at its full size or renew it tae keep the cloud copy. The photie on yer device bides there.",
  "groups.remove_member_confirm": "Tak this member an their posts oot o the group?",
  "trips.shared_copies": "Shared copies bide. Tak them awa separately.",
- "retention.unavailable": "The cloud photo isna available"
+ "retention.unavailable": "The cloud photo isna available",
+ "account.mixed_script_name": "Uise ae alphabet in ilka word o yer byname. Different words can uise different alphabets.",
+ "account.review_profile": "Sign in online tae check yer profile an the current terms.",
+ "groups.member_list": "Group members",
+ "groups.more_members": "Mair members",
+ "groups.remove_member": "Remuive member",
+ "sync.device_only": "Thir entries are oan this phone alane.",
+ "sync.upload_copy": "Save tae accoont"
 }

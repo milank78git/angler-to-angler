@@ -98,7 +98,7 @@ Active signatures in Liquibase deployment order. Each link opens the effective d
 | `angler_messages.single_emoji(text)` | [20261123160129](../supabase/migrations/20261123160129_message_reactions.sql#L3) |  |
 | `angler_private.age_years(date)` | [20261126080000](../supabase/migrations/20261126080000_age_and_guardians.sql#L3) |  |
 | `angler_private.apply_birth_date_change()` | [20261126181100](../supabase/migrations/20261126181100_preserve_community_parking.sql#L1) |  |
-| `angler_private.check_nickname_scripts()` | [20261127121000](../supabase/migrations/20261127121000_review_journal_and_community.sql#L401) |  |
+| `angler_private.check_nickname_scripts()` | [20261127134328](../supabase/migrations/20261127134328_distinguish_mixed_script_nicknames.sql#L1) |  |
 | `angler_private.correct_birth_date(uuid, date, date)` | [20261126150200](../supabase/migrations/20261126150200_birth_date_corrections.sql#L77) |  |
 | `angler_private.document_revision()` | [20261127121000](../supabase/migrations/20261127121000_review_journal_and_community.sql#L319) |  |
 | `angler_private.group_subject(uuid, text, boolean)` | [20261126080000](../supabase/migrations/20261126080000_age_and_guardians.sql#L103) |  |

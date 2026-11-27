@@ -267,7 +267,7 @@
  "help-topics.catalog.steps.3": "Sjekk reglane for faktisk vann og dato før fiskering. Ein tom storleiksgrense eller manglar seson tyder at informasjonen fortsatt treng verifikasjon.",
  "help-topics.catalog.title": "Fiskkatalog og plassering",
  "help-topics.catch.steps.1": "Vel fisken, skriv inn målt lengde på centimetre og valfritt beit eller teknologi. Du kan skriva ein uidentifisert fisk i din private tidskrift.",
- "help-topics.catch.steps.2": "Eit privatpunkt kan merka posisjonen til vinkelplassen eller staden for biten. Telefonforespørselsstad når du slår på.",
+ "help-topics.catch.steps.2": "Ta bilete av heile fisken ved vatnet med ein målestokk attmed. På det private kartet kan du markere fiskeplassen din eller staden der fisken nappa. Telefonen ber om tilgang til posisjonen din når du trykkjer på knappen.",
  "help-topics.catch.title": "Fang, bilete og plassering",
  "help-topics.evidence.steps.1": "Lagra fangstingen til fangen først. Send det frå detaljar og opna Mine framlagde fotografier under profil for å sjå resultatet eller trekk tilbake.",
  "help-topics.evidence.steps.2": "Ein tildelt reviderar skilder ein målt lengde frå eit estimasjon med ein kjend referanse. Eit gallery-bilete kan stada i tidsskriften.",
@@ -1180,5 +1180,12 @@
   "retention.policy": "Fangstbilete vert lagra i skya i 12 månader. Opne sjølve biletet eller forny det manuelt for å starte ein ny periode. Biletet på eininga vert teke vare på.",
   "groups.remove_member_confirm": "Fjerne medlemmen og bidraga deira frå gruppa?",
   "trips.shared_copies": "Delte kopiar blir verande. Fjern dei kvar for seg.",
-  "retention.unavailable": "Biletet i skya er ikkje tilgjengeleg"
+  "retention.unavailable": "Biletet i skya er ikkje tilgjengeleg",
+  "account.mixed_script_name": "Bruk berre eitt alfabet i kvart ord i kallenamnet. Ulike ord kan bruke ulike alfabet.",
+  "account.review_profile": "Logg inn på nettet for å sjekke profilen og dei gjeldande vilkåra.",
+  "groups.member_list": "Gruppemedlemmer",
+  "groups.more_members": "Fleire medlemmer",
+  "groups.remove_member": "Fjern medlem",
+  "sync.device_only": "Desse oppføringane finst berre på denne telefonen.",
+  "sync.upload_copy": "Lagre på kontoen"
 }

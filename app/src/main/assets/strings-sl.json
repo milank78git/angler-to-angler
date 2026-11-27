@@ -277,7 +277,7 @@
  "help-topics.catalog.steps.3": "Preverite pravila za dejansko vodo in datum pred ribolovom.Pušena velikost ali odsotna sezona pomeni, da informacije še vedno potrebujejo preverjanje.",
  "help-topics.catalog.title": "Katalog in lokacija rib",
  "help-topics.catch.steps.1": "Izberite ribe, vnesite njihovo merjeno dolžino v centimetrov in po možnosti njegovo bit ali tehniko.",
- "help-topics.catch.steps.2": "Za dokumentacijo ujema fotografira celotno ribo na vodi z merilom. zasebna točka lahko označi položaj anglerja ali mesto ubija.",
+ "help-topics.catch.steps.2": "Za zapis ulova ob vodi fotografiraj celo ribo z merilom ob njej. Na zasebnem zemljevidu lahko označiš svoje ribolovno mesto ali kraj, kjer je riba prijela. Telefon te vpraša za dovoljenje za dostop do lokacije, ko se dotakneš gumba.",
  "help-topics.catch.title": "Ujemanje, fotografija in lokacija",
  "help-topics.evidence.steps.1": "Najprej shranite zajem na zajem. predložite ga iz podrobnosti in odprite moje posredovane zajemne fotografije pod profilom, da vidite rezultat ali povrnitev.",
  "help-topics.evidence.steps.2": "Uradni revizor razlikuje izmerjeno dolžino od ocene z uporabo reference znane velikosti.",
@@ -1180,5 +1180,12 @@
  "waters.water_reports": "Poročila o vodah",
  "groups.remove_member_confirm": "Odstranim člana in njegove objave iz skupine?",
  "trips.shared_copies": "Deljene kopije ostanejo. Odstrani jih posebej.",
- "retention.unavailable": "Fotografija v oblaku ni na voljo"
+ "retention.unavailable": "Fotografija v oblaku ni na voljo",
+ "account.mixed_script_name": "V vsaki besedi vzdevka uporabi eno pisavo. Različne besede so lahko zapisane v različnih pisavah.",
+ "account.review_profile": "Prijavi se prek spleta in preveri profil ter veljavne pogoje.",
+ "groups.member_list": "Člani skupine",
+ "groups.more_members": "Več članov",
+ "groups.remove_member": "Odstrani člana",
+ "sync.device_only": "Ti zapisi so samo na tem telefonu.",
+ "sync.upload_copy": "Shrani v račun"
 }

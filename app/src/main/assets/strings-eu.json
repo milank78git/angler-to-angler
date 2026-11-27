@@ -267,7 +267,7 @@
  "help-topics.catalog.steps.3": "Egiaztatu ura eta data erregulak arrastatu aurretik. Tamaina huts edo sezoa falta den, informazioak begiratu behar duela esan nahi du.",
  "help-topics.catalog.title": "Arrainaren katalogoa eta kokalekua",
  "help-topics.catch.steps.1": "Aukeratu arraina, idatzi haren luzera zentimetroetan eta aukeraz bere edo teknika. Zure egunkaria pribatua arrain ez dagoen zehazten deskriba dezakezu.",
- "help-topics.catch.steps.2": "Argazki osoa uraren argazkia dokumentatzeko, eskala batekin. Puntu pribatua marka daiteke angolatzailearen posizioa edo kokalekua. Telefonoak eskatzen duzunean.",
+ "help-topics.catch.steps.2": "Harrapaketa dokumentatzeko, atera argazkia arrain osoari ur ertzean, ondoan erregela bat jarrita. Zure mapa pribatuan, zeure kokapena edo arrainak amuari heldu dion lekua marka dezakezu. Botoia sakatzean, telefonoak kokapena erabiltzeko baimena eskatuko dizu.",
  "help-topics.catch.title": "Hartu, argazki eta kokalekua",
  "help-topics.evidence.steps.1": "Gorde kaptura lehenago harpetara. Bidali bere xehetasunetatik eta irekitu nire sartutako argazkiak profilaren azpian emaitza ikusteko, edo bertan behera utzitzeko.",
  "help-topics.evidence.steps.2": "Ikuslea esleitutako luzera neurri bat bereizten du estimazio batetik, tamaina-tamaina ezagunaren erreferentzia erabiliz. Galeria-argazkia egunkarian geldi daiteke.",
@@ -1180,5 +1180,12 @@
  "retention.policy": "Harrapaketen argazkiak 12 hilabetez gordetzen dira hodeian. Hodeiko kopia gordetzeko, ireki argazkia tamaina osoan edo luzatu gordetzeko epea. Gailuko argazkia bertan geratuko da.",
  "groups.remove_member_confirm": "Kidea eta haren ekarpenak taldetik kendu?",
  "trips.shared_copies": "Partekatutako kopiak gordeko dira. Ezabatu bereizita.",
- "retention.unavailable": "Hodeiko argazkia ez dago erabilgarri"
+ "retention.unavailable": "Hodeiko argazkia ez dago erabilgarri",
+ "account.mixed_script_name": "Erabili alfabeto bakarra goitizeneko hitz bakoitzean. Hitz bakoitzak alfabeto desberdina izan dezake.",
+ "account.review_profile": "Hasi saioa Internet bidez profila eta indarreko baldintzak egiaztatzeko.",
+ "groups.member_list": "Taldeko kideak",
+ "groups.more_members": "Kide gehiago",
+ "groups.remove_member": "Kendu kidea",
+ "sync.device_only": "Sarrera hauek telefono honetan bakarrik daude.",
+ "sync.upload_copy": "Gorde kontuan"
 }

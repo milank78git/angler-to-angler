@@ -267,7 +267,7 @@
  "help-topics.catalog.steps.3": "Consulteu les regles de l'aigua real i la data abans de la pesca. Un límit de mida buit o temporada d'absència significa que la informació encara necessita verificació.",
  "help-topics.catalog.title": "Catàleg de peix i ubicació",
  "help-topics.catch.steps.1": "Selecciona el peix, introdueix la seva longitud mesurada en centímetres i opcionalment la seva barrera o tècnica.",
- "help-topics.catch.steps.2": "Per documentar una captura, es pot fotografiar tot el peix a l'aigua amb una escala.Un punt privat pot marcar la posició de l'angle o la ubicació de la picada.El telèfon demana la ubicació quan toca.",
+ "help-topics.catch.steps.2": "Per documentar la captura, fotografia el peix sencer a la vora de l’aigua amb un regle al costat. Al mapa privat pots marcar la teva posició o el lloc de la picada. El telèfon et demana accés a la ubicació quan toques el botó.",
  "help-topics.catch.title": "Catecció, foto i ubicació",
  "help-topics.evidence.steps.1": "Envia'l des del seu detall i obre les meves fotografies de captura enviades sota el perfil per veure el resultat o retirar-se.",
  "help-topics.evidence.steps.2": "Un revisor assignat distingeix una longitud mesurada d'una estimació utilitzant una referència de mida coneguda.",
@@ -1180,5 +1180,12 @@
  "retention.policy": "Les fotos de captures es desen al núvol durant 12 mesos. Obre el detall de la foto o renova el termini. La foto del dispositiu es conserva.",
  "groups.remove_member_confirm": "Vols treure el membre i les seves aportacions del grup?",
  "trips.shared_copies": "Les còpies compartides es conserven. Elimina-les per separat.",
- "retention.unavailable": "La foto al núvol no està disponible"
+ "retention.unavailable": "La foto al núvol no està disponible",
+ "account.mixed_script_name": "Fes servir un sol alfabet en cada paraula del sobrenom. Paraules diferents poden fer servir alfabets diferents.",
+ "account.review_profile": "Inicia la sessió amb connexió a internet per revisar el perfil i les condicions vigents.",
+ "groups.member_list": "Membres del grup",
+ "groups.more_members": "Més membres",
+ "groups.remove_member": "Treu el membre",
+ "sync.device_only": "Aquestes entrades només són en aquest telèfon.",
+ "sync.upload_copy": "Desa al compte"
 }

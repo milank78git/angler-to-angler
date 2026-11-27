@@ -222,7 +222,7 @@ public final class GroupsActivity extends LocalizedActivity {
                     .putExtra(
                         "weeklyDestination", args("groupId", id, "groupName", name).toString())));
     if (owner) {
-      dialog.choice(t("groups.members").trim(), AccountLayout.Action.SECONDARY, () -> members(id, name, null));
+      dialog.choice(t("groups.member_list"), AccountLayout.Action.SECONDARY, () -> members(id, name, null));
       dialog.choice(t("public_cards.revoke_link"), AccountLayout.Action.SECONDARY, () -> {
         AccountLayout.Prompt confirm = ui.prompt(name);
         confirm.action(t("public_cards.revoke_link"), AccountLayout.Action.DANGER,
@@ -248,7 +248,7 @@ public final class GroupsActivity extends LocalizedActivity {
     JSONObject query = after == null ? args("group_id", groupId) : args("group_id", groupId, "after_id", after);
     request("group_members", query, result -> {
       readingTips = true;
-      ui.page(t("groups.members") + groupName, false);
+      ui.page(t("groups.member_list") + " · " + groupName, false);
       button(t("groups.back_to_groups"), AccountLayout.Action.LINK, this::refresh);
       JSONArray items = result.getJSONArray("items");
       if (after == null) {
@@ -261,7 +261,7 @@ public final class GroupsActivity extends LocalizedActivity {
         button(name, AccountLayout.Action.SECONDARY, () -> {
           AccountLayout.Prompt confirm = ui.prompt(name);
           confirm.description(t("groups.remove_member_confirm"));
-          confirm.action(t("tip_ratings.confirm"), AccountLayout.Action.DANGER,
+          confirm.action(t("groups.remove_member"), AccountLayout.Action.DANGER,
               () -> request("group_remove_member", args("group_id", groupId, "member_id", id),
                   ignored -> members(groupId, groupName, null)));
           confirm.action(t("common.cancel"), AccountLayout.Action.SECONDARY, null);
@@ -270,7 +270,7 @@ public final class GroupsActivity extends LocalizedActivity {
       }
       if (!result.isNull("next")) {
         String next = result.getString("next");
-        button(t("profiles.more_profiles"), AccountLayout.Action.LINK, () -> members(groupId, groupName, next));
+        button(t("groups.more_members"), AccountLayout.Action.LINK, () -> members(groupId, groupName, next));
       }
     });
   }

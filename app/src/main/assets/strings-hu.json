@@ -267,7 +267,7 @@
  "help-topics.catalog.steps.3": "Ellenőrizze a tényleges vízre vonatkozó szabályokat és a halászat előtt. üres méret korlátozás vagy hiányzó szezon azt jelenti, hogy az információt még mindig ellenőrzésre kell szükségessé tenni.",
  "help-topics.catalog.title": "Halak katalógusa és helye",
  "help-topics.catch.steps.1": "Válassza ki a halat, adja meg mérett hosszát centiméterben és opcionálisan a hajtás vagy technika. Lehet írni egy azonosított halat a magán naplóban.",
- "help-topics.catch.steps.2": "A fogás dokumentálása érdekében a vízben lévő egész halat egy skálával fényképezzük.A magánpont jelzi az angler helyét vagy a harapás helyét.A telefon megköveteli a helyet, amikor megnyomja.",
+ "help-topics.catch.steps.2": "A fogás rögzítéséhez fényképezd le a vízparton az egész halat úgy, hogy mellette legyen egy mérőszalag. A privát térképen megjelölheted a horgászhelyedet vagy a kapás helyét. A telefon a gomb megérintésekor kér hozzáférést a helyzetedhez.",
  "help-topics.catch.title": "Felfedezés, fotó és helyszín",
  "help-topics.evidence.steps.1": "Az első rögzítés megőrzése. - A részleteket a rögzítésre küldjük, és nyissa meg a profil alatt benyújtott rögzítési fotókat az eredmény megjelenítéséhez vagy visszavonásához.",
  "help-topics.evidence.steps.2": "Egy kijelölt felülvizsgáló megkülönbözteti a mérett hosszát egy becsléstől, ismerős méretű referenciával.",
@@ -1180,5 +1180,12 @@
  "retention.policy": "A fogásokról készült fényképeket 12 hónapig őrizzük meg a felhőben. A felhőbeli másolat megtartásához nyisd meg a képet teljes méretben, vagy hosszabbítsd meg a megőrzési időt. A fénykép az eszközödön megmarad.",
  "groups.remove_member_confirm": "Eltávolítod a tagot és a csoportbeli bejegyzéseit?",
  "trips.shared_copies": "A megosztott másolatok megmaradnak. Ezeket külön törölheted.",
- "retention.unavailable": "A felhőben tárolt fénykép nem érhető el"
+ "retention.unavailable": "A felhőben tárolt fénykép nem érhető el",
+ "account.mixed_script_name": "A beceneved minden szaván belül csak egy írásrendszert használj. A különböző szavak írásrendszere eltérhet.",
+ "account.review_profile": "Jelentkezz be online a profilod és a hatályos feltételek ellenőrzéséhez.",
+ "groups.member_list": "Csoporttagok",
+ "groups.more_members": "További tagok",
+ "groups.remove_member": "Tag eltávolítása",
+ "sync.device_only": "Ezek a bejegyzések csak ezen a telefonon találhatók meg.",
+ "sync.upload_copy": "Mentés a fiókba"
 }

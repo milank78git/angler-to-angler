@@ -267,7 +267,7 @@
  "help-topics.catalog.steps.3": "Skoða reglur um raunverulegu vatn og daginn áður en fiskar. Vegna stærðabæmi eða missa tímabili þýðir að upplýsingarnar þurfa enn staðfestingu.",
  "help-topics.catalog.title": "Fjórarföngur og staðsetningu",
  "help-topics.catch.steps.1": "Veldu fiskinn, veita mætt lengd í centimeter og valframt hvíti eða tækni. Þú getur lýst óþekkt fisk í persónulegu dagblöð þinni.",
- "help-topics.catch.steps.2": "Til að skrá fötun myndi ég myndast öll fisk á vatni með skala. Einn persónulegt punkt getur merkt stöðu anglars eða bítinu staðsetningu.",
+ "help-topics.catch.steps.2": "Til að skrá aflann skaltu mynda allan fiskinn við vatnið með mælistiku við hliðina. Á einkakortinu geturðu merkt hvar þú stóðst eða hvar fiskurinn beit á. Síminn biður um aðgang að staðsetningu þegar þú ýtir á hnappinn.",
  "help-topics.catch.title": "Fót, mynd og staðsetningu",
  "help-topics.evidence.steps.1": "Sjálfa uppfangið til að taka fyrst. Senda það frá því skýringu og opna My sended catch myndir undir Profile til að sjá niðurstaðan eða fjarlægja.",
  "help-topics.evidence.steps.2": "A tilskipunar endurskoðun skiljar mætt lengd frá áætlun með því að nota þekkt stærð vísbendingar.",
@@ -1180,5 +1180,12 @@
  "retention.policy": "Myndir af aflanum eru geymdar í skýinu í 12 mánuði. Opnaðu mynd í fullri stærð eða framlengdu geymslutímann til að halda afritinu í skýinu. Myndin verður áfram á tækinu þínu.",
  "groups.remove_member_confirm": "Fjarlægja meðliminn og framlög hans úr hópnum?",
  "trips.shared_copies": "Deild eintök verða áfram til. Fjarlægðu þau sérstaklega.",
- "retention.unavailable": "Myndin í skýinu er ekki tiltæk"
+ "retention.unavailable": "Myndin í skýinu er ekki tiltæk",
+ "account.mixed_script_name": "Notaðu aðeins eitt stafróf í hverju orði gælunafnsins. Mismunandi orð mega hafa mismunandi stafróf.",
+ "account.review_profile": "Skráðu þig inn á netinu til að athuga prófílinn þinn og gildandi skilmála.",
+ "groups.member_list": "Meðlimir hópsins",
+ "groups.more_members": "Fleiri meðlimir",
+ "groups.remove_member": "Fjarlægja meðlim",
+ "sync.device_only": "Þessar færslur eru aðeins í þessum síma.",
+ "sync.upload_copy": "Vista á reikningi"
 }

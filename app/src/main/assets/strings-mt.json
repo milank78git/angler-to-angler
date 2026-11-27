@@ -267,7 +267,7 @@
  "help-topics.catalog.steps.3": "Iċċekkja r-regoli għall-ilma u d-data effettiva qabel is-sajd. Limitu vojt tad-daqs jew staġun li jkollha tfisser li l-informazzjoni għadu bżonn verifika.",
  "help-topics.catalog.title": "Katalogo tal-ħut u l-pożizzjoni",
  "help-topics.catch.steps.1": "Agħżel il-ħut, ddaħħal it-tul imkejjel tagħha f’ċentrimetri u b’mod opzjonili l-impjanti jew it-teknika tiegħu. Tista ’ tiddeskrivi ħut mhux identifikat fil- ġurnal privat tiegħek.",
- "help-topics.catch.steps.2": "Biex tiġi ddokumentata ritratti tal-qabdiet l-ħut kollu fl-ilma b’skala. Punt privat jista’ jimmarka l-pożizzjoni tal-angleser jew il-post tal-bids. Il-post tat-telefon meta tgħid.",
+ "help-topics.catch.steps.2": "Biex tiddokumenta l-qabda, ħu ritratt tal-ħuta kollha ħdejn l-ilma b’riga maġenbha. Fuq il-mappa privata tista’ timmarka fejn kont qed tistad jew fejn il-ħuta qabdet il-lixka. It-telefon jitlob aċċess għall-post tiegħek meta tagħfas il-buttuna.",
  "help-topics.catch.title": "Kaptu, ritratti u post",
  "help-topics.evidence.steps.1": "Salva l-qabdiet għall-qbid ewwel. Ippreżentah mid-dettal tagħha u fetaħ ritratti tal-qabdiet tiegħi sottomessi taħt il-Profil biex ara r-riżultat jew jirtiraw.",
  "help-topics.evidence.steps.2": "Reviżjonitur assenjat jiddistinbwixxi tul imkejjel minn stmat permezz ta’ referenza magħrufa. Foto galerija tista’ joqgħod fil-ġurnal.",
@@ -1180,5 +1180,12 @@
  "retention.policy": "Ir-ritratti tal-qabdiet jinżammu fil-cloud għal 12-il xahar. Iftaħ ritratt fid-dettall jew ġedded iż-żmien tal-ħażna biex iżżomm il-kopja fil-cloud. Ir-ritratt jibqa’ fuq l-apparat tiegħek.",
  "groups.remove_member_confirm": "Tneħħi lil dan il-membru u l-kontribuzzjonijiet tiegħu mill-grupp?",
  "trips.shared_copies": "Il-kopji maqsuma ma’ oħrajn jibqgħu. Ħassarhom separatament.",
- "retention.unavailable": "Ir-ritratt fil-cloud mhuwiex disponibbli"
+ "retention.unavailable": "Ir-ritratt fil-cloud mhuwiex disponibbli",
+ "account.mixed_script_name": "Uża alfabett wieħed f’kull kelma tal-laqam. Kliem differenti jista’ juża alfabeti differenti.",
+ "account.review_profile": "Idħol online biex tiċċekkja l-profil tiegħek u l-kundizzjonijiet attwali.",
+ "groups.member_list": "Membri tal-grupp",
+ "groups.more_members": "Aktar membri",
+ "groups.remove_member": "Neħħi l-membru",
+ "sync.device_only": "Dawn l-entrati jinsabu biss fuq dan it-telefon.",
+ "sync.upload_copy": "Issejvja fil-kont"
 }

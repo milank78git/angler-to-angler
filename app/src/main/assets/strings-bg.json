@@ -1180,5 +1180,12 @@
  "waters.water_reports": "Доклади за водите",
  "groups.remove_member_confirm": "Да се премахнат ли членът и публикациите му от групата?",
  "trips.shared_copies": "Споделените копия остават. Премахни ги отделно.",
- "retention.unavailable": "Снимката в облака не е достъпна"
+ "retention.unavailable": "Снимката в облака не е достъпна",
+ "account.mixed_script_name": "Използвай само една азбука във всяка дума от прякора си. Различните думи могат да са на различни азбуки.",
+ "account.review_profile": "Влез онлайн, за да провериш профила си и действащите условия.",
+ "groups.member_list": "Членове на групата",
+ "groups.more_members": "Още членове",
+ "groups.remove_member": "Премахни участника",
+ "sync.device_only": "Тези записи са само на този телефон.",
+ "sync.upload_copy": "Запази в акаунта"
 }

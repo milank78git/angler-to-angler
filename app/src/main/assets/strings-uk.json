@@ -1180,5 +1180,12 @@
  "waters.water_reports": "Звіти про воду",
  "groups.remove_member_confirm": "Вилучити учасника та його дописи з групи?",
  "trips.shared_copies": "Опубліковані копії залишаться. Видали їх окремо.",
- "retention.unavailable": "Фото недоступне у хмарі"
+ "retention.unavailable": "Фото недоступне у хмарі",
+ "account.mixed_script_name": "Використовуй одну абетку в кожному слові псевдоніма. У різних словах можна використовувати різні абетки.",
+ "account.review_profile": "Увійди онлайн, щоб перевірити профіль і чинні умови.",
+ "groups.member_list": "Учасники групи",
+ "groups.more_members": "Ще учасники",
+ "groups.remove_member": "Вилучити учасника",
+ "sync.device_only": "Ці записи є лише на цьому телефоні.",
+ "sync.upload_copy": "Зберегти в обліковому записі"
 }

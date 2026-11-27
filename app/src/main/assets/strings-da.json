@@ -267,7 +267,7 @@
  "help-topics.catalog.steps.3": "Kontroller reglerne for det faktiske vand og dato før fiske. En tom størrelse grænse eller manglende sæson betyder, at oplysningerne stadig har brug for verifikation.",
  "help-topics.catalog.title": "Fiskekategori og placering",
  "help-topics.catch.steps.1": "Vælg fisket, indtast dens målede længde i centimeter og valgfrit dets bait eller teknik. Du kan beskrive en ukendt fisk i din private tidsskrift.",
- "help-topics.catch.steps.2": "For at dokumentere en fange fotograferer man hele fisket ved vandet med en skala. Et privat punkt kan markere anglerens position eller bite placering. Telefonen kræver placering, når du ringer.",
+ "help-topics.catch.steps.2": "Fotografér hele fisken ved vandet med en målestok ved siden af. På dit private kort kan du markere din fiskeplads eller stedet, hvor fisken bed på. Telefonen beder om adgang til din placering, når du trykker på knappen.",
  "help-topics.catch.title": "Fang, foto og placering",
  "help-topics.evidence.steps.1": "Save det fra detaljen og åbne mine indsendte billeder under Profil for at se resultatet eller tilbagekaldelse.",
  "help-topics.evidence.steps.2": "En tildelt revisor skiller en målt længde fra en estimation ved hjælp af en kendt-størrelses reference.",
@@ -1180,5 +1180,12 @@
   "retention.policy": "Fangstbilleder gemmes i skyen i 12 måneder. Åbn selve billedet, eller forny det manuelt for at starte en ny periode. Billedet på din enhed bevares.",
   "groups.remove_member_confirm": "Fjern medlemmet og medlemmets bidrag til gruppen?",
   "trips.shared_copies": "Delte kopier bevares. Fjern dem separat.",
-  "retention.unavailable": "Billedet i skyen er ikke tilgængeligt"
+  "retention.unavailable": "Billedet i skyen er ikke tilgængeligt",
+  "account.mixed_script_name": "Brug kun ét alfabet i hvert ord i dit kaldenavn. Forskellige ord må bruge forskellige alfabeter.",
+  "account.review_profile": "Log ind online for at tjekke din profil og de gældende vilkår.",
+  "groups.member_list": "Gruppemedlemmer",
+  "groups.more_members": "Flere medlemmer",
+  "groups.remove_member": "Fjern medlem",
+  "sync.device_only": "Disse poster findes kun på denne telefon.",
+  "sync.upload_copy": "Gem på kontoen"
 }

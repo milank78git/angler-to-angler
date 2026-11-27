@@ -267,7 +267,7 @@
  "help-topics.catalog.steps.3": "Sprawdź reguły rzeczywistej wody i daty przed połowem.Przez wolny limit rozmiaru lub sezon brakujący oznacza, że informacje nadal wymagają weryfikacji.",
  "help-topics.catalog.title": "Katalog ryb i lokalizacja",
  "help-topics.catch.steps.1": "Wybierz ryby, wprowadź jej mierzoną długość w centymetrach i opcjonalnie jego bait lub technika.",
- "help-topics.catch.steps.2": "Aby udokumentować złowienie, fotografuj całą rybę na wodzie o skalie. prywatny punkt może oznaczyć pozycję łowca lub miejsce ugryzienia. telefon prosi o lokalizację podczas uderzenia.",
+ "help-topics.catch.steps.2": "Aby udokumentować połów, sfotografuj nad wodą całą rybę z miarką obok. Na prywatnej mapie możesz zaznaczyć swoje stanowisko albo miejsce brania. Telefon poprosi o dostęp do lokalizacji po dotknięciu przycisku.",
  "help-topics.catch.title": "Zdjęcia, zdjęcia i lokalizacja",
  "help-topics.evidence.steps.1": "Zapisz zdjęcie do złapania najpierw. przesyłaj go z jego szczegółów i otwórz Moje przedstawione zdjęcia złapania pod Profil, aby zobaczyć wynik lub wycofanie.",
  "help-topics.evidence.steps.2": "Przypisany przeglądujący odróżnia mierzoną długość od szacunku za pomocą referencji znanej wielkości.",
@@ -1180,5 +1180,12 @@
  "retention.policy": "Zdjęcia połowów pozostają w chmurze przez 12 miesięcy. Otwórz szczegóły zdjęcia lub przedłuż jego ważność. Zdjęcie na urządzeniu pozostaje.",
  "groups.remove_member_confirm": "Usunąć uczestnika i jego wpisy z grupy?",
  "trips.shared_copies": "Udostępnione kopie pozostaną. Usuń je osobno.",
- "retention.unavailable": "Zdjęcie w chmurze jest niedostępne"
+ "retention.unavailable": "Zdjęcie w chmurze jest niedostępne",
+ "account.mixed_script_name": "W każdym słowie pseudonimu używaj jednego alfabetu. W różnych słowach możesz używać różnych alfabetów.",
+ "account.review_profile": "Zaloguj się online, aby sprawdzić profil i aktualne warunki.",
+ "groups.member_list": "Członkowie grupy",
+ "groups.more_members": "Więcej członków",
+ "groups.remove_member": "Usuń z grupy",
+ "sync.device_only": "Te wpisy są tylko na tym telefonie.",
+ "sync.upload_copy": "Zapisz na koncie"
 }

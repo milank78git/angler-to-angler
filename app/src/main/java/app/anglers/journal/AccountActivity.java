@@ -122,8 +122,8 @@ public final class AccountActivity extends LocalizedActivity {
     managing = false;
     profile = null;
     ui.page(text("account.account_sign_in"), true);
-    if (AccountStore.offlineLeaseExpired(this))
-      ui.label(text("account.offline_expired"));
+    String reason = AccountStore.signInReason(this);
+    if (reason != null) ui.label(text(reason));
     boolean ready = service != null && service.configured();
     if (DeviceVault.enrolled(this))
       action(
@@ -726,6 +726,7 @@ public final class AccountActivity extends LocalizedActivity {
       if (failure.status == 429) return text("account.too_many_attempts_please_try_again_later");
       String code = failure.code;
       if ("AN002".equals(code)) return text("age.invalid_date");
+      if ("AN003".equals(code)) return text("account.mixed_script_name");
       if ("AN001".equals(code)) return text("account.invisible_name");
       if ("PT409".equals(code)) return text("account.name_in_use");
       if ("23514".equals(code)) return text("account.visible_name_required");

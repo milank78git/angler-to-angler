@@ -1180,5 +1180,12 @@
  "waters.water_reports": "Доклады по водным ресурсам",
  "groups.remove_member_confirm": "Удалить участника и его публикации в группе?",
  "trips.shared_copies": "Опубликованные копии сохранятся. Их можно удалить отдельно.",
- "retention.unavailable": "Фото недоступно в облаке"
+ "retention.unavailable": "Фото недоступно в облаке",
+ "account.mixed_script_name": "Используй один алфавит в каждом слове псевдонима. В разных словах можно использовать разные алфавиты.",
+ "account.review_profile": "Войди в сеть, чтобы проверить профиль и действующие условия.",
+ "groups.member_list": "Участники группы",
+ "groups.more_members": "Ещё участники",
+ "groups.remove_member": "Удалить участника",
+ "sync.device_only": "Эти записи есть только на этом телефоне.",
+ "sync.upload_copy": "Сохранить в аккаунте"
 }

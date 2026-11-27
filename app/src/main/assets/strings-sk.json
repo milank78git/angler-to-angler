@@ -267,7 +267,7 @@
  "help-topics.catalog.steps.3": "Skontrolujte pravidlá pre skutočnú vodu a dátum pred rybolovom.Plnená veľkosť alebo sezóna chýbajúca znamená, že informácie stále potrebujú overenie.",
  "help-topics.catalog.title": "Katalóg a umiestnenie ryb",
  "help-topics.catch.steps.1": "Vyberte si rybu, zadajte jej meranú dĺžku v centimetroch a opcionálne jej bait alebo techniku.",
- "help-topics.catch.steps.2": "Ak chcete dokumentovať úlovok, fotografujte celú rybu vo vode so škálou.Priamozdaná bodka môže označiť polohu úlovku alebo miesto ušľachtenia.Telefón požiada o umiestnenie pri klepnutí.",
+ "help-topics.catch.steps.2": "Na zdokumentovanie úlovku odfoť pri vode celú rybu s meradlom. Na súkromnej mape môžeš označiť svoje stanovište alebo miesto záberu. Telefón si vyžiada prístup k polohe až po ťuknutí na tlačidlo.",
  "help-topics.catch.title": "Fotografie, fotografie a umiestnenie",
  "help-topics.evidence.steps.1": "Predložiť ho z jeho podrobností a otvoriť Moje predložené fotografie v profile vidieť výsledok alebo stiahnuť.",
  "help-topics.evidence.steps.2": "Ustanovený revízor rozlišuje meranú dĺžku od odhadu pomocou referencie známeho veľkosti.",
@@ -1180,5 +1180,12 @@
  "retention.policy": "Fotky úlovkov sa v cloude uchovávajú 12 mesiacov. Otvorením detailu alebo ručným predĺžením začne nová lehota. Fotka v telefóne zostane.",
  "groups.remove_member_confirm": "Odobrať člena aj jeho príspevky v skupine?",
  "trips.shared_copies": "Zdieľané kópie zostanú. Odstráň ich samostatne.",
- "retention.unavailable": "Fotka v cloude nie je dostupná"
+ "retention.unavailable": "Fotka v cloude nie je dostupná",
+ "account.mixed_script_name": "V každom slove prezývky použi iba jedno písmo. Rôzne slová môžu byť napísané rôznymi písmami.",
+ "account.review_profile": "Prihlás sa online a over aktuálne údaje profilu a podmienky.",
+ "groups.member_list": "Členovia skupiny",
+ "groups.more_members": "Ďalší členovia",
+ "groups.remove_member": "Odobrať člena",
+ "sync.device_only": "Tieto záznamy sú iba v tomto telefóne.",
+ "sync.upload_copy": "Uložiť do účtu"
 }

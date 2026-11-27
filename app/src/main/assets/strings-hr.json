@@ -277,7 +277,7 @@
  "help-topics.catalog.steps.3": "Provjerite pravila za stvarnu vodu i datum prije ribarstva. prazna granica veličine ili sezona nestanka znači da informacije još uvijek trebaju provjeru.",
  "help-topics.catalog.title": "Katalog i lokacija ribljeg lista",
  "help-topics.catch.steps.1": "Odaberite ribu, unesite njezinu mjerenu duljinu u centimetrima i opcionalno njezin bait ili tehniku.",
- "help-topics.catch.steps.2": "Da biste dokumentirao ulov, fotografirajte cijelu ribu na vodi s stupnjem. privatna točka može označiti položaj anglera ili mjesto ugriza.",
+ "help-topics.catch.steps.2": "Za bilježenje ulova fotografiraj cijelu ribu uz vodu s mjernom trakom pokraj nje. Na privatnoj karti možeš označiti svoje mjesto ribolova ili mjesto na kojem je riba zagrizla. Telefon traži pristup lokaciji kada dodirneš gumb.",
  "help-topics.catch.title": "Uhićenje, fotografija i lokacija",
  "help-topics.evidence.steps.1": "Prvo ga pošaljite iz detalja i otvorite Moje podnesene fotografije u profilu kako biste vidjeli rezultat ili povlačenje.",
  "help-topics.evidence.steps.2": "Pripremljeni revizor razlikuje mjerenu dužinu od procjene pomoću reference poznate veličine.",
@@ -1180,5 +1180,12 @@
  "waters.water_reports": "Izvješća o vodama",
  "groups.remove_member_confirm": "Ukloniti člana i njegove objave iz grupe?",
  "trips.shared_copies": "Dijeljene kopije ostaju. Ukloni ih zasebno.",
- "retention.unavailable": "Fotografija u oblaku nije dostupna"
+ "retention.unavailable": "Fotografija u oblaku nije dostupna",
+ "account.mixed_script_name": "U svakoj riječi nadimka koristi jedno pismo. Različite riječi mogu biti napisane različitim pismima.",
+ "account.review_profile": "Prijavi se putem interneta i provjeri profil i važeće uvjete.",
+ "groups.member_list": "Članovi grupe",
+ "groups.more_members": "Još članova",
+ "groups.remove_member": "Ukloni člana",
+ "sync.device_only": "Ovi su zapisi samo na ovom telefonu.",
+ "sync.upload_copy": "Spremi na račun"
 }

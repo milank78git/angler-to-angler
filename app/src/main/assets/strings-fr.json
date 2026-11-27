@@ -1180,5 +1180,12 @@
  "retention.policy": "Les photos de prises restent 12 mois dans le cloud. Ouvrez une photo en grand ou prolongez sa durée. La photo sur cet appareil est conservée.",
  "groups.remove_member_confirm": "Retirer ce membre et ses contributions au groupe ?",
  "trips.shared_copies": "Les copies partagées restent disponibles. Supprime-les séparément.",
- "retention.unavailable": "Photo indisponible dans le cloud"
+ "retention.unavailable": "Photo indisponible dans le cloud",
+ "account.mixed_script_name": "Utilise un seul alphabet par mot dans ton pseudo. Deux mots peuvent utiliser des alphabets différents.",
+ "account.review_profile": "Connecte-toi en ligne pour vérifier ton profil et les conditions en vigueur.",
+ "groups.member_list": "Membres du groupe",
+ "groups.more_members": "Voir plus de membres",
+ "groups.remove_member": "Retirer le membre",
+ "sync.device_only": "Ces entrées se trouvent uniquement sur ce téléphone.",
+ "sync.upload_copy": "Enregistrer dans le compte"
 }

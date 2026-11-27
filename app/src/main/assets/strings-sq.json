@@ -267,7 +267,7 @@
  "help-topics.catalog.steps.3": "Kontrolloni rregullat për ujërat reale dhe datën para peshkimit. një limit madhësie të zbrazët ose sezon i munguar do të thotë se informacioni ende ka nevojë për verifikim.",
  "help-topics.catalog.title": "Katalogu i peshkut dhe vendndodhja",
  "help-topics.catch.steps.1": "Zgjidhni peshkun, shkruani gjatësinë e saj të matur në centimetra dhe opsionalisht shkopin ose teknikën e saj.",
- "help-topics.catch.steps.2": "Për të dokumentuar një kapje fotografon tërë peshkun në ujë me një shkallë. një pikë private mund të tregojë pozicionin e anglerit ose vendndodhjen e puthjes. telefoni kërkon vendndodhjen kur ju prekni.",
+ "help-topics.catch.steps.2": "Për ta dokumentuar kapjen, fotografo peshkun e plotë buzë ujit me një vizore pranë tij. Në hartën tënde private mund të shënosh vendin ku po peshkoje ose vendin ku peshku kapi karremin. Telefoni të kërkon leje për vendndodhjen kur prek butonin.",
  "help-topics.catch.title": "Fotografitë, vendndodhja dhe fotografitë",
  "help-topics.evidence.steps.1": "Shkruani fotografinë e kapjes së parë. dërgoni atë nga detajet e saj dhe hapni fotot e mia të paraqitura në profil për të parë rezultatin ose tërheqjen.",
  "help-topics.evidence.steps.2": "Një revist i caktuar dallon një gjatësi të matur nga një vlerësim duke përdorur një referencë të njohur të madhësisë.",
@@ -1180,5 +1180,12 @@
  "retention.policy": "Fotot e peshqve të kapur ruhen në re për 12 muaj. Që të mbash kopjen në re, hap foton në madhësi të plotë ose zgjat afatin e ruajtjes. Fotoja mbetet në pajisjen tënde.",
  "groups.remove_member_confirm": "Ta heqësh anëtarin dhe kontributet e tij nga grupi?",
  "trips.shared_copies": "Kopjet e ndara me të tjerët mbeten. Hiqi veçmas.",
- "retention.unavailable": "Fotografia në re nuk është e disponueshme"
+ "retention.unavailable": "Fotografia në re nuk është e disponueshme",
+ "account.mixed_script_name": "Përdor vetëm një alfabet në secilën fjalë të pseudonimit. Fjalë të ndryshme mund të përdorin alfabete të ndryshme.",
+ "account.review_profile": "Hyr në llogari me internet për të kontrolluar profilin dhe kushtet në fuqi.",
+ "groups.member_list": "Anëtarët e grupit",
+ "groups.more_members": "Më shumë anëtarë",
+ "groups.remove_member": "Hiq anëtarin",
+ "sync.device_only": "Këto shënime janë vetëm në këtë telefon.",
+ "sync.upload_copy": "Ruaj në llogari"
 }

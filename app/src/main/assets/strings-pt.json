@@ -267,7 +267,7 @@
  "help-topics.catalog.steps.3": "Verifique as regras para a água e data de pesca antes da pesca. um limite de tamanho vazio ou temporada ausente significa que as informações ainda precisam de verificação.",
  "help-topics.catalog.title": "Catálogo e localização de peixes",
  "help-topics.catch.steps.1": "Escolha o peixe, entre a sua comprimento medida em centímetros e opcionalmente seu bait ou técnica.",
- "help-topics.catch.steps.2": "Para documentar uma captura, fotografar o peixe inteiro na água com uma escala. um ponto privado pode marcar a posição do angular ou a localização do batimento. o telefone solicita a localização quando você toca.",
+ "help-topics.catch.steps.2": "Para documentar a captura, fotografa o peixe inteiro junto à água com uma régua ao lado. Podes marcar no teu mapa privado o teu pesqueiro ou o local onde o peixe picou. O telemóvel pede acesso à localização quando tocas no botão.",
  "help-topics.catch.title": "Catch, foto e localização",
  "help-topics.evidence.steps.1": "Envie-o de seus detalhes e abra Minhas fotos de captura enviadas abaixo do perfil para ver o resultado ou retirada.",
  "help-topics.evidence.steps.2": "Um revedor atribuído distingue uma comprimento medida de uma estimativa usando uma referência de tamanho conhecido.",
@@ -1180,5 +1180,12 @@
  "retention.policy": "As fotografias das capturas ficam na nuvem durante 12 meses. Abra uma fotografia em detalhe ou renove o prazo. A fotografia no dispositivo é mantida.",
  "groups.remove_member_confirm": "Remover este membro e as suas contribuições para o grupo?",
  "trips.shared_copies": "As cópias partilhadas permanecem. Elimina-as separadamente.",
- "retention.unavailable": "Fotografia indisponível na nuvem"
+ "retention.unavailable": "Fotografia indisponível na nuvem",
+ "account.mixed_script_name": "Usa um único alfabeto em cada palavra da alcunha. Podes usar alfabetos diferentes em palavras diferentes.",
+ "account.review_profile": "Inicia sessão com ligação à Internet para verificar o perfil e as condições em vigor.",
+ "groups.member_list": "Membros do grupo",
+ "groups.more_members": "Mais membros",
+ "groups.remove_member": "Remover membro",
+ "sync.device_only": "Estes registos estão apenas neste telemóvel.",
+ "sync.upload_copy": "Guardar na conta"
 }

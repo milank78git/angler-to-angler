@@ -267,7 +267,7 @@
  "help-topics.catalog.steps.3": "Provjerite pravila za stvarnu vodu i datum pre ribarstva. prazna granica veličine ili sezona koja nedostaje znači da informacije još uvek trebaju provjeru.",
  "help-topics.catalog.title": "Katalog i lokacija ribolova",
  "help-topics.catch.steps.1": "Izaberite ribu, unesite njezinu mjerenu dužinu u centimetre i opcionalno njezin bait ili tehniku.",
- "help-topics.catch.steps.2": "Da bi se dokumentirao ulov, fotografija je cijela riba na vodi sa stupnjem.Privatna točka može označiti poziciju anglera ili lokaciju ugriza.Telefon traži lokaciju kada dodirnete.",
+ "help-topics.catch.steps.2": "Da zabilježiš ulov, fotografiši cijelu ribu kraj vode s mjernom trakom pored nje. Na privatnoj karti možeš označiti svoje mjesto ribolova ili mjesto gdje je riba zagrizla. Telefon traži pristup lokaciji kada dodirneš dugme.",
  "help-topics.catch.title": "Fotografija, lokacija i fotografija",
  "help-topics.evidence.steps.1": "Prvo, sačuvajte snimku na ulazak. podnesite je iz detalja i otvorite moje snimke u profilu kako biste videli rezultat ili povlačenje.",
  "help-topics.evidence.steps.2": "Odredeni revizor razlikuje mjerenu dužinu od procene pomoću referencije poznate veličine.",
@@ -1180,5 +1180,12 @@
  "retention.policy": "Fotografije ulova čuvaju se u oblaku 12 mjeseci. Da zadržite kopiju u oblaku, otvorite fotografiju u punom prikazu ili produžite rok čuvanja. Fotografija ostaje na uređaju.",
  "groups.remove_member_confirm": "Ukloniti člana i njegove objave iz grupe?",
  "trips.shared_copies": "Podijeljene kopije ostaju. Ukloni ih zasebno.",
- "retention.unavailable": "Fotografija u oblaku nije dostupna"
+ "retention.unavailable": "Fotografija u oblaku nije dostupna",
+ "account.mixed_script_name": "Koristi jedno pismo u svakoj riječi nadimka. Različite riječi mogu koristiti različita pisma.",
+ "account.review_profile": "Prijavi se putem interneta i provjeri profil i važeće uslove.",
+ "groups.member_list": "Članovi grupe",
+ "groups.more_members": "Još članova",
+ "groups.remove_member": "Ukloni člana",
+ "sync.device_only": "Ovi zapisi su samo na ovom telefonu.",
+ "sync.upload_copy": "Spremi na račun"
 }

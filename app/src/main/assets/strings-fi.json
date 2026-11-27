@@ -267,7 +267,7 @@
  "help-topics.catalog.steps.3": "Tarkista todellisen veden säännöt ja päivämäärät ennen kalastusta. tyhjä koko rajoitus tai puuttuva kausi tarkoittaa, että tiedot tarvitsevat edelleen tarkistusta.",
  "help-topics.catalog.title": "Kalakantteri ja sijainti",
  "help-topics.catch.steps.1": "Valitse kala, kirjoita sen mitattu pituus senttimetreinä ja valinnaisesti sen baatti tai tekniikka. Voit kuvata tunnistamattoman kalan yksityisessä arkistoissasi.",
- "help-topics.catch.steps.2": "Dokumentti ottaa kuva koko kala vedessä asteikolla. yksityinen piste voi merkitä anglerin sijainti tai paina sijainti. Puhelin pyytää sijaintia, kun napsautat.",
+ "help-topics.catch.steps.2": "Kuvaa koko kala veden äärellä mitta kalan vieressä. Voit merkitä omalle kartallesi kalastuspaikkasi tai kohdan, jossa kala tärppäsi. Puhelin pyytää sijaintioikeutta, kun napautat painiketta.",
  "help-topics.catch.title": "Kuva, kuva ja sijainti",
  "help-topics.evidence.steps.1": "Tallenna ottimen ensimmäisenä. Lähetä se yksityiskohdista ja avaa lähetettyjen ottojen valokuvia profiilin alla nähdäksesi tuloksen tai peruuttamisen.",
  "help-topics.evidence.steps.2": "Asetettu tarkastaja erottaa mitatun pituuden arvioista käyttämällä tunnettua koon viittausta.",
@@ -1180,5 +1180,12 @@
  "retention.policy": "Saaliskuvia säilytetään pilvessä 12 kuukautta. Voit säilyttää pilvikopion avaamalla kuvan täysikokoisena tai jatkamalla säilytysaikaa. Laitteellasi oleva kuva säilyy.",
  "groups.remove_member_confirm": "Poistetaanko jäsen ja hänen julkaisunsa ryhmästä?",
  "trips.shared_copies": "Jaetut kopiot säilyvät. Poista ne erikseen.",
- "retention.unavailable": "Pilvessä oleva kuva ei ole saatavilla"
+ "retention.unavailable": "Pilvessä oleva kuva ei ole saatavilla",
+ "account.mixed_script_name": "Käytä nimimerkin kussakin sanassa vain yhtä kirjaimistoa. Eri sanoissa voi käyttää eri kirjaimistoja.",
+ "account.review_profile": "Kirjaudu sisään verkossa ja tarkista profiilisi ja voimassa olevat ehdot.",
+ "groups.member_list": "Ryhmän jäsenet",
+ "groups.more_members": "Lisää jäseniä",
+ "groups.remove_member": "Poista jäsen",
+ "sync.device_only": "Nämä merkinnät ovat vain tässä puhelimessa.",
+ "sync.upload_copy": "Tallenna tilille"
 }

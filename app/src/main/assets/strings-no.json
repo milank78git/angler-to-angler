@@ -267,7 +267,7 @@
  "help-topics.catalog.steps.3": "Sjekk reglene for det faktiske vannet og datoen før fiske.En tom størrelse grense eller mangel på sesong betyr at informasjonen fortsatt trenger verifisering.",
  "help-topics.catalog.title": "Fiskekategori og beliggenhet",
  "help-topics.catch.steps.1": "Velg fisken, skriv inn den målede lengden i centimeter og valgfritt sin bait eller teknikk. Du kan beskrive en ukjent fisk i din private tidsskrift.",
- "help-topics.catch.steps.2": "For å dokumentere en fottilfange fotograferer du hele fisken ved vannet med en skala.En privat punkt kan markere anglerens posisjon eller bittes beliggenhet.Telefonen ber om plassering når du ringer.",
+ "help-topics.catch.steps.2": "Ta bilde av hele fisken ved vannet med en målestokk ved siden av. På det private kartet kan du markere fiskeplassen din eller stedet der fisken nappet. Telefonen ber om tilgang til posisjonen din når du trykker på knappen.",
  "help-topics.catch.title": "Fikk, bilde og beliggenhet",
  "help-topics.evidence.steps.1": "Save det fra detaljene og åpne mine innsendte bilder under Profil for å se resultatet eller trekke tilbake.",
  "help-topics.evidence.steps.2": "En tildelt revisor skiller en målt lengde fra en estimat ved hjelp av en referanse av kjent størrelse.",
@@ -1180,5 +1180,12 @@
   "retention.policy": "Fangstbilder lagres i skyen i 12 måneder. Åpne selve bildet eller forny det manuelt for å starte en ny periode. Bildet på enheten beholdes.",
   "groups.remove_member_confirm": "Fjerne medlemmet og medlemmets bidrag til gruppen?",
   "trips.shared_copies": "Delte kopier beholdes. Fjern dem separat.",
-  "retention.unavailable": "Bildet i skyen er ikke tilgjengelig"
+  "retention.unavailable": "Bildet i skyen er ikke tilgjengelig",
+  "account.mixed_script_name": "Bruk bare ett alfabet i hvert ord i kallenavnet. Ulike ord kan bruke ulike alfabeter.",
+  "account.review_profile": "Logg inn på nett for å sjekke profilen og de gjeldende vilkårene.",
+  "groups.member_list": "Gruppemedlemmer",
+  "groups.more_members": "Flere medlemmer",
+  "groups.remove_member": "Fjern medlem",
+  "sync.device_only": "Disse oppføringene finnes bare på denne telefonen.",
+  "sync.upload_copy": "Lagre på kontoen"
 }

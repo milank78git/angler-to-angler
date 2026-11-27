@@ -46,11 +46,15 @@ final class AccountStore {
     return "adult".equals(band) || "teen".equals(band);
   }
 
-  static boolean offlineLeaseExpired(Context c) {
+  /** A missing or zero verification time also covers profiles invalidated by older builds. */
+  static String signInReason(Context c) {
     SharedPreferences p = prefs(c);
-    return p.contains("subject") && p.contains("verified")
-        && REVISION.equals(p.getString("revision", ""))
-        && System.currentTimeMillis() - p.getLong("verified", 0) >= WINDOW;
+    if (!p.contains("subject")) return null;
+    long verified = p.getLong("verified", 0);
+    long now = System.currentTimeMillis();
+    if (!REVISION.equals(p.getString("revision", "")) || verified <= 0 || verified > now)
+      return "account.review_profile";
+    return now - verified >= WINDOW ? "account.offline_expired" : null;
   }
 
   static long remainingMillis(Context c) {
@@ -170,7 +174,10 @@ final class AccountStore {
       if (owner != generation || session == null || !session.id.equals(id)) return;
       boolean valid = profile != null && id.equals(profile.optString("id")) && profile.optBoolean("current")
           && prefs(c).getString("ageBand", "").equals(profile.optString("ageBand"));
-      prefs(c).edit().putLong("verified", valid ? System.currentTimeMillis() : 0).apply();
+      SharedPreferences.Editor edit = prefs(c).edit();
+      if (valid) edit.putLong("verified", System.currentTimeMillis());
+      else edit.remove("verified");
+      edit.apply();
     }
   }
 

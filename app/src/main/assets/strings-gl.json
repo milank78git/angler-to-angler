@@ -267,7 +267,7 @@
  "help-topics.catalog.steps.3": "Verifique as regras para a auga e data de pesca antes.Un límite de tamaño baleiro ou estación ausente significa que a información aínda necesita verificación.",
  "help-topics.catalog.title": "Catálogo e localización de peixes",
  "help-topics.catch.steps.1": "Escolla o peixe, introduza a súa lonxitude medida en centímetros e opcionalmente a súa baía ou técnica.",
- "help-topics.catch.steps.2": "Para documentar unha captura fotografará o peixe enteiro na auga cunha escala.Un punto privado pode marcar a posición do anxo ou a localización da picada.O teléfono pide a localización cando toque.",
+ "help-topics.catch.steps.2": "Para documentar a captura, fotografía o peixe enteiro á beira da auga cunha regra ao lado. No mapa privado podes marcar o teu posto de pesca ou o lugar onde picou o peixe. O teléfono pedirache acceso á localización cando toques o botón.",
  "help-topics.catch.title": "Catch, foto e localización",
  "help-topics.evidence.steps.1": "Subíndoo desde os seus detalles e abre As miñas fotos de captura enviadas baixo o perfil para ver o resultado ou retirar.",
  "help-topics.evidence.steps.2": "Un revedor asignado distingue unha lonxitude medida dunha estimación usando unha referencia de tamaño coñecido.",
@@ -1180,5 +1180,12 @@
  "retention.policy": "As fotos das capturas gárdanse na nube durante 12 meses. Abre o detalle da foto ou renova o prazo. A foto do dispositivo consérvase.",
  "groups.remove_member_confirm": "Queres retirar o membro e as súas achegas do grupo?",
  "trips.shared_copies": "As copias compartidas consérvanse. Elimínaas por separado.",
- "retention.unavailable": "A foto na nube non está dispoñible"
+ "retention.unavailable": "A foto na nube non está dispoñible",
+ "account.mixed_script_name": "Usa un só alfabeto en cada palabra do alcume. Podes usar alfabetos distintos en palabras diferentes.",
+ "account.review_profile": "Inicia sesión en liña para revisar o perfil e as condicións vixentes.",
+ "groups.member_list": "Membros do grupo",
+ "groups.more_members": "Máis membros",
+ "groups.remove_member": "Retirar membro",
+ "sync.device_only": "Estas entradas só están neste teléfono.",
+ "sync.upload_copy": "Gardar na conta"
 }

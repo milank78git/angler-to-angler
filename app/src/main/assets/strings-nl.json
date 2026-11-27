@@ -267,7 +267,7 @@
  "help-topics.catalog.steps.3": "Controleer de regels voor het echte water en datum voor vissen.Een lege grootte-limit of ontbrekende seizoen betekent dat de informatie nog steeds verificatie nodig heeft.",
  "help-topics.catalog.title": "Cataloge en locatie van vis",
  "help-topics.catch.steps.1": "Kies de vis, voer de gemeten lengte in centimeter en optioneel zijn bait of techniek. u kunt een onidentifiete vis beschrijven in uw privé-journal.",
- "help-topics.catch.steps.2": "Om een catch te documenteren, fotograferen we de hele vis bij het water met een schaal. Een privé-punt kan de positie van de angler of de bite locatie markeren.",
+ "help-topics.catch.steps.2": "Fotografeer de hele vis aan de waterkant met een meetlat ernaast. Op je privékaart kun je je visstek of de plek van de aanbeet markeren. Je telefoon vraagt om toegang tot je locatie zodra je op de knop tikt.",
  "help-topics.catch.title": "Catch, foto en locatie",
  "help-topics.evidence.steps.1": "Stuur het uit de details en open Mijn ingediend catch foto's onder Profile om het resultaat of terugtrek te zien.",
  "help-topics.evidence.steps.2": "Een toegewezen beoordeelaar onderscheidt een gemeten lengte van een schatting met behulp van een referentie van bekende grootte.",
@@ -1180,5 +1180,12 @@
  "retention.policy": "Vangstfoto’s blijven 12 maanden in de cloud. Open een foto in detail of verleng de termijn. De foto op je apparaat blijft behouden.",
  "groups.remove_member_confirm": "Dit lid en diens bijdragen aan de groep verwijderen?",
  "trips.shared_copies": "Gedeelde kopieën blijven bestaan. Verwijder ze afzonderlijk.",
- "retention.unavailable": "Foto in de cloud niet beschikbaar"
+ "retention.unavailable": "Foto in de cloud niet beschikbaar",
+ "account.mixed_script_name": "Gebruik binnen elk woord van je bijnaam één schrift. Je mag per woord een ander schrift gebruiken.",
+ "account.review_profile": "Meld je online aan om je profiel en de huidige voorwaarden te controleren.",
+ "groups.member_list": "Groepsleden",
+ "groups.more_members": "Meer leden",
+ "groups.remove_member": "Lid verwijderen",
+ "sync.device_only": "Deze gegevens staan alleen op deze telefoon.",
+ "sync.upload_copy": "Opslaan in account"
 }

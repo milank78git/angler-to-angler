@@ -266,7 +266,7 @@
  "help-topics.catalog.steps.3": "Balık tutmadan önce gerçek su ve tarih kurallarını kontrol edin. boş boyut sınırı veya eksik mevsim, bilgilerin hala doğrulama gerektirdiğini gösterir.",
  "help-topics.catalog.title": "Balık Kataloğu ve Konumu",
  "help-topics.catch.steps.1": "Balıkları seçin, ölçülen uzunluğunu intimetre olarak girin ve seçmeli olarak bitini veya tekniğini girin.",
- "help-topics.catch.steps.2": "Bir yakalama belgesi için, suyun tüm balığı bir ölçekle fotoğraflayın. özel bir nokta, köpek yuvası konumunu veya ısırık konumunu işaretleyebilir.",
+ "help-topics.catch.steps.2": "Avını belgelemek için balığın tamamını su kenarında, yanında bir cetvelle fotoğrafla. Özel haritanda kendi konumunu veya balığın yeme vurduğu yeri işaretleyebilirsin. Telefon, düğmeye dokunduğunda konum izni ister.",
  "help-topics.catch.title": "Fotoğraf, fotoğraf ve yer",
  "help-topics.evidence.steps.1": "İlk olarak çekim için kaydedin. ayrıntılarından gönderin ve Profile altında Gönderilen çekim fotoğraflarımı açın, sonuç veya çekim görmek için.",
  "help-topics.evidence.steps.2": "Bir değerlendirmen, bir tahminden ölçülen uzunluğu bilinen bir referans kullanılarak ayırır.",
@@ -1180,5 +1180,12 @@
  "retention.policy": "Avladığınız balıkların fotoğrafları bulutta 12 ay saklanır. Bulut kopyasını korumak için fotoğrafı tam boyutta açın veya saklama süresini uzatın. Cihazınızdaki fotoğraf cihazda kalır.",
  "groups.remove_member_confirm": "Bu üye ve gruptaki paylaşımları kaldırılsın mı?",
  "trips.shared_copies": "Paylaşılan kopyalar kalır. Bunları ayrı ayrı sil.",
- "retention.unavailable": "Buluttaki fotoğrafa erişilemiyor"
+ "retention.unavailable": "Buluttaki fotoğrafa erişilemiyor",
+ "account.mixed_script_name": "Takma adındaki her sözcükte tek bir alfabe kullan. Farklı sözcüklerde farklı alfabeler kullanabilirsin.",
+ "account.review_profile": "Profilini ve geçerli koşulları kontrol etmek için internete bağlanıp oturum aç.",
+ "groups.member_list": "Grup üyeleri",
+ "groups.more_members": "Daha fazla üye",
+ "groups.remove_member": "Üyeyi çıkar",
+ "sync.device_only": "Bu kayıtlar yalnızca bu telefonda.",
+ "sync.upload_copy": "Hesaba kaydet"
 }

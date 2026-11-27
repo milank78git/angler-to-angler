@@ -267,7 +267,7 @@
  "help-topics.catalog.steps.3": "Verificați regulile pentru apa reală și data înainte de pescuit. o limită de dimensiune gol sau sezonul lipsit înseamnă că informațiile au încă nevoie de verificare.",
  "help-topics.catalog.title": "Catalogul și locația peștilor",
  "help-topics.catch.steps.1": "Alegeți peștele, introduceți lungimea sa măsurată în centimetri și opțional a lui bait sau tehnica. puteți descrie un pește neidentificat în jurnalul dvs. privat.",
- "help-topics.catch.steps.2": "Pentru a documenta o captură fotografia întregului pește la apă cu o scară. un punct privat poate indica poziția anglerului sau locația bătutului. telefonul solicită locație atunci când apelați.",
+ "help-topics.catch.steps.2": "Pentru a documenta captura, fotografiază peștele întreg pe malul apei, alături de o riglă. Pe harta privată poți marca locul în care pescuiești sau locul unde a mușcat peștele. Telefonul îți cere acces la locație când atingi butonul.",
  "help-topics.catch.title": "Fotografii, locație și fotografie",
  "help-topics.evidence.steps.1": "Întoarceți-l din detaliile sale și deschideți Fotografiile de captură prezentate în profila pentru a vedea rezultatul sau retragerea.",
  "help-topics.evidence.steps.2": "Un revizor atribuit distinge o lungime măsurată de o estimare folosind o referință de dimensiune cunoscută.",
@@ -1180,5 +1180,12 @@
  "retention.policy": "Fotografiile capturilor sunt păstrate în cloud timp de 12 luni. Deschide fotografia în detaliu sau prelungește termenul. Fotografia de pe dispozitiv rămâne.",
  "groups.remove_member_confirm": "Elimini membrul și contribuțiile sale din grup?",
  "trips.shared_copies": "Copiile partajate se păstrează. Șterge-le separat.",
- "retention.unavailable": "Fotografia din cloud nu este disponibilă"
+ "retention.unavailable": "Fotografia din cloud nu este disponibilă",
+ "account.mixed_script_name": "Folosește un singur alfabet în fiecare cuvânt al poreclei. Cuvintele diferite pot folosi alfabete diferite.",
+ "account.review_profile": "Conectează-te online pentru a verifica profilul și condițiile în vigoare.",
+ "groups.member_list": "Membrii grupului",
+ "groups.more_members": "Mai mulți membri",
+ "groups.remove_member": "Elimină membrul",
+ "sync.device_only": "Aceste înregistrări sunt doar pe acest telefon.",
+ "sync.upload_copy": "Salvează în cont"
 }

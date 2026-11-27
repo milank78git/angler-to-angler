@@ -267,7 +267,7 @@
  "help-topics.catalog.steps.3": "Kontrollera reglerna för det faktiska vattnet och datumet innan fiske. En tom storlek eller saknad säsong innebär att informationen fortfarande behöver verifiering.",
  "help-topics.catalog.title": "Fiskkatalog och plats",
  "help-topics.catch.steps.1": "Välj fisk, ange dess mätade längd i centimeter och alternativt dess bait eller teknik. Du kan beskriva en okänd fisk i din privata tidskrift.",
- "help-topics.catch.steps.2": "För att dokumentera en fångst fotograferar man hela fisken vid vattnet med en skala. En privat punkt kan markera anglerens position eller biten plats.",
+ "help-topics.catch.steps.2": "Fotografera hela fisken vid vattnet med en måttstock bredvid. På din privata karta kan du markera din fiskeplats eller platsen där fisken nappade. Telefonen ber om åtkomst till din plats när du trycker på knappen.",
  "help-topics.catch.title": "Fånga, foto och plats",
  "help-topics.evidence.steps.1": "Spara upptagningen till fångsten först. Sänd den från dess detaljer och öppna Mina inlämnade fångstbilder under Profil för att se resultatet eller avlägsnande.",
  "help-topics.evidence.steps.2": "En tilldelad granskare skiljer en mätbar längd från en uppskattning med hjälp av en referens av känt storlek.",
@@ -1180,5 +1180,12 @@
  "retention.policy": "Fångstfoton sparas i molnet i 12 månader. Öppna fotot i detalj eller förläng tiden. Fotot på enheten finns kvar.",
  "groups.remove_member_confirm": "Ta bort medlemmen och medlemmens bidrag i gruppen?",
  "trips.shared_copies": "Delade kopior finns kvar. Ta bort dem separat.",
- "retention.unavailable": "Bilden i molnet är inte tillgänglig"
+ "retention.unavailable": "Bilden i molnet är inte tillgänglig",
+ "account.mixed_script_name": "Använd bara ett alfabet i varje ord i ditt smeknamn. Olika ord kan ha olika alfabet.",
+ "account.review_profile": "Logga in via internet för att kontrollera din profil och de aktuella villkoren.",
+ "groups.member_list": "Gruppmedlemmar",
+ "groups.more_members": "Fler medlemmar",
+ "groups.remove_member": "Ta bort medlem",
+ "sync.device_only": "De här posterna finns bara på den här telefonen.",
+ "sync.upload_copy": "Spara på kontot"
 }
