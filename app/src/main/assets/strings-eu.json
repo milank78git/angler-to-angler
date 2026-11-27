@@ -274,7 +274,7 @@
  "help-topics.evidence.title": "Argazki-irakurketa",
  "help-topics.forum.steps.2": "Zure testua kendu dezakezu norbait erantzun arte. Jakinarazi posta problema bat. Erabili erantzuna pribatua angelar batek hitz egiteko.",
  "help-topics.forum.title": "Ura-konparazioak",
- "help-topics.groups.steps.1": "Ireki kontu eta taldearen ezarpenak profiletik. Sortu talde bat edo sartu gonbidazio bat. Jabea erabiltzaile bakarrik kode bat eskaintzen du. Kode berria ordezten du aurrekoa. Talde-argibideei sarbidea kendu.",
+ "help-topics.groups.steps.1": "Ireki zure profileko arrantza-taldeak taldekidetza kudeatzeko. Taldearen jabeak gonbidapen-esteka parteka dezake. Ireki esteka eta baieztatu taldean sartu nahi duzula.",
  "help-topics.groups.steps.2": "Argazki batean aukeratu Sartu astearen harpeta eta taldea hautatu. Kideak geroko beste argibideetan vota ditzakete. Taularen iraungitik ireki.",
  "help-topics.groups.title": "Asteko taldeak eta harrapatu",
  "help-topics.journal.steps.1": "Hasi egunkaria edo uratik bidaia bat, aukeratu ur eta eguna eta gorde gabe. Ura-izena pertsonalizatua zure egunkari pribatuan gelditzen da.",
@@ -731,5 +731,8 @@
  "groups.remove_tip": "Ezabatu aholkua",
  "alerts.community": "Mezu pribatuak, erantzunak eta taldeetako eta azokako jarduera",
  "trips.remove_catch": "Ezabatu harrapaketa hau eta bere argazkia",
- "waters.angler_contributions": "Arrantzaleen ekarpenak"
+ "waters.angler_contributions": "Arrantzaleen ekarpenak",
+ "account.browser_return": "Kontu berri bat baieztatu berri baduzu, ireki Arrantzalearengandik arrantzalearentzat eta hasi saioa erregistratzean emandako helbide elektronikoarekin eta pasahitzarekin. Pasahitza berrezartzeko, eskatu esteka berri bat aplikazioan eta ireki telefono berean. Laguntza behar baduzu, idatzi info@horistum.com helbidera.",
+ "store.deletion_steps": "Bidali mezu elektroniko bat erregistratutako helbidetik zerbitzuaren arduradunari, Arrantzalearengandik arrantzalearentzat kontua ezabatzeko eskatuz. Eskaera aplikazioaren kontu-atalean ere has dezakezu. Ez bidali inoiz pasahitzik edo ordainketa-daturik. Ezabatu aurretik, arduradunak kontua zurea dela egiaztatuko du.",
+ "field-hints.review-length": "Sartu luzera zentimetrotan, hautatutako egiaztapen-emaitzaren arabera. Froga nahikorik ez badago, ez da luzerarik erregistratzen."
 }

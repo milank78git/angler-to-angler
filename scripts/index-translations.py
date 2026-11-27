@@ -42,8 +42,9 @@ def check(show_coverage=False):
     czech = read(ASSETS / "strings-cs.json")
     fully_translated = {
         "an", "ast", "be", "bg", "bs", "ca", "cs", "da", "de", "el", "en", "es",
-        "et", "fi", "fr", "gl", "hr", "hu", "it", "mt", "nl", "nn", "no", "oc",
-        "pl", "pt", "ro", "ru", "sk", "sl", "sr", "sv", "tr", "uk",
+        "et", "fi", "fr", "ga", "gl", "hr", "hu", "it", "lt", "lv", "mt", "nl",
+        "nn", "no", "oc", "pl", "pt", "ro", "ru", "sk", "sl", "sr", "sv", "tr",
+        "uk",
     }
     missing_total = 0
     complete = 0
@@ -64,8 +65,14 @@ def check(show_coverage=False):
                 raise ValueError(f"{p.name}: invalid message {key!r}")
             if re.search(r"<(?:[A-Za-z/!?])", value):
                 raise ValueError(f"{p.name}: UI labels must be plain text: {key}")
+            source = english[key]
+            if (source[0].isspace() and not value[0].isspace()
+                    or source[-1].isspace() and not value[-1].isspace()):
+                raise ValueError(f"{p.name}: missing separator for concatenated text in {key}")
             if re.search(r"\b(?:brazzers|pornhub)\b", value, flags=re.IGNORECASE):
                 raise ValueError(f"{p.name}: unrelated adult-site text in the translation for {key}")
+            if re.search(r"\u2047|\bQShortcut\b|^@\s*(?:info|title|action|item)\b|[A-Za-z]+\.\s*kgm\b", value):
+                raise ValueError(f"{p.name}: unrelated translation metadata in {key}")
             if re.search(r"([^\W\d_])\1{7,}", value, flags=re.IGNORECASE):
                 raise ValueError(f"{p.name}: repeated letters in the translation for {key}")
             if key.startswith("europe-rules.scopes."):

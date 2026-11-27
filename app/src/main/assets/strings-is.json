@@ -274,7 +274,7 @@
  "help-topics.evidence.title": "Myndarreikning",
  "help-topics.forum.steps.2": "Þú getur tekið úr eigin texta þar til einhver svara. Sá á vandamálum. Notuð persónulegt svar til að tala við einn andlitið.",
  "help-topics.forum.title": "Vatnarbreikningar",
- "help-topics.groups.steps.1": "Öppna reikning og hópur settingar frá Profile. Skapa hóp eða skrifa inn boð. Eigendur útgreiða einstaka notkun kóða. Nýtt kóða skiptir upp fyrri. Að láta fjarlægja aðgang að hópur ráðgjöf.",
+ "help-topics.groups.steps.1": "Opnaðu veiðihópana í notandasniðinu þínu til að stjórna aðild þinni. Eigandi hóps getur deilt boðshlekk. Opnaðu hlekkinn og staðfestu að þú viljir ganga í hópinn.",
  "help-topics.groups.steps.2": "Á myndinni er valið Enter catch af viku og velja hópinn.Mennir geta rödd á öðrum greiningum í hjólinu.Aðra síðustu hjól frá ráðstefnu.",
  "help-topics.groups.title": "Húsið og fangst á viku",
  "help-topics.journal.steps.1": "Byrjaðu ferð frá dagblöðinu eða vatni, velja vatn og dag og spara það jafnvel án að taka.",
@@ -724,5 +724,8 @@
  "groups.remove_tip": "Fjarlægja ábendingu",
  "alerts.community": "Einkaskilaboð, svör og virkni í hópum og á markaðnum",
  "trips.remove_catch": "Eyða þessum afla og myndinni af honum",
- "waters.angler_contributions": "Færslur veiðimanna"
+ "waters.angler_contributions": "Færslur veiðimanna",
+ "account.browser_return": "Ef þú varst að staðfesta nýjan reikning skaltu opna Frá veiðimanni til veiðimanns og skrá þig inn með netfanginu og lykilorðinu sem þú skráðir. Til að endurstilla lykilorðið skaltu biðja um nýjan hlekk í appinu og opna hann í sama síma. Sendu póst á info@horistum.com ef þú þarft aðstoð.",
+ "store.deletion_steps": "Sendu rekstraraðilanum tölvupóst frá skráða netfanginu þínu og biddu um að reikningnum þínum í Frá veiðimanni til veiðimanns verði eytt. Þú getur líka sent beiðnina úr reikningshluta appsins. Sendu aldrei lykilorð eða greiðsluupplýsingar. Rekstraraðilinn staðfestir að reikningurinn sé þinn áður en honum er eytt.",
+ "field-hints.review-length": "Skráðu lengdina í sentímetrum fyrir þá niðurstöðu sem þú valdir. Ef gögnin duga ekki til staðfestingar er engin lengd skráð."
 }

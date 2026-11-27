@@ -274,7 +274,7 @@
  "help-topics.evidence.title": "Foto shqyrtim",
  "help-topics.forum.steps.2": "Ju mund të tërheqë tekstin tuaj derisa dikush të përgjigjet. raportojnë një postim problematik. përdorni një përgjigje private për të folur me një angler.",
  "help-topics.forum.title": "Diskutimet e ujit",
- "help-topics.groups.steps.1": "Hapur llogarinë dhe cilësimet e grupit nga Profili. Krijo një grup ose shkruani një ftesë. Një pronar nxjerr një kod të vetëm-përdorimi. Një kod i ri zëvendëson atë të mëparshëm. Largimi heq qasje në këshilla të grupit.",
+ "help-topics.groups.steps.1": "Hap grupet e peshkimit në profil për të menaxhuar anëtarësimet. Pronari i grupit mund të ndajë një lidhje ftese. Hape dhe konfirmo se dëshiron të hysh në grup.",
  "help-topics.groups.steps.2": "Në një kapje fotografuar, zgjidhni Enter catch të javës dhe zgjidhni grupin. Anëtarët mund të votojnë për kapjet e tjera në raund.",
  "help-topics.groups.title": "Grupet dhe kapja e javës",
  "help-topics.journal.steps.1": "Filloni një udhëtim nga gazeta ose ujë, zgjidhni ujin dhe ditën dhe ruani atë edhe pa një kapje.",
@@ -725,5 +725,8 @@
  "groups.remove_tip": "Hiq këshillën",
  "alerts.community": "Mesazhe private, përgjigje dhe aktivitet në grupe e në treg",
  "trips.remove_catch": "Fshi këtë kapje dhe foton e saj",
- "waters.angler_contributions": "Postimet e peshkatarëve"
+ "waters.angler_contributions": "Postimet e peshkatarëve",
+ "account.browser_return": "Nëse sapo ke konfirmuar një llogari të re, hap Nga peshkatari te peshkatari dhe hyr me adresën e emailit dhe fjalëkalimin që ke përdorur për regjistrim. Për të rivendosur fjalëkalimin, kërko një lidhje të re në aplikacion dhe hape në të njëjtin telefon. Për ndihmë shkruaj te info@horistum.com.",
+ "store.deletion_steps": "Nga adresa e emailit që ke regjistruar, dërgoji operatorit një kërkesë për fshirjen e llogarisë tënde Nga peshkatari te peshkatari. Kërkesën mund ta nisësh edhe nga seksioni i llogarisë në aplikacion. Mos dërgo kurrë fjalëkalime apo të dhëna pagese. Para fshirjes, operatori verifikon se llogaria është e jotja.",
+ "field-hints.review-length": "Shëno gjatësinë në centimetra për rezultatin e kontrollit që zgjodhe. Kur provat nuk mjaftojnë, gjatësia nuk regjistrohet."
 }
