@@ -29,10 +29,10 @@ jobs:
           install -m644 tests/*-db.sql "$fixture/tests/"
           install -m644 supabase/migrations/*.sql "$fixture/supabase/migrations/"
           sed '/^create extension /d' supabase/migrations/20261124060300_water_directory_schedule.sql > "$fixture/supabase/migrations/atlas-schedule-fixture.sql"
-          # Commit the fixture only inside this disposable database for multi-session purchase tests.
+          # Commit the fixture only inside this disposable database for multi-session database tests.
           sudo -u postgres createdb angler_fixture
           sed 's/^rollback;$/commit;/' "$fixture/tests/profile-db.sql" > "$fixture/tests/committed.sql"
-          install -m644 tests/market-race.py "$fixture/tests/"
+          install -m644 tests/market-race.py tests/journal-maintenance-race.py "$fixture/tests/"
           sudo -u postgres env PGTZ=UTC psql -X -v ON_ERROR_STOP=1 -d angler_fixture -f "$fixture/tests/committed.sql"
           python3 scripts/index-db-functions.py --signatures | LC_ALL=C sort > "$fixture/expected"
           sudo -u postgres psql -XAt -v ON_ERROR_STOP=1 -d angler_fixture \
@@ -42,6 +42,7 @@ jobs:
             | LC_ALL=C sort > "$fixture/installed"
           diff -u "$fixture/expected" "$fixture/installed"
           sudo -u postgres env PGDATABASE=angler_fixture python3 "$fixture/tests/market-race.py"
+          sudo -u postgres env PGDATABASE=angler_fixture python3 "$fixture/tests/journal-maintenance-race.py"
   android-package:
     if: github.event_name != 'workflow_dispatch' || (github.ref == 'refs/heads/main' && inputs.tag == '')
     runs-on: ubuntu-24.04
@@ -62,13 +63,15 @@ jobs:
       - run: python3 scripts/index-translations.py --check
       - run: python3 tests/account-documents.py
       - run: python3 tests/account-links.py
-      - run: python3 scripts/build-account-links.py build/account-links
+      - if: vars.ANDROID_ROTATED_CERTIFICATE != '' || vars.ANGLER_APP_LINK_HOST != ''
+        run: python3 scripts/build-account-links.py build/account-links
       - name: Check live Android association before issuing HTTPS links
         if: github.event_name != 'pull_request' && vars.ANGLER_APP_LINK_HOST != ''
         env:
           LINK_HOST: ${{ vars.ANGLER_APP_LINK_HOST }}
         run: python3 scripts/check-account-links.py "$LINK_HOST" build/account-links
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        if: vars.ANDROID_ROTATED_CERTIFICATE != ''
         with:
           name: direct-android-app-links
           path: build/account-links/
@@ -177,11 +180,7 @@ jobs:
           persist-credentials: false
       - name: Check release signing configuration
         env:
-          ANDROID_PILOT_KEY_ALIAS: ${{ vars.ANDROID_PILOT_KEY_ALIAS }}
           ANDROID_ROTATED_ALIAS: ${{ vars.ANDROID_ROTATED_ALIAS }}
-          HAS_ORIGINAL_KEY: ${{ secrets.ANDROID_PILOT_KEYSTORE != '' }}
-          HAS_STORE_PASSWORD: ${{ secrets.ANDROID_PILOT_STORE_PASSWORD != '' }}
-          HAS_KEY_PASSWORD: ${{ secrets.ANDROID_PILOT_KEY_PASSWORD != '' }}
           HAS_ROTATED_KEY: ${{ secrets.ANDROID_ROTATED_KEYSTORE != '' }}
           HAS_ROTATED_PASSWORD: ${{ secrets.ANDROID_ROTATED_PASSWORD != '' }}
           HAS_LINEAGE: ${{ secrets.ANDROID_PILOT_LINEAGE != '' }}
@@ -206,10 +205,6 @@ jobs:
           ANDROID_ROTATED_PASSWORD: ${{ secrets.ANDROID_ROTATED_PASSWORD }}
           ANDROID_ROTATED_ALIAS: ${{ vars.ANDROID_ROTATED_ALIAS }}
           ANDROID_PILOT_LINEAGE: ${{ secrets.ANDROID_PILOT_LINEAGE }}
-          ANDROID_PILOT_KEYSTORE: ${{ secrets.ANDROID_PILOT_KEYSTORE }}
-          ANDROID_PILOT_STORE_PASSWORD: ${{ secrets.ANDROID_PILOT_STORE_PASSWORD }}
-          ANDROID_PILOT_KEY_PASSWORD: ${{ secrets.ANDROID_PILOT_KEY_PASSWORD }}
-          ANDROID_PILOT_KEY_ALIAS: ${{ vars.ANDROID_PILOT_KEY_ALIAS }}
         run: bash scripts/sign-pilot.sh build/input/angler-journal-debug.apk
       - name: Publish the APK and its checksum
         env:

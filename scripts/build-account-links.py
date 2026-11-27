@@ -8,16 +8,13 @@ from pathlib import Path
 
 parser = argparse.ArgumentParser()
 parser.add_argument('output', type=Path)
-parser.add_argument('--certificate', default='81:94:98:78:93:A6:4E:E0:AB:F2:50:37:7C:54:A7:D9:39:B8:17:43:FA:95:02:0D:D4:A7:01:EA:45:AD:92:B6', help='Public release signing certificate SHA-256 fingerprint')
+parser.add_argument('--certificate', default=os.environ.get('ANDROID_ROTATED_CERTIFICATE', ''),
+                    help='Public SHA-256 fingerprint of the current Android signing certificate')
 args = parser.parse_args()
-if not re.fullmatch(r'(?:[0-9a-fA-F]{2}:){31}[0-9a-fA-F]{2}', args.certificate):
-    parser.error('Expected a colon-separated SHA-256 fingerprint')
-certificates = [args.certificate.upper()]
-rotated = os.environ.get("ANDROID_ROTATED_CERTIFICATE", "").replace(":", "").upper()
-if rotated:
-    if not re.fullmatch(r"[0-9A-F]{64}", rotated):
-        parser.error("Expected rotated pilot SHA-256 fingerprint")
-    certificates.append(":".join(rotated[i:i+2] for i in range(0, 64, 2)))
+pin = args.certificate.replace(':', '').upper()
+if not re.fullmatch(r'[0-9A-F]{64}', pin) or pin == '8194987893A64EE0ABF250377C54A7D939B81743FA95020DD4A701EA45AD92B6':
+    parser.error('Configure a rotated Android signing certificate')
+certificates = [':'.join(pin[i:i+2] for i in range(0, 64, 2))]
 package = 'app.anglers.journal'
 root = args.output
 well_known = root / '.well-known'
