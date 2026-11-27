@@ -684,5 +684,15 @@
  "dated_rules.choose_species": "Izvēlies sugu",
  "alerts.messages": "Jauna privāta ziņa",
  "public_card.length_from_ruler": "Uz lineāla nolasītais garums",
- "account.offline_expired": "Ir beigušās septiņas dienas, kurās dienasgrāmatu varēji lietot bez interneta. Lai turpinātu, pieslēdzies internetam un atbloķē dienasgrāmatu. Saglabātie ieraksti joprojām ir šajā tālrunī."
+ "account.offline_expired": "Ir beigušās septiņas dienas, kurās dienasgrāmatu varēji lietot bez interneta. Lai turpinātu, pieslēdzies internetam un atbloķē dienasgrāmatu. Saglabātie ieraksti joprojām ir šajā tālrunī.",
+ "alerts.ratings": "Tavs padoms ir novērtēts",
+ "alerts.sales": "Kāds iegādājās tavu padomu",
+ "alerts.weekly": "Jauns loms nedēļas sacensībās",
+ "alerts.catches": "Jauns loms grupā",
+ "alerts.tips": "Jauns padoms grupā",
+ "alerts.replies": "Jauna atbilde uz tavu jautājumu",
+ "sync.erase": "Dzēst tiešsaistes kopiju",
+ "sync.erase_info": "Vai dzēst konta rezerves kopiju un apturēt automātisko sinhronizāciju saistītajos tālruņos? Šajā tālrunī saglabātie ieraksti paliks šeit.",
+ "sync.erased": "Tiešsaistes kopija ir izdzēsta. Dienasgrāmata paliek šajā tālrunī.",
+ "groups.link_lifetime": "Ikviens, kam ir šī saite, var pievienoties grupai 24 stundu laikā. Nosūti to tikai tiem, kurus vēlies uzaicināt."
 }

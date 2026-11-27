@@ -682,5 +682,15 @@
  "dated_rules.choose_species": "Pasirink rūšį",
  "alerts.messages": "Nauja privati žinutė",
  "public_card.length_from_ruler": "Pagal liniuotę nustatytas ilgis",
- "account.offline_expired": "Baigėsi septynios dienos, kurias galėjai naudotis dienoraščiu be interneto. Norėdamas tęsti, prisijunk prie interneto ir atrakink dienoraštį. Išsaugoti įrašai liko šiame telefone."
+ "account.offline_expired": "Baigėsi septynios dienos, kurias galėjai naudotis dienoraščiu be interneto. Norėdamas tęsti, prisijunk prie interneto ir atrakink dienoraštį. Išsaugoti įrašai liko šiame telefone.",
+ "alerts.ratings": "Tavo patarimas įvertintas",
+ "alerts.sales": "Kažkas nusipirko tavo patarimą",
+ "alerts.weekly": "Naujas laimikis savaitės varžybose",
+ "alerts.catches": "Naujas laimikis grupėje",
+ "alerts.tips": "Naujas patarimas grupėje",
+ "alerts.replies": "Naujas atsakymas į tavo klausimą",
+ "sync.erase": "Ištrinti internetinę kopiją",
+ "sync.erase_info": "Ištrinti atsarginę paskyros kopiją ir sustabdyti automatinį sinchronizavimą susietuose telefonuose? Šiame telefone išsaugoti įrašai liks čia.",
+ "sync.erased": "Internetinė kopija ištrinta. Dienoraštis liko šiame telefone.",
+ "groups.link_lifetime": "Kiekvienas, turintis šią nuorodą, gali per 24 valandas prisijungti prie grupės. Siųsk ją tik tiems, kuriuos nori pakviesti."
 }

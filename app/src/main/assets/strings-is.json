@@ -680,5 +680,15 @@
  "dated_rules.choose_species": "Veldu tegund",
  "alerts.messages": "Ný einkaskilaboð",
  "public_card.length_from_ruler": "Lengd lesin af mælistiku",
- "account.offline_expired": "Sjö daga aðgangur án nettengingar er liðinn. Tengdu símann við netið og aflæstu dagbókinni til að halda áfram. Vistaðar færslur eru enn í þessum síma."
+ "account.offline_expired": "Sjö daga aðgangur án nettengingar er liðinn. Tengdu símann við netið og aflæstu dagbókinni til að halda áfram. Vistaðar færslur eru enn í þessum síma.",
+ "alerts.ratings": "Ábendingin þín fékk einkunn",
+ "alerts.sales": "Einhver keypti ábendinguna þína",
+ "alerts.weekly": "Nýr afli í vikukeppninni",
+ "alerts.catches": "Nýr afli í hópnum",
+ "alerts.tips": "Ný ábending í hópnum",
+ "alerts.replies": "Nýtt svar við spurningunni þinni",
+ "sync.erase": "Eyða afritinu á netinu",
+ "sync.erase_info": "Viltu eyða öryggisafriti reikningsins og stöðva sjálfvirka samstillingu á tengdum símum? Færslur sem vistaðar eru í þessum síma verða áfram hér.",
+ "sync.erased": "Afritinu á netinu hefur verið eytt. Dagbókin er enn í þessum síma.",
+ "groups.link_lifetime": "Hver sem hefur þennan hlekk getur gengið í hópinn innan 24 klukkustunda. Deildu honum aðeins með þeim sem þú vilt bjóða."
 }

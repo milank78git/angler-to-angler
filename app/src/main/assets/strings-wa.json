@@ -664,5 +664,6 @@
  "catalog.species.pike": "Brotchet",
  "catalog.species.roach": "Rossete",
  "catalog.species.barbel": "Bårbea",
- "settings.filters": "Passetes"
+ "settings.filters": "Passetes",
+ "settings.title": "Preferinces"
 }

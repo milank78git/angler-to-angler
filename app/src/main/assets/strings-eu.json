@@ -684,5 +684,15 @@
  "dated_rules.choose_species": "Aukeratu espeziea",
  "alerts.messages": "Mezu pribatu berria",
  "public_card.length_from_ruler": "Erregelan irakurritako luzera",
- "account.offline_expired": "Amaitu dira Interneteko konexiorik gabe erabiltzeko zazpi egunak. Jarraitzeko, konektatu Internetera eta desblokeatu egunkaria. Gordetako sarrerak telefono honetan daude."
+ "account.offline_expired": "Amaitu dira Interneteko konexiorik gabe erabiltzeko zazpi egunak. Jarraitzeko, konektatu Internetera eta desblokeatu egunkaria. Gordetako sarrerak telefono honetan daude.",
+ "alerts.ratings": "Zure aholkuak balorazio bat jaso du",
+ "alerts.sales": "Norbaitek zure aholkua erosi du",
+ "alerts.weekly": "Harrapaketa berria asteko lehiaketan",
+ "alerts.catches": "Harrapaketa berria taldean",
+ "alerts.tips": "Aholku berria taldean",
+ "alerts.replies": "Zure galderaren erantzun berria",
+ "sync.erase": "Ezabatu lineako kopia",
+ "sync.erase_info": "Kontuko babeskopia ezabatu eta lotutako telefonoetan sinkronizazio automatikoa gelditu nahi duzu? Telefono honetan gordetako sarrerak hemen geratuko dira.",
+ "sync.erased": "Lineako kopia ezabatu da. Egunkaria telefono honetan dago oraindik.",
+ "groups.link_lifetime": "Esteka hau duen edonor sar daiteke taldean 24 orduko epean. Gonbidatu nahi dituzunekin soilik partekatu."
 }

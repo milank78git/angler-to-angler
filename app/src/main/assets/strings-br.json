@@ -663,5 +663,12 @@
  "age.allow": "Aotren",
  "atlas.zoom_in": "Brasaat",
  "atlas.zoom_out": "Bihanaat",
- "waters.all_countries": "An holl vroioù"
+ "waters.all_countries": "An holl vroioù",
+ "settings.title": "Arventennoù",
+ "alerts.ratings": "Priziet eo bet ho kuzul",
+ "alerts.sales": "Prenet eo bet ho kuzul",
+ "alerts.weekly": "Tapadenn nevez e kevezadeg ar sizhun",
+ "alerts.catches": "Tapadenn nevez er strollad",
+ "alerts.tips": "Kuzul nevez er strollad",
+ "alerts.replies": "Respont nevez d'ho koulenn"
 }

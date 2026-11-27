@@ -33,7 +33,7 @@
  "account.open_journal": "Aç günlük",
  "account.open_the_latest_message_sent_to": "Bir soñki mesaj aç ",
  "account.open_your_webmail_in_the_browser_on": "Bu telefonda web poçtanızı aç.",
- "account.password": "Parola",
+ "account.password": "Parol",
  "account.password_setup": "Parola ayarı",
  "account.privacy_notice": "Gizlilik bilgisi",
  "account.register": "Qıdır",
@@ -116,7 +116,7 @@
  "common.service_unavailable_check_your_connection_and_retry": "Hizmet faydalanılışlı. Bağlantıñıznı teşkeriñiz ve kene deñeñiz.",
  "common.share_a_trip_tip": "Yapışma tipini paylaşın",
  "common.share_catch": "Paylaşım yakalayın",
- "common.sign_in": "İçeri imzalan",
+ "common.sign_in": "Kiriş",
  "common.strike_location": "Dolaq",
  "common.technique": "Teknik",
  "common.trip": "Yapış",
@@ -660,5 +660,6 @@
  "age.allow": "Ruhset ber",
  "messages.unread": "Oqulmağan",
  "alerts.messages": "Yañı hususiy beyanat",
- "waters.all_countries": "Bütün memleketler"
+ "waters.all_countries": "Bütün memleketler",
+ "settings.title": "Sazlamalar"
 }

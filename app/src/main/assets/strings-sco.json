@@ -675,5 +675,13 @@
  "groups.remove_tip": "Tak the tip awa",
  "trips.edit": "Edit the fishin trip",
  "trips.edit_catch": "Edit the catch",
- "trips.remove_catch": "Delete this catch an its photie"
+ "trips.remove_catch": "Delete this catch an its photie",
+ "alerts.ratings": "Yer tip’s been rated",
+ "alerts.sales": "Somebody’s bocht yer tip",
+ "alerts.weekly": "New catch in the weekly contest",
+ "alerts.replies": "New answer tae yer question",
+ "sync.erase": "Delete the online copy",
+ "sync.erase_info": "Delete the backup fae yer account an stop automatic sync on the phones linked tae it? The entries saved on this phone will bide here.",
+ "sync.erased": "The online copy’s been deletit. Yer journal is still on this phone.",
+ "groups.link_lifetime": "Onybody wi this link can jyn the group within 24 oors. Share it only wi the fowk ye want tae invite."
 }

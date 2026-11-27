@@ -677,5 +677,15 @@
  "dated_rules.choose_species": "Zgjidh llojin e peshkut",
  "alerts.messages": "Mesazh i ri privat",
  "public_card.length_from_ruler": "Gjatësia e lexuar në vizore",
- "account.offline_expired": "Kanë kaluar shtatë ditët e përdorimit pa internet. Për të vazhduar, lidhu me internetin dhe zhblloko ditarin. Shënimet e ruajtura janë ende në këtë telefon."
+ "account.offline_expired": "Kanë kaluar shtatë ditët e përdorimit pa internet. Për të vazhduar, lidhu me internetin dhe zhblloko ditarin. Shënimet e ruajtura janë ende në këtë telefon.",
+ "alerts.ratings": "Këshilla jote mori një vlerësim",
+ "alerts.sales": "Dikush e bleu këshillën tënde",
+ "alerts.weekly": "Kapje e re në garën javore",
+ "alerts.catches": "Kapje e re në grup",
+ "alerts.tips": "Këshillë e re në grup",
+ "alerts.replies": "Përgjigje e re për pyetjen tënde",
+ "sync.erase": "Fshi kopjen në internet",
+ "sync.erase_info": "Të fshihet kopja rezervë e llogarisë dhe të ndalet sinkronizimi automatik në telefonat e lidhur? Shënimet e ruajtura në këtë telefon do të mbeten këtu.",
+ "sync.erased": "Kopja në internet u fshi. Ditari është ende në këtë telefon.",
+ "groups.link_lifetime": "Kushdo që ka këtë lidhje mund t’i bashkohet grupit brenda 24 orësh. Ndaje vetëm me njerëzit që dëshiron të ftosh."
 }
