@@ -29,6 +29,12 @@ cd "$repo"
 source tests/field-integration/liquibase.sh
 lb validate
 lb update-to-tag --tag=pilot-0.18
+lb update-to-tag --tag=hosted-pilot-20261126
+# Check the adopted schema against a clean install on Supabase's actual Postgres image.
+baseline=$(psql "$url" -XqAt -v ON_ERROR_STOP=1 -c 'set search_path=pg_catalog' \
+  -f db/pilot/catalog-fingerprint.sql -c 'select digest from pg_temp.pilot_catalog_fingerprint')
+[[ "$baseline" == 68084782f7f0ec2006042f98bfc84e4b2fd3e654e13725464ca0800c60260a61 ]]
+python3 db/pilot/adoption-sql.py > "$stage/hosted-repair.sql"
 lb update
 python3 tests/field-integration/journal-storage.py configure "$stage"
 psql "$url" -Xq -v ON_ERROR_STOP=1 -c "update angler_sync.photo_rollout set started_at=now() where started_at is null"

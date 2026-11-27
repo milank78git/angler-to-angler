@@ -146,6 +146,7 @@
   <changeSet id="20261126150300" author="angler" dbms="postgresql">
     <sqlFile path="../supabase/migrations/20261126150300_remove_stored_age.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
   </changeSet>
+  <changeSet id="hosted-pilot-20261126" author="angler"><tagDatabase tag="hosted-pilot-20261126"/></changeSet>
   <changeSet id="20261126181000" author="angler" dbms="postgresql">
     <sqlFile path="../supabase/migrations/20261126181000_separate_journal_storage.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
   </changeSet>

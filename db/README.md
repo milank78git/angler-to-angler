@@ -18,7 +18,40 @@ in timestamp order to the same manifest. Use one runner per environment; do
 not also apply the same SQL via supabase db push. Check the change log and the
 active angler-water-directory cron job after deployment.
 
-## Taking over the existing pilot
+## Automatic hosted pilot deployment
+
+The Android pilot workflow on `main` waits for the database tests, Android registration
+and restore, and the published account Pages reader. The `migrate-pilot` job then
+runs Liquibase against the hosted database, compares every installed changeset with
+the checked-out changelog and reloads the API schema. Signing and publishing the pilot
+APK depend on this job succeeding. PRs only use disposable databases. A manual pilot
+build from main uses the same gate. Promotion of an already published APK uses its
+existing build.
+
+Configure the GitHub Actions environment `pilot-database` for the `main` branch.
+Set its secret `PILOT_DB_PASSWORD` to the pilot PostgreSQL password and its variable
+`PILOT_DB_HOST` to the hostname from Supabase **Connect → Session pooler**.
+The runner fixes the project username and port (5432) and verifies the server's TLS
+certificate. If the pooler uses a private root, set the environment variable
+`PILOT_DB_CA` to the trusted PEM CA certificate from the Supabase dashboard.
+Keep the API, Storage and SMTP credentials in their existing locations.
+
+For the first deployment, have a recoverable backup of the database and private Storage.
+The one-time adoption recognizes the 40 historical Supabase ledger entries by version,
+name and SQL hash. It checks the live catalog, applies the missing portions of earlier
+changes in one transaction, verifies the resulting schema and legacy registration
+privileges, and records only the reviewed prefix through `hosted-pilot-20261126`.
+It then installs the newer migrations with Liquibase. Existing profiles may receive
+the historical nickname disambiguation. The journal and community update invalidates
+reusable invitation links. Existing group memberships are retained. Activation of
+the new photo format remains a separate rollout step in [the pilot guide](../docs/google-play.md).
+
+After a transient failure, use **Re-run failed jobs** for the same main workflow.
+A failed adoption transaction rolls back. A completed adoption can be recognized
+again even if the runner stopped before Liquibase recorded it. A different legacy
+history or catalog stops the job for review.
+
+## Adopting other historical installations
 
 Choose the tag matching the verified installation. The pilot-0.18 tag covers the
 original 21 migrations. The pilot-0.19 tag also includes water reviews, monthly
