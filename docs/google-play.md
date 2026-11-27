@@ -135,3 +135,17 @@ The Journal screen shows whether edits are on this device or synchronized with
 the account. It retains the time of the last successful transfer when offline or
 after a service error. Use **Sync now** to retry. If both installations change
 the same trip, review its fishing date and water before choosing a version.
+
+### Private catch photo storage and rollout
+
+The updated client supports both journal formats. Apply the Liquibase changes before distributing the app. Fresh deployments default to the original protocol until activation. Rehearse the two-device restore, a legacy upgrade, an expired original and a restore of **both** private buckets alongside the database dump in the disposable field integration stack. Publish the updated APK and the twelve-month notice before activating the new format. Older clients can still open their local journals and must upgrade to sync converted trips. Activate once with:
+
+```sql
+update angler_sync.photo_rollout set started_at=clock_timestamp() where singleton and started_at is null;
+```
+
+The initial upload starts a twelve-calendar-month term. Legacy conversion uses the activation date instead of the catch date. The worker converts bounded batches of older trips, verifies the new JPEG against the original bytes, and retries temporary failures. Monitor `angler_sync.documents.conversion_retry` and the `angler-photo-maintenance` cron run history. Keep both buckets in the backup process. Recover unexpired objects and rerun maintenance before serving a restored database. The activation date is a one-time boundary. Roll back the client only to a version capable of reading detached trips.
+
+Only the owner's deliberate detail view or explicit renewal changes an active deadline. Offline requests carry the image digest and server-issued generation and are accepted only while that copy is still active. A fresh upload of an expired photo requires a local JPEG and an explicit action. Expiry on the server retains journal text, reviewed dimensions and device photos. The expiry marker prevents background sync from recreating the binary. Erasing the account backup, deleting the catch, and correcting the account to child status revoke the associated media. Storage garbage collection retries physical deletions. Backup rotation uses the deployment's separately published retention period.
+
+The catch form and the account privacy pages also describe the renewal policy. The journal lists photos due in the next 30 days and supports selecting multiple photos for renewal. Android uses locally scheduled, approximate 30- and 7-day reminders based on the last synchronized dates. Delivery depends on notification permission and the device being available. Opening a thumbnail as part of a trip list, restoring a second phone and sharing a public card do not renew a lease. The policy applies to private catch photos only. Water photos, profile portraits, competition entries and public or review copies keep their existing lifecycles.

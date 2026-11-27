@@ -1168,5 +1168,15 @@
  "waters.this_water_has_no_location_in_the": "Dit water heeft geen locatie in de offline atlas.",
  "waters.trout_water": "Forelwater",
  "waters.water_body": "Waterlichaam",
- "waters.water_reports": "Waterrapporten"
+ "waters.water_reports": "Waterrapporten",
+ "retention.title": "Foto’s in de cloud",
+ "retention.notice": "Sommige foto’s verlopen binnenkort. Open het logboek om ze te verlengen.",
+ "retention.until": "In de cloud tot {date}",
+ "retention.local": "Alleen op dit apparaat",
+ "retention.expired": "Cloudfoto verlopen",
+ "retention.renew": "Met 12 maanden verlengen",
+ "retention.reupload": "Opnieuw opslaan in de cloud",
+ "retention.pending": "Verlenging wacht op verbinding",
+ "retention.due": "Foto’s die binnen 30 dagen verlopen: {count}",
+ "retention.policy": "Vangstfoto’s blijven 12 maanden in de cloud. Open een foto in detail of verleng de termijn. De foto op je apparaat blijft behouden."
 }

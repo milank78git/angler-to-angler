@@ -1168,5 +1168,15 @@
  "waters.sort_by_location": "Rregullo sipas pozicionit",
  "waters.this_water_has_no_location_in_the": "Ky ujë nuk ka vendndodhje në atlasin offline.",
  "waters.trout_water": "Uji i trotuarës.",
- "waters.water_reports": "Raportet mbi ujin"
+ "waters.water_reports": "Raportet mbi ujin",
+ "retention.title": "Fotot në re",
+ "retention.notice": "Afati i ruajtjes së disa fotove në re mbaron së shpejti. Hap ditarin për ta zgjatur.",
+ "retention.until": "Kopja në re deri më {date}",
+ "retention.local": "Vetëm në këtë pajisje",
+ "retention.expired": "Afati i ruajtjes së fotos në re ka mbaruar",
+ "retention.renew": "Zgjate për 12 muaj",
+ "retention.reupload": "Ruaje sërish në re",
+ "retention.pending": "Zgjatja e afatit po pret lidhjen me internetin",
+ "retention.due": "Foto të cilave u mbaron afati brenda 30 ditëve: {count}",
+ "retention.policy": "Fotot e peshqve të kapur ruhen në re për 12 muaj. Që të mbash kopjen në re, hap foton në madhësi të plotë ose zgjat afatin e ruajtjes. Fotoja mbetet në pajisjen tënde."
 }

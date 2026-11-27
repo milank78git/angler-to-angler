@@ -1168,5 +1168,15 @@
  "waters.sort_by_location": "Lajittele sijainnin mukaan",
  "waters.this_water_has_no_location_in_the": "Tällä vedellä ei ole sijaintia offline-atlaksessa.",
  "waters.trout_water": "Taimenvesi",
- "waters.water_reports": "Vesiraportit"
+ "waters.water_reports": "Vesiraportit",
+ "retention.title": "Pilvikuvat",
+ "retention.notice": "Joidenkin pilvikuvien säilytysaika päättyy pian. Avaa päiväkirja jatkaaksesi säilytysaikaa.",
+ "retention.until": "Pilvikopion viimeinen säilytyspäivä: {date}",
+ "retention.local": "Vain tällä laitteella",
+ "retention.expired": "Pilvikuvan säilytysaika päättyi",
+ "retention.renew": "Jatka säilytystä 12 kuukaudella",
+ "retention.reupload": "Tallenna uudelleen pilveen",
+ "retention.pending": "Säilytysajan jatkaminen odottaa verkkoyhteyttä",
+ "retention.due": "Kuvia, joiden säilytysaika päättyy 30 päivän kuluessa: {count}",
+ "retention.policy": "Saaliskuvia säilytetään pilvessä 12 kuukautta. Voit säilyttää pilvikopion avaamalla kuvan täysikokoisena tai jatkamalla säilytysaikaa. Laitteellasi oleva kuva säilyy."
 }

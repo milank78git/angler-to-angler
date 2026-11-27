@@ -1168,5 +1168,15 @@
  "waters.sort_by_location": "Ordenar per ubicació",
  "waters.this_water_has_no_location_in_the": "Aquest aigua no té ubicació en l'atles offline.",
  "waters.trout_water": "Aigua truitera",
- "waters.water_reports": "Informes sobre l'aigua"
+ "waters.water_reports": "Informes sobre l'aigua",
+ "retention.title": "Fotos al núvol",
+ "retention.notice": "Algunes fotos caducaran aviat. Obre el diari per renovar-les.",
+ "retention.until": "Al núvol fins al {date}",
+ "retention.local": "Només en aquest dispositiu",
+ "retention.expired": "Foto caducada al núvol",
+ "retention.renew": "Renova per 12 mesos",
+ "retention.reupload": "Torna a desar al núvol",
+ "retention.pending": "Renovació pendent de connexió",
+ "retention.due": "Fotos que caduquen en 30 dies: {count}",
+ "retention.policy": "Les fotos de captures es desen al núvol durant 12 mesos. Obre el detall de la foto o renova el termini. La foto del dispositiu es conserva."
 }

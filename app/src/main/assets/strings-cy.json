@@ -1168,5 +1168,15 @@
  "waters.show_more_waters": "Dangos rhagor o fannau pysgota",
  "waters.this_water_has_no_location_in_the": "Nid oes lleoliad wedi’i nodi ar gyfer y man pysgota hwn yn yr atlas all-lein.",
  "waters.trout_water": "Dŵr brithyll",
- "waters.water_reports": "Adroddiadau am y man pysgota"
+ "waters.water_reports": "Adroddiadau am y man pysgota",
+ "retention.title": "Lluniau yn y cwmwl",
+ "retention.notice": "Bydd cyfnod cadw rhai lluniau yn y cwmwl yn dod i ben yn fuan. Agorwch eich dyddiadur i’w adnewyddu.",
+ "retention.until": "Copi yn y cwmwl tan {date}",
+ "retention.local": "Ar y ddyfais hon yn unig",
+ "retention.expired": "Mae cyfnod cadw’r llun yn y cwmwl wedi dod i ben",
+ "retention.renew": "Adnewyddu am 12 mis",
+ "retention.reupload": "Cadw yn y cwmwl eto",
+ "retention.pending": "Yn aros am gysylltiad i adnewyddu",
+ "retention.due": "Nifer y lluniau y bydd eu cyfnod cadw yn dod i ben o fewn 30 diwrnod: {count}",
+ "retention.policy": "Cedwir lluniau o’ch dalfeydd yn y cwmwl am 12 mis. Agorwch lun i’w weld yn llawn neu adnewyddwch y cyfnod cadw i gadw’r copi yn y cwmwl. Bydd y llun ar eich dyfais yn aros yno."
 }

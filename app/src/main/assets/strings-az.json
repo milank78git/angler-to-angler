@@ -1168,5 +1168,15 @@
  "waters.this_water_has_no_location_in_the": "Bu suyun offline atlasda yeri yoxdur.",
  "waters.trout_water": "Alabalıq ovu üçün ayrılmış su hövzəsi",
  "waters.water_body": "Su hövzəsi",
- "waters.water_reports": "Su hesabatları"
+ "waters.water_reports": "Su hesabatları",
+ "retention.title": "Buluddakı fotolar",
+ "retention.notice": "Buluddakı bəzi fotoların saxlanma müddəti tezliklə bitir. Müddəti uzatmaq üçün gündəliyi açın.",
+ "retention.until": "Bulud nüsxəsinin son saxlanma tarixi: {date}",
+ "retention.local": "Yalnız bu cihazda",
+ "retention.expired": "Fotonun buludda saxlanma müddəti bitib",
+ "retention.renew": "Müddəti 12 ay uzat",
+ "retention.reupload": "Yenidən buludda saxla",
+ "retention.pending": "Müddətin uzadılması üçün bağlantı gözlənilir",
+ "retention.due": "30 gün ərzində müddəti bitəcək fotoların sayı: {count}",
+ "retention.policy": "Tutduğunuz balıqların fotoları buludda 12 ay saxlanılır. Bulud nüsxəsini saxlamaq üçün fotonu tam ölçüdə açın və ya müddətini uzadın. Cihazınızdakı foto qalır."
 }

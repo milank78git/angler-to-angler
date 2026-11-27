@@ -1168,5 +1168,15 @@
  "weekly_catch.withdraw_entry": "Aistarraingt ar iontráil",
  "weekly_catch.withdraw_this_entry": "Tarraing siar an iontráil seo?",
  "weekly_catch.you_have_not_joined_a_group_yet": "Níor chuaigh tú le grúpa fós.",
- "weekly_catch.your_photo_and_display_name_will_be": "Beidh d'ainm grianghraf agus taispeána infheicthe "
+ "weekly_catch.your_photo_and_display_name_will_be": "Beidh d'ainm grianghraf agus taispeána infheicthe ",
+ "retention.title": "Grianghraif sa néal",
+ "retention.notice": "Rachaidh tréimhse stórála roinnt grianghraf sa néal in éag go luath. Oscail do dhialann chun í a shíneadh.",
+ "retention.until": "Cóip sa néal go dtí {date}",
+ "retention.local": "Ar an ngléas seo amháin",
+ "retention.expired": "Tá tréimhse stórála an ghrianghraif sa néal imithe in éag",
+ "retention.renew": "Athnuaigh ar feadh 12 mhí",
+ "retention.reupload": "Sábháil sa néal arís",
+ "retention.pending": "Ag fanacht le nasc chun an tréimhse a athnuachan",
+ "retention.due": "Líon na ngrianghraf a rachaidh a dtréimhse stórála in éag laistigh de 30 lá: {count}",
+ "retention.policy": "Coinnítear grianghraif de do ghabhálacha sa néal ar feadh 12 mhí. Oscail grianghraf ina iomláine nó déan an tréimhse stórála a athnuachan chun an chóip sa néal a choinneáil. Fanfaidh an grianghraf ar do ghléas."
 }

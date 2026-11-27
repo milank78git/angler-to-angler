@@ -1168,5 +1168,15 @@
  "common.water_atlas_updates": "Atlas de apă actualizări",
  "commerce.split": "Din venitul de la credite achiziționate după TVA și taxe Google, 85% merge la autor, 10% la aplicație și 5% la restaurarea naturii.",
  "commerce.test": "Google Play piață de testare · câștiguri și plăți simulate",
- "sync.consent": "Salvați excursii existente și viitoare, capturi, poziții exacte, notițe, fotografii, semne de carte și setările atlas în particular la contul dumneavoastră. Un dispozitiv nou restaurează jurnalul sincronizat după autentificare."
+ "sync.consent": "Salvați excursii existente și viitoare, capturi, poziții exacte, notițe, fotografii, semne de carte și setările atlas în particular la contul dumneavoastră. Un dispozitiv nou restaurează jurnalul sincronizat după autentificare.",
+ "retention.title": "Fotografii în cloud",
+ "retention.notice": "Unele fotografii expiră în curând. Deschide jurnalul pentru a le reînnoi.",
+ "retention.until": "În cloud până la {date}",
+ "retention.local": "Doar pe acest dispozitiv",
+ "retention.expired": "Fotografia din cloud a expirat",
+ "retention.renew": "Prelungește cu 12 luni",
+ "retention.reupload": "Salvează din nou în cloud",
+ "retention.pending": "Reînnoirea așteaptă conexiunea",
+ "retention.due": "Fotografii care expiră în 30 de zile: {count}",
+ "retention.policy": "Fotografiile capturilor sunt păstrate în cloud timp de 12 luni. Deschide fotografia în detaliu sau prelungește termenul. Fotografia de pe dispozitiv rămâne."
 }

@@ -1168,5 +1168,15 @@
  "waters.sort_by_location": "Konum olarak sırala",
  "waters.this_water_has_no_location_in_the": "Bu suyun offline atlasta bir yeri yok.",
  "waters.trout_water": "Turna suları",
- "waters.water_reports": "Su raporları"
+ "waters.water_reports": "Su raporları",
+ "retention.title": "Buluttaki fotoğraflar",
+ "retention.notice": "Buluttaki bazı fotoğrafların saklama süresi yakında dolacak. Süreyi uzatmak için günlüğünüzü açın.",
+ "retention.until": "Bulut kopyasının son saklama tarihi: {date}",
+ "retention.local": "Yalnızca bu cihazda",
+ "retention.expired": "Fotoğrafın bulutta saklama süresi doldu",
+ "retention.renew": "Süreyi 12 ay uzat",
+ "retention.reupload": "Yeniden buluta kaydet",
+ "retention.pending": "Süreyi uzatmak için bağlantı bekleniyor",
+ "retention.due": "Saklama süresi 30 gün içinde dolacak fotoğraf sayısı: {count}",
+ "retention.policy": "Avladığınız balıkların fotoğrafları bulutta 12 ay saklanır. Bulut kopyasını korumak için fotoğrafı tam boyutta açın veya saklama süresini uzatın. Cihazınızdaki fotoğraf cihazda kalır."
 }

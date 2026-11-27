@@ -1168,5 +1168,15 @@
  "waters.sort_by_location": "Rūšiuoti pagal vietą",
  "waters.this_water_has_no_location_in_the": "Šis vanduo neturi vietos neprisijungęs atlasas.",
  "waters.trout_water": "Upėtakių vanduo",
- "waters.water_reports": "Vandens ataskaitos"
+ "waters.water_reports": "Vandens ataskaitos",
+ "retention.title": "Nuotraukos debesyje",
+ "retention.notice": "Kai kurių nuotraukų saugojimo debesyje laikas netrukus baigsis. Atverkite dienoraštį, kad jį pratęstumėte.",
+ "retention.until": "Kopija debesyje iki {date}",
+ "retention.local": "Tik šiame įrenginyje",
+ "retention.expired": "Nuotraukos saugojimo debesyje laikas baigėsi",
+ "retention.renew": "Pratęsti 12 mėnesių",
+ "retention.reupload": "Vėl išsaugoti debesyje",
+ "retention.pending": "Laukiama ryšio, kad būtų galima pratęsti",
+ "retention.due": "Nuotraukų, kurių saugojimo laikas baigsis per 30 dienų, skaičius: {count}",
+ "retention.policy": "Laimikių nuotraukos debesyje saugomos 12 mėnesių. Kad išsaugotumėte kopiją debesyje, atverkite viso dydžio nuotrauką arba pratęskite jos saugojimo laiką. Nuotrauka jūsų įrenginyje liks."
 }

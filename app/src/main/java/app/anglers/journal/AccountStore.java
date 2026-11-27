@@ -79,6 +79,8 @@ final class AccountStore {
       FieldAlerts.clear(c);
       DeviceVault.clear(c);
     }
+    if (!value.id.equals(p.getString("subject", "")) ||
+        !("adult".equals(ageBand) || "teen".equals(ageBand))) PhotoExpiryReminder.clear(c);
     SharedPreferences.Editor edit =
         p.edit()
             .putString("subject", value.id)
@@ -187,6 +189,7 @@ final class AccountStore {
         .remove("revision")
         .apply();
     LicenseReminder.clear(c);
+    PhotoExpiryReminder.clear(c);
     SeasonReminder.clearSubscriptions(c);
     FieldAlerts.clear(c);
     return previous;

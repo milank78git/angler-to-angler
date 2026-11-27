@@ -95,6 +95,8 @@ The phone has three primary destinations: Waters, Seasons and Journal. Each reme
 
 Design references: [Android adaptive navigation](https://developer.android.com/design/ui/mobile/guides/layout-and-content/layout-and-nav-patterns), [Material 3 Expressive research](https://design.google/library/expressive-material-design-google-research), [Android touch targets](https://support.google.com/accessibility/android/answer/7101858), [Apple tab bars](https://developer.apple.com/design/human-interface-guidelines/tab-bars) and [WCAG 2.2 contrast](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html).
 
+Private cloud copies of catch photos last 12 months. Open the individual photo or renew it in the journal to extend the term. Expiry preserves local photos and the catch record.
+
 The profile picker includes 50 original illustrated angler portraits bundled in a single WebP image. The two resized offline photographs are credited in the app and in the regional catalog, with links to each original and license. Berounka is by Aktron / Wikimedia Commons, CC BY-SA 3.0. Sázava is by Huhulenik / Wikimedia Commons, CC BY 3.0. The interface includes selected Lucide icons. Their license travels with the APK in `icon-license.txt`.
 
 `bash scripts/build-debug.sh --preview` builds an independently installable sideload preview in `build/preview`. CI debug builds use ephemeral signing keys. The preview uses a separate Android application ID, so testers can keep the original pilot and its private journal on the same device. The standard build retains its original application ID, database schema and storage origin.

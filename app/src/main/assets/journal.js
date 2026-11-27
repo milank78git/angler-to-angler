@@ -73,13 +73,13 @@ export function createJournal(factory = globalThis.indexedDB, name = 'angler-fie
   }
 
   // A slow encoder cannot cache old photo hashes over a concurrent write.
-  function cacheHashes(key, version, hashes) {
+  function cacheHashes(key, version, hashes, detached = false) {
     return transaction(['fingerprints'], 'readwrite', (tx, result) => {
       const store = tx.objectStore('fingerprints');
       const current = store.get(key);
       current.onsuccess = () => {
         const unchanged = current.result?.version === version;
-        if (unchanged) store.put({ version, hashes }, key);
+        if (unchanged) store.put({ version, hashes, detached }, key);
         result(unchanged);
       };
     });
@@ -121,7 +121,9 @@ export function createJournal(factory = globalThis.indexedDB, name = 'angler-fie
             return;
           }
           const keepPhoto = original && photo === undefined;
-          catches.put({ ...record, hasPhoto: keepPhoto ? !!previous.result.hasPhoto : !!photo });
+          const next = { ...record, hasPhoto: keepPhoto ? !!previous.result.hasPhoto : !!photo };
+          if (!keepPhoto) delete next.cloudPhotoHash;
+          catches.put(next);
           if (!keepPhoto) {
             if (photo) photos.put(photo, record.id);
             else photos.delete(record.id);
@@ -205,6 +207,23 @@ export function createJournal(factory = globalThis.indexedDB, name = 'angler-fie
     lock,
     restoreTrip,
     writeWaterPhoto,
+    installCloudPhoto: (record, photo) =>
+      transaction(['photos', 'catches'], 'readwrite', (tx) => {
+        const catches = tx.objectStore('catches');
+        const request = catches.get(record.id);
+        request.onsuccess = () => {
+          const current = request.result;
+          if (
+            current &&
+            !current.hasPhoto &&
+            current.tripId === record.tripId &&
+            current.cloudPhotoHash === record.cloudPhotoHash
+          ) {
+            tx.objectStore('photos').put(photo, record.id);
+            catches.put({ ...current, hasPhoto: true });
+          }
+        };
+      }),
     cacheHashes,
     fingerprint: (key) => read('fingerprints', (store) => store.get(key)),
     tripKeys: () => read('trips', (store) => store.getAllKeys()),

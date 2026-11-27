@@ -1168,5 +1168,15 @@
  "waters.fishery_management_area_reference_point": "Fiskbeheargebiet · referinsjepunt",
  "waters.nearby_sorting_uses_the_published_course_of": "Foar it sortearjen op ôfstân wurdt de publisearre rin fan it wettertrajekt brûkt.",
  "waters.nearby_sorting_uses_the_published_water_outline": "Foar it sortearjen op ôfstân wurdt de publisearre omtrek fan it fiskwetter brûkt.",
- "waters.this_water_has_no_location_in_the": "Foar dit wetter is yn de offline atlas gjin lokaasje oanjûn."
+ "waters.this_water_has_no_location_in_the": "Foar dit wetter is yn de offline atlas gjin lokaasje oanjûn.",
+ "retention.title": "Foto’s yn de wolk",
+ "retention.notice": "Guon foto’s yn de wolk ferrinne gau. Iepenje dyn deiboek om de bewarperioade te ferlingjen.",
+ "retention.until": "Kopy yn de wolk oant {date}",
+ "retention.local": "Allinnich op dit apparaat",
+ "retention.expired": "De foto yn de wolk is ferrûn",
+ "retention.renew": "Ferlingje mei 12 moannen",
+ "retention.reupload": "Opnij yn de wolk bewarje",
+ "retention.pending": "Ferlinging wachtet op in ferbining",
+ "retention.due": "Tal foto’s dat binnen 30 dagen ferrint: {count}",
+ "retention.policy": "Foto’s fan dyn fangsten wurde 12 moannen yn de wolk bewarre. Iepenje in foto yn it grut of ferlingje de bewarperioade om de kopy yn de wolk te hâlden. De foto bliuwt op dyn apparaat stean."
 }

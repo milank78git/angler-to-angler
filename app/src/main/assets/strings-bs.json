@@ -1168,5 +1168,15 @@
  "waters.this_water_has_no_location_in_the": "Ova voda nema lokaciju u offline atlasu.",
  "waters.trout_water": "Voda za pastrve",
  "waters.water_body": "Vodena površina",
- "waters.water_reports": "Izvještaja o vodama"
+ "waters.water_reports": "Izvještaja o vodama",
+ "retention.title": "Fotografije u oblaku",
+ "retention.notice": "Nekim fotografijama u oblaku uskoro ističe rok čuvanja. Otvorite dnevnik da ga produžite.",
+ "retention.until": "Kopija u oblaku do {date}",
+ "retention.local": "Samo na ovom uređaju",
+ "retention.expired": "Istekao je rok čuvanja fotografije u oblaku",
+ "retention.renew": "Produži za 12 mjeseci",
+ "retention.reupload": "Ponovo sačuvaj u oblaku",
+ "retention.pending": "Produženje čeka vezu",
+ "retention.due": "Broj fotografija kojima rok ističe u narednih 30 dana: {count}",
+ "retention.policy": "Fotografije ulova čuvaju se u oblaku 12 mjeseci. Da zadržite kopiju u oblaku, otvorite fotografiju u punom prikazu ili produžite rok čuvanja. Fotografija ostaje na uređaju."
 }

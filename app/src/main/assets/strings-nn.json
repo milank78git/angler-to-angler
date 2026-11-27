@@ -1168,5 +1168,15 @@
  "catalog.waters.401009.access": "Gangbrua i Pikovice · tilkomst til elvebreidda",
  "catalog.waters.401009.ends.1": "Den nedstraums enden av øya ved Pikovice",
  "catalog.waters.401009.ends.2": "Demninga ved kraftverket i Krhanice",
- "catalog.waters.401009.restriction": "Kanalen ved kraftverket i Žampach"
+ "catalog.waters.401009.restriction": "Kanalen ved kraftverket i Žampach",
+  "retention.title": "Bilete i skya",
+  "retention.notice": "Nokre bilete i skya går snart ut. Opne dagboka for å fornye dei.",
+  "retention.until": "I skya til {date}",
+  "retention.local": "Berre på denne eininga",
+  "retention.expired": "Biletet i skya har gått ut",
+  "retention.renew": "Forny for 12 månader",
+  "retention.reupload": "Lagre i skya på nytt",
+  "retention.pending": "Fornyinga ventar på nett",
+  "retention.due": "Bilete som går ut innan 30 dagar: {count}",
+  "retention.policy": "Fangstbilete vert lagra i skya i 12 månader. Opne sjølve biletet eller forny det manuelt for å starte ein ny periode. Biletet på eininga vert teke vare på."
 }

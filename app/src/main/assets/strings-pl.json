@@ -1168,5 +1168,15 @@
  "waters.this_water_has_no_location_in_the": "Ta woda nie ma lokalizacji w atlasie offline.",
  "waters.trout_water": "Woda pstrągowa",
  "waters.water_body": "Zbiornik wodny",
- "waters.water_reports": "Sprawozdania dotyczące wody"
+ "waters.water_reports": "Sprawozdania dotyczące wody",
+ "retention.title": "Zdjęcia w chmurze",
+ "retention.notice": "Niektóre zdjęcia wkrótce wygasną. Otwórz dziennik, aby przedłużyć ich ważność.",
+ "retention.until": "W chmurze do {date}",
+ "retention.local": "Tylko na tym urządzeniu",
+ "retention.expired": "Zdjęcie w chmurze wygasło",
+ "retention.renew": "Przedłuż o 12 miesięcy",
+ "retention.reupload": "Zapisz ponownie w chmurze",
+ "retention.pending": "Przedłużenie czeka na połączenie",
+ "retention.due": "Zdjęcia wygasające w ciągu 30 dni: {count}",
+ "retention.policy": "Zdjęcia połowów pozostają w chmurze przez 12 miesięcy. Otwórz szczegóły zdjęcia lub przedłuż jego ważność. Zdjęcie na urządzeniu pozostaje."
 }

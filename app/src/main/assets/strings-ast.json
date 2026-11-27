@@ -1168,5 +1168,15 @@
  "waters.czechia_and_abroad": "Chequia y l'estranxeru",
  "waters.fishery_management_area_reference_point": "Zona de xestión pesquera · puntu de referencia",
  "waters.fishing_access_site": "Puntu d'accesu pa pescar",
- "waters.this_water_has_no_location_in_the": "Estes agües nun tienen allugamientu nel atles ensin conexón."
+ "waters.this_water_has_no_location_in_the": "Estes agües nun tienen allugamientu nel atles ensin conexón.",
+  "retention.title": "Semeyes na nube",
+  "retention.notice": "Dalgunes semeyes na nube van caducar. Abre’l diariu pa renovales.",
+  "retention.until": "Na nube hasta’l {date}",
+  "retention.local": "Namás nesti preséu",
+  "retention.expired": "La copia na nube caducó",
+  "retention.renew": "Renovar por 12 meses",
+  "retention.reupload": "Volver guardar na nube",
+  "retention.pending": "La renovación espera pola conexón",
+  "retention.due": "Semeyes que caduquen en 30 díes: {count}",
+  "retention.policy": "Les semeyes de les captures guárdense na nube 12 meses. Abrir el detalle de la semeya o renovala a mano entama un plazu nuevu. La semeya del preséu consérvase."
 }

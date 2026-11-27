@@ -1168,5 +1168,15 @@
  "waters.this_water_has_no_location_in_the": "Dan l-ilma m’għandu l-ebda post fl-atlas offline.",
  "waters.trout_water": "Ilma tat-trota",
  "waters.water_body": "Korp ta’ ilma",
- "waters.water_reports": "Rapporti dwar l-ilma"
+ "waters.water_reports": "Rapporti dwar l-ilma",
+ "retention.title": "Ritratti fil-cloud",
+ "retention.notice": "Dalwaqt jiskadi ż-żmien tal-ħażna ta’ xi ritratti fil-cloud. Iftaħ id-djarju biex iġġeddu.",
+ "retention.until": "Kopja fil-cloud sal-{date}",
+ "retention.local": "Fuq dan l-apparat biss",
+ "retention.expired": "Skada ż-żmien tal-ħażna tar-ritratt fil-cloud",
+ "retention.renew": "Ġedded għal 12-il xahar",
+ "retention.reupload": "Erġa’ ssejvja fil-cloud",
+ "retention.pending": "It-tiġdid qed jistenna konnessjoni",
+ "retention.due": "Għadd ta’ ritratti li jiskadu fi żmien 30 jum: {count}",
+ "retention.policy": "Ir-ritratti tal-qabdiet jinżammu fil-cloud għal 12-il xahar. Iftaħ ritratt fid-dettall jew ġedded iż-żmien tal-ħażna biex iżżomm il-kopja fil-cloud. Ir-ritratt jibqa’ fuq l-apparat tiegħek."
 }

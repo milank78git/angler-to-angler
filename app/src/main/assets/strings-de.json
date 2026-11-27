@@ -1168,5 +1168,15 @@
  "moderation.report": "Inhalt melden",
  "moderation.report_parking": "Parkplatz oder Hinweise melden",
  "account.invisible_name": "Entferne unsichtbare Formatierungszeichen aus deinem Anzeigenamen.",
- "group_catch.reported": "Der Fang wurde zur Prüfung gemeldet."
+ "group_catch.reported": "Der Fang wurde zur Prüfung gemeldet.",
+ "retention.title": "Fotos in der Cloud",
+ "retention.notice": "Einige Cloud-Fotos laufen bald ab. Im Tagebuch können Sie sie verlängern.",
+ "retention.until": "In der Cloud bis {date}",
+ "retention.local": "Nur auf diesem Gerät",
+ "retention.expired": "Cloud-Foto abgelaufen",
+ "retention.renew": "Um 12 Monate verlängern",
+ "retention.reupload": "Erneut in der Cloud speichern",
+ "retention.pending": "Verlängerung wartet auf Verbindung",
+ "retention.due": "In 30 Tagen ablaufende Fotos: {count}",
+ "retention.policy": "Fangfotos bleiben 12 Monate in der Cloud. Öffnen Sie ein Foto in der Detailansicht oder verlängern Sie die Frist. Das Foto auf dem Gerät bleibt erhalten."
 }

@@ -1168,5 +1168,15 @@
  "waters.sort_by_location": "Sorter efter placering",
  "waters.this_water_has_no_location_in_the": "Dette vand har ingen placering i offline atlasset.",
  "waters.trout_water": "Ørredvand",
- "waters.water_reports": "Vandrapporter"
+ "waters.water_reports": "Vandrapporter",
+  "retention.title": "Billeder i skyen",
+  "retention.notice": "Nogle billeder i skyen udløber snart. Åbn din journal for at forlænge perioden.",
+  "retention.until": "I skyen indtil {date}",
+  "retention.local": "Kun på denne enhed",
+  "retention.expired": "Billedet i skyen er udløbet",
+  "retention.renew": "Forny i 12 måneder",
+  "retention.reupload": "Gem i skyen igen",
+  "retention.pending": "Fornyelsen afventer forbindelse",
+  "retention.due": "Billeder, der udløber inden for 30 dage: {count}",
+  "retention.policy": "Fangstbilleder gemmes i skyen i 12 måneder. Åbn selve billedet, eller forny det manuelt for at starte en ny periode. Billedet på din enhed bevares."
 }

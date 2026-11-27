@@ -1168,5 +1168,15 @@
  "waters.sort_by_location": "Sorter etter plassering",
  "waters.this_water_has_no_location_in_the": "Dette vannet har ingen plassering i offline-atlaset.",
  "waters.trout_water": "Ørretvann",
- "waters.water_reports": "Vannrapporter"
+ "waters.water_reports": "Vannrapporter",
+  "retention.title": "Bilder i skyen",
+  "retention.notice": "Noen bilder i skyen utløper snart. Åpne dagboken for å fornye dem.",
+  "retention.until": "I skyen til {date}",
+  "retention.local": "Bare på denne enheten",
+  "retention.expired": "Bildet i skyen har utløpt",
+  "retention.renew": "Forny for 12 måneder",
+  "retention.reupload": "Lagre i skyen igjen",
+  "retention.pending": "Fornyelsen venter på tilkobling",
+  "retention.due": "Bilder som utløper innen 30 dager: {count}",
+  "retention.policy": "Fangstbilder lagres i skyen i 12 måneder. Åpne selve bildet eller forny det manuelt for å starte en ny periode. Bildet på enheten beholdes."
 }

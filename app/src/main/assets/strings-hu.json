@@ -1168,5 +1168,15 @@
  "waters.sort_by_location": "Rendezés hely szerint",
  "waters.this_water_has_no_location_in_the": "Ennek a víznek nincs helye az offline atlaszban.",
  "waters.trout_water": "Pisztráng víz",
- "waters.water_reports": "A vízről szóló jelentések"
+ "waters.water_reports": "A vízről szóló jelentések",
+ "retention.title": "Felhőben tárolt fényképek",
+ "retention.notice": "Néhány felhőben tárolt fénykép megőrzési ideje hamarosan lejár. A meghosszabbításhoz nyisd meg a naplódat.",
+ "retention.until": "A felhőbeli másolat megőrzési határideje: {date}",
+ "retention.local": "Csak ezen az eszközön",
+ "retention.expired": "A felhőben tárolt fénykép megőrzési ideje lejárt",
+ "retention.renew": "Meghosszabbítás 12 hónappal",
+ "retention.reupload": "Mentés újra a felhőbe",
+ "retention.pending": "A meghosszabbítás internetkapcsolatra vár",
+ "retention.due": "A 30 napon belül lejáró fényképek száma: {count}",
+ "retention.policy": "A fogásokról készült fényképeket 12 hónapig őrizzük meg a felhőben. A felhőbeli másolat megtartásához nyisd meg a képet teljes méretben, vagy hosszabbítsd meg a megőrzési időt. A fénykép az eszközödön megmarad."
 }

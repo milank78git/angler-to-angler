@@ -1168,5 +1168,15 @@
  "waters.sort_by_location": "Ordenatu kokalekuaren arabera",
  "waters.this_water_has_no_location_in_the": "Ura ez dago kokatuta offline atlas honetan.",
  "waters.trout_water": "Amuarrainen ura",
- "waters.water_reports": "Uraren txostenak"
+ "waters.water_reports": "Uraren txostenak",
+ "retention.title": "Hodeiko argazkiak",
+ "retention.notice": "Hodeiko argazki batzuk laster iraungiko dira. Ireki egunkaria gordetzeko epea luzatzeko.",
+ "retention.until": "Hodeiko kopiaren iraungitze-data: {date}",
+ "retention.local": "Gailu honetan bakarrik",
+ "retention.expired": "Hodeiko argazkia iraungi da",
+ "retention.renew": "Luzatu epea 12 hilabetez",
+ "retention.reupload": "Gorde berriro hodeian",
+ "retention.pending": "Konexioaren zain epea luzatzeko",
+ "retention.due": "30 eguneko epean iraungiko diren argazkiak: {count}",
+ "retention.policy": "Harrapaketen argazkiak 12 hilabetez gordetzen dira hodeian. Hodeiko kopia gordetzeko, ireki argazkia tamaina osoan edo luzatu gordetzeko epea. Gailuko argazkia bertan geratuko da."
 }

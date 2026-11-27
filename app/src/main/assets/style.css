@@ -1382,3 +1382,10 @@ label.label-with-hint { display: inline-block; margin-inline-end: .45rem; }
 .parking-feedback { margin-block: 8px; }
 
 #license-notice:not([hidden]) { display: block; margin: .75rem auto; max-width: calc(100% - 2rem); }
+
+.journal-photo-detail img {
+  display: block;
+  max-width: 100%;
+  max-height: 75vh;
+  object-fit: contain;
+}

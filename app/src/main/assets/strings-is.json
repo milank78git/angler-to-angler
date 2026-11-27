@@ -1168,5 +1168,15 @@
  "waters.sort_by_location": "Raða eftir staðsetningu",
  "waters.this_water_has_no_location_in_the": "Þetta vatn hefur enga staðsetningu í offline atlas.",
  "waters.trout_water": "Silungur vatn",
- "waters.water_reports": "Vatnsskýrslur"
+ "waters.water_reports": "Vatnsskýrslur",
+ "retention.title": "Myndir í skýinu",
+ "retention.notice": "Geymslutími sumra mynda í skýinu rennur brátt út. Opnaðu dagbókina til að framlengja hann.",
+ "retention.until": "Afrit í skýinu til {date}",
+ "retention.local": "Aðeins á þessu tæki",
+ "retention.expired": "Geymslutími myndarinnar í skýinu er liðinn",
+ "retention.renew": "Framlengja um 12 mánuði",
+ "retention.reupload": "Vista aftur í skýinu",
+ "retention.pending": "Framlenging bíður eftir nettengingu",
+ "retention.due": "Fjöldi mynda sem renna út innan 30 daga: {count}",
+ "retention.policy": "Myndir af aflanum eru geymdar í skýinu í 12 mánuði. Opnaðu mynd í fullri stærð eða framlengdu geymslutímann til að halda afritinu í skýinu. Myndin verður áfram á tækinu þínu."
 }

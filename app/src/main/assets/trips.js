@@ -1,5 +1,6 @@
 import { replaceMarkup } from './markup.js';
-import { bindJournalSync } from './journal-sync.js';
+import { bindCatchPhoto } from './photo-retention.js';
+import { bindJournalSync, photoRequest } from './journal-sync.js';
 import { catchLatin, catchRulesHtml } from './catch-species.js';
 import { fishDirectory } from './fish-catalogue.js';
 import { waterPicker, bindWaterPicker } from './water-picker.js';
@@ -335,12 +336,10 @@ export async function tripScreen({ view, nav, pack, waterDirectory }) {
       if (blob) {
         const url = URL.createObjectURL(blob);
         images.push(url);
-        const img = new Image();
-        img.className = 'preview';
-        img.alt = t('trips.catch.photograph');
-        img.src = url;
-        article.prepend(img);
+        bindCatchPhoto(article, c, url, view, photoRequest, blob);
       }
+    } else if (c.cloudPhotoHash) {
+      bindCatchPhoto(article, c, null, view, photoRequest);
     }
   }
 }

@@ -1168,5 +1168,15 @@
  "waters.sort_by_location": "Sort by whaur ye are",
  "waters.this_water_has_no_location_in_the": "This watter has nae location in the offline atlas.",
  "waters.trout_water": "Troot watter",
- "waters.water_reports": "Reports aboot the watter"
+ "waters.water_reports": "Reports aboot the watter",
+ "retention.title": "Cloud photies",
+ "retention.notice": "Some cloud photies will sune expire. Open yer jurnal tae renew them.",
+ "retention.until": "Cloud copy until {date}",
+ "retention.local": "On this device alane",
+ "retention.expired": "The cloud photie has expired",
+ "retention.renew": "Renew for 12 month",
+ "retention.reupload": "Save tae the cloud again",
+ "retention.pending": "Renewal is waitin for a connection",
+ "retention.due": "Photies expirin within 30 days: {count}",
+ "retention.policy": "Photies o yer catch are keepit in the cloud for 12 month. Open a photie at its full size or renew it tae keep the cloud copy. The photie on yer device bides there."
 }

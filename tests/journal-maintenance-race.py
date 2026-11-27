@@ -5,7 +5,9 @@ import subprocess
 import time
 
 PSQL = ['psql', '-XqAt', '-v', 'ON_ERROR_STOP=1']
-OWNER = '00000000-0000-4000-8000-000000000085'
+# This adult has re-enabled the journal after erasure in the community fixture.
+# The photo expiry fixture exercises another account.
+OWNER = '00000000-0000-4000-8000-000000000084'
 ORPHAN = '00000000-0000-4000-8000-0000000000aa'
 
 
@@ -52,6 +54,7 @@ with ThreadPoolExecutor(max_workers=1) as workers:
             sql(f"""begin; set local statement_timeout='2s'; set local role authenticated;
                 set local "request.jwt.claim.sub"='{OWNER}';
                 select public.angler_journal_sync('put', jsonb_build_object(
+                    'epoch',public.angler_journal_sync('settings',jsonb_build_object())->'epoch',
                     'hash',encode(sha256('concurrent write'::bytea),'hex'),
                     'data',encode('concurrent write'::bytea,'base64')));
                 commit;""")

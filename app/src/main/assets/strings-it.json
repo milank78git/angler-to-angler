@@ -1168,5 +1168,15 @@
  "common.water_atlas_updates": "Aggiornamenti dell'atlante dell'acqua",
  "commerce.split": "Del ricavato dei crediti acquistati dopo l'IVA e le tasse di Google, l'85% va all'autore, il 10% all'app e il 5% al restauro della natura.",
  "commerce.test": "Google Play mercato di prova · guadagni simulati e pagamenti",
- "sync.consent": "Salva viaggi esistenti e futuri, cattura, posizioni esatte, note, foto, segnalibri e impostazioni atlas in privato al tuo account. Un nuovo dispositivo ripristina il diario sincronizzato dopo il login."
+ "sync.consent": "Salva viaggi esistenti e futuri, cattura, posizioni esatte, note, foto, segnalibri e impostazioni atlas in privato al tuo account. Un nuovo dispositivo ripristina il diario sincronizzato dopo il login.",
+ "retention.title": "Foto nel cloud",
+ "retention.notice": "Alcune foto scadranno presto. Apri il diario per rinnovarle.",
+ "retention.until": "Nel cloud fino al {date}",
+ "retention.local": "Solo su questo dispositivo",
+ "retention.expired": "Foto scaduta nel cloud",
+ "retention.renew": "Rinnova per 12 mesi",
+ "retention.reupload": "Salva di nuovo nel cloud",
+ "retention.pending": "Rinnovo in attesa di connessione",
+ "retention.due": "Foto in scadenza entro 30 giorni: {count}",
+ "retention.policy": "Le foto delle catture restano nel cloud per 12 mesi. Apri una foto in dettaglio o rinnovala per conservarla. La foto sul dispositivo rimane."
 }

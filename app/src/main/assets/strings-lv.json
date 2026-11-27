@@ -1168,5 +1168,15 @@
  "waters.sort_by_location": "Kārtot pēc atrašanās vietas",
  "waters.this_water_has_no_location_in_the": "Šim ūdenim nav atrašanās vietas bezsaistes atlantā.",
  "waters.trout_water": "Foreļu ūdens",
- "waters.water_reports": "Ziņojumi par ūdeni"
+ "waters.water_reports": "Ziņojumi par ūdeni",
+ "retention.title": "Fotoattēli mākonī",
+ "retention.notice": "Dažiem fotoattēliem mākonī drīz beigsies glabāšanas termiņš. Atveriet dienasgrāmatu, lai to pagarinātu.",
+ "retention.until": "Kopija mākonī līdz {date}",
+ "retention.local": "Tikai šajā ierīcē",
+ "retention.expired": "Fotoattēla glabāšanas termiņš mākonī ir beidzies",
+ "retention.renew": "Pagarināt par 12 mēnešiem",
+ "retention.reupload": "Vēlreiz saglabāt mākonī",
+ "retention.pending": "Pagarināšanai nepieciešams savienojums",
+ "retention.due": "Fotoattēlu skaits, kuru glabāšanas termiņš beigsies 30 dienu laikā: {count}",
+ "retention.policy": "Lomu fotoattēli mākonī tiek glabāti 12 mēnešus. Lai saglabātu kopiju mākonī, atveriet fotoattēlu pilnā izmērā vai pagariniet glabāšanas termiņu. Fotoattēls jūsu ierīcē paliks."
 }

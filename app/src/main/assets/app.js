@@ -1,3 +1,4 @@
+import { dismissPhotoDetail } from './photo-retention.js';
 import { rpc } from './profile-api.js';
 import { replaceMarkup } from './markup.js';
 import { anglerDetails, bindLicenseNotice } from './angler-details.js';
@@ -73,12 +74,13 @@ const nav = new Navigation(
 );
 
 /** Forward native navigation and device events to the current screen. */
-window.handleBack = () => closeGuide() || dismissConfirmation() || nav.back();
+window.handleBack = () => dismissPhotoDetail() || closeGuide() || dismissConfirmation() || nav.back();
 window.reminderChanged = () => window.dispatchEvent(new Event('reminderchange'));
 window.positionResult = (id, fix) =>
   window.dispatchEvent(new CustomEvent('angler-position', { detail: { id, fix } }));
 
 async function render(view, area) {
+  dismissPhotoDetail();
   dismissConfirmation();
   const { page } = view.route;
   const editing = [
@@ -298,6 +300,7 @@ async function start() {
     const notice = window.Device?.fieldKind?.();
     const water = catalog.waterDirectory.byKey.get(window.Device?.fieldWater?.());
     if (notice === 'license') nav.open('anglerDetails');
+    else if (notice === 'photoExpiry') nav.open('trips');
     else if (notice === 'messages') nav.open('messageInbox');
     else if (notice === 'sales' || notice === 'ratings') nav.open('marketShelf', { shelf: 'mine' });
     else if (['tips', 'catches', 'weekly'].includes(notice)) {
