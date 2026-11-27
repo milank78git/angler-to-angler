@@ -649,5 +649,15 @@
  "weekly_catch.withdraw_entry": "Εισαγωγή Απελευθέρωση",
  "weekly_catch.withdraw_this_entry": "Αφαιρέστε αυτή την είσοδο;",
  "weekly_catch.you_have_not_joined_a_group_yet": "Δεν έχετε ακόμη ενταχθεί σε μια ομάδα.",
- "weekly_catch.your_photo_and_display_name_will_be": "Το όνομα και το όνομα της φωτογραφίας σας θα είναι ορατό στο "
+ "weekly_catch.your_photo_and_display_name_will_be": "Το όνομα και το όνομα της φωτογραφίας σας θα είναι ορατό στο ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "Τσεχία",
+ "catalog.species.pike": "Λούτσος των ποταμών",
+ "catalog.species.roach": "Τσιρόνι",
+ "catalog.species.zander": "Λουτσιόπερκα",
+ "parking.notes": "Σημειώσεις",
+ "rating.mine": "Η αξιολόγηση σας"
 }

@@ -648,5 +648,16 @@
  "weekly_catch.withdraw_entry": "Avreise inngang",
  "weekly_catch.withdraw_this_entry": "Avslutt denne inngangen?",
  "weekly_catch.you_have_not_joined_a_group_yet": "Du har ikke vært med i en gruppe ennå.",
- "weekly_catch.your_photo_and_display_name_will_be": "Din bilde og navn vil være synlig for "
+ "weekly_catch.your_photo_and_display_name_will_be": "Din bilde og navn vil være synlig for ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "Tsjekkia",
+ "catalog.species.pike": "Gjedde",
+ "catalog.species.barbel": "Barbe",
+ "catalog.species.roach": "Mort",
+ "catalog.species.zander": "Gjørs",
+ "parking.notes": "Noter",
+ "rating.mine": "Din vurdering"
 }

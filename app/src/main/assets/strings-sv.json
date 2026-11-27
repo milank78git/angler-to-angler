@@ -665,5 +665,16 @@
  "alerts.catches": "Ny fångst i gruppen",
  "alerts.weekly": "Ny fångst i veckotävlingen",
  "alerts.sales": "Någon har köpt ditt tips",
- "alerts.ratings": "Ditt tips har fått ett omdöme"
+ "alerts.ratings": "Ditt tips har fått ett omdöme",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "Tjeckien",
+ "catalog.species.pike": "Gädda",
+ "catalog.species.barbel": "Flodbarb",
+ "catalog.species.roach": "Mört",
+ "catalog.species.zander": "Gös",
+ "parking.notes": "Noter",
+ "rating.mine": "Din rating"
 }

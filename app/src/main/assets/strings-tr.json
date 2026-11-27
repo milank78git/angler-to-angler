@@ -647,5 +647,15 @@
  "weekly_catch.withdraw_entry": "Giriş İptal",
  "weekly_catch.withdraw_this_entry": "Bu girişten çıkış mı?",
  "weekly_catch.you_have_not_joined_a_group_yet": "Bir grupta henüz katılmadınız.",
- "weekly_catch.your_photo_and_display_name_will_be": "Fotoğrafınız ve görüntü adınız görünür olacak "
+ "weekly_catch.your_photo_and_display_name_will_be": "Fotoğrafınız ve görüntü adınız görünür olacak ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "Çekya",
+ "catalog.species.barbel": "Bayağı bıyıklı balık",
+ "catalog.species.roach": "Kızılgöz",
+ "catalog.species.zander": "Sudak balığı",
+ "parking.notes": "Notlar",
+ "rating.mine": "Sizin Değerlendirmesi"
 }

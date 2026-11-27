@@ -647,5 +647,11 @@
  "weekly_catch.withdraw_entry": "Girişi çizim",
  "weekly_catch.withdraw_this_entry": "Bu girdini çözün mi?",
  "weekly_catch.you_have_not_joined_a_group_yet": "Hâlâ bir zümre qoşulmadın.",
- "weekly_catch.your_photo_and_display_name_will_be": "Fotoğraf ve görüntü adınız gösterilecek "
+ "weekly_catch.your_photo_and_display_name_will_be": "Fotoğraf ve görüntü adınız gösterilecek ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "parking.notes": "Notlar",
+ "rating.mine": "Dereceleniñiz"
 }

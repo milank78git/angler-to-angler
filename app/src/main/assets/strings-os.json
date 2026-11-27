@@ -647,5 +647,11 @@
  "weekly_catch.withdraw_entry": "Бахизын ныууадзын",
  "weekly_catch.withdraw_this_entry": "Ацы нывӕндтӕ сӕргъ кӕнынц?",
  "weekly_catch.you_have_not_joined_a_group_yet": "Ныр къордмӕ нӕ баст уыдзынӕ.",
- "weekly_catch.your_photo_and_display_name_will_be": "Дӕ ныв ӕмӕ дӕ рӕстгӕнджыты ном ӕвдисдзӕн "
+ "weekly_catch.your_photo_and_display_name_will_be": "Дӕ ныв ӕмӕ дӕ рӕстгӕнджыты ном ӕвдисдзӕн ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "parking.notes": "Фиппаинӕгттӕ",
+ "rating.mine": "Дӕ равзӕрстад"
 }

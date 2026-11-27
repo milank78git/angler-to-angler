@@ -641,5 +641,15 @@
  "weekly_catch.withdraw_entry": "Өткен қағал",
  "weekly_catch.withdraw_this_entry": "Бұл қағидалардан көреміз?",
  "weekly_catch.you_have_not_joined_a_group_yet": "Қазір бұл командасы не айтылады.",
- "weekly_catch.your_photo_and_display_name_will_be": "Бұл үшін фотографиялық және дисплеймен таныстырып келді. "
+ "weekly_catch.your_photo_and_display_name_will_be": "Бұл үшін фотографиялық және дисплеймен таныстырып келді. ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "Чехия",
+ "catalog.species.pike": "Шортан",
+ "catalog.species.roach": "Торта балық",
+ "catalog.species.zander": "Көксерке",
+ "parking.notes": "Ақыттық",
+ "rating.mine": "Тұрықтық рейтинг"
 }

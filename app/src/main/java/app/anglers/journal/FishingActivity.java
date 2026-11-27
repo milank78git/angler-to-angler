@@ -53,7 +53,7 @@ public final class FishingActivity extends LocalizedActivity {
   private android.widget.Button unlockButton;
   private android.widget.FrameLayout journalFrame;
   private long nextLeaseCheck;
-  private static final int UNLOCK = 57;
+  private static final int UNLOCK = 81;
   private PlayStore playStore;
   private String pendingReminder;
 

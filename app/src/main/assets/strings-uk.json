@@ -648,5 +648,16 @@
  "weekly_catch.withdraw_entry": "Вхід відкликання",
  "weekly_catch.withdraw_this_entry": "Витягнути цей вхід?",
  "weekly_catch.you_have_not_joined_a_group_yet": "Ви ще не приєдналися до групи.",
- "weekly_catch.your_photo_and_display_name_will_be": "Ваша фотографія і назва показу буде відображена на "
+ "weekly_catch.your_photo_and_display_name_will_be": "Ваша фотографія і назва показу буде відображена на ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "Чехія",
+ "catalog.species.pike": "Щука звичайна",
+ "catalog.species.barbel": "Марена звичайна",
+ "catalog.species.roach": "Плітка звичайна",
+ "catalog.species.zander": "Судак звичайний",
+ "parking.notes": "Зауважи",
+ "rating.mine": "Ваш рейтинг"
 }

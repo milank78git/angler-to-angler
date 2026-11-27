@@ -648,5 +648,11 @@
  "weekly_catch.withdraw_entry": "Grinde zberiia",
  "weekly_catch.withdraw_this_entry": "Lel e vizion?",
  "weekly_catch.you_have_not_joined_a_group_yet": "Chi avilian inker andek groupo.",
- "weekly_catch.your_photo_and_display_name_will_be": "Cho anav ai cho anav kai sikaven avela dicho. "
+ "weekly_catch.your_photo_and_display_name_will_be": "Cho anav ai cho anav kai sikaven avela dicho. ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "parking.notes": "Note",
+ "rating.mine": "Ţi-am prinţe"
 }

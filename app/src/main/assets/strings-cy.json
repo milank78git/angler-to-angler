@@ -646,5 +646,15 @@
  "weekly_catch.withdraw_entry": "Yn ôl y entry",
  "weekly_catch.withdraw_this_entry": "Mae'r y cwsmeriaid yn cael ei ffwrdd?",
  "weekly_catch.you_have_not_joined_a_group_yet": "Mae'n gwerthu yn cael ei ffatri yn y grup.",
- "weekly_catch.your_photo_and_display_name_will_be": "Mae'r ffatur a'r nom i'r display yn cael ei ddefnyddio "
+ "weekly_catch.your_photo_and_display_name_will_be": "Mae'r ffatur a'r nom i'r display yn cael ei ddefnyddio ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "Tsiecia",
+ "catalog.species.pike": "Penhwyad",
+ "catalog.species.roach": "Rhufell",
+ "catalog.species.zander": "Draenogyn Cegfawr",
+ "parking.notes": "Yn dangos",
+ "rating.mine": "Yn dangos"
 }

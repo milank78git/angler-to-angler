@@ -649,5 +649,13 @@
  "weekly_catch.withdraw_entry": "Retiro de entrada",
  "weekly_catch.withdraw_this_entry": "¿Descubrín esta entrada?",
  "weekly_catch.you_have_not_joined_a_group_yet": "Aínda non se uniu a un grupo.",
- "weekly_catch.your_photo_and_display_name_will_be": "A túa foto e o teu nome de exhibición estarán visibles para "
+ "weekly_catch.your_photo_and_display_name_will_be": "A túa foto e o teu nome de exhibición estarán visibles para ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "Chequia",
+ "catalog.species.zander": "Lucioperca",
+ "parking.notes": "Notas",
+ "rating.mine": "A túa clasificación"
 }

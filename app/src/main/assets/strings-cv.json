@@ -648,5 +648,12 @@
  "weekly_catch.withdraw_entry": "Пӗрне кӑларса пӑрах",
  "weekly_catch.withdraw_this_entry": "Ҫак япалана пӗтермелле - и?",
  "weekly_catch.you_have_not_joined_a_group_yet": "Эсир халӗ те ушкӑнпа пӗрле пулман.",
- "weekly_catch.your_photo_and_display_name_will_be": "Сирӗн ӳкерчӗк тата кӑтартакан ячӗ курӑнӗ "
+ "weekly_catch.your_photo_and_display_name_will_be": "Сирӗн ӳкерчӗк тата кӑтартакан ячӗ курӑнӗ ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "Чехи",
+ "parking.notes": "Аплавсем",
+ "rating.mine": "Сирӗн рейтинг"
 }

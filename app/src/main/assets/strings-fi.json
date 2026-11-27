@@ -648,5 +648,16 @@
  "weekly_catch.withdraw_entry": "Poista sisäänkäynti",
  "weekly_catch.withdraw_this_entry": "Poista tämä sisäänpääsy?",
  "weekly_catch.you_have_not_joined_a_group_yet": "Et ole vielä liittynyt ryhmään.",
- "weekly_catch.your_photo_and_display_name_will_be": "Kuva ja näytön nimi näkyvät "
+ "weekly_catch.your_photo_and_display_name_will_be": "Kuva ja näytön nimi näkyvät ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "Tšekki",
+ "catalog.species.pike": "Hauki",
+ "catalog.species.barbel": "Jokibarbi",
+ "catalog.species.roach": "Särki",
+ "catalog.species.zander": "Kuha",
+ "parking.notes": "Huomautukset",
+ "rating.mine": "Sinun luokitus"
 }

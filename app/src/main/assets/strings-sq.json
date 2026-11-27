@@ -648,5 +648,12 @@
  "weekly_catch.withdraw_entry": "tërheq hyrjen",
  "weekly_catch.withdraw_this_entry": "Të heqësh dorë nga kjo hyrje?",
  "weekly_catch.you_have_not_joined_a_group_yet": "Ju nuk keni bashkuar ndonjë grup ende.",
- "weekly_catch.your_photo_and_display_name_will_be": "Fotoja dhe emri i shfaqjes do të jetë i dukshëm në "
+ "weekly_catch.your_photo_and_display_name_will_be": "Fotoja dhe emri i shfaqjes do të jetë i dukshëm në ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "Çeki",
+ "parking.notes": "Notat",
+ "rating.mine": "Rritja juaj"
 }

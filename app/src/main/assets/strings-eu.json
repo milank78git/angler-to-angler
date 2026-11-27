@@ -650,5 +650,13 @@
  "weekly_catch.withdraw_entry": "Marraztu sarrera",
  "weekly_catch.withdraw_this_entry": "Marraztu sarrera hau?",
  "weekly_catch.you_have_not_joined_a_group_yet": "Oraindik ez duzu talde bat sartu.",
- "weekly_catch.your_photo_and_display_name_will_be": "Zure argazkia eta bistaratzeko izena ikusgai izango da "
+ "weekly_catch.your_photo_and_display_name_will_be": "Zure argazkia eta bistaratzeko izena ikusgai izango da ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "Txekia",
+ "catalog.species.pike": "Lutxo arrunt",
+ "parking.notes": "Oharrak",
+ "rating.mine": "Zure balioa"
 }

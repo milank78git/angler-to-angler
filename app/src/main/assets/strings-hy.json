@@ -646,5 +646,14 @@
  "weekly_catch.withdraw_entry": "Վերցնել ներսում",
  "weekly_catch.withdraw_this_entry": "Արդյո՞ք այս գիրքը վերցնում եք։",
  "weekly_catch.you_have_not_joined_a_group_yet": "Դուք դեռ միավոր չեք եղել.",
- "weekly_catch.your_photo_and_display_name_will_be": "Ձեր նկարը եւ անունը ցույց է տալիս, որ "
+ "weekly_catch.your_photo_and_display_name_will_be": "Ձեր նկարը եւ անունը ցույց է տալիս, որ ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "Չեխիա",
+ "catalog.species.pike": "Գայլաձկներ",
+ "catalog.species.roach": "Ձմեռային իշխան",
+ "parking.notes": "Հիշողություն",
+ "rating.mine": "Ձեր արժեքը"
 }

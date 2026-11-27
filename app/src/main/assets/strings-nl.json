@@ -665,5 +665,16 @@
  "alerts.catches": "Nieuwe vangst in je groep",
  "alerts.weekly": "Nieuwe vangst in de weekwedstrijd",
  "alerts.sales": "Iemand heeft je tip gekocht",
- "alerts.ratings": "Je tip heeft een beoordeling gekregen"
+ "alerts.ratings": "Je tip heeft een beoordeling gekregen",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "Tsjechië",
+ "catalog.species.pike": "Snoek",
+ "catalog.species.barbel": "Barbeel",
+ "catalog.species.roach": "Blankvoorn",
+ "catalog.species.zander": "Snoekbaars",
+ "parking.notes": "noten",
+ "rating.mine": "Uw rating"
 }

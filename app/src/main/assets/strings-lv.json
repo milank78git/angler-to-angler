@@ -647,5 +647,16 @@
  "weekly_catch.withdraw_entry": "Atkāpšanās ieejas",
  "weekly_catch.withdraw_this_entry": "Atcelt šo ieejas?",
  "weekly_catch.you_have_not_joined_a_group_yet": "Jūs vēl neesat pievienojusies grupai.",
- "weekly_catch.your_photo_and_display_name_will_be": "Jūsu foto un attēla nosaukums būs redzams "
+ "weekly_catch.your_photo_and_display_name_will_be": "Jūsu foto un attēla nosaukums būs redzams ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "Čehija",
+ "catalog.species.pike": "Līdaka",
+ "catalog.species.barbel": "Barbe",
+ "catalog.species.roach": "Rauda",
+ "catalog.species.zander": "Zandarts",
+ "parking.notes": "Piezīmes",
+ "rating.mine": "Jūsu vērtējums"
 }

@@ -641,5 +641,16 @@
  "weekly_catch.withdraw_entry": "Вынікі ўступлення",
  "weekly_catch.withdraw_this_entry": "Выйшаў у гэты час?",
  "weekly_catch.you_have_not_joined_a_group_yet": "Вы не ўдзельнічалі ў групе.",
- "weekly_catch.your_photo_and_display_name_will_be": "Вашы фота і імя выставы будуць паглядзець на "
+ "weekly_catch.your_photo_and_display_name_will_be": "Вашы фота і імя выставы будуць паглядзець на ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "Чэхія",
+ "catalog.species.pike": "Шчупак звычайны",
+ "catalog.species.barbel": "Вусач",
+ "catalog.species.roach": "Плотка",
+ "catalog.species.zander": "Судак",
+ "parking.notes": "Запісы",
+ "rating.mine": "Ваш рэйтынг"
 }

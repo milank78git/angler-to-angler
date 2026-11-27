@@ -665,5 +665,15 @@
  "alerts.catches": "Uus saak rühmas",
  "alerts.weekly": "Uus saak nädalavõistlusel",
  "alerts.sales": "Sinu nõuanne osteti",
- "alerts.ratings": "Sinu nõuanne sai hinnangu"
+ "alerts.ratings": "Sinu nõuanne sai hinnangu",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "Tšehhi",
+ "catalog.species.pike": "Haug",
+ "catalog.species.roach": "Särg",
+ "catalog.species.zander": "Koha",
+ "parking.notes": "Märkused",
+ "rating.mine": "Teie hinnang"
 }

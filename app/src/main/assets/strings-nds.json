@@ -650,5 +650,11 @@
  "weekly_catch.withdraw_entry": "Indrag wegdoon",
  "weekly_catch.withdraw_this_entry": "Dit Indrag wegdoon?",
  "weekly_catch.you_have_not_joined_a_group_yet": "Du hest noch keen Koppel tofögen.",
- "weekly_catch.your_photo_and_display_name_will_be": "Dien Foto un de Billschirmnaam warrt sichtbar "
+ "weekly_catch.your_photo_and_display_name_will_be": "Dien Foto un de Billschirmnaam warrt sichtbar ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "parking.notes": "Notizen",
+ "rating.mine": "Dien Beweerten"
 }

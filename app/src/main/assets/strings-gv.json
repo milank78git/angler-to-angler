@@ -650,5 +650,11 @@
  "weekly_catch.withdraw_entry": "Cur yn enmys ersooyl",
  "weekly_catch.withdraw_this_entry": "Ta'n enmys shoh er yn geddyn elley?",
  "weekly_catch.you_have_not_joined_a_group_yet": "Cha nel oo er goaill ayrn ayns possan foast.",
- "weekly_catch.your_photo_and_display_name_will_be": "Bee yn jalloo as soilshaghey ayd's v'eh dy akin dys "
+ "weekly_catch.your_photo_and_display_name_will_be": "Bee yn jalloo as soilshaghey ayd's v'eh dy akin dys ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "parking.notes": "Notey",
+ "rating.mine": "Towse ayds"
 }

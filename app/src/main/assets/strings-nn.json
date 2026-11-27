@@ -649,5 +649,16 @@
  "weekly_catch.withdraw_entry": "Tiltrekk oppføring",
  "weekly_catch.withdraw_this_entry": "Teikna denne oppføringa?",
  "weekly_catch.you_have_not_joined_a_group_yet": "Du har ikkje blitt med i ein gruppe enno.",
- "weekly_catch.your_photo_and_display_name_will_be": "Namnet på bilete og visning vil vera synleg til "
+ "weekly_catch.your_photo_and_display_name_will_be": "Namnet på bilete og visning vil vera synleg til ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "Tsjekkia",
+ "catalog.species.pike": "Gjedde",
+ "catalog.species.barbel": "Flodbarbe",
+ "catalog.species.roach": "Mort",
+ "catalog.species.zander": "Gjørs",
+ "parking.notes": "Notat",
+ "rating.mine": "Din verdi"
 }

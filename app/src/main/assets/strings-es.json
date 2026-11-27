@@ -648,5 +648,13 @@
  "weekly_catch.withdraw_entry": "Retiro de entrada",
  "weekly_catch.withdraw_this_entry": "¿Descubrir esta entrada?",
  "weekly_catch.you_have_not_joined_a_group_yet": "No se ha unido a un grupo aún.",
- "weekly_catch.your_photo_and_display_name_will_be": "Su nombre y imagen serán visibles en "
+ "weekly_catch.your_photo_and_display_name_will_be": "Su nombre y imagen serán visibles en ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "Chequia",
+ "catalog.species.pike": "Lucio",
+ "parking.notes": "Notas",
+ "rating.mine": "Su rating"
 }

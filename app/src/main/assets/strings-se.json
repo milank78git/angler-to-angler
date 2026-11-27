@@ -650,5 +650,13 @@
  "weekly_catch.withdraw_entry": "Sajádat merkoša",
  "weekly_catch.withdraw_this_entry": "Váldde dán merkoša?",
  "weekly_catch.you_have_not_joined_a_group_yet": "Dus ii leat vejolaš joavkku oktavuođa.",
- "weekly_catch.your_photo_and_display_name_will_be": "Du fotografiija ja čájeheapmi namma oidnojuvvo "
+ "weekly_catch.your_photo_and_display_name_will_be": "Du fotografiija ja čájeheapmi namma oidnojuvvo ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "Čeahkka",
+ "catalog.species.pike": "Hávga",
+ "parking.notes": "Muittuhusat",
+ "rating.mine": "Du árvosáni"
 }

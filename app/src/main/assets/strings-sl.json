@@ -648,5 +648,15 @@
  "weekly_catch.withdraw_entry": "Odstranitev vstop",
  "weekly_catch.withdraw_this_entry": "Odstranite ta vnos?",
  "weekly_catch.you_have_not_joined_a_group_yet": "Še niste se pridružili skupini.",
- "weekly_catch.your_photo_and_display_name_will_be": "Vaša fotografija in ime prikaza bodo vidne na "
+ "weekly_catch.your_photo_and_display_name_will_be": "Vaša fotografija in ime prikaza bodo vidne na ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "Češka",
+ "catalog.species.pike": "Navadna ščuka",
+ "catalog.species.barbel": "Navadna mrena",
+ "catalog.species.roach": "Rdečeoka",
+ "catalog.species.zander": "Smuč",
+ "rating.mine": "Vaša ocena"
 }

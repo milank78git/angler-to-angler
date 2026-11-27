@@ -648,5 +648,16 @@
  "weekly_catch.withdraw_entry": "Влезте в",
  "weekly_catch.withdraw_this_entry": "Изтегляне на този вход?",
  "weekly_catch.you_have_not_joined_a_group_yet": "Досега не сте се присъединили към група.",
- "weekly_catch.your_photo_and_display_name_will_be": "Вашето име и снимка ще бъдат видими за "
+ "weekly_catch.your_photo_and_display_name_will_be": "Вашето име и снимка ще бъдат видими за ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "Чехия",
+ "catalog.species.pike": "Щука",
+ "catalog.species.barbel": "Бяла мряна",
+ "catalog.species.roach": "Бабушка",
+ "catalog.species.zander": "Бяла риба",
+ "parking.notes": "бележки",
+ "rating.mine": "Вашата оценка"
 }

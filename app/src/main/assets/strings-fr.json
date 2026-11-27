@@ -648,5 +648,14 @@
  "weekly_catch.withdraw_entry": "Retrait d’entrée",
  "weekly_catch.withdraw_this_entry": "Retirez cette entrée ?",
  "weekly_catch.you_have_not_joined_a_group_yet": "Vous n’avez pas encore rejoint un groupe.",
- "weekly_catch.your_photo_and_display_name_will_be": "Votre photo et votre nom de l'affichage seront visibles à "
+ "weekly_catch.your_photo_and_display_name_will_be": "Votre photo et votre nom de l'affichage seront visibles à ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "Tchéquie",
+ "catalog.species.pike": "Grand brochet",
+ "catalog.species.barbel": "Barbeau commun",
+ "catalog.species.zander": "Sandre",
+ "rating.mine": "Votre notation"
 }

@@ -650,5 +650,12 @@
  "weekly_catch.withdraw_entry": "It-tneħħija ta’ dħul",
  "weekly_catch.withdraw_this_entry": "Tneħħi din id-dħul?",
  "weekly_catch.you_have_not_joined_a_group_yet": "Int ma għandekx grupp għadu.",
- "weekly_catch.your_photo_and_display_name_will_be": "Isem tiegħek u d- display ser ikunu viżibbli lil "
+ "weekly_catch.your_photo_and_display_name_will_be": "Isem tiegħek u d- display ser ikunu viżibbli lil ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "ir-Repubblika Ċeka",
+ "parking.notes": "Noti",
+ "rating.mine": "Il-klassifikazzjoni tiegħek"
 }

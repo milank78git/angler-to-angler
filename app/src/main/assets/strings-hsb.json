@@ -645,5 +645,12 @@
  "weekly_catch.withdraw_entry": "Zapis wotkazać",
  "weekly_catch.withdraw_this_entry": "Wotpokazać?",
  "weekly_catch.you_have_not_joined_a_group_yet": "Sće hišće na skupinu přiwjazali.",
- "weekly_catch.your_photo_and_display_name_will_be": "Waše wobrazowka a pokazowa mjeno budźe widźomne. "
+ "weekly_catch.your_photo_and_display_name_will_be": "Waše wobrazowka a pokazowa mjeno budźe widźomne. ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "Čěska republika",
+ "parking.notes": "Přispomnjenja",
+ "rating.mine": "Waše hódnoćenje"
 }

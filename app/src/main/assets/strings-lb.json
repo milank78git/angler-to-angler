@@ -646,5 +646,12 @@
  "weekly_catch.withdraw_entry": "Entfernung Entrée",
  "weekly_catch.withdraw_this_entry": "Wéi gëtt et entschloss?",
  "weekly_catch.you_have_not_joined_a_group_yet": "Et ass eng Grupp net.",
- "weekly_catch.your_photo_and_display_name_will_be": "De Foto an de Display Numm gëtt sichtbar fir "
+ "weekly_catch.your_photo_and_display_name_will_be": "De Foto an de Display Numm gëtt sichtbar fir ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "Tschechien",
+ "parking.notes": "Notéiert",
+ "rating.mine": "De Rating ass"
 }

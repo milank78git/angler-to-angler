@@ -643,5 +643,12 @@
  "weekly_catch.withdraw_entry": "Pàirt Entrée",
  "weekly_catch.withdraw_this_entry": "Dè tha thu fìor?",
  "weekly_catch.you_have_not_joined_a_group_yet": "Tha e a dèanamh an ag ràdh.",
- "weekly_catch.your_photo_and_display_name_will_be": "Tha e a' dèanamh na h-aimarainn. "
+ "weekly_catch.your_photo_and_display_name_will_be": "Tha e a' dèanamh na h-aimarainn. ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "An t-Seic",
+ "parking.notes": "Pàirt",
+ "rating.mine": "Tha rating"
 }

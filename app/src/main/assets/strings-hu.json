@@ -649,5 +649,16 @@
  "weekly_catch.withdraw_entry": "Visszavonás bejárat",
  "weekly_catch.withdraw_this_entry": "Eltávolítsa ezt a bejegyzést?",
  "weekly_catch.you_have_not_joined_a_group_yet": "Egy csoportba még nem csatlakozott.",
- "weekly_catch.your_photo_and_display_name_will_be": "A kép és a kijelző neve látható lesz "
+ "weekly_catch.your_photo_and_display_name_will_be": "A kép és a kijelző neve látható lesz ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "Csehország",
+ "catalog.species.pike": "Csuka",
+ "catalog.species.barbel": "Márna",
+ "catalog.species.roach": "Bodorka",
+ "catalog.species.zander": "Fogassüllő",
+ "parking.notes": "jegyzetek",
+ "rating.mine": "Az Ön minősítése"
 }

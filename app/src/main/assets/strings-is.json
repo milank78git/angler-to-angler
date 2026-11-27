@@ -650,5 +650,13 @@
  "weekly_catch.withdraw_entry": "Farið inn",
  "weekly_catch.withdraw_this_entry": "Að hætta inn þetta?",
  "weekly_catch.you_have_not_joined_a_group_yet": "Þú hefur ekki komið í hóp enn.",
- "weekly_catch.your_photo_and_display_name_will_be": "Myndin og sýningarnaminn þín verður sýnilegt á "
+ "weekly_catch.your_photo_and_display_name_will_be": "Myndin og sýningarnaminn þín verður sýnilegt á ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "Tékkland",
+ "catalog.species.pike": "Gedda",
+ "parking.notes": "notum",
+ "rating.mine": "Þitt áætlun"
 }

@@ -649,5 +649,13 @@
  "weekly_catch.withdraw_entry": "Retirada de l'entrada",
  "weekly_catch.withdraw_this_entry": "Retirar aquesta entrada?",
  "weekly_catch.you_have_not_joined_a_group_yet": "No s'havien unit a un grup encara.",
- "weekly_catch.your_photo_and_display_name_will_be": "La seva imatge i nom de pantalla es veurà visible a "
+ "weekly_catch.your_photo_and_display_name_will_be": "La seva imatge i nom de pantalla es veurà visible a ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "Txèquia",
+ "catalog.species.pike": "Lluç de riu",
+ "catalog.species.roach": "Madrilleta vera",
+ "rating.mine": "La seva classificació"
 }

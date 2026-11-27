@@ -645,5 +645,13 @@
  "weekly_catch.withdraw_entry": "Retirar la entrada",
  "weekly_catch.withdraw_this_entry": "El so entrada ye de la entrada.",
  "weekly_catch.you_have_not_joined_a_group_yet": "Nun ye un grupu hasta'l momentu.",
- "weekly_catch.your_photo_and_display_name_will_be": "El nome de la imaxe y el nome de la pantalla ye visible a "
+ "weekly_catch.your_photo_and_display_name_will_be": "El nome de la imaxe y el nome de la pantalla ye visible a ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "Chequia",
+ "catalog.species.barbel": "Barbu",
+ "parking.notes": "Nótes",
+ "rating.mine": "La so clasificación"
 }

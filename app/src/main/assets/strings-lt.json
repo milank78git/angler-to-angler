@@ -648,5 +648,16 @@
  "weekly_catch.withdraw_entry": "Atsisakymas įvesti",
  "weekly_catch.withdraw_this_entry": "Ar atšaukiate šį įėjimą?",
  "weekly_catch.you_have_not_joined_a_group_yet": "Jūs dar nesusiję su grupe.",
- "weekly_catch.your_photo_and_display_name_will_be": "Jūsų nuotrauka ir pavadinimas bus matomas "
+ "weekly_catch.your_photo_and_display_name_will_be": "Jūsų nuotrauka ir pavadinimas bus matomas ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "Čekija",
+ "catalog.species.pike": "Europinė lydeka",
+ "catalog.species.barbel": "Paprastasis ūsorius",
+ "catalog.species.roach": "Kuoja",
+ "catalog.species.zander": "Starkis",
+ "parking.notes": "Pastabos",
+ "rating.mine": "Jūsų reitingas"
 }

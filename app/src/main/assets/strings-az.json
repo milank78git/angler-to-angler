@@ -645,5 +645,15 @@
  "weekly_catch.withdraw_entry": "İndir giriş",
  "weekly_catch.withdraw_this_entry": "Bu girişdən çıxır?",
  "weekly_catch.you_have_not_joined_a_group_yet": "Siz bir grupla daha katılmadınız.",
- "weekly_catch.your_photo_and_display_name_will_be": "Foto və ekran adı sizə görünür olacaq "
+ "weekly_catch.your_photo_and_display_name_will_be": "Foto və ekran adı sizə görünür olacaq ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "Çexiya",
+ "catalog.species.pike": "Adi durnabalıq",
+ "catalog.species.roach": "Adi külmə",
+ "catalog.species.zander": "Çay sufu",
+ "parking.notes": "Notlər",
+ "rating.mine": "Qısaqın rating"
 }

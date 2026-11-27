@@ -650,5 +650,12 @@
  "weekly_catch.withdraw_entry": "Көрсеүҙе ҡалдырғыҙ",
  "weekly_catch.withdraw_this_entry": "Был яҙманы күтәрергәме?",
  "weekly_catch.you_have_not_joined_a_group_yet": "Һеҙ әле төркөмгә ҡатнашмағанһығыҙ.",
- "weekly_catch.your_photo_and_display_name_will_be": "Һеҙҙең фотоһүрәтегеҙ һәм күренеүҙәр исемегеҙҙе күрер ине "
+ "weekly_catch.your_photo_and_display_name_will_be": "Һеҙҙең фотоһүрәтегеҙ һәм күренеүҙәр исемегеҙҙе күрер ине ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "Чехия",
+ "parking.notes": "Иҫкәрмәләр",
+ "rating.mine": "Рейтингегеҙ"
 }

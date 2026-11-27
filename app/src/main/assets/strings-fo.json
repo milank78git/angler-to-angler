@@ -650,5 +650,12 @@
  "weekly_catch.withdraw_entry": "Treyma innskærði",
  "weekly_catch.withdraw_this_entry": "Teikna þessa inntak?",
  "weekly_catch.you_have_not_joined_a_group_yet": "Tú hefur ikki biðjast einni hópu enn.",
- "weekly_catch.your_photo_and_display_name_will_be": "Títt mynd og sýnnavn verður synleg við "
+ "weekly_catch.your_photo_and_display_name_will_be": "Títt mynd og sýnnavn verður synleg við ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "Kekkia",
+ "parking.notes": "Nottir",
+ "rating.mine": "Tínar hóvni"
 }

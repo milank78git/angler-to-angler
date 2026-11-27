@@ -665,5 +665,16 @@
  "alerts.catches": "Nowy połów w grupie",
  "alerts.weekly": "Nowy połów w konkursie tygodnia",
  "alerts.sales": "Ktoś kupił twoją wskazówkę",
- "alerts.ratings": "Twoja wskazówka otrzymała ocenę"
+ "alerts.ratings": "Twoja wskazówka otrzymała ocenę",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "Czechy",
+ "catalog.species.pike": "Szczupak pospolity",
+ "catalog.species.barbel": "Brzana pospolita",
+ "catalog.species.roach": "Płoć",
+ "catalog.species.zander": "Sandacz pospolity",
+ "parking.notes": "Notatki",
+ "rating.mine": "Twój rating"
 }

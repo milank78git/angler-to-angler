@@ -648,5 +648,13 @@
  "weekly_catch.withdraw_entry": "Yntrêst yn",
  "weekly_catch.withdraw_this_entry": "Dat ynstallearje?",
  "weekly_catch.you_have_not_joined_a_group_yet": "Jo hat noch in groep yn de stêd.",
- "weekly_catch.your_photo_and_display_name_will_be": "De foto en de prikkennaam binne syn sichtbare foar "
+ "weekly_catch.your_photo_and_display_name_will_be": "De foto en de prikkennaam binne syn sichtbare foar ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "Tsjechje",
+ "catalog.species.zander": "Snoekbears",
+ "parking.notes": "Yntegrearre",
+ "rating.mine": "De rating"
 }

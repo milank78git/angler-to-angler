@@ -649,5 +649,13 @@
  "weekly_catch.withdraw_entry": "Retirar entrada",
  "weekly_catch.withdraw_this_entry": "Desligue essa entrada?",
  "weekly_catch.you_have_not_joined_a_group_yet": "Você ainda não se juntou a um grupo.",
- "weekly_catch.your_photo_and_display_name_will_be": "Sua foto e nome de exibição serão visíveis para "
+ "weekly_catch.your_photo_and_display_name_will_be": "Sua foto e nome de exibição serão visíveis para ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "Tchéquia",
+ "catalog.species.roach": "Pardelha-dos-alpes",
+ "parking.notes": "Notas",
+ "rating.mine": "Sua classificação"
 }

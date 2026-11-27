@@ -650,5 +650,11 @@
  "weekly_catch.withdraw_entry": "Entrada de dibuixau",
  "weekly_catch.withdraw_this_entry": "¿Terrar ista entrada?",
  "weekly_catch.you_have_not_joined_a_group_yet": "No has ninviau unir-se a ningún grupo.",
- "weekly_catch.your_photo_and_display_name_will_be": "A lo suyo nombre d'amostrar se verán visible "
+ "weekly_catch.your_photo_and_display_name_will_be": "A lo suyo nombre d'amostrar se verán visible ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "parking.notes": "Notas",
+ "rating.mine": "Tot puntuación"
 }

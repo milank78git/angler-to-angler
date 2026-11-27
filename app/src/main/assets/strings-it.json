@@ -650,5 +650,13 @@
  "weekly_catch.withdraw_entry": "Rimuovere l'ingresso",
  "weekly_catch.withdraw_this_entry": "Rimuovere questa entrata?",
  "weekly_catch.you_have_not_joined_a_group_yet": "Non sei ancora entrato in un gruppo.",
- "weekly_catch.your_photo_and_display_name_will_be": "Il tuo nome e foto saranno visibili "
+ "weekly_catch.your_photo_and_display_name_will_be": "Il tuo nome e foto saranno visibili ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "catalog.label": "Cechia",
+ "catalog.species.pike": "Luccio",
+ "parking.notes": "Notizie",
+ "rating.mine": "La tua valutazione"
 }

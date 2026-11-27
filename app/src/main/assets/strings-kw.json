@@ -650,5 +650,11 @@
  "weekly_catch.withdraw_entry": "Leuskna an enten",
  "weekly_catch.withdraw_this_entry": "Dilea an enten ma?",
  "weekly_catch.you_have_not_joined_a_group_yet": "Nyns eus hwans dhywgh rag strollys.",
- "weekly_catch.your_photo_and_display_name_will_be": "A yll agas skeusen ha hanow diskwedhes dhe'n gweles "
+ "weekly_catch.your_photo_and_display_name_will_be": "A yll agas skeusen ha hanow diskwedhes dhe'n gweles ",
+ "sources.crs.name": "Český rybářský svaz",
+ "sources.mrs.name": "Moravský rybářský svaz",
+ "sources.crs.short": "ČRS",
+ "water_photo.cuzk": "© ČÚZK",
+ "parking.notes": "Notys",
+ "rating.mine": "Agas owth"
 }
