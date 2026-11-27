@@ -6,6 +6,9 @@ create or replace function angler_sync.photo_storage(verb text,object_key uuid,b
 returns bytea language plpgsql set search_path='' as $$
 declare data bytea;
 begin
+  if verb='POST' and current_setting('fixture.photo_failure',true)='on' then
+    raise exception 'Simulated Storage outage' using errcode='PT503';
+  end if;
   if verb='POST' then insert into pg_temp.photo_files values(object_key,body); return null; end if;
   if verb='GET' then select f.data into strict data from pg_temp.photo_files f where id=object_key;
     if start_byte is not null then return substring(data from start_byte+1 for 65536); end if;
@@ -30,6 +33,13 @@ begin
   perform public.angler_journal_sync('put',epoch||jsonb_build_object('hash',chunk,'data',encode(payload,'base64')));
   perform public.angler_journal_sync('save',epoch||jsonb_build_object('key',k,'revision',0,
     'floor',coalesce((select deletion_floor from angler_sync.accounts where owner=actor),0),'parts',jsonb_build_array(chunk)));
+  perform set_config('fixture.photo_failure','on',true);
+  begin perform public.angler_journal_sync('photo_convert',epoch||jsonb_build_object('key',k,'revision',(select revision from angler_sync.documents where owner=actor and key=k)));
+    raise exception 'Converted an unreadable photo'; exception when sqlstate 'PT503' then null; end;
+  perform pg_temp.check_that((select not photo_format and parts=array[chunk] from angler_sync.documents where owner=actor and key=k)
+    and angler_sync.document_json(actor,array[chunk])=doc,'Failed conversion lost legacy bytes');
+  perform pg_temp.check_that(not exists(select from angler_sync.photos where owner=actor and trip=k),'Failed conversion left a linked binary');
+  perform set_config('fixture.photo_failure','off',true);
   perform angler_sync.maintain_photos();
   select expires,cycle into strict expiry,prior from angler_sync.photos where owner=actor and trip=k;
   perform pg_temp.check_that(expiry=now()+interval '12 months','Historical photo did not receive a full year');
@@ -50,10 +60,20 @@ begin
   perform pg_temp.check_that((public.angler_journal_sync('photo_need',ref)->>'needed')::boolean=false,'Automatic re-upload requested');
   perform pg_temp.check_that(public.angler_journal_sync('photo_get',ref||'{"offset":0}')->>'expired'='true','Expired read');
   perform public.angler_journal_sync('photo_part',ref||jsonb_build_object('part',0,'data',encode(jpeg,'base64')));
+  begin
+    update angler_sync.usage set total=536870912 where owner=actor;
+    perform public.angler_journal_sync('photo_reupload',ref||jsonb_build_object('cycle',prior));
+    raise exception 'Accepted an over-quota image';
+  exception when sqlstate 'PT413' then null; end;
+  perform pg_temp.check_that((select object_id is null and cycle::text=prior from angler_sync.photos where owner=actor and trip=k),'Failed re-upload replaced the expiry marker');
   perform public.angler_journal_sync('photo_reupload',ref||jsonb_build_object('cycle',prior));
   select cycle into current_cycle from angler_sync.photos where owner=actor and trip=k;
   perform pg_temp.check_that(current_cycle<>prior,'Re-upload reused the generation');
   perform pg_temp.check_that(public.angler_journal_sync('photo_renew',ref||jsonb_build_object('cycle',prior))->>'expired'='true','Stale renewal applied');
+  begin
+    perform public.angler_journal_sync('photo_renew',ref||jsonb_build_object('epoch',gen_random_uuid(),'cycle',current_cycle));
+    raise exception 'Allowed a stale account epoch';
+  exception when sqlstate 'PT410' then null; end;
   perform pg_temp.as_user(82);
   begin perform public.angler_journal_sync('photo_list','{}'); raise exception 'Child listed copies'; exception when insufficient_privilege then null; end;
   perform pg_temp.as_user(85);

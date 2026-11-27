@@ -1,3 +1,4 @@
+import { dismissPhotoDetail } from './photo-retention.js';
 import { rpc } from './profile-api.js';
 import { replaceMarkup } from './markup.js';
 import { anglerDetails, bindLicenseNotice } from './angler-details.js';
@@ -73,12 +74,13 @@ const nav = new Navigation(
 );
 
 /** Forward native navigation and device events to the current screen. */
-window.handleBack = () => closeGuide() || dismissConfirmation() || nav.back();
+window.handleBack = () => dismissPhotoDetail() || closeGuide() || dismissConfirmation() || nav.back();
 window.reminderChanged = () => window.dispatchEvent(new Event('reminderchange'));
 window.positionResult = (id, fix) =>
   window.dispatchEvent(new CustomEvent('angler-position', { detail: { id, fix } }));
 
 async function render(view, area) {
+  dismissPhotoDetail();
   dismissConfirmation();
   const { page } = view.route;
   const editing = [

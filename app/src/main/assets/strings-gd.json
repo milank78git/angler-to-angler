@@ -1,6 +1,6 @@
 {
  "account.account_sign_in": "Pàirt an-Nàidhlig",
- "account.angler_profile": "Gàidhlig · English.",
+ "account.angler_profile": "Pròifil an iasgair",
  "account.back_to_sign_in": "Pàirt a 'Sign-in",
  "account.check_the_address": "Check an address.",
  "account.check_your_email": "Check an e-mail",
@@ -54,7 +54,7 @@
  "account.unlock_journal": "Pàirt a'",
  "account.unlock_with_device": "Dùn Dè an Iar.",
  "account.use_at_least_8_characters": "Tha an earaidhean 8 characters.",
- "app.name": "Gàidhlig · English.",
+ "app.name": "Bho iasgair gu iasgair",
  "app.waters": "Pàirt",
  "atlas.title": "Pàirt aig",
  "catch-form.fishing.technique": "Pàirt Technic",

@@ -396,8 +396,8 @@ public final class FishingActivity extends LocalizedActivity {
 
     @JavascriptInterface
     public void photoReminderDates(String dates) {
-      if(subject.equals(AccountStore.active(FishingActivity.this)))
-        PhotoExpiryReminder.remember(FishingActivity.this,subject,dates);
+      if (subject.equals(AccountStore.active(FishingActivity.this)))
+        PhotoExpiryReminder.remember(FishingActivity.this, subject, dates);
     }
 
     @JavascriptInterface

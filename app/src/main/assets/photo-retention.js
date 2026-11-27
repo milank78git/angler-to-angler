@@ -15,6 +15,7 @@ const stamp = (iso) => new Intl.DateTimeFormat(languageTag, { dateStyle: 'medium
 
 /** Persist an intention with the server-issued generation, including when offline. */
 function requestRenewal(subject, rows) {
+  if (!rows.length) return;
   const prefix = prefixFor(subject);
   if (localStorage.getItem(prefix + 'enabled') !== '1') return;
   const pending = read(queueKey(prefix));
@@ -61,7 +62,14 @@ export async function refreshPhotoLeases(call, subject, prefix, revision) {
     localStorage.setItem(leasesKey(prefix), stored);
     signal();
   }
-  const days = [...new Set(rows.filter(live).map((r) => r.expires.slice(0, 10)))];
+  const localDay = (row) => {
+    const date = new Date(row.expires);
+    return [
+      date.getFullYear(),
+      ...[date.getMonth() + 1, date.getDate()].map((n) => String(n).padStart(2, '0')),
+    ].join('-');
+  };
+  const days = [...new Set(rows.filter(live).map(localDay))];
   window.Device?.photoReminderDates?.(JSON.stringify(days));
   // An explicit re-upload on another device does not change the trip manifest.
   for (const row of rows.filter(live)) {
@@ -77,6 +85,14 @@ export async function refreshPhotoLeases(call, subject, prefix, revision) {
     if (photo && valid()) await Journal.installCloudPhoto(record, photo);
   }
   if (valid() && pageRevision) localStorage.setItem(prefix + 'photoRevision', pageRevision);
+}
+export function showsCloudPhotoPolicy() {
+  const subject = window.Device?.subjectId?.();
+  return (
+    !!subject &&
+    !window.Device?.groupSharingOnly?.() &&
+    localStorage.getItem(prefixFor(subject) + 'enabled') === '1'
+  );
 }
 function action(text, onclick) {
   const button = document.createElement('button');
@@ -125,8 +141,17 @@ export function bindExpirySummary(panel, subject) {
   panel.append(group);
 }
 
+export function dismissPhotoDetail() {
+  const dialog = /** @type {HTMLDialogElement | null} */ (
+    document.querySelector('dialog.journal-photo-detail[open]')
+  );
+  if (!dialog) return false;
+  dialog.close();
+  return true;
+}
+
 /** Preview rendering never renews a lease. Only opening the individual image or a button does. */
-export function bindCatchPhoto(article, record, url, view, call) {
+export function bindCatchPhoto(article, record, url, view, call, file = undefined) {
   const subject = window.Device?.groupSharingOnly?.() ? null : window.Device?.subjectId?.();
   const prefix = prefixFor(subject);
   const panel = document.createElement('div');
@@ -153,7 +178,8 @@ export function bindCatchPhoto(article, record, url, view, call) {
         const full = new Image();
         full.src = url;
         full.alt = img.alt;
-        full.style.maxWidth = '100%';
+        dialog.className = 'journal-photo-detail';
+        dialog.setAttribute('aria-label', img.alt);
         dialog.append(
           full,
           action('common.close', () => dialog.close()),
@@ -161,7 +187,14 @@ export function bindCatchPhoto(article, record, url, view, call) {
         document.body.append(dialog);
         dialog.addEventListener('close', () => dialog.remove(), { once: true });
         dialog.showModal();
-        if (row && live(row) && (await photoHash(await Journal.photo(record.id))) === row.hash)
+        if (
+          row &&
+          live(row) &&
+          file &&
+          (await photoHash(file)) === row.hash &&
+          view.active() &&
+          samePhoto(row, current() || {})
+        )
           requestRenewal(subject, [row]);
       });
       open.replaceChildren(img);

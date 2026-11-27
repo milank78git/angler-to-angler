@@ -336,7 +336,7 @@ export async function tripScreen({ view, nav, pack, waterDirectory }) {
       if (blob) {
         const url = URL.createObjectURL(blob);
         images.push(url);
-        bindCatchPhoto(article, c, url, view, photoRequest);
+        bindCatchPhoto(article, c, url, view, photoRequest, blob);
       }
     } else if (c.cloudPhotoHash) {
       bindCatchPhoto(article, c, null, view, photoRequest);

@@ -33,10 +33,15 @@ def read(path):
     return json.loads(path.read_text(), object_pairs_hook=unique)
 
 
+def rule_numbers(text):
+    return sorted(int(n) for n in re.findall(r"\d+", text))
+
+
 def check(show_coverage=False):
     english = read(ASSETS / "strings-en.json")
     czech = read(ASSETS / "strings-cs.json")
-    fully_translated = {"ca", "cs", "de", "en", "es", "et", "fr", "gl", "it", "nl", "oc", "pl", "pt", "ro", "sk", "sv"}
+    fully_translated = {"ast", "ca", "cs", "da", "de", "en", "es", "et", "fr", "gl",
+                        "it", "nl", "nn", "no", "oc", "pl", "pt", "ro", "sk", "sv"}
     missing_total = 0
     complete = 0
     packs = sorted(ASSETS.glob("strings-*.json"))
@@ -56,6 +61,12 @@ def check(show_coverage=False):
                 raise ValueError(f"{p.name}: invalid message {key!r}")
             if re.search(r"<(?:[A-Za-z/!?])", value):
                 raise ValueError(f"{p.name}: UI labels must be plain text: {key}")
+            if key.startswith("europe-rules.scopes."):
+                # Dates, sizes, area numbers and legal references carry the scope of a rule.
+                if rule_numbers(value) != rule_numbers(english[key]):
+                    raise ValueError(f"{p.name}: fishery rule numbers differ for {key}")
+            if key == "europe-rules.scopes.delocal" and "D/E/R/W" not in value:
+                raise ValueError(f"{p.name}: keep the official D/E/R/W basin codes for {key}")
             if sorted(PLACEHOLDER.findall(value)) != sorted(PLACEHOLDER.findall(english[key])):
                 raise ValueError(f"{p.name}: placeholders differ for {key}")
 

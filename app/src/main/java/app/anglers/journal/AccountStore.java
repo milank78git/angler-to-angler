@@ -75,7 +75,7 @@ final class AccountStore {
     SharedPreferences p = prefs(c);
     if (!value.id.equals(p.getString("subject", ""))) {
       LicenseReminder.clear(c);
-    PhotoExpiryReminder.clear(c);
+      PhotoExpiryReminder.clear(c);
       SeasonReminder.clearSubscriptions(c);
       FieldAlerts.clear(c);
       DeviceVault.clear(c);

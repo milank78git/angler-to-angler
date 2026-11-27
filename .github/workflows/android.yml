@@ -32,7 +32,7 @@ jobs:
           # Commit the fixture only inside this disposable database for multi-session purchase tests.
           sudo -u postgres createdb angler_fixture
           sed 's/^rollback;$/commit;/' "$fixture/tests/profile-db.sql" > "$fixture/tests/committed.sql"
-          install -m644 tests/market-race.py "$fixture/tests/"
+          install -m644 tests/{market,photo-retention}-race.py "$fixture/tests/"
           sudo -u postgres env PGTZ=UTC psql -X -v ON_ERROR_STOP=1 -d angler_fixture -f "$fixture/tests/committed.sql"
           python3 scripts/index-db-functions.py --signatures | LC_ALL=C sort > "$fixture/expected"
           sudo -u postgres psql -XAt -v ON_ERROR_STOP=1 -d angler_fixture \
@@ -42,6 +42,7 @@ jobs:
             | LC_ALL=C sort > "$fixture/installed"
           diff -u "$fixture/expected" "$fixture/installed"
           sudo -u postgres env PGDATABASE=angler_fixture python3 "$fixture/tests/market-race.py"
+          sudo -u postgres env PGDATABASE=angler_fixture python3 "$fixture/tests/photo-retention-race.py"
   android-package:
     if: github.event_name != 'workflow_dispatch' || (github.ref == 'refs/heads/main' && inputs.tag == '')
     runs-on: ubuntu-24.04

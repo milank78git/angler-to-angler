@@ -1,3 +1,4 @@
+import { showsCloudPhotoPolicy } from './photo-retention.js';
 import { replaceMarkup } from './markup.js';
 import { languageTag } from './i18n.js';
 import { fishDirectory } from './fish-catalogue.js';
@@ -179,6 +180,7 @@ function catchFields(original) {
     <div class="photo-field"><input type="file" id="camera-photo" accept="image/*" capture="environment">
       <label for="camera-photo">${icon('camera')}${t('catch_form.photograph_catch_at_the_water')}</label>
     <small>${t('catch_form.photograph_the_whole_fish_with_a_ruler')}</small>
+    ${showsCloudPhotoPolicy() ? '<small>' + t('retention.policy') + '</small>' : ''}
     <input type="file" id="photo" accept="image/*"><label for="photo">${icon('camera')}<span id="photo-label">
       ${t('catch_form.add_photo')}</span></label><small id="capture-state" role="status"></small><img id="photo-preview"
       class="preview" hidden alt=""></div></section>

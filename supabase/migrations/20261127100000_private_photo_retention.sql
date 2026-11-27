@@ -203,17 +203,22 @@ revoke all on function angler_sync.document_json(uuid,text[]),angler_sync.canoni
 -- Link staged originals to exactly one committed trip revision. Rollback undoes
 -- all attachment changes if the parent manifest loses a compare-and-swap race.
 create function angler_sync.attach_photos(actor uuid,args jsonb) returns void language plpgsql set search_path='' as $$
-declare k text:=args->>'key'; refs jsonb:='[]'::jsonb; ref jsonb; manifest jsonb; expected jsonb;
+declare k text:=args->>'key'; refs jsonb:='[]'::jsonb; ref jsonb; manifest jsonb; catches jsonb;
 begin
   if jsonb_array_length(args->'parts')>0 then
     manifest:=angler_sync.document_json(actor,array(select jsonb_array_elements_text(args->'parts')));
     if manifest->>'version' is distinct from '2' or manifest->'value'->'trip'->>'id' is distinct from substr(k,6) or jsonb_typeof(manifest->'value'->'catches') is distinct from 'array' then raise exception 'Invalid detached document' using errcode='PT422'; end if;
-    select coalesce(jsonb_agg(jsonb_build_object('id',x->'record'->>'id','hash',x->>'photoHash') order by i),'[]') into expected from jsonb_array_elements(manifest->'value'->'catches') with ordinality a(x,i) where x->>'photoHash' is not null;
-    refs:=expected;
+    catches:=manifest->'value'->'catches';
+    if (select count(distinct x#>>'{record,id}') from jsonb_array_elements(catches) x)<>jsonb_array_length(catches)
+      or exists(select from jsonb_array_elements(catches) x where
+        jsonb_typeof(x#>'{record,id}') is distinct from 'string' or length(x#>>'{record,id}') not between 1 and 200
+        or x#>>'{record,tripId}' is distinct from substr(k,6)
+        or x#>'{record,hasPhoto}' is distinct from to_jsonb(x->>'photoHash' is not null)
+        or (x->>'photoHash') !~ '^[0-9a-f]{64}$') then raise exception 'Invalid catch manifest' using errcode='PT422'; end if;
+    select coalesce(jsonb_agg(jsonb_build_object('id',x#>>'{record,id}','hash',x->>'photoHash') order by i),'[]')
+      into refs from jsonb_array_elements(catches) with ordinality a(x,i) where x->>'photoHash' is not null;
   end if;
-  if jsonb_typeof(refs) is distinct from 'array' or jsonb_array_length(refs)>4096
-     or (select count(distinct x->>'id') from jsonb_array_elements(refs) x)<>jsonb_array_length(refs)
-     or (jsonb_array_length(args->'parts')=0 and refs<>'[]') then raise exception 'Invalid photo manifest' using errcode='PT422'; end if;
+  if jsonb_array_length(refs)>4096 then raise exception 'Invalid photo manifest' using errcode='PT422'; end if;
   for ref in select * from jsonb_array_elements(refs) loop
     perform 1 from angler_sync.photos where owner=actor and trip=k and catch_id=ref->>'id' and digest=ref->>'hash';
     if not found then raise exception 'Photo not ready' using errcode='PT409'; end if;

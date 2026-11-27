@@ -1,6 +1,6 @@
 {
  "account.account_sign_in": "Хәбәрҙең билдәләүе",
- "account.angler_profile": "Ангелр профиль",
+ "account.angler_profile": "Балыҡсы профиле",
  "account.back_to_sign_in": "Яңы донъяға ҡайтырға",
  "account.check_the_address": "Адресты тикшереү.",
  "account.check_your_email": "Эл. поштаңды текшерегеҙ",
@@ -54,7 +54,7 @@
  "account.unlock_journal": "журналҙы блоксылаштырығыҙ",
  "account.unlock_with_device": "Ғүзмә менән блокһөҙләү",
  "account.use_at_least_8_characters": "Ҡайһы берәүҙәр, камил булмаған 8 тарафты ҡулланығыҙ.",
- "app.name": "Ангелрға ҡарап сығыу",
+ "app.name": "Балыҡсынан балыҡсыға",
  "app.waters": "һыуҙар",
  "atlas.title": "һыу аталасы",
  "catch-form.fishing.technique": "Балыҡ аҙымдары",

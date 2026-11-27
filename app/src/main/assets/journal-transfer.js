@@ -135,9 +135,10 @@ export async function restoreDocument(db, storage, subject, key, value, call = u
       value &&
       (value.trip?.id !== id ||
         !Array.isArray(value.catches) ||
+        new Set(value.catches.map((c) => c?.record?.id)).size !== value.catches.length ||
         value.catches.some(
           (c) =>
-            !c.record?.id ||
+            !c?.record?.id ||
             c.record.tripId !== id ||
             !!c.record.hasPhoto !== !!(value.detached ? c.photoHash : c.photo) ||
             (value.detached && c.photoHash && !/^[a-f0-9]{64}$/.test(c.photoHash)),

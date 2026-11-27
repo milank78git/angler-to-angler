@@ -1,6 +1,6 @@
 {
  "account.account_sign_in": "Gwitha an akont",
- "account.angler_profile": "Profil an angler",
+ "account.angler_profile": "Profil an pyskador",
  "account.back_to_sign_in": "War-dhes dhe'n junya",
  "account.check_the_address": "Gwerethya an trigva.",
  "account.check_your_email": "Gwrewgh agas ebost",
@@ -54,7 +54,7 @@
  "account.unlock_journal": "Digelmi an degea",
  "account.unlock_with_device": "Dyllowgh gans devis",
  "account.use_at_least_8_characters": "Usyewgh a-bytteg 8 caradow.",
- "app.name": "Angler rag angel",
+ "app.name": "Dhyworth pyskador dhe byskador",
  "app.waters": "Wanow",
  "atlas.title": "Atlas y'n wano",
  "catch-form.fishing.technique": "Teknolose prask",

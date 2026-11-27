@@ -75,8 +75,10 @@ for route in ("terms", "privacy", "delete-account"):
             paragraphs = [part for name in names for part in
                           (assets / f"{name}-{locale}.txt").read_text().strip().split("\n\n")]
             title = paragraphs.pop(0)
-            if route == "privacy" and notices.get(locale):
-                paragraphs.append(notices[locale])
+            if route == "privacy":
+                paragraphs.append(messages["retention.policy"])
+                if notices.get(locale):
+                    paragraphs.append(notices[locale])
         else:
             title = messages["store.delete-account"]
             paragraphs = [messages["store.deletion_steps"], messages["store.deletion_scope"]]
