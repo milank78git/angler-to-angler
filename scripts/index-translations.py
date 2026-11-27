@@ -40,8 +40,11 @@ def rule_numbers(text):
 def check(show_coverage=False):
     english = read(ASSETS / "strings-en.json")
     czech = read(ASSETS / "strings-cs.json")
-    fully_translated = {"ast", "ca", "cs", "da", "de", "en", "es", "et", "fr", "gl",
-                        "it", "nl", "nn", "no", "oc", "pl", "pt", "ro", "sk", "sv"}
+    fully_translated = {
+        "an", "ast", "bg", "ca", "cs", "da", "de", "en", "es", "et", "fr", "gl",
+        "hr", "it", "nl", "nn", "no", "oc", "pl", "pt", "ro", "ru", "sk", "sl",
+        "sv", "uk",
+    }
     missing_total = 0
     complete = 0
     packs = sorted(ASSETS.glob("strings-*.json"))

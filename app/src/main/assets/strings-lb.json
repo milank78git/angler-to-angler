@@ -237,7 +237,7 @@
  "groups.group_tips": "Gruppéiert",
  "groups.group_tips_label": "D'Gruppe gëtt ",
  "groups.invitation_code": "Invitatioun",
- "groups.invite_one_angler": "Eng Engel fir eng Engel.",
+ "groups.invite_one_angler": "E Fëscher alueden",
  "groups.issue_invitation": "D'Invitatioun",
  "groups.join_with_a_code": "Et gëtt et Code",
  "groups.leave_group": "Gruppéiert",
@@ -381,7 +381,7 @@
  "message_emoji.react": "Reaktioun",
  "message_emoji.remove_my_reaction": "Mir reagéieren op",
  "message_emoji.use_emoji": "Et gëtt Emoji",
- "messages.block_angler": "Bléck eng",
+ "messages.block_angler": "Fëscher blockéieren",
  "messages.conversation": "Gespräch",
  "messages.enter_a_message": "Et gëtt et Nachweis.",
  "messages.insert_emoji": "Et gëtt Emoji",
@@ -401,7 +401,7 @@
  "messages.sign_in_again_to_use_messages": "Et gëtt et fir déi Message ze benotzen.",
  "messages.the_contents_of_the_retried_request_have": "De Inhalt vun der Entlassung gëtt geändert.",
  "messages.the_question_or_conversation_is_no_longer": "De Vëlo oder de Gespräch ass no verfügbar.",
- "messages.unblock_angler": "Engel ass",
+ "messages.unblock_angler": "Spär fir de Fëscher ophiewen",
  "messages.write_a_message": "Duerfir gëtt klenggeschriwwen:",
  "messages.you_have_blocked_this_account": "Dir huet dat Konto blockéiert.",
  "messages.your_message": "De Message",
@@ -414,7 +414,7 @@
  "profile_api.you_do_not_have_access_to_this": "Dir hunn eng Zugang zu dësem Aktioun.",
  "profiles.about_me": "Mir sinn",
  "profiles.account_and_group_settings": "Konto a Grupp Setup",
- "profiles.angler_directory": "Engel vum Direktorat",
+ "profiles.angler_directory": "Lëscht vun de Fëscher",
  "profiles.cannot_read_this_image_choose_another_file": "Et kann dës Bild net ze liesen. Wäert e aner Datei ënner 30 MB.",
  "profiles.choose_a_portrait_50": "Et gëtt keng Portrait ( 50 )",
  "profiles.edit_profile": "Profiles ass",
@@ -671,5 +671,6 @@
  "atlas.zoom_out": "Verklengeren",
  "dated_rules.choose_species": "Fëschzort auswielen",
  "license.off": "Aus",
- "alerts.messages": "Nei privat Noriicht"
+ "alerts.messages": "Nei privat Noriicht",
+ "account.offline_expired": "Déi siwen Deeg Zougang ouni Internet sinn eriwwer. Verbind den Telefon mam Internet a spär den Tagebuch op fir weiderzefueren. Déi gespäichert Andréi sinn nach op dësem Telefon."
 }

@@ -75,11 +75,12 @@ final class AccountStore {
     SharedPreferences p = prefs(c);
     if (!value.id.equals(p.getString("subject", ""))) {
       LicenseReminder.clear(c);
-      PhotoExpiryReminder.clear(c);
       SeasonReminder.clearSubscriptions(c);
       FieldAlerts.clear(c);
       DeviceVault.clear(c);
     }
+    if (!value.id.equals(p.getString("subject", "")) ||
+        !("adult".equals(ageBand) || "teen".equals(ageBand))) PhotoExpiryReminder.clear(c);
     SharedPreferences.Editor edit =
         p.edit()
             .putString("subject", value.id)

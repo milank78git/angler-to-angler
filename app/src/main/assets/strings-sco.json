@@ -660,5 +660,20 @@
  "emoji.laughter": "Lauchter",
  "waters.water_body": "Body o watter",
  "catalog.label": "Czechie",
- "catalog.species.pike": "Ged"
+ "catalog.species.pike": "Ged",
+ "account.offline_expired": "Yer seiven days o access affline are ower. Connect tae the internet an unlock the journal tae gang on. Yer saved entries are still on this phone.",
+ "atlas.list": "Leet",
+ "water_reports.no_reports": "Nae reports",
+ "alerts.catches": "New catch in the group",
+ "alerts.tips": "New tip in the group",
+ "water_reports.loading": "Loadin reports…",
+ "parking.more_notes": "Shaw mair notes",
+ "waters.show_more_waters": "Shaw mair watters",
+ "parking.missing": "Nae caur parks here yet.",
+ "waters.all_countries": "Aw kintras",
+ "groups.edit_tip": "Edit the tip",
+ "groups.remove_tip": "Tak the tip awa",
+ "trips.edit": "Edit the fishin trip",
+ "trips.edit_catch": "Edit the catch",
+ "trips.remove_catch": "Delete this catch an its photie"
 }
