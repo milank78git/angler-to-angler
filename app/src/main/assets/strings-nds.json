@@ -701,5 +701,11 @@
  "settings.system_notifications": "Android-Instellen för Bescheden",
  "water_photo.personal": "Mien privaat Foto",
  "water_reports.withdraw_report": "Mellen torüchtrecken",
- "emoji.thanks": "Dank di"
+ "emoji.thanks": "Dank di",
+ "groups.link_lifetime": "Elkeen mit dissen Link kann binnen 24 Stünnen bidreden. Giff em bloots an de Lüüd wieder, de du inladen wullt.",
+ "sync.erase": "Online-Kopie löschen",
+ "sync.erase_info": "De Sekerheitskopie in dien Konto löschen un dat automaatsche Afglieken op de verbunnen Telefonen anhollen? Dien Indrääg op dit Telefon blievt hier.",
+ "sync.erased": "De Online-Kopie is löscht. Dien Daagbook blifft op dit Telefon.",
+ "account.offline_expired": "De söven Daag för den Togang ahn Internet sünd vörbi. Verbinnen di mit dat Internet un sluut dat Daagbook op, dat du wiedermaken kannst. Dien sekerte Indrääg sünd op dit Telefon.",
+ "fish_catalogue.no_retention": "De fungen Fisch mutt wedder torüch in’t Water"
 }

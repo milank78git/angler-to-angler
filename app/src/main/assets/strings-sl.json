@@ -943,7 +943,7 @@
  "field-hints.water-parking": "Prikaži vode s katalogom ali skupno parkirno mesto na seznamu ali zemljevidu. Odprite vodo, da izberete parkirišče in začnete navigacijo.",
  "field-hints.water-search": "Iskanje offline atlasa po imenu ali številki. Tapnite predlog ali uporabite besedilo kot zasebno ime vode za to potovanje. Če počistite iskanje, se obnovi vaša zadnja izbira.",
  "fish_catalogue.fishing_licence_required": "Potrebna je ribiška dovolilnica",
- "fish_catalogue.no_retention": "Brez zadržanja",
+ "fish_catalogue.no_retention": "Ujeto ribo je treba izpustiti nazaj v vodo",
  "fish_catalogue.outside_the_period_of_validity_check_the": "Izven obdobja veljavnosti. Preverite veljavno uredbo.",
  "fish_catalogue.rules_for_all_species_on_the_listed": "Pravila za vse vrste v vodah s seznama",
  "fish_rules.check_size": "Omejitev velikosti za preverjanje",

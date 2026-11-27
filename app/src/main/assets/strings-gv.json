@@ -663,5 +663,22 @@
  "atlas.list": "Rolley",
  "waters.all_countries": "Oilley ny çheeraghyn",
  "water_reports.low_water": "Ushtey injil",
- "waters.angler_contributions": "Screeuyn voish eeasteyryn"
+ "waters.angler_contributions": "Screeuyn voish eeasteyryn",
+ "alerts.replies": "Freggyrt noa da dty feysht",
+ "alerts.weekly": "Eeast noa er ny ghlackey ayns cohirrey ny shiaghtin",
+ "alerts.tips": "Coyrle noa ’sy phossan",
+ "alerts.catches": "Eeast noa er ny ghlackey ’sy phossan",
+ "alerts.sales": "Ren fer ennagh dty choyrle y chionnaghey",
+ "alerts.ratings": "Ta dty choyrle er ny hoie er",
+ "alerts.messages": "Çhaghteraght phreivaadjagh noa",
+ "messages.unread": "Gyn lhaih",
+ "parking.remove": "Scughey yn ynnyd parcail",
+ "trips.edit_catch": "Caghlaa y recortys jeh’n eeast",
+ "groups.edit_tip": "Caghlaa yn choyrle",
+ "groups.remove_tip": "Scughey yn choyrle",
+ "trips.edit": "Caghlaa yn jurnaa eeastagh",
+ "parking.remove_info": "Scughey yn ynnyd parcail er ny rheynn as ny briwnyssyn echey?",
+ "trips.remove_catch": "Doll magh yn recortys shoh jeh’n eeast as y jalloo echey",
+ "alerts.community": "Çhaghteraghtyn preivaadjagh, freggyrtyn, naight y phossan as y vargey",
+ "fish_catalogue.no_retention": "Shegin dhyt yn eeast t’ow er ghleckey y lhiggey er ash ayns yn ushtey"
 }

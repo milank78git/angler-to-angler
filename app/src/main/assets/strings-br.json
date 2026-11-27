@@ -695,5 +695,10 @@
  "water_photo.personal": "Ma luc’hskeudenn brevez",
  "water_photo.remove": "Dilemel ma luc’hskeudenn",
  "water_reports.withdraw_report": "Tennañ an danevell",
- "emoji.thanks": "Trugarez"
+ "emoji.thanks": "Trugarez",
+ "groups.link_lifetime": "Forzh piv gant al liamm-mañ a c’hall mont er strollad e-pad 24 eurvezh. Rannit anezhañ gant ar re a fell deoc’h pediñ hepken.",
+ "sync.erase": "Dilemel ar skouerenn enlinenn",
+ "sync.erase_info": "Dilemel skouerenn saveteet ar gont ha paouez gant ar c’henamzeriañ emgefreek war ar pellgomzerioù kevreet? Ar c’henrolloù enrollet war ho pellgomzer a chomo amañ.",
+ "sync.erased": "Dilemet eo ar skouerenn enlinenn. War ar pellgomzer-mañ emañ ho levr-deiz.",
+ "fish_catalogue.no_retention": "Ret eo leuskel ar pesk en dour en-dro"
 }

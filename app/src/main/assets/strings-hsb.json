@@ -690,5 +690,16 @@
  "water_photo.personal": "Moje priwatne foto",
  "water_photo.remove": "Moje foto zhašeć",
  "water_reports.withdraw_report": "Zdźělenku cofnyć",
- "emoji.thanks": "Dźakuju so"
+ "emoji.thanks": "Dźakuju so",
+ "alerts.replies": "Nowa wotmołwa na waše prašenje",
+ "alerts.weekly": "Nowa popadnjena ryba w tydźenskim wubědźowanju",
+ "alerts.tips": "Nowa rada w skupinje",
+ "alerts.catches": "Nowa popadnjena ryba w skupinje",
+ "alerts.sales": "Něchtó je wašu radu kupił",
+ "alerts.ratings": "Waša rada je hódnoćenje dóstała",
+ "groups.link_lifetime": "Kóždy, kotryž tutón wotkaz ma, móže so w běhu 24 hodźin skupinje přidružić. Dźělće jón jenož z tymi, kotrychž chceće přeprosyć.",
+ "sync.erase": "Kopiju w interneće zhašeć",
+ "sync.erase_info": "Zawěsćensku kopiju konta zhašeć a awtomatiske synchronizowanje na zwjazanych telefonach zastajić? Zapiski na tutym telefonje wostanu.",
+ "sync.erased": "Kopija w interneće je zhašena. Waš dźenik je na tutym telefonje.",
+ "fish_catalogue.no_retention": "Popadnjenu rybu dyrbiće do wody pušćić"
 }

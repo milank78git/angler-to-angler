@@ -935,7 +935,7 @@
  "field-hints.water-parking": "Näita kataloogi või jagatud parkimiskohaga veekogusid nimekirjas või kaardil. Avage vesi, et valida parkla ja alustada navigeerimist.",
  "field-hints.water-search": "Otsi offline atlas nime või numbri järgi. Puudutage soovitust või kasutage teksti selle reisi jaoks privaatse vee nimena. Otsingu tühjendamine taastab teie viimase valiku.",
  "fish_catalogue.fishing_licence_required": "Kalastusluba nõutav",
- "fish_catalogue.no_retention": "Säilitamine puudub",
+ "fish_catalogue.no_retention": "Püütud kala tuleb tagasi lasta",
  "fish_catalogue.outside_the_period_of_validity_check_the": "Väljaspool kehtivusaega. Kontrollige kehtivat määrust.",
  "fish_catalogue.rules_for_all_species_on_the_listed": "Eeskirjad kõigi liikide kohta loetletud vetes",
  "fish_rules.check_size": "Suuruse piirang kontrollimiseks",

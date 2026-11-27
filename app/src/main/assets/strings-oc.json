@@ -921,7 +921,7 @@
  "field-hints.water-parking": "Afichatz las aigas amb un catalòg o un ponch d'estacionament partejat dins la lista o sus la carta. Obrissètz una aiga per causir un parcatge e començar la navigacion.",
  "field-hints.water-search": "Recercatz dins l'atlàs fòra linha per nom o numèro. Premètz una suggestion o utilizatz lo tèxt coma nom d'aiga privat per aquel viatge.",
  "fish_catalogue.fishing_licence_required": "Permís de pesca requerit",
- "fish_catalogue.no_retention": "Pas de retencion",
+ "fish_catalogue.no_retention": "Cal tornar metre a l’aiga lo peis capturat",
  "fish_catalogue.outside_the_period_of_validity_check_the": "Fòra periòde de validitat. Verificatz la reglamentacion en vigor.",
  "fish_catalogue.rules_for_all_species_on_the_listed": "Règlas per totas las espècias dins las aigas inscrichas",
  "fish_rules.check_size": "Talha limita a verificar",

@@ -934,7 +934,7 @@
  "field-hints.water-parking": "Visa vatten med en katalog eller delad parkeringsplats i listan eller kartan. Öppna ett vatten för att välja en parkeringsplats och starta navigeringen.",
  "field-hints.water-search": "Sök i offline-atlasen efter namn eller nummer. Tryck på ett förslag eller använd texten som ett privat vattennamn för resan. Om du rensar sökningen återställs ditt senaste val.",
  "fish_catalogue.fishing_licence_required": "Fiskekort krävs",
- "fish_catalogue.no_retention": "Ingen kvarhållning",
+ "fish_catalogue.no_retention": "Den fångade fisken måste släppas tillbaka",
  "fish_catalogue.outside_the_period_of_validity_check_the": "Utanför giltighetstiden. Kontrollera gällande regelverk.",
  "fish_catalogue.rules_for_all_species_on_the_listed": "Regler för alla arter i de förtecknade vattnen",
  "fish_rules.check_size": "Storleksgräns att verifiera",

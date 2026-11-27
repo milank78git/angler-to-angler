@@ -665,5 +665,21 @@
  "settings.title": "Settyansow",
  "waters.all_countries": "Oll an powyow",
  "alerts.messages": "Messach privedh nowydh",
- "waters.angler_contributions": "Kevrohow an byskadoryon"
+ "waters.angler_contributions": "Kevrohow an byskadoryon",
+ "alerts.replies": "Gorthyp nowydh dhe dha wovynn",
+ "alerts.weekly": "Pysk nowydh yn kesstriv an seythen",
+ "alerts.tips": "Kussul nowydh y’n bagas",
+ "alerts.catches": "Pysk nowydh y’n bagas",
+ "alerts.sales": "Neb a brenas dha gussul",
+ "alerts.ratings": "Dha gussul re beu arvreusys",
+ "messages.unread": "Anredys",
+ "parking.remove": "Dilea an tyller parkya",
+ "trips.edit_catch": "Chanjya kovadh an pysk kemerys",
+ "groups.edit_tip": "Chanjya an kussul",
+ "groups.remove_tip": "Dilea an kussul",
+ "trips.edit": "Chanjya an vyaj byskessa",
+ "parking.remove_info": "Dilea an tyller parkya kevrennys ha’y arvreusyow?",
+ "trips.remove_catch": "Dilea kovadh an pysk ma ha’y skeusen",
+ "alerts.community": "Messajys privedh, gorthebow ha nowodhow an bagas ha’n varghas",
+ "fish_catalogue.no_retention": "Res yw delivra an pysk kemerys yn-dann dhe’n dowr arta"
 }

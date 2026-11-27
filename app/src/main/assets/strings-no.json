@@ -929,7 +929,7 @@
  "field-hints.water-parking": "Vis vann med en katalog eller delt parkeringsplass i listen eller kartet. Åpne et vann for å velge en parkeringsplass og starte navigasjonen.",
  "field-hints.water-search": "Søk offline atlas etter navn eller nummer. Trykk på et forslag, eller bruk teksten som et privat vannnavn for denne turen. Hvis du sletter søket, gjenopprettes det siste valget.",
  "fish_catalogue.fishing_licence_required": "Fiskekort kreves",
- "fish_catalogue.no_retention": "Ingen oppbevaring",
+ "fish_catalogue.no_retention": "Fanget fisk skal settes ut igjen",
  "fish_catalogue.outside_the_period_of_validity_check_the": "Utenfor gyldighetsperioden. Sjekk gjeldende regelverk.",
  "fish_catalogue.rules_for_all_species_on_the_listed": "Regler for alle arter i de oppførte farvannene",
  "fish_rules.check_size": "Størrelsesgrense som skal verifiseres",
