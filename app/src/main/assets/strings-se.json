@@ -692,5 +692,7 @@
  "age.older_catches": "Boarráset sálasat",
  "account.pages_open": "Raba appa",
  "age.birth_date": "Riegádandáhton (YYYY-MM-DD)",
- "alerts.nearby": "Čázádagat 10 km siste"
+ "alerts.nearby": "Čázádagat 10 km siste",
+ "water_reports.send_report": "Sádde raportta",
+ "water_reports.unconfirmed": "Nannekeahtes"
 }

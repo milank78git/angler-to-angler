@@ -708,5 +708,7 @@
  "age.older_catches": "Daa evel tutulğan balıqlar",
  "account.pages_open": "Uyğulamanı aç",
  "age.birth_date": "Doğğan tarih (YYYY-MM-DD)",
- "alerts.nearby": "10 km içinde suvlar"
+ "alerts.nearby": "10 km içinde suvlar",
+ "age.family_settings": "Ana-baba izinleri",
+ "water_reports.fish_deaths": "Balıqlarnıñ ölümü"
 }

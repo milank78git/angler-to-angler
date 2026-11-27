@@ -96,6 +96,15 @@ test('a legacy trip and a pruned history do not stop other records; restoration 
   assert.equal(writes.filter(w => w.key === 'trip/deleted').length, 1);
   assert.equal(localStorage.getItem(prefix + 'deviceOnly.trip/deleted'), null);
 
+  // An unchanged phone copy still follows a confirmed deletion from the account.
+  const unchanged = page.find(row => row.key === 'trip/new');
+  unchanged.parts = [];
+  unchanged.revision++;
+  panel.querySelector('[data-action="sync.retry"]').click();
+  await until(() => panel.dataset.state === 'done');
+  assert.equal(await Journal.trip('new'), undefined);
+  assert.equal(writes.filter(w => w.key === 'trip/new').length, 1);
+
   // Both surviving versions have changed since the checkpoint: both choices belong here.
   const cloud = page.find(row => row.key === 'trip/deleted');
   cloud.parts = [hash(Buffer.from('divergent account contents'))];

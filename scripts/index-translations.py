@@ -58,13 +58,13 @@ def prior_dictionary(ref, path):
     return json.loads(subprocess.check_output(["git", "show", spec], cwd=ROOT))
 
 
-def check(show_coverage=False, audit=False, against=None):
+def check(show_coverage=False, against=None):
     english = read(ASSETS / "strings-en.json")
     czech = read(ASSETS / "strings-cs.json")
     fully_translated = {
         "an", "ast", "az", "be", "bg", "bs", "ca", "cs", "cy", "da", "de", "el",
         "en", "es", "et", "eu", "fi", "fr", "fy", "ga", "gl", "hr", "hu", "hy",
-        "is", "it", "lt", "lv", "mk", "mt", "nl", "nn", "no", "oc", "pl", "pt",
+        "is", "it", "lb", "lt", "lv", "mk", "mt", "nl", "nn", "no", "oc", "pl", "pt",
         "ro", "ru", "sco", "sk", "sl", "sq", "sr", "sv", "tr", "uk",
     }
     missing_total = 0
@@ -74,7 +74,6 @@ def check(show_coverage=False, audit=False, against=None):
         raise ValueError("Update ui-locales.json to match the packaged dictionaries")
     if against:
         subprocess.run(["git", "rev-parse", "--verify", f"{against}^{{commit}}"], cwd=ROOT, check=True, stdout=subprocess.DEVNULL)
-    repeated_count = 0
     for p in packs:
         entries = read(p)
         locale = p.stem[8:]
@@ -100,11 +99,7 @@ def check(show_coverage=False, audit=False, against=None):
                 raise ValueError(f"{p.name}: missing separator for concatenated text in {key}")
             phrase = repeated_phrase(value)
             if phrase:
-                repeated_count += 1
-                if locale in fully_translated or (against and previous.get(key) != value):
-                    raise ValueError(f"{p.name}: repeated phrase {phrase!r} in {key}")
-                if audit:
-                    print(f"{locale} {key}: repeated phrase {phrase!r}")
+                raise ValueError(f"{p.name}: repeated phrase {phrase!r} in {key}")
             if "angler" in source.lower() and re.search(
                 r"\b(?:signed[- ]in angels?|the angel who asked|englishers|englishmen)\b", value, re.I
             ):
@@ -196,15 +191,13 @@ def check(show_coverage=False, audit=False, against=None):
         for match in re.finditer(lookup + r"\s*" + LITERAL + r"\s*\)", source):
             reference(ast.literal_eval(match[1]), name)
     print(f"Validated {len(english)} message IDs. {complete}/{len(packs)} dictionaries have every key. "
-          f"{missing_total} localized messages are missing in total. "
-          f"{repeated_count} entries contain repeated phrases.")
+          f"{missing_total} localized messages are missing in total.")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true", help="Validate without modifying any resources (default)")
     parser.add_argument("--coverage", action="store_true", help="Also list coverage for every packaged locale")
-    parser.add_argument("--audit", action="store_true", help="List remaining repeated phrases by locale and key")
-    parser.add_argument("--against", metavar="REF", help="Reject new repeated phrases and removed translations against a Git commit")
+    parser.add_argument("--against", metavar="REF", help="Reject loss of existing translations against a Git commit")
     args = parser.parse_args()
-    check(args.coverage, args.audit, args.against)
+    check(args.coverage, args.against)

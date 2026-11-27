@@ -739,5 +739,8 @@
  "waters.pond": "Tjørn",
  "age.older_catches": "Eldri veiða",
  "age.birth_date": "Føðingardagur (YYYY-MM-DD)",
- "alerts.nearby": "Fiskivøtn innan 10 km"
+ "alerts.nearby": "Fiskivøtn innan 10 km",
+ "sync.cloud": "Varðveit útgávuna á kontuni",
+ "sync.local": "Varðveit útgávuna á hesi eindini",
+ "sync.enable": "Virkja privata samstilling"
 }

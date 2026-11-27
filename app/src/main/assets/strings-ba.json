@@ -730,5 +730,7 @@
  "waters.pond": "Быуа",
  "age.older_catches": "Элекке тотолған балыҡтар",
  "age.birth_date": "Тыуған көн (YYYY-MM-DD)",
- "alerts.nearby": "10 км эсендәге һыу ятҡылыҡтары"
+ "alerts.nearby": "10 км эсендәге һыу ятҡылыҡтары",
+ "rating.save": "Баһаны һаҡлау",
+ "monthly.join": "Был айҙа ҡатнашыу"
 }
