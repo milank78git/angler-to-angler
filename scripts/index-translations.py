@@ -69,6 +69,16 @@ def check(show_coverage=False):
             if (source[0].isspace() and not value[0].isspace()
                     or source[-1].isspace() and not value[-1].isspace()):
                 raise ValueError(f"{p.name}: missing separator for concatenated text in {key}")
+            if p.stem == "strings-fr" and re.search(r"\bla (?:place de la )?bite\b", value, re.I):
+                raise ValueError(f"{p.name}: incorrect fishing terminology for {key}")
+            if "angler" in source.lower():
+                wrong_fishing_terms = {
+                    "ru": r"\bангел", "it": r"\bangel[io]\b", "el": r"\b[αά]γγ[εέ]λ",
+                    "da": r"\b(?:engel|engle|engelskere)", "no": r"\b(?:engel|engle|engelskmenn)",
+                }
+                pattern = wrong_fishing_terms.get(p.stem[8:])
+                if pattern and re.search(pattern, value, re.I):
+                    raise ValueError(f"{p.name}: incorrect translation of angler for {key}")
             if re.search(r"\b(?:brazzers|pornhub)\b", value, flags=re.IGNORECASE):
                 raise ValueError(f"{p.name}: unrelated adult-site text in the translation for {key}")
             if re.search(r"\u2047|\bQShortcut\b|^@\s*(?:info|title|action|item)\b|[A-Za-z]+\.\s*kgm\b", value):

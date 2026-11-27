@@ -946,7 +946,6 @@
  "groups.dissolve.description": "En dissoldre «{name}» s'eliminaran els consells del grup, les fotos del concurs, els vots i la invitació.",
  "groups.edit_tip": "Editar la punta",
  "groups.leave.description": "Deixaràs de pertànyer a «{name}». S'eliminaran els teus consells, les teves fotos del concurs i els teus vots.",
- "groups.link_lifetime": "Qualsevol persona amb aquest enllaç pot entrar al grup durant 24 hores. Comparteix-lo només amb les persones que hi vulguis convidar.",
  "groups.remove_tip": "Llevar la punta",
  "groups.the_service_stores_the_group_name_membership": "El servei emmagatzema el nom del grup, la filiació i els consells que li publiques. Deixar elimina els teus consells, fotos de competència i vots.",
  "guide.read_related_chapter": "Llegeixi el capítol relacionat",
@@ -1020,7 +1019,7 @@
  "parking.podolsko": "Podolsko · aparcament al costat del pont Podolský",
  "parking.publish": "Confirmar i afegir",
  "parking.remove": "Llevar punt d'estacionament",
- "parking.remove_info": "Eliminar el punt compartit i les seves revisions?",
+ "parking.remove_info": "Un lloc amb valoracions d’altres persones queda al mapa amb les valoracions. Vols retirar la teva aportació?",
  "parking.review_saved": "Els seus comentaris han estat guardats.",
  "parking.save_edit": "Correcció de publicació",
  "parking.save_review": "Guarda els meus comentaris",
@@ -1174,9 +1173,11 @@
  "retention.until": "Al núvol fins al {date}",
  "retention.local": "Només en aquest dispositiu",
  "retention.expired": "Foto caducada al núvol",
- "retention.renew": "Renova per 12 mesos",
+ "retention.renew": "Renova per 12 mesos des d’avui",
  "retention.reupload": "Torna a desar al núvol",
  "retention.pending": "Renovació pendent de connexió",
  "retention.due": "Fotos que caduquen en 30 dies: {count}",
- "retention.policy": "Les fotos de captures es desen al núvol durant 12 mesos. Obre el detall de la foto o renova el termini. La foto del dispositiu es conserva."
+ "retention.policy": "Les fotos de captures es desen al núvol durant 12 mesos. Obre el detall de la foto o renova el termini. La foto del dispositiu es conserva.",
+ "groups.remove_member_confirm": "Vols treure el membre i les seves aportacions del grup?",
+ "trips.shared_copies": "Les còpies compartides es conserven. Elimina-les per separat."
 }

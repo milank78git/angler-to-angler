@@ -239,7 +239,7 @@ export async function tripScreen({ view, nav, pack, waterDirectory }) {
   bind('delete', async () => {
     const confirmed = await confirmAction({
       title: t('trips.delete_trip_label'),
-      message: t('trips.all_catches_photos_and_coordinates_for_this'),
+      message: t('trips.all_catches_photos_and_coordinates_for_this') + ' ' + t('trips.shared_copies'),
       accept: t('trips.delete_trip'),
       destructive: true,
     });
@@ -293,7 +293,7 @@ export async function tripScreen({ view, nav, pack, waterDirectory }) {
       if (
         (await confirmAction({
           title: remove.textContent,
-          message: name,
+          message: name + '\n' + t('trips.shared_copies'),
           accept: remove.textContent,
           destructive: true,
         })) &&

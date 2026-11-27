@@ -712,7 +712,7 @@ final class AccountChecks {
     app.captureAccount(gate, "groups");
     click("River crew" + tr("groups.owner"));
     click(tr("groups.issue_invitation"));
-    TextView invitation = find(tr("groups.link_lifetime"));
+    TextView invitation = find(tr("groups.the_code_lasts_24_hours_a_new"));
     app.captureWindow(invitation.getRootView(), "group-invitation");
     dialogButton(android.R.id.button2);
     click("River crew" + tr("groups.owner"));

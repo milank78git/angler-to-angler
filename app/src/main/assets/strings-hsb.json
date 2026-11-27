@@ -672,7 +672,7 @@
  "groups.edit_tip": "Pokiw wobdźěłać",
  "groups.remove_tip": "Pokiw wotstronić",
  "parking.remove": "Parkowanišćo wotstronić",
- "parking.remove_info": "Zhromadnje dźělene parkowanišćo a jeho pohódnoćenja wotstronić?",
+ "parking.remove_info": "Městno z pohódnoćenjemi druhich wostanje z nimi na karće. Twój přinošk wotstronić?",
  "alerts.community": "Priwatne powěsće, wotmołwy a aktiwita w skupinach a na torhošću",
  "trips.remove_catch": "Tutón popad a jeho foto zhašeć",
  "waters.angler_contributions": "Přinoški rybarjow",
@@ -697,9 +697,12 @@
  "alerts.catches": "Nowa popadnjena ryba w skupinje",
  "alerts.sales": "Něchtó je wašu radu kupił",
  "alerts.ratings": "Waša rada je hódnoćenje dóstała",
- "groups.link_lifetime": "Kóždy, kotryž tutón wotkaz ma, móže so w běhu 24 hodźin skupinje přidružić. Dźělće jón jenož z tymi, kotrychž chceće přeprosyć.",
  "sync.erase": "Kopiju w interneće zhašeć",
  "sync.erase_info": "Zawěsćensku kopiju konta zhašeć a awtomatiske synchronizowanje na zwjazanych telefonach zastajić? Zapiski na tutym telefonje wostanu.",
  "sync.erased": "Kopija w interneće je zhašena. Waš dźenik je na tutym telefonje.",
- "fish_catalogue.no_retention": "Popadnjenu rybu dyrbiće do wody pušćić"
+ "fish_catalogue.no_retention": "Popadnjenu rybu dyrbiće do wody pušćić",
+ "groups.remove_member_confirm": "Toho člona a jeho přinoški ze skupiny wotstronić?",
+ "trips.shared_copies": "Dźělene kopije wostanu. Wotstroń je wosebje.",
+ "retention.renew": "Na 12 měsacow wot dźensnišeho dnja podlěšić",
+ "retention.title": "Fota w mróčeli"
 }

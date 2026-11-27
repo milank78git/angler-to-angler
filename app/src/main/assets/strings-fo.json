@@ -696,9 +696,8 @@
  "sync.erase": "Strika avritið á netinum",
  "sync.erase_info": "Vilt tú strika trygdaravritið á kontuni og steðga sjálvvirknari samstilling á tilknýttum telefonum? Tað, ið er goymt á hesi telefonini, verður verandi her.",
  "sync.erased": "Avritið á netinum er strikað. Dagbókin er enn á hesi telefonini.",
- "groups.link_lifetime": "Øll við hesari leinkju kunnu koma upp í bólkin innan 24 tímar. Deil hana bara við tey, tú vilt bjóða.",
  "parking.remove": "Strika parkeringsstaðið",
- "parking.remove_info": "Strika felags parkeringsstaðið og ummælini um tað?",
+ "parking.remove_info": "Eitt stað við metingum frá øðrum verður verandi á kortinum saman við metingunum. Tak títt íkast burtur?",
  "alerts.community": "Privat boð, svar og virksemi í bólkum og á marknaðinum",
  "trips.remove_catch": "Strika henda fiskin og myndina av honum",
  "trips.edit": "Broyt túrin",
@@ -719,5 +718,9 @@
  "water_photo.remove": "Strika mína mynd",
  "water_reports.withdraw_report": "Tak fráboðanina aftur",
  "emoji.thanks": "Takk",
- "fish_catalogue.no_retention": "Veiddi fiskurin skal sleppast út aftur"
+ "fish_catalogue.no_retention": "Veiddi fiskurin skal sleppast út aftur",
+ "groups.remove_member_confirm": "Tak limin og íkøstini hjá viðkomandi úr bólkinum?",
+ "trips.shared_copies": "Deild avrit verða varðveitt. Tak tey burtur hvørt sær.",
+ "retention.renew": "Leing í 12 mánaðir frá í dag",
+ "retention.title": "Myndir í skýnum"
 }

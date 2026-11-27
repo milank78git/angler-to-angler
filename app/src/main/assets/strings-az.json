@@ -704,9 +704,8 @@
  "sync.erase": "Onlayn nüsxəni sil",
  "sync.erase_info": "Hesabın ehtiyat nüsxəsi silinsin və qoşulmuş telefonlarda avtomatik sinxronizasiya dayandırılsın? Bu telefonda saxlanmış qeydlər qalacaq.",
  "sync.erased": "Onlayn nüsxə silindi. Gündəlik bu telefonda qaldı.",
- "groups.link_lifetime": "Bu linki alan hər kəs 24 saat ərzində qrupa qoşula bilər. Linki yalnız dəvət etmək istədiyiniz şəxslərlə paylaşın.",
  "parking.remove": "Dayanacaq nöqtəsini sil",
- "parking.remove_info": "Paylaşılmış dayanacaq nöqtəsi və onun rəyləri silinsin?",
+ "parking.remove_info": "Başqalarının rəy yazdığı yer rəylərlə birlikdə xəritədə qalır. Töhfən silinsin?",
  "alerts.community": "Şəxsi mesajlar, cavablar, qrup və bazar fəaliyyəti",
  "trips.remove_catch": "Bu ovu və şəklini sil",
  "waters.angler_contributions": "Balıqçıların paylaşımları",
@@ -1174,9 +1173,11 @@
  "retention.until": "Bulud nüsxəsinin son saxlanma tarixi: {date}",
  "retention.local": "Yalnız bu cihazda",
  "retention.expired": "Fotonun buludda saxlanma müddəti bitib",
- "retention.renew": "Müddəti 12 ay uzat",
+ "retention.renew": "Bu gündən etibarən 12 ay uzat",
  "retention.reupload": "Yenidən buludda saxla",
  "retention.pending": "Müddətin uzadılması üçün bağlantı gözlənilir",
  "retention.due": "30 gün ərzində müddəti bitəcək fotoların sayı: {count}",
- "retention.policy": "Tutduğunuz balıqların fotoları buludda 12 ay saxlanılır. Bulud nüsxəsini saxlamaq üçün fotonu tam ölçüdə açın və ya müddətini uzadın. Cihazınızdakı foto qalır."
+ "retention.policy": "Tutduğunuz balıqların fotoları buludda 12 ay saxlanılır. Bulud nüsxəsini saxlamaq üçün fotonu tam ölçüdə açın və ya müddətini uzadın. Cihazınızdakı foto qalır.",
+ "groups.remove_member_confirm": "Üzv və onun qrupdakı paylaşımları silinsin?",
+ "trips.shared_copies": "Paylaşılmış nüsxələr qalır. Onları ayrıca sil."
 }

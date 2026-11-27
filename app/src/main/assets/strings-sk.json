@@ -657,7 +657,7 @@
  "groups.edit_tip": "Upraviť tip",
  "groups.remove_tip": "Odstrániť tip",
  "parking.remove": "Odstrániť parkovacie miesto",
- "parking.remove_info": "Odstrániť zdieľané parkovacie miesto aj s hodnoteniami?",
+ "parking.remove_info": "Miesto s hodnoteniami ostatných zostane na mape aj s týmito hodnoteniami. Odobrať tvoj príspevok?",
  "sync.erase": "Vymazať online kópiu",
  "alerts.messages": "Nová súkromná správa",
  "alerts.replies": "Nová odpoveď na tvoju otázku",
@@ -944,7 +944,6 @@
  "group_catch.reported": "Úlovok bol nahlásený na preverenie.",
  "groups.dissolve.description": "Rozpustením skupiny „{name}“ sa odstránia jej tipy, súťažné fotografie, hlasy a pozvánky.",
  "groups.leave.description": "Tvoje členstvo v skupine „{name}“ sa skončí. Tvoje tipy, súťažné fotky a hlasy sa odstránia.",
- "groups.link_lifetime": "Pomocou tohto odkazu sa môže ktokoľvek pridať do 24 hodín. Pošli ho iba ľuďom, ktorých chceš mať v skupine.",
  "groups.the_service_stores_the_group_name_membership": "Služba ukladá názov skupiny, členstvo a tvoje príspevky s tipmi. Odchodom sa tvoje tipy, súťažné fotografie aj hlasy odstránia.",
  "guide.read_related_chapter": "Otvoriť súvisiacu kapitolu",
  "help-topics.accounts.steps.2": "Ak zabudneš heslo, požiadaj o obnovu a otvor najnovší e-mailový odkaz. Tlačidlom Späť v Androide sa z pošty vrátiš do aplikácie. V nastaveniach účtu sa môžeš odhlásiť a nájdeš tam kontakt na žiadosť o výmaz.",
@@ -1174,9 +1173,11 @@
  "retention.until": "V cloude do {date}",
  "retention.local": "Iba v tomto zariadení",
  "retention.expired": "Platnosť fotky v cloude skončila",
- "retention.renew": "Predĺžiť o 12 mesiacov",
+ "retention.renew": "Predĺžiť na 12 mesiacov od dneška",
  "retention.reupload": "Znova uložiť do cloudu",
  "retention.pending": "Predĺženie čaká na pripojenie",
  "retention.due": "Počet fotiek, ktorým do 30 dní skončí platnosť: {count}",
- "retention.policy": "Fotky úlovkov sa v cloude uchovávajú 12 mesiacov. Otvorením detailu alebo ručným predĺžením začne nová lehota. Fotka v telefóne zostane."
+ "retention.policy": "Fotky úlovkov sa v cloude uchovávajú 12 mesiacov. Otvorením detailu alebo ručným predĺžením začne nová lehota. Fotka v telefóne zostane.",
+ "groups.remove_member_confirm": "Odobrať člena aj jeho príspevky v skupine?",
+ "trips.shared_copies": "Zdieľané kópie zostanú. Odstráň ich samostatne."
 }

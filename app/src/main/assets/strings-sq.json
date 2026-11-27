@@ -687,7 +687,6 @@
  "sync.erase": "Fshi kopjen në internet",
  "sync.erase_info": "Të fshihet kopja rezervë e llogarisë dhe të ndalet sinkronizimi automatik në telefonat e lidhur? Shënimet e ruajtura në këtë telefon do të mbeten këtu.",
  "sync.erased": "Kopja në internet u fshi. Ditari është ende në këtë telefon.",
- "groups.link_lifetime": "Kushdo që ka këtë lidhje mund t’i bashkohet grupit brenda 24 orësh. Ndaje vetëm me njerëzit që dëshiron të ftosh.",
  "age.before_signup": "Je nën 15 vjeç? Hape llogarinë me njërin prind ose me kujdestarin ligjor. Ditari qëndron në këtë telefon. Grupet mund të krijohen nga mosha 18 vjeç.",
  "age.registration_notice": "Datëlindja jote mbetet private. Nëse je nën 15 vjeç, ditari qëndron në këtë telefon. Në çdo grup ku hyn, një kujdestar i verifikuar mund të lejojë veçmas ndarjen e peshqve të kapur dhe të këshillave për daljet për peshkim. Mbaji private adresën dhe vendin e saktë të peshkimit. Nga mosha 15 vjeç, ditarët e rinj sinkronizohen privatisht edhe me llogarinë tënde. Mund të krijosh grup nga mosha 18 vjeç.",
  "age.group_rule": "Mund të krijosh grup nga mosha 18 vjeç. Nëse je nën 15 vjeç, mund të hysh me ftesë. Kujdestari mund të lejojë publikimin në secilin grup veçmas. Kërkoji t’i shkruajë info@horistum.com për të lidhur llogaritë.",
@@ -720,7 +719,7 @@
  "catalog.waters.401009.ends.2": "Penda e hidrocentralit të Krhanice-s",
  "catalog.waters.401009.restriction": "Kanali i ujit i hidrocentralit të Žampach-ut",
  "parking.remove": "Hiq vendparkimin",
- "parking.remove_info": "Të hiqet vendparkimi i ndarë me të tjerët bashkë me vlerësimet e tij?",
+ "parking.remove_info": "Një vend me vlerësime nga të tjerët mbetet në hartë bashkë me to. Ta heqësh kontributin tënd?",
  "groups.edit_tip": "Ndrysho këshillën",
  "groups.remove_tip": "Hiq këshillën",
  "alerts.community": "Mesazhe private, përgjigje dhe aktivitet në grupe e në treg",
@@ -1174,9 +1173,11 @@
  "retention.until": "Kopja në re deri më {date}",
  "retention.local": "Vetëm në këtë pajisje",
  "retention.expired": "Afati i ruajtjes së fotos në re ka mbaruar",
- "retention.renew": "Zgjate për 12 muaj",
+ "retention.renew": "Rinovo për 12 muaj nga sot",
  "retention.reupload": "Ruaje sërish në re",
  "retention.pending": "Zgjatja e afatit po pret lidhjen me internetin",
  "retention.due": "Foto të cilave u mbaron afati brenda 30 ditëve: {count}",
- "retention.policy": "Fotot e peshqve të kapur ruhen në re për 12 muaj. Që të mbash kopjen në re, hap foton në madhësi të plotë ose zgjat afatin e ruajtjes. Fotoja mbetet në pajisjen tënde."
+ "retention.policy": "Fotot e peshqve të kapur ruhen në re për 12 muaj. Që të mbash kopjen në re, hap foton në madhësi të plotë ose zgjat afatin e ruajtjes. Fotoja mbetet në pajisjen tënde.",
+ "groups.remove_member_confirm": "Ta heqësh anëtarin dhe kontributet e tij nga grupi?",
+ "trips.shared_copies": "Kopjet e ndara me të tjerët mbeten. Hiqi veçmas."
 }

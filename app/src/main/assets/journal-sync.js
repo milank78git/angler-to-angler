@@ -4,7 +4,7 @@ import {
   localDocument,
   uploadDocument,
   downloadDocument,
-  restoreDocument,
+  prepareRestore,
 } from './journal-transfer.js';
 import { photoHash } from './journal-photos.js';
 import { refreshPhotoLeases, bindExpirySummary } from './photo-retention.js';
@@ -72,6 +72,7 @@ async function run(resolution, retryRevision = true) {
   notify('working');
   let changed = false,
     uploaded = false,
+    awaitingConversion = false,
     reread = false;
   try {
     if (localStorage.getItem(prefix + 'registered') !== '1') {
@@ -83,7 +84,7 @@ async function run(resolution, retryRevision = true) {
       mediaRevision;
     let after = '',
       floor;
-    const lastFloor = Number(localStorage.getItem(prefix + 'deletionFloor') || 0);
+    const previousFloor = localStorage.getItem(prefix + 'deletionFloor');
     while (true) {
       const page = await call('list', { after, format: 2 });
       if (!after) mediaRevision = page.photoRevision;
@@ -102,8 +103,8 @@ async function run(resolution, retryRevision = true) {
       const row = remote.get(key) || { revision: 0, parts: [] };
       const tripMedia = mediaSupported && key.startsWith('trip/');
       if (tripMedia && row.format !== 2 && row.parts.length) {
-        await call('photo_convert', { key, revision: row.revision });
-        again = true;
+        // Maintenance converts this revision independently. Other records can sync now.
+        awaitingConversion = true;
         continue;
       }
       const detached = tripMedia;
@@ -131,7 +132,9 @@ async function run(resolution, retryRevision = true) {
           ? resolution.choice
           : '';
       const unknownDeletion =
-        saved === null && !row.parts.length && (row.revision > 0 || floor !== lastFloor);
+        saved === null &&
+        !row.parts.length &&
+        (row.revision > 0 || (previousFloor !== null && floor !== Number(previousFloor)));
       if ((!unknownDeletion && same(base, row.parts)) || choice === 'local') {
         const upload = local.blocks
           ? local
@@ -143,8 +146,9 @@ async function run(resolution, retryRevision = true) {
         await uploadDocument(call, key, upload, row.revision, floor);
         uploaded = true;
         localStorage.setItem(checkpoint, JSON.stringify(upload.hashes));
-      } else if (same(base, local.hashes) || choice === 'cloud') {
+      } else if (same(base, local.hashes) || (choice === 'cloud' && row.parts.length > 0)) {
         const data = await downloadDocument(call, row.parts);
+        const applyRestore = await prepareRestore(Journal, localStorage, subject, key, data, call);
         await Journal.lock(async () => {
           if (!enabled()) return;
           const latest = await localDocument(Journal, localStorage, subject, key, false, detached);
@@ -152,7 +156,7 @@ async function run(resolution, retryRevision = true) {
             again = true;
             return;
           }
-          await restoreDocument(Journal, localStorage, subject, key, data, call);
+          await applyRestore();
           localStorage.setItem(checkpoint, JSON.stringify(row.parts));
           changed = true;
         });
@@ -163,7 +167,13 @@ async function run(resolution, retryRevision = true) {
           trip = await Journal.trip(key.slice(5));
           if (!trip && row.parts.length) trip = (await downloadDocument(call, row.parts))?.trip;
         }
-        detected.push({ key, revision: row.revision, local: local.hashes, trip });
+        detected.push({
+          key,
+          hasCloud: row.parts.length > 0,
+          revision: row.revision,
+          local: local.hashes,
+          trip,
+        });
       }
     }
     if (!enabled()) return;
@@ -172,6 +182,7 @@ async function run(resolution, retryRevision = true) {
     conflicts = detected;
     if (conflicts.length) notify('conflict');
     else if (!online()) notify('offline');
+    else if (awaitingConversion) notify('waiting');
     else if (!again) {
       if (uploaded || changed || !localStorage.getItem(lastSyncKey))
         localStorage.setItem(lastSyncKey, String(Date.now()));
@@ -185,6 +196,7 @@ async function run(resolution, retryRevision = true) {
         notify('disabled');
       } else if (!online()) notify('offline');
       else if (error.status === 409 && retryRevision) reread = true;
+      else if (error.status === 429) notify('limited');
       else if (error.status === 413) notify('full');
       else if (error.status === 401 || error.status === 403) notify('signin');
       else notify('failed');
@@ -240,7 +252,11 @@ export function bindJournalSync(panel, waters) {
         ? new Intl.DateTimeFormat(languageTag, { dateStyle: 'short', timeStyle: 'short' }).format(last)
         : '';
     label.textContent =
-      status === 'done' && stamp ? t('sync.saved_at').replace('{time}', stamp) : t('sync.' + status);
+      status === 'done' && stamp
+        ? t('sync.saved_at').replace('{time}', stamp)
+        : status === 'limited'
+          ? t('limits.hourly')
+          : t('sync.' + status);
     panel.append(label);
     if (enabled()) bindExpirySummary(panel, subject);
     if (stamp && status !== 'done') {
@@ -305,40 +321,39 @@ export function bindJournalSync(panel, waters) {
         }
       });
     }
-    button('sync.erase', async () => {
-      if (
-        !(await confirmAction({
-          title: t('sync.erase'),
-          message: t('sync.erase_info'),
-          accept: t('sync.erase'),
-          destructive: true,
-        })) ||
-        busy ||
-        checking
-      )
-        return;
-      clearTimeout(timer);
-      busy = true;
-      localStorage.setItem(choiceKey, '0');
-      notify('working');
-      try {
-        const { epoch } = await call('settings', {});
-        await call('erase', { epoch: epoch || null });
-        forgetCopy();
-        status = 'erased';
-      } catch {
-        status = 'failed';
-      } finally {
-        busy = false;
-        notify(status);
-      }
-    });
+    if (enabled())
+      button('sync.erase', async () => {
+        if (
+          !(await confirmAction({
+            title: t('sync.erase'),
+            message: t('sync.erase_info'),
+            accept: t('sync.erase'),
+            destructive: true,
+          })) ||
+          busy ||
+          checking
+        )
+          return;
+        clearTimeout(timer);
+        busy = true;
+        notify('working');
+        try {
+          await call('erase', {});
+          forgetCopy();
+          status = 'erased';
+        } catch {
+          status = 'failed';
+        } finally {
+          busy = false;
+          notify(status);
+        }
+      });
     if (status !== 'conflict') return;
     for (const c of conflicts) {
       const name = document.createElement('p');
       name.textContent = conflictLabel(c, waters);
       panel.append(name);
-      for (const choice of ['cloud', 'local'])
+      for (const choice of c.hasCloud ? ['cloud', 'local'] : ['local'])
         button('sync.' + choice, async () => {
           if (
             await confirmAction({

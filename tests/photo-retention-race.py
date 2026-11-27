@@ -47,4 +47,7 @@ assert sql(f"select expires>now()+interval '11 months' and object_id is not null
 sql(f"update angler_sync.photos set expires=now()-interval '1 second' where {where}")
 assert json.loads(overlap(cleanup, renew)) == {'expired': True}
 assert sql(f"select object_id is null from angler_sync.photos where {where}") == 't'
+sql(f"update angler_sync.photos set object_id=gen_random_uuid(),expires=now()-interval '1 second' where {where}")
+overlap('select pg_advisory_xact_lock(104809,3);', cleanup)
+assert sql(f"select object_id is null from angler_sync.photos where {where}") == 't'
 print('Concurrent renewal and expiry retained a valid copy and rejected an expired generation')

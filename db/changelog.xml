@@ -158,4 +158,7 @@
   <changeSet id="20261127100000" author="angler" dbms="postgresql">
     <sqlFile path="../supabase/migrations/20261127100000_private_photo_retention.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
   </changeSet>
+  <changeSet id="20261127121000" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261127121000_review_journal_and_community.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
 </databaseChangeLog>

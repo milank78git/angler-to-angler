@@ -657,7 +657,7 @@
  "groups.edit_tip": "Muuda nõuannet",
  "groups.remove_tip": "Eemalda nõuanne",
  "parking.remove": "Kustuta parkimiskoht",
- "parking.remove_info": "Kas kustutada jagatud parkimiskoht koos hinnangutega?",
+ "parking.remove_info": "Teiste arvustustega koht jääb koos arvustustega kaardile. Kas eemaldada sinu panus?",
  "sync.erase": "Kustuta veebikoopia",
  "alerts.messages": "Uus privaatsõnum",
  "alerts.replies": "Uus vastus sinu küsimusele",
@@ -956,7 +956,6 @@
  "group_catch.reported": "Püügist on teatatud läbivaatamiseks.",
  "groups.dissolve.description": "“{name}” kustutamine kustutab grupi näpunäited, võistlusfotod, hääled ja kutse.",
  "groups.leave.description": "Sinu liikmelisus “{name}” lõpeb ning sinu näpunäited, võistlusfotod ja hääled kustutatakse.",
- "groups.link_lifetime": "Selle lingiga saab rühmaga liituda 24 tunni jooksul. Jaga linki ainult inimestega, keda soovid rühma kutsuda.",
  "groups.the_service_stores_the_group_name_membership": "Teenus salvestab grupi nime, liikmelisuse ja soovitused, mida sellesse postitate. Lahkumine kustutab sinu näpunäited, võistlusfotod ja hääled.",
  "guide.read_related_chapter": "Loe seotud peatükki",
  "help-topics.accounts.steps.2": "Unustatud salasõna taastamiseks paluge selle lähtestamist ja kasutage viimast e-posti linki. Kasutage Android Tagasi, et oma meilirakendusest tagasi pöörduda. Konto seaded võimaldavad teil välja logida ja kuvada kontakti kustutamisnõuete jaoks.",
@@ -1174,9 +1173,11 @@
  "retention.until": "Pilves kuni {date}",
  "retention.local": "Ainult selles seadmes",
  "retention.expired": "Pilvefoto säilitusaeg lõppes",
- "retention.renew": "Pikenda 12 kuuks",
+ "retention.renew": "Pikenda tänasest 12 kuuks",
  "retention.reupload": "Salvesta uuesti pilve",
  "retention.pending": "Pikendamine ootab ühendust",
  "retention.due": "30 päeva jooksul aeguvad fotod: {count}",
- "retention.policy": "Saagifotosid säilitatakse pilves 12 kuud. Ava foto suurelt või pikenda säilitusaega. Foto jääb seadmesse alles."
+ "retention.policy": "Saagifotosid säilitatakse pilves 12 kuud. Ava foto suurelt või pikenda säilitusaega. Foto jääb seadmesse alles.",
+ "groups.remove_member_confirm": "Kas eemaldada liige ja tema postitused rühmast?",
+ "trips.shared_copies": "Jagatud koopiad jäävad alles. Eemalda need eraldi."
 }

@@ -13,8 +13,7 @@
   "sync.erase": "Delete online copy",
   "groups.remove_tip": "Remove tip",
   "groups.edit_tip": "Edit tip",
-  "groups.link_lifetime": "Anyone with this link can join within 24 hours. Share it only with intended group members.",
-  "parking.remove_info": "Remove the shared point and its reviews?",
+  "parking.remove_info": "A point with other anglers’ reviews stays on the map with those reviews. Remove your contribution?",
   "parking.remove": "Remove parking point",
   "account.offline_expired": "Your seven days of offline access have ended. Connect to the internet and unlock the journal to continue. Your saved entries are on this phone.",
   "trips.remove_catch": "Delete this catch and its photo",
@@ -508,7 +507,7 @@
   "groups.reload_this_page": "Reload this page",
   "groups.share_code": "Share code",
   "groups.sign_in_online_to_manage_groups_you": "Sign in online to manage groups. You can still use your journal.",
-  "groups.the_code_lasts_24_hours_a_new": "The code lasts 24 hours. A new code replaces the previous one.",
+  "groups.the_code_lasts_24_hours_a_new": "One person can use this link within 24 hours. A new invitation replaces it.",
   "groups.the_service_stores_the_group_name_membership": "The service stores the group name, membership and the tips you post to it. Leaving deletes your tips, competition photos and votes.",
   "groups.this_invitation_is_invalid_already_used_or": "This invitation is invalid, already used or expired.",
   "groups.you_do_not_have_permission_for_this": "You do not have permission for this action.",
@@ -1174,9 +1173,11 @@
   "retention.until": "Cloud copy until {date}",
   "retention.local": "Only on this device",
   "retention.expired": "Cloud photo expired",
-  "retention.renew": "Renew for 12 months",
+  "retention.renew": "Renew for 12 months from today",
   "retention.reupload": "Save to cloud again",
   "retention.pending": "Renewal waiting for connection",
   "retention.due": "Photos expiring within 30 days: {count}",
-  "retention.policy": "Cloud catch photos are kept for 12 months. Open a photo in detail or renew it to keep its cloud copy. The photo on your device stays."
+  "retention.policy": "Cloud catch photos are kept for 12 months. Open a photo in detail or renew it to keep its cloud copy. The photo on your device stays.",
+  "groups.remove_member_confirm": "Remove this member and their group contributions?",
+  "trips.shared_copies": "Shared copies remain on public cards, in groups and competitions, and in catch verification. Remove them separately."
 }

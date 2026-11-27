@@ -945,7 +945,6 @@
  "groups.dissolve.description": "Ao disolver «{name}» eliminaranse os consellos do grupo, as fotos do concurso, os votos e a invitación.",
  "groups.edit_tip": "Editar a punta",
  "groups.leave.description": "Deixarás de pertencer a «{name}». Eliminaranse os teus consellos, as túas fotos do concurso e os teus votos.",
- "groups.link_lifetime": "Calquera persoa que teña esta ligazón pode entrar no grupo durante 24 horas. Compártea só coas persoas que queiras convidar.",
  "groups.remove_tip": "Quitar a punta",
  "groups.the_service_stores_the_group_name_membership": "O servizo almacena o nome do grupo, a pertenza e os consellos que lle publicas. Deixar elimina os teus consellos, fotos de competencia e votos.",
  "guide.read_related_chapter": "Lea o capítulo relacionado",
@@ -1018,7 +1017,7 @@
  "parking.podolsko": "Podolsko · aparcadoiro xunto á ponte Podolský",
  "parking.publish": "Confirmar e engadir",
  "parking.remove": "Quitar punto de estacionamento",
- "parking.remove_info": "Eliminar o punto compartido e as súas revisións?",
+ "parking.remove_info": "Un lugar con valoracións doutras persoas permanece no mapa con elas. Queres retirar a túa achega?",
  "parking.review_saved": "Os seus comentarios foron gardados.",
  "parking.save_edit": "Corrección de publicación",
  "parking.save_review": "Garda os meus comentarios",
@@ -1174,9 +1173,11 @@
  "retention.until": "Na nube ata o {date}",
  "retention.local": "Só neste dispositivo",
  "retention.expired": "Foto caducada na nube",
- "retention.renew": "Renovar por 12 meses",
+ "retention.renew": "Renovar por 12 meses desde hoxe",
  "retention.reupload": "Gardar de novo na nube",
  "retention.pending": "Renovación pendente de conexión",
  "retention.due": "Fotos que caducan en 30 días: {count}",
- "retention.policy": "As fotos das capturas gárdanse na nube durante 12 meses. Abre o detalle da foto ou renova o prazo. A foto do dispositivo consérvase."
+ "retention.policy": "As fotos das capturas gárdanse na nube durante 12 meses. Abre o detalle da foto ou renova o prazo. A foto do dispositivo consérvase.",
+ "groups.remove_member_confirm": "Queres retirar o membro e as súas achegas do grupo?",
+ "trips.shared_copies": "As copias compartidas consérvanse. Elimínaas por separado."
 }

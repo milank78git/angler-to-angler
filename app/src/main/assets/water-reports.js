@@ -106,7 +106,10 @@ export async function waterReports(host, water, view) {
       await rpc('water_report', { water_key: water, kind, withdraw: mine });
     } catch (error) {
       if (!view.active()) return;
-      if (error.status === 401 || error.status === 403 || error.status === 422) {
+      if (error.status === 429) {
+        status.textContent = t('limits.hourly');
+        setActionsDisabled(false);
+      } else if (error.status === 401 || error.status === 403 || error.status === 422) {
         status.textContent =
           error.status === 401
             ? t('profile_api.sign_in_again_to_use_the_online')

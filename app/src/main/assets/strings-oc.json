@@ -943,7 +943,6 @@
  "groups.dissolve.description": "La dissolucion de « {name} » suprimís los conselhs de grop, las fòtos del concors, los vòtes e lo convit.",
  "groups.edit_tip": "Modificar lo conselh",
  "groups.leave.description": "Vòstra adesion a « {name} » prendrà fin e vòstres conselhs, fòtos de concors e vòtes seràn suprimits.",
- "groups.link_lifetime": "Tota persona dispausant d'aquel ligam pòt rejónher lo grop dins las 24 oras. Transmetètz-o unicament a las personas que desiratz convidar.",
  "groups.remove_tip": "Retirar la poncha",
  "groups.the_service_stores_the_group_name_membership": "Lo servici estòca lo nom del grop, l'adesion e los conselhs que i publicatz, mas en quitant, vòstres conselhs, vòstras fòtos de competicion e vòstres vòtes son suprimits.",
  "guide.read_related_chapter": "Legir lo capítol connèx",
@@ -1017,7 +1016,7 @@
  "parking.point": "Parcatge",
  "parking.publish": "Confirmar e ajustar",
  "parking.remove": "Suprimir lo ponch d'estacionament",
- "parking.remove_info": "Suprimir lo ponch partejat e sos vejaires ?",
+ "parking.remove_info": "Un luòc amb d’avises d’autras personas demòra sus la mapa amb aqueles avises. Levar ta contribucion ?",
  "parking.review_saved": "Vòstre comentari es estat enregistrat.",
  "parking.save_edit": "Publicar la correccion",
  "parking.save_review": "Enregistrar mos comentaris",
@@ -1174,9 +1173,11 @@
  "retention.until": "Dins lo nívol fins al {date}",
  "retention.local": "Sonque sus aqueste aparelh",
  "retention.expired": "Fòto expirada dins lo nívol",
- "retention.renew": "Renovelar per 12 meses",
+ "retention.renew": "Renovelar per 12 meses a comptar de uèi",
  "retention.reupload": "Tornar enregistrar dins lo nívol",
  "retention.pending": "Renovelament en espèra de connexion",
  "retention.due": "Fòtos qu’expiran dins 30 jorns : {count}",
- "retention.policy": "Las fòtos de las capturas demòran dins lo nívol pendent 12 meses. Dobrissètz la fòto en detalh o renovelatz lo delai. La fòto sus l’aparelh demòra."
+ "retention.policy": "Las fòtos de las capturas demòran dins lo nívol pendent 12 meses. Dobrissètz la fòto en detalh o renovelatz lo delai. La fòto sus l’aparelh demòra.",
+ "groups.remove_member_confirm": "Levar aqueste membre e sas contribucions del grop ?",
+ "trips.shared_copies": "Las còpias partejadas demòran. Suprimís-las a despart."
 }

@@ -698,9 +698,8 @@
  "sync.erase": "Ħassar il-kopja online",
  "sync.erase_info": "Trid tħassar il-kopja ta’ riżerva mill-kont u twaqqaf is-sinkronizzazzjoni awtomatika fuq it-telefowns marbuta? L-entrati ssejvjati fuq dan it-telefon jibqgħu hawn.",
  "sync.erased": "Il-kopja online tħassret. Il-ġurnal għadu fuq dan it-telefon.",
- "groups.link_lifetime": "Kull min għandu din il-ħolqa jista’ jissieħeb fil-grupp fi żmien 24 siegħa. Aqsamha biss ma’ min trid tistieden.",
  "parking.remove": "Neħħi l-post tal-parkeġġ",
- "parking.remove_info": "Tneħħi l-post tal-parkeġġ maqsum mal-oħrajn u r-reċensjonijiet tiegħu?",
+ "parking.remove_info": "Post b’reċensjonijiet ta’ ħaddieħor jibqa’ fuq il-mappa flimkien magħhom. Tneħħi l-kontribuzzjoni tiegħek?",
  "alerts.community": "Messaġġi privati, tweġibiet u attività fil-gruppi u fis-suq",
  "trips.remove_catch": "Ħassar din il-qabda u r-ritratt tagħha",
  "waters.angler_contributions": "Kontribuzzjonijiet tas-sajjieda",
@@ -1174,9 +1173,11 @@
  "retention.until": "Kopja fil-cloud sal-{date}",
  "retention.local": "Fuq dan l-apparat biss",
  "retention.expired": "Skada ż-żmien tal-ħażna tar-ritratt fil-cloud",
- "retention.renew": "Ġedded għal 12-il xahar",
+ "retention.renew": "Ġedded għal 12-il xahar mil-lum",
  "retention.reupload": "Erġa’ ssejvja fil-cloud",
  "retention.pending": "It-tiġdid qed jistenna konnessjoni",
  "retention.due": "Għadd ta’ ritratti li jiskadu fi żmien 30 jum: {count}",
- "retention.policy": "Ir-ritratti tal-qabdiet jinżammu fil-cloud għal 12-il xahar. Iftaħ ritratt fid-dettall jew ġedded iż-żmien tal-ħażna biex iżżomm il-kopja fil-cloud. Ir-ritratt jibqa’ fuq l-apparat tiegħek."
+ "retention.policy": "Ir-ritratti tal-qabdiet jinżammu fil-cloud għal 12-il xahar. Iftaħ ritratt fid-dettall jew ġedded iż-żmien tal-ħażna biex iżżomm il-kopja fil-cloud. Ir-ritratt jibqa’ fuq l-apparat tiegħek.",
+ "groups.remove_member_confirm": "Tneħħi lil dan il-membru u l-kontribuzzjonijiet tiegħu mill-grupp?",
+ "trips.shared_copies": "Il-kopji maqsuma ma’ oħrajn jibqgħu. Ħassarhom separatament."
 }

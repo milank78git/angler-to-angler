@@ -13,8 +13,7 @@
  "sync.erase": "Onlinekopie löschen",
  "groups.remove_tip": "Tipp entfernen",
  "groups.edit_tip": "Tipp bearbeiten",
- "groups.link_lifetime": "Wer den Link hat, kann innerhalb von 24 Stunden beitreten. Teile ihn nur mit den gewünschten Mitgliedern.",
- "parking.remove_info": "Diesen geteilten Parkplatz mit seinen Bewertungen löschen?",
+ "parking.remove_info": "Orte mit Bewertungen anderer bleiben mit diesen Bewertungen auf der Karte. Deinen Beitrag entfernen?",
  "parking.remove": "Parkplatz löschen",
  "account.offline_expired": "Dein siebentägiger Offlinezugang ist abgelaufen. Verbinde dich mit dem Internet und entsperre das Tagebuch. Gespeicherte Einträge bleiben auf diesem Gerät.",
  "trips.remove_catch": "Diesen Fang und sein Foto löschen",
@@ -1174,9 +1173,11 @@
  "retention.until": "In der Cloud bis {date}",
  "retention.local": "Nur auf diesem Gerät",
  "retention.expired": "Cloud-Foto abgelaufen",
- "retention.renew": "Um 12 Monate verlängern",
+ "retention.renew": "Ab heute um 12 Monate verlängern",
  "retention.reupload": "Erneut in der Cloud speichern",
  "retention.pending": "Verlängerung wartet auf Verbindung",
  "retention.due": "In 30 Tagen ablaufende Fotos: {count}",
- "retention.policy": "Fangfotos bleiben 12 Monate in der Cloud. Öffnen Sie ein Foto in der Detailansicht oder verlängern Sie die Frist. Das Foto auf dem Gerät bleibt erhalten."
+ "retention.policy": "Fangfotos bleiben 12 Monate in der Cloud. Öffnen Sie ein Foto in der Detailansicht oder verlängern Sie die Frist. Das Foto auf dem Gerät bleibt erhalten.",
+ "groups.remove_member_confirm": "Dieses Mitglied und seine Gruppenbeiträge entfernen?",
+ "trips.shared_copies": "Geteilte Kopien bleiben erhalten. Entferne sie separat."
 }

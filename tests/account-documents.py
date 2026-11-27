@@ -25,3 +25,10 @@ with tempfile.TemporaryDirectory() as temp:
             page = (Path(temp) / route / "index.html").read_text()
             assert all(html.escape(part) in page for part in paragraphs), file.name
 assert pins == actual, "Publish changed legal texts under a new revision"
+
+# The installed revision and the current database revision must agree before packaging.
+helpers = []
+for migration in sorted((root / "supabase/migrations").glob("*.sql")):
+    sql = migration.read_text()
+    helpers.extend(re.findall(r"function\s+angler_private\.document_revision\(\)\s+returns text.*?as \$\$select '([^']+)'::text\$\$", sql, re.S | re.I))
+assert helpers and helpers[-1] == revision, "Align the app and database legal revisions"

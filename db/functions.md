@@ -55,7 +55,7 @@ Active signatures in Liquibase deployment order. Each link opens the effective d
 | `angler_groups_private.dissolve(uuid)` | [20261123110524](../supabase/migrations/20261123110524_private_fishing_groups.sql#L114) |  |
 | `angler_groups_private.evidence_list(timestamp with time zone, uuid, uuid)` | [20261123112814](../supabase/migrations/20261123112814_angler_profile_cards.sql#L71) |  |
 | `angler_groups_private.invite(uuid)` | [20261123110524](../supabase/migrations/20261123110524_private_fishing_groups.sql#L69) |  |
-| `angler_groups_private.join_group(uuid)` | [20261127032314](../supabase/migrations/20261127032314_journal_community_controls.sql#L146) |  |
+| `angler_groups_private.join_group(uuid)` | [20261127121000](../supabase/migrations/20261127121000_review_journal_and_community.sql#L247) |  |
 | `angler_groups_private.leave_group(uuid)` | [20261126080000](../supabase/migrations/20261126080000_age_and_guardians.sql#L238) |  |
 | `angler_groups_private.licence_details(jsonb)` | [20261126150300](../supabase/migrations/20261126150300_remove_stored_age.sql#L2) |  |
 | `angler_groups_private.list_groups()` | [20261126080000](../supabase/migrations/20261126080000_age_and_guardians.sql#L198) |  |
@@ -98,7 +98,9 @@ Active signatures in Liquibase deployment order. Each link opens the effective d
 | `angler_messages.single_emoji(text)` | [20261123160129](../supabase/migrations/20261123160129_message_reactions.sql#L3) |  |
 | `angler_private.age_years(date)` | [20261126080000](../supabase/migrations/20261126080000_age_and_guardians.sql#L3) |  |
 | `angler_private.apply_birth_date_change()` | [20261126181100](../supabase/migrations/20261126181100_preserve_community_parking.sql#L1) |  |
+| `angler_private.check_nickname_scripts()` | [20261127121000](../supabase/migrations/20261127121000_review_journal_and_community.sql#L389) |  |
 | `angler_private.correct_birth_date(uuid, date, date)` | [20261126150200](../supabase/migrations/20261126150200_birth_date_corrections.sql#L77) |  |
+| `angler_private.document_revision()` | [20261127121000](../supabase/migrations/20261127121000_review_journal_and_community.sql#L307) |  |
 | `angler_private.group_subject(uuid, text, boolean)` | [20261126080000](../supabase/migrations/20261126080000_age_and_guardians.sql#L103) |  |
 | `angler_private.limit_write()` | [20261126060000](../supabase/migrations/20261126060000_community_protection.sql#L10) |  |
 | `angler_private.nickname_key(text)` | [20261126045000](../supabase/migrations/20261126045000_nickname_identity.sql#L12) |  |
@@ -110,21 +112,21 @@ Active signatures in Liquibase deployment order. Each link opens the effective d
 | `angler_public_cards.publish(uuid, uuid, jsonb, text, text)` | [20261123180057](../supabase/migrations/20261123180057_public_catch_cards.sql#L45) |  |
 | `angler_public_cards.read_link(uuid)` | [20261123180057](../supabase/migrations/20261123180057_public_catch_cards.sql#L113) |  |
 | `angler_public_cards.withdraw(uuid)` | [20261123180057](../supabase/migrations/20261123180057_public_catch_cards.sql#L102) |  |
-| `angler_sync.attach_photos(uuid, jsonb)` | [20261127100000](../supabase/migrations/20261127100000_private_photo_retention.sql#L206) |  |
+| `angler_sync.attach_photos(uuid, jsonb)` | [20261127121000](../supabase/migrations/20261127121000_review_journal_and_community.sql#L50) |  |
 | `angler_sync.canonical_json(jsonb)` | [20261127100000](../supabase/migrations/20261127100000_private_photo_retention.sql#L151) |  |
 | `angler_sync.chunk_usage()` | [20261126060300](../supabase/migrations/20261126060300_journal_object_storage.sql#L24) |  |
 | `angler_sync.convert_trip(uuid, text, timestamp with time zone)` | [20261127100000](../supabase/migrations/20261127100000_private_photo_retention.sql#L160) |  |
 | `angler_sync.document_json(uuid, text[])` | [20261127100000](../supabase/migrations/20261127100000_private_photo_retention.sql#L144) |  |
-| `angler_sync.journal(text, jsonb)` | [20261127100000](../supabase/migrations/20261127100000_private_photo_retention.sql#L237) |  |
+| `angler_sync.journal(text, jsonb)` | [20261127121000](../supabase/migrations/20261127121000_review_journal_and_community.sql#L6) |  |
 | `angler_sync.journal_v1(text, jsonb)` | [20261127032314](../supabase/migrations/20261127032314_journal_community_controls.sql#L180) | [20261127100000](../supabase/migrations/20261127100000_private_photo_retention.sql#L235) |
 | `angler_sync.list_documents(uuid, jsonb)` | [20261125175001](../supabase/migrations/20261125175001_journal_operations.sql#L1) |  |
 | `angler_sync.maintain()` | [20261126181000](../supabase/migrations/20261126181000_separate_journal_storage.sql#L2) |  |
-| `angler_sync.maintain_photos()` | [20261127100000](../supabase/migrations/20261127100000_private_photo_retention.sql#L288) |  |
+| `angler_sync.maintain_photos()` | [20261127121000](../supabase/migrations/20261127121000_review_journal_and_community.sql#L179) |  |
 | `angler_sync.maintain_storage()` | [20261126181000](../supabase/migrations/20261126181000_separate_journal_storage.sql#L29) |  |
 | `angler_sync.missing_chunks(uuid, jsonb)` | [20261125175001](../supabase/migrations/20261125175001_journal_operations.sql#L12) |  |
-| `angler_sync.photo_operation(uuid, text, jsonb)` | [20261127100000](../supabase/migrations/20261127100000_private_photo_retention.sql#L73) |  |
+| `angler_sync.photo_operation(uuid, text, jsonb)` | [20261127121000](../supabase/migrations/20261127121000_review_journal_and_community.sql#L112) |  |
 | `angler_sync.photo_quota()` | [20261127100000](../supabase/migrations/20261127100000_private_photo_retention.sql#L30) |  |
-| `angler_sync.photo_storage(text, uuid, bytea, integer, integer)` | [20261127100000](../supabase/migrations/20261127100000_private_photo_retention.sql#L50) |  |
+| `angler_sync.photo_storage(text, uuid, bytea, integer, integer)` | [20261127121000](../supabase/migrations/20261127121000_review_journal_and_community.sql#L85) |  |
 | `angler_sync.put_chunk(uuid, jsonb)` | [20261126060300](../supabase/migrations/20261126060300_journal_object_storage.sql#L66) |  |
 | `angler_sync.read_chunk(uuid, text)` | [20261126060300](../supabase/migrations/20261126060300_journal_object_storage.sql#L54) |  |
 | `angler_sync.save_document(uuid, jsonb)` | [20261126060300](../supabase/migrations/20261126060300_journal_object_storage.sql#L130) |  |
@@ -145,7 +147,7 @@ Active signatures in Liquibase deployment order. Each link opens the effective d
 | `public.angler_activity_summary(text, date, text, text)` | [20261126140000](../supabase/migrations/20261126140000_catalogue_activity_targets.sql#L84) |  |
 | `public.angler_card(uuid)` | [20261123112814](../supabase/migrations/20261123112814_angler_profile_cards.sql#L204) |  |
 | `public.angler_commerce(text, jsonb)` | [20261125075304](../supabase/migrations/20261125075304_play_market_settlement.sql#L195) |  |
-| `public.angler_community_signal(uuid)` | [20261127032314](../supabase/migrations/20261127032314_journal_community_controls.sql#L278) |  |
+| `public.angler_community_signal(uuid)` | [20261127121000](../supabase/migrations/20261127121000_review_journal_and_community.sql#L355) |  |
 | `public.angler_directory(uuid)` | [20261123112814](../supabase/migrations/20261123112814_angler_profile_cards.sql#L206) |  |
 | `public.angler_discussion_helpful(text, uuid, boolean)` | [20261123153421](../supabase/migrations/20261123153421_water_discussions.sql#L149) |  |
 | `public.angler_discussion_post(text, uuid, uuid, text, date)` | [20261123153421](../supabase/migrations/20261123153421_water_discussions.sql#L145) |  |
@@ -169,8 +171,11 @@ Active signatures in Liquibase deployment order. Each link opens the effective d
 | `public.angler_group_invite(uuid)` | [20261123110524](../supabase/migrations/20261123110524_private_fishing_groups.sql#L127) |  |
 | `public.angler_group_join(uuid)` | [20261123110524](../supabase/migrations/20261123110524_private_fishing_groups.sql#L129) |  |
 | `public.angler_group_leave(uuid)` | [20261123110524](../supabase/migrations/20261123110524_private_fishing_groups.sql#L131) |  |
-| `public.angler_group_link(uuid)` | [20261127032314](../supabase/migrations/20261127032314_journal_community_controls.sql#L133) |  |
+| `public.angler_group_link(uuid)` | [20261127121000](../supabase/migrations/20261127121000_review_journal_and_community.sql#L244) |  |
+| `public.angler_group_members(uuid, uuid)` | [20261127121000](../supabase/migrations/20261127121000_review_journal_and_community.sql#L279) |  |
 | `public.angler_group_monthly(uuid, boolean)` | [20261124122642](../supabase/migrations/20261124122642_optional_group_monthly_challenge.sql#L40) |  |
+| `public.angler_group_remove_member(uuid, uuid)` | [20261127121000](../supabase/migrations/20261127121000_review_journal_and_community.sql#L293) |  |
+| `public.angler_group_revoke(uuid)` | [20261127121000](../supabase/migrations/20261127121000_review_journal_and_community.sql#L270) |  |
 | `public.angler_group_tip_change(uuid, bigint, text, text, text)` | [20261127032314](../supabase/migrations/20261127032314_journal_community_controls.sql#L40) |  |
 | `public.angler_group_tip_post(uuid, uuid, text)` | [20261123142819](../supabase/migrations/20261123142819_private_group_tips.sql#L76) |  |
 | `public.angler_group_tips(uuid, bigint)` | [20261123142819](../supabase/migrations/20261123142819_private_group_tips.sql#L79) |  |
@@ -196,7 +201,7 @@ Active signatures in Liquibase deployment order. Each link opens the effective d
 | `public.angler_open_catch_card(uuid)` | [20261123180057](../supabase/migrations/20261123180057_public_catch_cards.sql#L126) |  |
 | `public.angler_parking_feedback(uuid, bigint)` | [20261126060000](../supabase/migrations/20261126060000_community_protection.sql#L141) |  |
 | `public.angler_parking_list(text)` | [20261125045854](../supabase/migrations/20261125045854_community_parking.sql#L115) |  |
-| `public.angler_parking_remove(text, uuid, integer)` | [20261127032314](../supabase/migrations/20261127032314_journal_community_controls.sql#L109) |  |
+| `public.angler_parking_remove(text, uuid, integer)` | [20261127121000](../supabase/migrations/20261127121000_review_journal_and_community.sql#L220) |  |
 | `public.angler_parking_review(uuid, integer, text)` | [20261126060000](../supabase/migrations/20261126060000_community_protection.sql#L146) |  |
 | `public.angler_parking_save(text, uuid, integer, numeric, numeric, text)` | [20261125045854](../supabase/migrations/20261125045854_community_parking.sql#L117) |  |
 | `public.angler_parking_waters()` | [20261125045854](../supabase/migrations/20261125045854_community_parking.sql#L113) |  |
@@ -207,9 +212,9 @@ Active signatures in Liquibase deployment order. Each link opens the effective d
 | `public.angler_public_card_publish(uuid, uuid, jsonb, text, text)` | [20261123180057](../supabase/migrations/20261123180057_public_catch_cards.sql#L120) |  |
 | `public.angler_public_card_withdraw(uuid)` | [20261123180057](../supabase/migrations/20261123180057_public_catch_cards.sql#L124) |  |
 | `public.angler_public_cards(bigint)` | [20261123180057](../supabase/migrations/20261123180057_public_catch_cards.sql#L122) |  |
-| `public.angler_register(text, text, text, date)` | [20261126080000](../supabase/migrations/20261126080000_age_and_guardians.sql#L25) |  |
+| `public.angler_register(text, text, text, date)` | [20261127121000](../supabase/migrations/20261127121000_review_journal_and_community.sql#L321) |  |
 | `public.angler_register_post_watch(uuid)` | [20261124101500](../supabase/migrations/20261124101500_post_notifications.sql#L23) |  |
-| `public.angler_registration_profile()` | [20261126080000](../supabase/migrations/20261126080000_age_and_guardians.sql#L8) |  |
+| `public.angler_registration_profile()` | [20261127121000](../supabase/migrations/20261127121000_review_journal_and_community.sql#L311) |  |
 | `public.angler_report_catch_card(uuid)` | [20261126060000](../supabase/migrations/20261126060000_community_protection.sql#L74) |  |
 | `public.angler_report_content(text, uuid)` | [20261126060000](../supabase/migrations/20261126060000_community_protection.sql#L85) |  |
 | `public.angler_report_parking_note(bigint, text)` | [20261126060000](../supabase/migrations/20261126060000_community_protection.sql#L153) |  |

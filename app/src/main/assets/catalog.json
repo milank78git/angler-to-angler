@@ -2,9 +2,9 @@
   "schema": 1,
   "country": "CZ",
   "zone": "Europe/Prague",
-  "revision": "2026-11-23",
+  "revision": "2026-11-27",
   "from": "2026-01-01",
-  "until": "2026-12-31",
+  "until": "2027-12-31",
   "law": "https://mze.gov.cz/public/portal/mze/legislativa/vap57781-6415",
   "species": {
     "pike": {

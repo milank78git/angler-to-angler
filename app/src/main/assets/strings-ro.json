@@ -660,7 +660,7 @@
  "trips.edit_catch": "Editează captura",
  "trips.edit": "Editează partida de pescuit",
  "europe-rules.scopes.pl": "Polonia · apele interioare de suprafață, lungimea trebuie să depășească pragul protejat",
- "parking.remove_info": "Înlăturaţi punctul partajat şi recenziile sale?",
+ "parking.remove_info": "Un loc evaluat de alții rămâne pe hartă împreună cu evaluările lor. Elimini contribuția ta?",
  "groups.remove_tip": "Îndepărtaţi vârful",
  "parking.no_offline": "Nu sunt locuri de parcare ambalate pentru această apă.",
  "trips.match_count": "Călătorie potrivire: {count}",
@@ -898,7 +898,6 @@
  "catalog.waters.401001.ends.2": "Stăvilarul din Mokropsy",
  "monthly.join": "Alăturaţi-vă luna asta.",
  "commerce.requested": "Plată solicitată: {amount}",
- "groups.link_lifetime": "Oricine are acest link poate intra în grup în decurs de 24 de ore. Trimite-l doar persoanelor pe care dorești să le inviți.",
  "catalog.species.barbel": "Barbus barbus",
  "commerce.paid": "Plătite până în prezent: {amount}",
  "waters.nearby_sorting_uses_the_published_water_outline": "Sortarea în apropiere foloseşte conturul publicat al apei.",
@@ -1174,9 +1173,11 @@
  "retention.until": "În cloud până la {date}",
  "retention.local": "Doar pe acest dispozitiv",
  "retention.expired": "Fotografia din cloud a expirat",
- "retention.renew": "Prelungește cu 12 luni",
+ "retention.renew": "Reînnoiește pentru 12 luni începând de azi",
  "retention.reupload": "Salvează din nou în cloud",
  "retention.pending": "Reînnoirea așteaptă conexiunea",
  "retention.due": "Fotografii care expiră în 30 de zile: {count}",
- "retention.policy": "Fotografiile capturilor sunt păstrate în cloud timp de 12 luni. Deschide fotografia în detaliu sau prelungește termenul. Fotografia de pe dispozitiv rămâne."
+ "retention.policy": "Fotografiile capturilor sunt păstrate în cloud timp de 12 luni. Deschide fotografia în detaliu sau prelungește termenul. Fotografia de pe dispozitiv rămâne.",
+ "groups.remove_member_confirm": "Elimini membrul și contribuțiile sale din grup?",
+ "trips.shared_copies": "Copiile partajate se păstrează. Șterge-le separat."
 }

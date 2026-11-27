@@ -3,7 +3,6 @@ package app.anglers.journal;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.os.Build;
 
 /** Formats the version of the installed Android package for the account screens and journal. */
 final class AppVersion {
@@ -13,7 +12,7 @@ final class AppVersion {
     String packageName = context.getPackageName();
     try {
       PackageInfo info = context.getPackageManager().getPackageInfo(packageName, 0);
-      long code = Build.VERSION.SDK_INT >= 28 ? info.getLongVersionCode() : info.versionCode;
+      long code = info.getLongVersionCode();
       int format = packageName.endsWith(".preview") ? R.string.pilot_version : R.string.app_version;
       return context.getString(format, info.versionName, code);
     } catch (PackageManager.NameNotFoundException e) {

@@ -936,7 +936,7 @@
  "parking.pikovice": "Pikovice · aparcamientu caleyeru xuntu al ríu",
  "parking.podolsko": "Podolsko · aparcamientu xuntu a la ponte Podolský",
  "parking.publish": "Confirmar y añedir",
- "parking.remove_info": "¿Esaniciar el puntu compartíu y les sos revisiones?",
+ "parking.remove_info": "Un llugar con valoraciones d’otres persones queda nel mapa coles valoraciones. ¿Quitar la to aportación?",
  "parking.review_saved": "Los sos comentarios fueron guardaos.",
  "parking.save_edit": "Corrección de publicación",
  "parking.save_review": "Guarda los mios comentarios",
@@ -1119,7 +1119,6 @@
  "field-hints.water-parking": "Amuesa na llista o nel mapa les agües con aparcamientu nel catálogu o compartíu por otros pescadores. Abre la ficha pa escoyer l'aparcamientu y entamar la navegación.",
  "fish_rules.water_class": "Tipu d'agua de pesca",
  "group_catch.confirm_remove": "¿Quitar del grupu esta captura y la so semeya? La entrada privada del diariu queda nel teléfonu.",
- "groups.link_lifetime": "Cualquiera que tenga esti enllaz pue xunise al grupu nes 24 hores siguientes. Compártelu namái con quien quieras convidar.",
  "groups.the_service_stores_the_group_name_membership": "El serviciu guarda'l nome del grupu, quién pertenez a él y los conseyos que publiques. Si sales, desaníciense los tos conseyos, les semeyes de la competición y los tos votos.",
  "help-topics.accounts.steps.2": "Si escaeciste la contraseña, pide restablecela y usa l'últimu enllaz que recibieres per corréu. Usa Atrás n'Android pa volver dende l'aplicación de corréu. Nos axustes de la cuenta puedes zarrar la sesión y atopar el contactu pa solicitar el borráu.",
  "help-topics.catalog.steps.2": "Busca pol nome llocal o pol científicu. Les llistes por país usen rexistros de presencia y llistes publicaes. Tamién puedes escoyer el país al crear una ufierta. El catálogu completu inclúi especies ensin esos rexistros. Abre la especie pa ver el nome científicu, la distribución conocida y les fontes.",
@@ -1174,9 +1173,11 @@
   "retention.until": "Na nube hasta’l {date}",
   "retention.local": "Namás nesti preséu",
   "retention.expired": "La copia na nube caducó",
-  "retention.renew": "Renovar por 12 meses",
+  "retention.renew": "Renovar por 12 meses dende güei",
   "retention.reupload": "Volver guardar na nube",
   "retention.pending": "La renovación espera pola conexón",
   "retention.due": "Semeyes que caduquen en 30 díes: {count}",
-  "retention.policy": "Les semeyes de les captures guárdense na nube 12 meses. Abrir el detalle de la semeya o renovala a mano entama un plazu nuevu. La semeya del preséu consérvase."
+  "retention.policy": "Les semeyes de les captures guárdense na nube 12 meses. Abrir el detalle de la semeya o renovala a mano entama un plazu nuevu. La semeya del preséu consérvase.",
+  "groups.remove_member_confirm": "¿Quitar a esti miembru y les sos aportaciones del grupu?",
+  "trips.shared_copies": "Les copies compartíes caltiénense. Desániciales por separao."
 }

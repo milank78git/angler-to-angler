@@ -683,7 +683,7 @@
  "alerts.tips": "Niegen Tipp in de Grupp",
  "alerts.replies": "Niege Antwoort op dien Fraag",
  "parking.remove": "Parksteed wegmaken",
- "parking.remove_info": "De deelt Parksteed un de Beoordelen doröver wegmaken?",
+ "parking.remove_info": "En Steed mit Beoordelungen vun anner Lüüd blifft mit ehr Beoordelungen op de Koort. Dien Bidrag wegnehmen?",
  "alerts.community": "Private Narichten, Antern un wat in de Gruppen un op den Marktplatz passeert",
  "trips.remove_catch": "Dissen Fang un sien Foto löschen",
  "catalog.species.pike": "Esox lucius",
@@ -702,10 +702,13 @@
  "water_photo.personal": "Mien privaat Foto",
  "water_reports.withdraw_report": "Mellen torüchtrecken",
  "emoji.thanks": "Dank di",
- "groups.link_lifetime": "Elkeen mit dissen Link kann binnen 24 Stünnen bidreden. Giff em bloots an de Lüüd wieder, de du inladen wullt.",
  "sync.erase": "Online-Kopie löschen",
  "sync.erase_info": "De Sekerheitskopie in dien Konto löschen un dat automaatsche Afglieken op de verbunnen Telefonen anhollen? Dien Indrääg op dit Telefon blievt hier.",
  "sync.erased": "De Online-Kopie is löscht. Dien Daagbook blifft op dit Telefon.",
  "account.offline_expired": "De söven Daag för den Togang ahn Internet sünd vörbi. Verbinnen di mit dat Internet un sluut dat Daagbook op, dat du wiedermaken kannst. Dien sekerte Indrääg sünd op dit Telefon.",
- "fish_catalogue.no_retention": "De fungen Fisch mutt wedder torüch in’t Water"
+ "fish_catalogue.no_retention": "De fungen Fisch mutt wedder torüch in’t Water",
+ "groups.remove_member_confirm": "Dissen Liddmaat un de Bidrääg vun dissen Liddmaat ut de Grupp nehmen?",
+ "trips.shared_copies": "De deelten Kopien blievt bestahn. Do se enkelt weg.",
+ "retention.renew": "Vun vundaag af för 12 Maanden verlengern",
+ "retention.title": "Biller in de Cloud"
 }

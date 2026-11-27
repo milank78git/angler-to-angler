@@ -39,7 +39,7 @@ Verify the consent pages before authentication, both unchecked boxes, first regi
 
 Apply the `private_fishing_groups` migration after `profiles`. Group management requires a current verified profile, a confirmed email and an online access token. Unlocking restores the session across restarts. The app refreshes access tokens on demand. A revoked refresh credential requires online sign-in. The existing offline journal lease remains independent.
 
-The service stores a group name, owner and membership identifiers. The listing returns only the caller’s group names, IDs, member counts and owner/member role. An owner can share multiple independent 24-hour invitation links. Each recipient opens a confirmation in the app or pastes the code. Codes issued by older clients retain their single-use behavior. The database retains only hashes. Leaving removes the membership. Dissolving a group removes all memberships and the invitation. Account erasure removes that account’s memberships and groups it owns. Include these records when handling a profile access or erasure request. The phone keeps group responses in memory. Journal contents are never uploaded by these functions.
+The service stores a group name, owner and membership identifiers. The listing returns only the caller’s group names, IDs, member counts and owner/member role. An owner can issue one single-use link valid for up to 24 hours. Issuing another link replaces it. The owner can also revoke it, view the membership list and remove an individual member. Removing a member has the same group-content cleanup as leaving. Previously issued reusable links stop working when the single-use migration is installed. Each recipient opens a confirmation in the app or pastes the code. The database retains only hashes. Leaving removes the membership. Dissolving a group removes all memberships and the invitation. Account erasure removes that account’s memberships and groups it owns. Include these records when handling a profile access or erasure request. The phone keeps group responses in memory. Journal contents are never uploaded by these functions.
 
 Apply the `private_group_tips` migration for direct trip tips. The service stores the author, group, posting time and exact previewed text. The author chooses the group for each post. Current members can read and report tips. Authors can edit or withdraw their own text. Group owners can remove tips and withdraw entries from the weekly competition. Leaving removes the member’s posts, dissolving a group removes its feed, and account erasure removes the author’s posts. Include authored group tips in an account export.
 
@@ -203,3 +203,28 @@ they last edited. Previous private messages remain stored. During the under-15 r
 neither participant can open their conversation or see it in the inbox. Copies already
 received on another device cannot be recalled. When both users qualify again the stored
 conversation becomes accessible again.
+
+### Reviewing reported group tips
+
+Only an authorized database operator can inspect the private moderation queue. A report flags an individual tip for review. The group owner and the author can also remove a visible tip in the app.
+
+```sql
+select f.post_position, f.reported_at, t.group_id, t.body
+from angler_groups_private.tip_flags f
+join angler_groups_private.tips t on t.position = f.post_position
+order by f.reported_at, f.post_position
+limit 25;
+```
+
+Review the current text against the community rules. Record the decision in the operator's restricted case log using the position, date and reason. To dismiss a report, delete only its flag. For removal, clear the tip body and its flag in the same transaction. Lock the tip row first, re-read the text after acquiring the lock, and roll back if it differs from the reviewed text. Keeping the tip row prevents a delayed retry from publishing it again. Set the psql variable `position` to the reviewed numeric position and `remove_tip` to `true` for removal or `false` for dismissal.
+
+```sql
+begin;
+select body from angler_groups_private.tips where position = :position for update;
+-- Continue only after confirming the current text.
+\if :remove_tip
+update angler_groups_private.tips set body = null where position = :position;
+\endif
+delete from angler_groups_private.tip_flags where post_position = :position;
+commit;
+```
