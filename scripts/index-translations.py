@@ -33,10 +33,10 @@ def read(path):
     return json.loads(path.read_text(), object_pairs_hook=unique)
 
 
-def check():
+def check(show_coverage=False):
     english = read(ASSETS / "strings-en.json")
     czech = read(ASSETS / "strings-cs.json")
-    fully_translated = {"cs", "de", "en", "es", "fr", "it", "nl", "pl", "pt", "ro", "sk"}
+    fully_translated = {"ca", "cs", "de", "en", "es", "fr", "gl", "it", "nl", "oc", "pl", "pt", "ro", "sk"}
     missing_total = 0
     complete = 0
     packs = sorted(ASSETS.glob("strings-*.json"))
@@ -47,6 +47,8 @@ def check():
         missing = english.keys() - entries.keys()
         if missing and p.stem[8:] in fully_translated:
             raise ValueError(f"{p.name}: missing {len(missing)} messages: {sorted(missing)[:8]}")
+        if show_coverage:
+            print(f"{p.stem[8:]:4} {len(entries):4}/{len(english)}  ({len(missing)} missing)")
         missing_total += len(missing)
         complete += not missing
         for key, value in entries.items():
@@ -118,5 +120,5 @@ def check():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true", help="Validate without modifying any resources (default)")
-    parser.parse_args()
-    check()
+    parser.add_argument("--coverage", action="store_true", help="Also list coverage for every packaged locale")
+    check(parser.parse_args().coverage)

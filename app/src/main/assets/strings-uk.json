@@ -68,8 +68,8 @@
  "catch_form.enter_a_fish_species": "Введіть рибний вид.",
  "catch_form.enter_a_positive_length_in_centimetres": "Введіть позитивну довжину в сантиметрах.",
  "catch_form.for_older_photos_enter_the_location_manually": "Для попередніх фотографій введіть місце вручну або залиште його порожнім.",
- "catch_form.latitude": "Латидонія",
- "catch_form.longitude": "довжини",
+ "catch_form.latitude": "Широта",
+ "catch_form.longitude": "Довгота",
  "catch_form.measured_length_cm": "Вимірювальна довжина ( см)",
  "catch_form.new_catch": "Новий поцілунок",
  "catch_form.photograph_catch_at_the_water": "Фотографія збирається у воді",
@@ -661,5 +661,14 @@
  "parking.notes": "Зауважи",
  "rating.mine": "Ваш рейтинг",
  "trips.edit_catch": "Редагувати улов",
- "trips.edit": "Редагувати риболовлю"
+ "trips.edit": "Редагувати риболовлю",
+ "atlas.map": "Географічна карта",
+ "parking.point": "Стоянка",
+ "emoji.fishing": "Рибальство",
+ "emoji.fish": "Риби",
+ "emoji.laughter": "Сміх",
+ "emoji.sadness": "Сум",
+ "emoji.heart": "Символ серця",
+ "waters.organisation": "Організація",
+ "waters.water_body": "Водний об'єкт"
 }

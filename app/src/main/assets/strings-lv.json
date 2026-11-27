@@ -68,8 +68,8 @@
  "catch_form.enter_a_fish_species": "Ieeja zivju sugas.",
  "catch_form.enter_a_positive_length_in_centimetres": "Ievadiet pozitīvu garumu centimetros.",
  "catch_form.for_older_photos_enter_the_location_manually": "Vecāku fotogrāfiju gadījumā ievietojiet atrašanās vietu manuāli vai atstāj to tukšu.",
- "catch_form.latitude": "Latīnija",
- "catch_form.longitude": "Ilgums",
+ "catch_form.latitude": "Ģeogrāfiskais platums",
+ "catch_form.longitude": "Ģeogrāfiskais garums",
  "catch_form.measured_length_cm": "Mērētā garuma (cm)",
  "catch_form.new_catch": "Jaunais uzņemšanas",
  "catch_form.photograph_catch_at_the_water": "Fotogrāfija uzņemta ūdenī",
@@ -660,5 +660,15 @@
  "parking.notes": "Piezīmes",
  "rating.mine": "Jūsu vērtējums",
  "trips.edit_catch": "Rediģēt lomu",
- "trips.edit": "Rediģēt makšķerēšanas braucienu"
+ "trips.edit": "Rediģēt makšķerēšanas braucienu",
+ "atlas.map": "Ģeogrāfiskā karte",
+ "parking.point": "Autostāvvieta",
+ "emoji.fishing": "Zvejošana",
+ "emoji.fish": "Zivis",
+ "emoji.laughter": "Smiekli",
+ "emoji.sadness": "Skumjas",
+ "emoji.heart": "Sirds",
+ "waters.organisation": "Organizācija",
+ "waters.water_body": "Ūdenstilpe",
+ "license.title": "Makšķerēšanas atļauja"
 }

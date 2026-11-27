@@ -67,8 +67,8 @@
  "catch_form.enter_a_fish_species": "Өзiң жасайды.",
  "catch_form.enter_a_positive_length_in_centimetres": "Бұл үшін де ұзақ уақытқа дейін қағидалардан тұрады.",
  "catch_form.for_older_photos_enter_the_location_manually": "Бұл үшін, бұл жерде де ұзақ уақытқа дейін ұзақ уақытқа дейін ұзақ уақытқа дейін ұзақ уақытқа дейін ұзақ уақытқа дейін ұзақ уақытқа дейін ұзақ уақытқа дейін ұзақ уақытқа дейін ұзақ уақытқа дейін ұзақ уақытқа дейін ұзақ уақытқа дейін ұзақ уақытқа дейін ұзақ уақытқа дейін ұзақ уақытқа дейін ұзақ уақытқа дейін ұзақ уақытқа дейін ұзақ уақытқа",
- "catch_form.latitude": "Латушалық",
- "catch_form.longitude": "Өткен",
+ "catch_form.latitude": "Ендік",
+ "catch_form.longitude": "Бойлық",
  "catch_form.measured_length_cm": "Өнімдер мен қабығы (см)",
  "catch_form.new_catch": "Өткен керемет",
  "catch_form.photograph_catch_at_the_water": "Фотографиялық қосылды",
@@ -653,5 +653,10 @@
  "parking.notes": "Ақыттық",
  "rating.mine": "Тұрықтық рейтинг",
  "trips.edit_catch": "Ауланған балық жазбасын өңдеу",
- "trips.edit": "Балық аулау сапарын өңдеу"
+ "trips.edit": "Балық аулау сапарын өңдеу",
+ "atlas.map": "Географиялық карта",
+ "emoji.fishing": "Балық аулау",
+ "emoji.fish": "Балықтар",
+ "emoji.laughter": "Күлкі",
+ "waters.organisation": "Ұйым"
 }

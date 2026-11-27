@@ -67,8 +67,8 @@
  "catch_form.check_both_coordinates_latitude_90_longitude_180": "Her iki koordinatın da kontrol edilmesi (latitude ±90°, longitude ±180°).",
  "catch_form.enter_a_fish_species": "Bir balık türüne girin.",
  "catch_form.for_older_photos_enter_the_location_manually": "Daha eski fotoğraflar için yerini manuel olarak girin veya boş bırakın.",
- "catch_form.latitude": "Latitude",
- "catch_form.longitude": "Uzunluk",
+ "catch_form.latitude": "Enlem",
+ "catch_form.longitude": "Boylam",
  "catch_form.measured_length_cm": "ölçülen uzunluk (cm)",
  "catch_form.new_catch": "Yeni Catch",
  "catch_form.photograph_catch_at_the_water": "Fotoğraf çekimi suya",
@@ -659,5 +659,14 @@
  "parking.notes": "Notlar",
  "rating.mine": "Sizin Değerlendirmesi",
  "trips.edit_catch": "Av kaydını düzenle",
- "trips.edit": "Balık gezisini düzenle"
+ "trips.edit": "Balık gezisini düzenle",
+ "atlas.map": "Harita",
+ "parking.point": "Otopark yapısı",
+ "emoji.fishing": "Balıkçılık",
+ "emoji.fish": "Balık",
+ "emoji.laughter": "Gülmek",
+ "emoji.sadness": "Üzüntü",
+ "emoji.heart": "Kalp",
+ "waters.organisation": "Kuruluş",
+ "waters.water_body": "Su kütlesi"
 }

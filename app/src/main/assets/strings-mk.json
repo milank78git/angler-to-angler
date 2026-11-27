@@ -68,8 +68,8 @@
  "catch_form.enter_a_fish_species": "Внесете ја рибата.",
  "catch_form.enter_a_positive_length_in_centimetres": "Внесете позитивна должина во сантиметри.",
  "catch_form.for_older_photos_enter_the_location_manually": "За постар фотографии, влезте го локацијата ручно или оставете го празен.",
- "catch_form.latitude": "Латидонија",
- "catch_form.longitude": "должина",
+ "catch_form.latitude": "Географска ширина",
+ "catch_form.longitude": "Географска должина",
  "catch_form.measured_length_cm": "Мерен должина (см)",
  "catch_form.new_catch": "Нов улов",
  "catch_form.photograph_catch_at_the_water": "Фотографија на снимање во вода",
@@ -662,5 +662,12 @@
  "parking.notes": "Забелешки",
  "rating.mine": "Вашата рејтинг",
  "trips.edit_catch": "Измени го уловот",
- "trips.edit": "Измени го риболовниот излет"
+ "trips.edit": "Измени го риболовниот излет",
+ "atlas.map": "Географска карта",
+ "parking.point": "Паркиралиште",
+ "emoji.fishing": "Риболов",
+ "emoji.fish": "Риби",
+ "emoji.laughter": "Смеа",
+ "waters.organisation": "Организација",
+ "waters.water_body": "Водна површина"
 }

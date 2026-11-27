@@ -68,8 +68,8 @@
  "catch_form.enter_a_fish_species": "Shko në një lloj peshku.",
  "catch_form.enter_a_positive_length_in_centimetres": "Shkruani një gjatësi pozitive në centimetra.",
  "catch_form.for_older_photos_enter_the_location_manually": "Për fotot më të vjetra, shkruani vendndodhjen manualisht ose lëreni të zbrazë.",
- "catch_form.latitude": "Latitude të",
- "catch_form.longitude": "gjatësi",
+ "catch_form.latitude": "Gjerësia gjeografike",
+ "catch_form.longitude": "Gjatësia gjeografike",
  "catch_form.measured_length_cm": "Madhësia e matur (cm)",
  "catch_form.new_catch": "të reja catch",
  "catch_form.photograph_catch_at_the_water": "Fotografitë e kapura në ujë",
@@ -657,5 +657,11 @@
  "parking.notes": "Notat",
  "rating.mine": "Rritja juaj",
  "trips.edit_catch": "Ndrysho kapjen",
- "trips.edit": "Ndrysho udhëtimin e peshkimit"
+ "trips.edit": "Ndrysho udhëtimin e peshkimit",
+ "atlas.map": "Hartë",
+ "emoji.fish": "Peshku",
+ "emoji.laughter": "E qeshura",
+ "emoji.sadness": "Trishtim",
+ "waters.organisation": "Organizatë",
+ "waters.water_body": "Trup ujor"
 }

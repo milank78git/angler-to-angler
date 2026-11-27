@@ -68,8 +68,8 @@
  "catch_form.enter_a_fish_species": "Vstopite v ribje vrste.",
  "catch_form.enter_a_positive_length_in_centimetres": "Vnesite pozitivno dolžino v centimetrov.",
  "catch_form.for_older_photos_enter_the_location_manually": "Za starejše fotografije vnesite lokacijo ročno ali jo pustite prazno.",
- "catch_form.latitude": "Latitude",
- "catch_form.longitude": "dolžina",
+ "catch_form.latitude": "Zemljepisna širina",
+ "catch_form.longitude": "Zemljepisna dolžina",
  "catch_form.measured_length_cm": "Merjena dolžina (cm)",
  "catch_form.new_catch": "Novi lovec",
  "catch_form.photograph_catch_at_the_water": "Fotografija ujeti v vodi",
@@ -660,5 +660,15 @@
  "catalog.species.zander": "Smuč",
  "rating.mine": "Vaša ocena",
  "trips.edit_catch": "Uredi ulov",
- "trips.edit": "Uredi ribolovni izlet"
+ "trips.edit": "Uredi ribolovni izlet",
+ "atlas.map": "Karta",
+ "parking.point": "Parkirišče",
+ "emoji.fishing": "Ribolov",
+ "emoji.fish": "Riba",
+ "emoji.laughter": "Smeh",
+ "emoji.sadness": "Žalost",
+ "emoji.heart": "Srce",
+ "waters.organisation": "Organizacija",
+ "waters.water_body": "Vodno telo",
+ "emoji.thumbs_up": "Dvignjen palec"
 }

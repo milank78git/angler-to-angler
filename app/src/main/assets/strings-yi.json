@@ -68,7 +68,7 @@
  "catch_form.enter_a_fish_species": "און א דג מין.",
  "catch_form.enter_a_positive_length_in_centimetres": "דעריבער א יציב א טעמט אין סנטימטר.",
  "catch_form.for_older_photos_enter_the_location_manually": "פֿאַר די זקן פאַטע, נייַן געניפט צו מיקום או לאַעכט.",
- "catch_form.latitude": "געגנט",
+ "catch_form.latitude": "גארטל ליניע",
  "catch_form.longitude": "א טעם",
  "catch_form.measured_length_cm": "די פּערטאָנוס (cm)",
  "catch_form.new_catch": "אַדאַם",
@@ -655,5 +655,10 @@
  "water_photo.cuzk": "© ČÚZK",
  "catalog.label": "טשעכיי",
  "parking.notes": "הערות",
- "rating.mine": "די רייט"
+ "rating.mine": "די רייט",
+ "atlas.map": "מאפע",
+ "emoji.fish": "פיש",
+ "emoji.laughter": "לאכן",
+ "emoji.sadness": "אומעט",
+ "waters.organisation": "ארגאניזאציע"
 }

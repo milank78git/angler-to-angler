@@ -68,8 +68,8 @@
  "catch_form.enter_a_fish_species": "Կրթեք մի ծաղիկ.",
  "catch_form.enter_a_positive_length_in_centimetres": "Ներկայացրեք հաջողական երկարությունը սենյակների մեջ։",
  "catch_form.for_older_photos_enter_the_location_manually": "Ավելի հին նկարների համար, ձեռք բերեք տեղը կամ թողեք այն թաքնված:",
- "catch_form.latitude": "Լուսանկարներ",
- "catch_form.longitude": "երկարություն",
+ "catch_form.latitude": "Աշխարհագրական լայնություն",
+ "catch_form.longitude": "Աշխարհագրական երկայնություն",
  "catch_form.measured_length_cm": "Մեկնարկված երկարությունը (cm)",
  "catch_form.new_catch": "Նոր սենյակ",
  "catch_form.photograph_catch_at_the_water": "Photo Catch Վիքիպահեստում",
@@ -657,5 +657,14 @@
  "parking.notes": "Հիշողություն",
  "rating.mine": "Ձեր արժեքը",
  "trips.edit_catch": "Խմբագրել որսը",
- "trips.edit": "Խմբագրել ձկնորսական ուղևորությունը"
+ "trips.edit": "Խմբագրել ձկնորսական ուղևորությունը",
+ "atlas.map": "Քարտեզ",
+ "emoji.fishing": "Ձկնորսություն",
+ "emoji.fish": "Ձկներ",
+ "emoji.laughter": "Ծիծաղ",
+ "emoji.sadness": "Տխրություն",
+ "emoji.heart": "Սիրտ",
+ "waters.organisation": "Կազմակերպություն",
+ "waters.water_body": "Ջրային օբյեկտ",
+ "license.title": "Ձկնորսության լիցենզիա"
 }

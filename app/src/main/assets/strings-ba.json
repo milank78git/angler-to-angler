@@ -68,8 +68,8 @@
  "catch_form.enter_a_fish_species": "Балыҡ төрлө төргәктәрен кәңәшләгеҙ.",
  "catch_form.enter_a_positive_length_in_centimetres": "Ҡайһы ваҡыт уңышлы оҙонлоҡҡа инегеҙ.",
  "catch_form.for_older_photos_enter_the_location_manually": "Өҫтәге рәсемдәр өсөн урынды ҡулъяҙмаға индерегеҙ йә уны бос ҡалығыҙ.",
- "catch_form.latitude": "Диңгелек",
- "catch_form.longitude": "Күңеллек",
+ "catch_form.latitude": "Географик киңлек",
+ "catch_form.longitude": "Оҙонлоҡ",
  "catch_form.measured_length_cm": "Оҙонлоҡ (cm)",
  "catch_form.new_catch": "Яңы алыу",
  "catch_form.photograph_catch_at_the_water": "Суҙан фотоһүрәт ҡулланыу",
@@ -657,5 +657,11 @@
  "water_photo.cuzk": "© ČÚZK",
  "catalog.label": "Чехия",
  "parking.notes": "Иҫкәрмәләр",
- "rating.mine": "Рейтингегеҙ"
+ "rating.mine": "Рейтингегеҙ",
+ "atlas.map": "Географик карта",
+ "emoji.fishing": "Балыҡ тотоу",
+ "emoji.fish": "Балыҡтар",
+ "waters.organisation": "Ойошма",
+ "waters.water_body": "Һыу объекты",
+ "catalog.species.roach": "Сабаҡ"
 }

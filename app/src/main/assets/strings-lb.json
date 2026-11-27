@@ -68,8 +68,8 @@
  "catch_form.enter_a_fish_species": "Et gëtt et e Fischspezifesch.",
  "catch_form.enter_a_positive_length_in_centimetres": "Et gëtt eng positiv Längte an Centremeter.",
  "catch_form.for_older_photos_enter_the_location_manually": "Fir méi alten Fotoen, enter de Placement manuell oder lass den vuck.",
- "catch_form.latitude": "Léier",
- "catch_form.longitude": "Léicht",
+ "catch_form.latitude": "Greographesch Breet",
+ "catch_form.longitude": "Geographesch Längt",
  "catch_form.measured_length_cm": "Déi meescht vun de Stäer (cm)",
  "catch_form.new_catch": "Déi éischt Catch",
  "catch_form.photograph_catch_at_the_water": "Fotograféiert am Wasser",
@@ -655,5 +655,12 @@
  "parking.notes": "Notéiert",
  "rating.mine": "De Rating ass",
  "trips.edit_catch": "Fang änneren",
- "trips.edit": "Fëscherausfluch änneren"
+ "trips.edit": "Fëscherausfluch änneren",
+ "atlas.map": "Landkaart",
+ "parking.point": "Parkplaz",
+ "emoji.fishing": "Fëscherei",
+ "emoji.fish": "Fësch",
+ "emoji.laughter": "Laachen",
+ "waters.organisation": "Organisatioun",
+ "waters.water_body": "Gewässer"
 }

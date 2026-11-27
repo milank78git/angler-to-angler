@@ -68,8 +68,8 @@
  "catch_form.enter_a_fish_species": "Вход в рыбный вид.",
  "catch_form.enter_a_positive_length_in_centimetres": "Введите положительную длину в сантиметрах.",
  "catch_form.for_older_photos_enter_the_location_manually": "Для более старых фотографий введите место вручную или оставите его пустым.",
- "catch_form.latitude": "Латидо",
- "catch_form.longitude": "Длительность",
+ "catch_form.latitude": "Широта",
+ "catch_form.longitude": "Долгота",
  "catch_form.measured_length_cm": "Измеримая длина (см)",
  "catch_form.new_catch": "Новый пойматель",
  "catch_form.photograph_catch_at_the_water": "Фотографии пойманы на воде",
@@ -662,5 +662,15 @@
  "parking.notes": "Примечания",
  "rating.mine": "Ваш рейтинг",
  "trips.edit_catch": "Изменить улов",
- "trips.edit": "Изменить рыбалку"
+ "trips.edit": "Изменить рыбалку",
+ "atlas.map": "Географическая карта",
+ "parking.point": "Парковка",
+ "emoji.fishing": "Рыбная ловля",
+ "emoji.fish": "Рыбы",
+ "emoji.laughter": "Смех",
+ "emoji.sadness": "Грусть",
+ "emoji.heart": "Символ сердца",
+ "waters.organisation": "Организация",
+ "waters.water_body": "Водный объект",
+ "emoji.thumbs_up": "Большой палец вверх"
 }

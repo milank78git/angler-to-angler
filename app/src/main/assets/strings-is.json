@@ -68,8 +68,8 @@
  "catch_form.enter_a_fish_species": "Íhugaðu fiskar tegund.",
  "catch_form.enter_a_positive_length_in_centimetres": "Ítalaðu jákvæð lengd í millimeter.",
  "catch_form.for_older_photos_enter_the_location_manually": "Fyrir eldri myndir, kom inn staðsetningu handlega eða láta það þangað.",
- "catch_form.latitude": "Látíð",
- "catch_form.longitude": "Lággæði",
+ "catch_form.latitude": "Breiddargráða",
+ "catch_form.longitude": "Lengdargráða",
  "catch_form.measured_length_cm": "Lágtakið (cm) í hárum",
  "catch_form.new_catch": "Nýtt fót",
  "catch_form.photograph_catch_at_the_water": "Myndin á myndinni á vatni",
@@ -660,5 +660,11 @@
  "parking.notes": "notum",
  "rating.mine": "Þitt áætlun",
  "trips.edit_catch": "Breyta afla",
- "trips.edit": "Breyta veiðiferð"
+ "trips.edit": "Breyta veiðiferð",
+ "atlas.map": "Landakort",
+ "emoji.fishing": "Fiskveiðar",
+ "emoji.fish": "Fiskur",
+ "emoji.sadness": "Depurð",
+ "waters.organisation": "Samtök",
+ "waters.water_body": "Vatnshlot"
 }

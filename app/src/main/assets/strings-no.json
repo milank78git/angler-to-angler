@@ -68,8 +68,8 @@
  "catch_form.enter_a_fish_species": "Inn i en fiskespesiasjon.",
  "catch_form.enter_a_positive_length_in_centimetres": "Skriv inn en positiv lengde i centimeter.",
  "catch_form.for_older_photos_enter_the_location_manually": "For eldre bilder, skriv inn stedet manuelt eller la det tomt.",
- "catch_form.latitude": "Latitude",
- "catch_form.longitude": "Lunget",
+ "catch_form.latitude": "Breddegrad",
+ "catch_form.longitude": "Lengdegrad",
  "catch_form.measured_length_cm": "Målt lengde (cm)",
  "catch_form.new_catch": "Nytt fangst",
  "catch_form.photograph_catch_at_the_water": "Fotografi fanget ved vannet",
@@ -661,5 +661,15 @@
  "parking.notes": "Noter",
  "rating.mine": "Din vurdering",
  "trips.edit_catch": "Rediger fangst",
- "trips.edit": "Rediger fisketur"
+ "trips.edit": "Rediger fisketur",
+ "atlas.map": "Kart",
+ "parking.point": "Parkeringsplass",
+ "emoji.fishing": "Fiske",
+ "emoji.fish": "Fisk",
+ "emoji.laughter": "Latter",
+ "emoji.sadness": "Sørgmodighet",
+ "emoji.heart": "Hjerte",
+ "waters.organisation": "Organisasjon",
+ "waters.water_body": "Vannmasse",
+ "license.title": "Fiskekort"
 }

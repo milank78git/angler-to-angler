@@ -67,8 +67,8 @@
  "catch_form.enter_a_fish_species": "Zapodajće rěbske družiny.",
  "catch_form.enter_a_positive_length_in_centimetres": "Zapodajće pozitiwne dołhosć w centimetrow.",
  "catch_form.for_older_photos_enter_the_location_manually": "Za starše wobrazy zapodajće městno manuelnje abo pusti je prózdne.",
- "catch_form.latitude": "Wobrazowka:",
- "catch_form.longitude": "Dłuhota",
+ "catch_form.latitude": "Geografiska šěrokosć",
+ "catch_form.longitude": "Geografiska dołhosć",
  "catch_form.measured_length_cm": "Měrjene dołhosć (cm)",
  "catch_form.new_catch": "Nowe přinosće",
  "catch_form.photograph_catch_at_the_water": "Fotografiske mašiny na wodnje",
@@ -652,5 +652,11 @@
  "water_photo.cuzk": "© ČÚZK",
  "catalog.label": "Čěska republika",
  "parking.notes": "Přispomnjenja",
- "rating.mine": "Waše hódnoćenje"
+ "rating.mine": "Waše hódnoćenje",
+ "atlas.map": "Karta",
+ "emoji.fish": "Ryby",
+ "emoji.heart": "Wutrobička",
+ "waters.organisation": "Organizacija",
+ "waters.water_body": "Wodźizna",
+ "catalog.species.pike": "Šćuka"
 }

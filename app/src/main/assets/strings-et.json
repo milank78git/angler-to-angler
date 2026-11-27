@@ -67,8 +67,8 @@
  "catch_form.enter_a_fish_species": "Sissejuhatakse kala liiki.",
  "catch_form.enter_a_positive_length_in_centimetres": "Sisestage positiivne pikkus sentimeetrites.",
  "catch_form.for_older_photos_enter_the_location_manually": "Vanemate fotode puhul sisestage asukoht manuaalselt või jäta see tühja.",
- "catch_form.latitude": "Latüa",
- "catch_form.longitude": "Pikad",
+ "catch_form.latitude": "Laius",
+ "catch_form.longitude": "Pikkus",
  "catch_form.measured_length_cm": "Mõõdetud pikkus (cm)",
  "catch_form.new_catch": "Uus kapsas",
  "catch_form.photograph_catch_at_the_water": "Fotograafia võttis vee all",
@@ -675,5 +675,13 @@
  "catalog.species.roach": "Särg",
  "catalog.species.zander": "Koha",
  "parking.notes": "Märkused",
- "rating.mine": "Teie hinnang"
+ "rating.mine": "Teie hinnang",
+ "atlas.map": "Kaart",
+ "parking.point": "Parkla",
+ "emoji.fishing": "Kalapüük",
+ "emoji.fish": "Kala",
+ "emoji.laughter": "Naer",
+ "emoji.sadness": "Kurbus",
+ "waters.organisation": "Organisatsioon",
+ "waters.water_body": "Veekogu"
 }

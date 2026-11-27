@@ -68,8 +68,8 @@
  "catch_form.enter_a_fish_species": "Yn it fieren fan vissen.",
  "catch_form.enter_a_positive_length_in_centimetres": "Yn it earste yn 'e positive lengte yn centimeter.",
  "catch_form.for_older_photos_enter_the_location_manually": "Foar oudere foto's, ynstallearje de lokaasje manuele of laat it leeg.",
- "catch_form.latitude": "Latitude yn",
- "catch_form.longitude": "Lange yn",
+ "catch_form.latitude": "Breedtegraad",
+ "catch_form.longitude": "Lingtegraad",
  "catch_form.measured_length_cm": "De lengte is mûnt (cm)",
  "catch_form.new_catch": "Yn it hâld",
  "catch_form.photograph_catch_at_the_water": "Foto fan it water",
@@ -658,5 +658,12 @@
  "parking.notes": "Yntegrearre",
  "rating.mine": "De rating",
  "trips.edit_catch": "Fangst bewurkje",
- "trips.edit": "Fisktocht bewurkje"
+ "trips.edit": "Fisktocht bewurkje",
+ "atlas.map": "Kaart",
+ "parking.point": "Parkearterrein",
+ "emoji.fishing": "Fiskjen",
+ "emoji.fish": "Fisk",
+ "emoji.heart": "Hert",
+ "waters.organisation": "Organisaasje",
+ "emoji.thumbs_up": "Tomme omheech"
 }

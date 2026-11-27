@@ -66,8 +66,8 @@
  "catch_form.enter_a_fish_species": "Un poeth e poeth.",
  "catch_form.enter_a_positive_length_in_centimetres": "Un centimeet a poeth an centimeet.",
  "catch_form.for_older_photos_enter_the_location_manually": "For older photos, enter the location manually or leave it empty.",
- "catch_form.latitude": "L'Egipta",
- "catch_form.longitude": "Longitud",
+ "catch_form.latitude": "Ledred",
+ "catch_form.longitude": "Hedred",
  "catch_form.measured_length_cm": "L'aul e e e e e e e e e e e e e e e e e e e e e e e e e e e",
  "catch_form.new_catch": "Neo Cappuccino",
  "catch_form.photograph_catch_at_the_water": "Foto e't e't e't e't e't e't e't e't e't e't e't e",
@@ -648,5 +648,11 @@
  "catalog.species.pike": "Beked",
  "catalog.species.roach": "Mandog",
  "parking.notes": "Tè e Nè",
- "rating.mine": "E'm not rating"
+ "rating.mine": "E'm not rating",
+ "atlas.map": "Kartenn",
+ "emoji.fishing": "Peskerezh",
+ "emoji.fish": "Pesk",
+ "emoji.laughter": "C'hoarzh",
+ "waters.organisation": "Aozadur",
+ "waters.water_body": "Ledennad dour"
 }

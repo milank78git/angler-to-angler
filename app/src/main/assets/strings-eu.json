@@ -660,5 +660,15 @@
  "parking.notes": "Oharrak",
  "rating.mine": "Zure balioa",
  "trips.edit_catch": "Editatu harrapaketa",
- "trips.edit": "Editatu arrantza-irteera"
+ "trips.edit": "Editatu arrantza-irteera",
+ "atlas.map": "Mapa",
+ "parking.point": "Aparkaleku",
+ "emoji.fishing": "Arrantza",
+ "emoji.fish": "Arrain",
+ "emoji.laughter": "Barre",
+ "emoji.sadness": "Tristezia",
+ "emoji.heart": "Bihotz",
+ "waters.organisation": "Erakunde",
+ "waters.water_body": "Ur gorputza",
+ "emoji.thumbs_up": "Hatz-egin"
 }

@@ -60,8 +60,8 @@
  "catch_form.cannot_read_the_photo_choose_an_image": "არ შეგიძლიათ გააკეთოთ ფოტოსურათი. შეგიძლიათ გააკეთოთ ფოტოსურათი, რომელიც 30 MB-ზე მეტია.",
  "catch_form.change_photo": "ფოტოსურათი შეიცავს",
  "catch_form.enter_a_fish_species": "მოედანზე მკურნალობა მკურნალობა.",
- "catch_form.latitude": "Latitude წერილი",
- "catch_form.longitude": "Longitude წავიდა",
+ "catch_form.latitude": "Განედი",
+ "catch_form.longitude": "Გრძედი",
  "catch_form.new_catch": "ახალი მოწყობილობები",
  "catch_form.photograph_catch_at_the_water": "Photograph Catch in the Water (ქართულად) ფოტოსურათი ფოტოსურათი ფოტოსურათი ფოტოსურათი",
  "catch_form.photograph_the_whole_fish_with_a_ruler": "ფოტოსურათი ყველა ფოტოსურათი მწვრთნელმა ან მწვრთნელმა მწვრთნელმა. გამოიყურება ადგილმდებარეობა განხორციელების შემდეგ ფოტოსურათი. გამოიყურება ფოტოსურათი განხორციელებისათვის არასოდეს საჭიროა.",
@@ -562,5 +562,9 @@
  "rating.mine": "Your Rating (ქართულად) წერილი",
  "account.sign_out_on_this_phone": "ამ ტელეფონზე ანგარიშიდან გასვლა",
  "trips.edit_catch": "ნადავლის ჩანაწერის შეცვლა",
- "trips.edit": "თევზაობის ჩანაწერის შეცვლა"
+ "trips.edit": "თევზაობის ჩანაწერის შეცვლა",
+ "atlas.map": "Გეოგრაფიული რუკა",
+ "emoji.fish": "Თევზები",
+ "waters.organisation": "Ორგანიზაცია",
+ "waters.water_body": "Წყალსატევი"
 }

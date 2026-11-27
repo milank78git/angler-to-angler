@@ -68,8 +68,8 @@
  "catch_form.enter_a_fish_species": "Εισάγετε ένα είδος ψαριών.",
  "catch_form.enter_a_positive_length_in_centimetres": "Εισάγετε ένα θετικό μήκος σε εκατοστά.",
  "catch_form.for_older_photos_enter_the_location_manually": "Για παλαιότερες φωτογραφίες, εισάγετε τη θέση με μη αυτόματο τρόπο ή αφήστε την κενή.",
- "catch_form.latitude": "Λάτσιαν",
- "catch_form.longitude": "Διάρκεια",
+ "catch_form.latitude": "Γεωγραφικό πλάτος",
+ "catch_form.longitude": "Γεωγραφικό μήκος",
  "catch_form.measured_length_cm": "Μέτρηση μήκους (cm)",
  "catch_form.new_catch": "Νέο Κέφι",
  "catch_form.photograph_catch_at_the_water": "Φωτογραφία που τραβήχτηκε στο νερό",
@@ -661,5 +661,12 @@
  "parking.notes": "Σημειώσεις",
  "rating.mine": "Η αξιολόγηση σας",
  "trips.edit_catch": "Επεξεργασία ψαριάς",
- "trips.edit": "Επεξεργασία εξόρμησης"
+ "trips.edit": "Επεξεργασία εξόρμησης",
+ "atlas.map": "Χάρτης",
+ "emoji.fishing": "Αλιεία",
+ "emoji.fish": "Ψάρι",
+ "emoji.laughter": "Γέλιο",
+ "emoji.sadness": "Λύπη",
+ "waters.organisation": "Οργανισμός",
+ "waters.water_body": "Υδάτινο σώμα"
 }

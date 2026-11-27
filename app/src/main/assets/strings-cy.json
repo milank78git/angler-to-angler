@@ -68,8 +68,8 @@
  "catch_form.enter_a_fish_species": "Mae'r ffat yn y ffat.",
  "catch_form.enter_a_positive_length_in_centimetres": "Yn ôl y cwsmeriaid yn cael ei ffwrdd yn centsmeriaid.",
  "catch_form.for_older_photos_enter_the_location_manually": "Yn y ffatri o'r ffatri, yn cael ei ddefnyddio yn y ffatri yn ôl i'r ffatri yn ôl i'r ffatri yn ôl i'r ffatri yn ôl.",
- "catch_form.latitude": "Yn ôl",
- "catch_form.longitude": "Yn ôl",
+ "catch_form.latitude": "Lledred",
+ "catch_form.longitude": "Hydred",
  "catch_form.measured_length_cm": "Yn ôl y gwres (cm)",
  "catch_form.new_catch": "Yn ôl",
  "catch_form.photograph_catch_at_the_water": "Fffwr ffotograf yn y hyd",
@@ -658,5 +658,12 @@
  "parking.notes": "Yn dangos",
  "rating.mine": "Yn dangos",
  "trips.edit_catch": "Golygu’r ddalfa",
- "trips.edit": "Golygu’r daith bysgota"
+ "trips.edit": "Golygu’r daith bysgota",
+ "parking.point": "Maes parcio",
+ "emoji.fishing": "Pysgota",
+ "emoji.fish": "Pysgodyn",
+ "emoji.laughter": "Chwerthin",
+ "emoji.sadness": "Tristwch",
+ "waters.organisation": "Sefydliad",
+ "waters.water_body": "Corff o ddŵr"
 }

@@ -68,8 +68,8 @@
  "catch_form.enter_a_fish_species": "Čális govvašlájaid.",
  "catch_form.enter_a_positive_length_in_centimetres": "Čális positiiva guhkkodat sentimehterat.",
  "catch_form.for_older_photos_enter_the_location_manually": "Boares fotografiijaid várás čále báikká ieš dahje guorus.",
- "catch_form.latitude": "Govdodatceahkki",
- "catch_form.longitude": "Guhkkodatceahkki",
+ "catch_form.latitude": "Govdodatgráda",
+ "catch_form.longitude": "Guhkkodatgráda",
  "catch_form.measured_length_cm": "Mahkáš guhkkodat (cm)",
  "catch_form.new_catch": "Ođđa válljejuvvon",
  "catch_form.photograph_catch_at_the_water": "Govvagoađga vuohkis",
@@ -658,5 +658,11 @@
  "catalog.label": "Čeahkka",
  "catalog.species.pike": "Hávga",
  "parking.notes": "Muittuhusat",
- "rating.mine": "Du árvosáni"
+ "rating.mine": "Du árvosáni",
+ "atlas.map": "Kárta",
+ "parking.point": "Parkerensadji",
+ "emoji.fishing": "Guolásteapmi",
+ "emoji.fish": "Guolli",
+ "waters.organisation": "Organisašuvdna",
+ "license.title": "Guolástanlohpi"
 }

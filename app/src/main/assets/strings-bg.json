@@ -68,8 +68,8 @@
  "catch_form.enter_a_fish_species": "Вземете рибната визия.",
  "catch_form.enter_a_positive_length_in_centimetres": "Вземете положителна дължина в сантиметра.",
  "catch_form.for_older_photos_enter_the_location_manually": "За по-стари снимки, въведете местоположението ръчно или го оставете празно.",
- "catch_form.latitude": "Латидоза",
- "catch_form.longitude": "Дългост",
+ "catch_form.latitude": "Географска ширина",
+ "catch_form.longitude": "Географска дължина",
  "catch_form.measured_length_cm": "Измервана дължина (cm)",
  "catch_form.new_catch": "Нов улов",
  "catch_form.photograph_catch_at_the_water": "Фотографски снимки на водата",
@@ -661,5 +661,14 @@
  "parking.notes": "бележки",
  "rating.mine": "Вашата оценка",
  "trips.edit_catch": "Редактирай улова",
- "trips.edit": "Редактирай риболовния излет"
+ "trips.edit": "Редактирай риболовния излет",
+ "atlas.map": "Географска карта",
+ "emoji.fishing": "Риболов",
+ "emoji.fish": "Риба",
+ "emoji.laughter": "Смях",
+ "emoji.sadness": "Тъга",
+ "waters.organisation": "Организация",
+ "waters.water_body": "Воден басейн",
+ "license.title": "Риболовен билет",
+ "emoji.thumbs_up": "Жестове с палец"
 }

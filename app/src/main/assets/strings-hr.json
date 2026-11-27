@@ -68,8 +68,8 @@
  "catch_form.enter_a_fish_species": "Uđite u vrstu riba.",
  "catch_form.enter_a_positive_length_in_centimetres": "Upišite pozitivnu duljinu u centimetrima.",
  "catch_form.for_older_photos_enter_the_location_manually": "Za starije fotografije, ručno unesite lokaciju ili ostavite prazno.",
- "catch_form.latitude": "Latitude",
- "catch_form.longitude": "dugotrajnost",
+ "catch_form.latitude": "Zemljopisna širina",
+ "catch_form.longitude": "Zemljopisna dužina",
  "catch_form.measured_length_cm": "Mjerena duljina (cm)",
  "catch_form.new_catch": "Novi ulov",
  "catch_form.photograph_catch_at_the_water": "Fotografija u vodi",
@@ -661,5 +661,13 @@
  "parking.notes": "Notari",
  "rating.mine": "Vaša ocjena",
  "trips.edit_catch": "Uredi ulov",
- "trips.edit": "Uredi ribolovni izlet"
+ "trips.edit": "Uredi ribolovni izlet",
+ "atlas.map": "Zemljovid",
+ "parking.point": "Parkiralište",
+ "emoji.fishing": "Ribolov",
+ "emoji.fish": "Ribe",
+ "emoji.laughter": "Smijeh",
+ "emoji.sadness": "Tuga",
+ "waters.organisation": "Organizacija",
+ "waters.water_body": "Vodena površina"
 }

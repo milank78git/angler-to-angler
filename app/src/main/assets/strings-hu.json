@@ -68,8 +68,8 @@
  "catch_form.enter_a_fish_species": "A halak egy fajtájának bejutása.",
  "catch_form.enter_a_positive_length_in_centimetres": "Adjon pozitív hosszúságot centiméterben.",
  "catch_form.for_older_photos_enter_the_location_manually": "Idősebb fotók esetén manuálisan lépjen be a helyszínre vagy hagyja üresen.",
- "catch_form.latitude": "Latitude",
- "catch_form.longitude": "hosszúság",
+ "catch_form.latitude": "Szélességi kör",
+ "catch_form.longitude": "Hosszúsági kör",
  "catch_form.measured_length_cm": "Mérett hosszúság (cm)",
  "catch_form.new_catch": "Új fogás",
  "catch_form.photograph_catch_at_the_water": "Fotózás a vízben",
@@ -662,5 +662,14 @@
  "parking.notes": "jegyzetek",
  "rating.mine": "Az Ön minősítése",
  "trips.edit_catch": "Fogás szerkesztése",
- "trips.edit": "Horgásztúra szerkesztése"
+ "trips.edit": "Horgásztúra szerkesztése",
+ "atlas.map": "Térkép",
+ "parking.point": "Parkoló",
+ "emoji.fishing": "Halászat",
+ "emoji.fish": "Hal",
+ "emoji.laughter": "Nevetés",
+ "emoji.sadness": "Szomorúság",
+ "emoji.heart": "Szív",
+ "waters.organisation": "Szervezet",
+ "waters.water_body": "Víztömeg"
 }

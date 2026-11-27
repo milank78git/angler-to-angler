@@ -68,8 +68,8 @@
  "catch_form.enter_a_fish_species": "Įveskite žuvų rūšį.",
  "catch_form.enter_a_positive_length_in_centimetres": "Įveskite teigiamą ilgio centimetrus.",
  "catch_form.for_older_photos_enter_the_location_manually": "Senesnių nuotraukų atveju įveskite vietą rankiniu būdu arba palikite tuščią.",
- "catch_form.latitude": "Latvijoje",
- "catch_form.longitude": "Ilgalaikis",
+ "catch_form.latitude": "Platuma",
+ "catch_form.longitude": "Ilguma",
  "catch_form.measured_length_cm": "Išmatuotas ilgis (cm)",
  "catch_form.new_catch": "Naujas žvakių",
  "catch_form.photograph_catch_at_the_water": "Fotografavimas užfiksuotas vandenyje",
@@ -661,5 +661,12 @@
  "parking.notes": "Pastabos",
  "rating.mine": "Jūsų reitingas",
  "trips.edit_catch": "Redaguoti laimikį",
- "trips.edit": "Redaguoti žvejybos išvyką"
+ "trips.edit": "Redaguoti žvejybos išvyką",
+ "atlas.map": "Žemėlapis",
+ "emoji.fishing": "Žūklė",
+ "emoji.fish": "Žuvys",
+ "emoji.laughter": "Juokas",
+ "emoji.sadness": "Liūdesys",
+ "waters.organisation": "Organizacija",
+ "waters.water_body": "Vandens telkinys"
 }

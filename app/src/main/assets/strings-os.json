@@ -68,8 +68,8 @@
  "catch_form.enter_a_fish_species": "Нӕхи бакӕс хъӕбысы хуызӕн.",
  "catch_form.enter_a_positive_length_in_centimetres": "Синтиметры рӕстӕг бакӕс.",
  "catch_form.for_older_photos_enter_the_location_manually": "Сӕ раджы нывтӕӕн бафысс дӕ бынат кӕнӕ йӕ ӕрлӕууы.",
- "catch_form.latitude": "Ацит",
- "catch_form.longitude": "Уӕззаудзинад",
+ "catch_form.latitude": "Уæрхад",
+ "catch_form.longitude": "Дæргъад",
  "catch_form.measured_length_cm": "Уӕззау рӕстӕг (cm)",
  "catch_form.new_catch": "Ног хабӕрттӕ",
  "catch_form.photograph_catch_at_the_water": "Фӕсномыг къӕвда",
@@ -653,5 +653,10 @@
  "sources.crs.short": "ČRS",
  "water_photo.cuzk": "© ČÚZK",
  "parking.notes": "Фиппаинӕгттӕ",
- "rating.mine": "Дӕ равзӕрстад"
+ "rating.mine": "Дӕ равзӕрстад",
+ "atlas.map": "Географион картæ",
+ "emoji.fish": "Кӕсаг",
+ "waters.organisation": "Организаци",
+ "catalog.label": "Чехи",
+ "catalog.species.pike": "Хихор"
 }

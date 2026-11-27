@@ -68,8 +68,8 @@
  "catch_form.enter_a_fish_species": "Bir balıq türü içər.",
  "catch_form.enter_a_positive_length_in_centimetres": "İyilikdə bir neçə sentə qədər pozitif bir uzunluk var.",
  "catch_form.for_older_photos_enter_the_location_manually": "Yaşlı fotoğraflar üçün, yerə manaya daxil olun və ya boş bırakın.",
- "catch_form.latitude": "Latitude",
- "catch_form.longitude": "Uzunlıq",
+ "catch_form.latitude": "En dairəsi",
+ "catch_form.longitude": "Uzunluq dairəsi",
  "catch_form.measured_length_cm": "Qəzaq uzunluğu (cm)",
  "catch_form.new_catch": "Yeni qapı",
  "catch_form.photograph_catch_at_the_water": "Fotoğrafçılıq suya düşüb",
@@ -657,5 +657,12 @@
  "parking.notes": "Notlər",
  "rating.mine": "Qısaqın rating",
  "trips.edit_catch": "Ovu redaktə et",
- "trips.edit": "Balıq səfərini redaktə et"
+ "trips.edit": "Balıq səfərini redaktə et",
+ "atlas.map": "Coğrafi xəritə",
+ "parking.point": "Avtodayanacaq",
+ "emoji.fishing": "Balıqçılıq",
+ "emoji.fish": "Balıq",
+ "emoji.laughter": "Gülmək",
+ "emoji.sadness": "Kədər",
+ "waters.organisation": "Təşkilat"
 }

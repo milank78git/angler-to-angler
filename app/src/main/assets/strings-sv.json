@@ -69,7 +69,7 @@
  "catch_form.enter_a_positive_length_in_centimetres": "Ange en positiv längd i centimeter.",
  "catch_form.for_older_photos_enter_the_location_manually": "För äldre bilder, skriv in platsen manuellt eller lämna den tom.",
  "catch_form.latitude": "Latitud",
- "catch_form.longitude": "Längd",
+ "catch_form.longitude": "Longitud",
  "catch_form.measured_length_cm": "Mätbar längd (cm)",
  "catch_form.new_catch": "Nytt fångst",
  "catch_form.photograph_catch_at_the_water": "Fotografering på vattnet",
@@ -676,5 +676,15 @@
  "catalog.species.roach": "Mört",
  "catalog.species.zander": "Gös",
  "parking.notes": "Noter",
- "rating.mine": "Din rating"
+ "rating.mine": "Din rating",
+ "atlas.map": "Karta",
+ "parking.point": "Parkeringsplats",
+ "emoji.fishing": "Fiske",
+ "emoji.fish": "Fisk",
+ "emoji.laughter": "Skratt",
+ "emoji.sadness": "Sorgsenhet",
+ "emoji.heart": "Hjärta",
+ "waters.water_body": "Vattensamling",
+ "license.title": "Fiskekort",
+ "emoji.thumbs_up": "Tummen upp"
 }

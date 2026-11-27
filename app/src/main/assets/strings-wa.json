@@ -655,5 +655,13 @@
  "sources.crs.short": "ČRS",
  "water_photo.cuzk": "© ČÚZK",
  "parking.notes": "Rawete",
- "rating.mine": "Vosse pårticion"
+ "rating.mine": "Vosse pårticion",
+ "parking.point": "Parkigne",
+ "emoji.fishing": "Pexhe",
+ "emoji.fish": "Pexhon",
+ "waters.water_body": "Aiwe",
+ "catalog.label": "Tchekeye",
+ "catalog.species.pike": "Brotchet",
+ "catalog.species.roach": "Rossete",
+ "catalog.species.barbel": "Bårbea"
 }

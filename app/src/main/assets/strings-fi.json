@@ -68,8 +68,8 @@
  "catch_form.enter_a_fish_species": "Käy läpi kalalajin.",
  "catch_form.enter_a_positive_length_in_centimetres": "Anna positiivinen pituus senttimetrin sisällä.",
  "catch_form.for_older_photos_enter_the_location_manually": "Vanhempien kuvien osalta kirjoita sijainti manuaalisesti tai jätä se tyhjäksi.",
- "catch_form.latitude": "Latvian",
- "catch_form.longitude": "pitkäaikaisuus",
+ "catch_form.latitude": "Leveysaste",
+ "catch_form.longitude": "Pituusaste",
  "catch_form.measured_length_cm": "mitattu pituus (cm)",
  "catch_form.new_catch": "Uusi Catch",
  "catch_form.photograph_catch_at_the_water": "Valokuvaus otetaan vedessä",
@@ -661,5 +661,15 @@
  "parking.notes": "Huomautukset",
  "rating.mine": "Sinun luokitus",
  "trips.edit_catch": "Muokkaa saalista",
- "trips.edit": "Muokkaa kalastusretkeä"
+ "trips.edit": "Muokkaa kalastusretkeä",
+ "atlas.map": "Kartta",
+ "parking.point": "Pysäköintialue",
+ "emoji.fishing": "Kalastus",
+ "emoji.fish": "Kala",
+ "emoji.laughter": "Nauraminen",
+ "emoji.sadness": "Suru",
+ "emoji.heart": "Sydän",
+ "waters.organisation": "Organisaatio",
+ "waters.water_body": "Vesimuodostuma",
+ "license.title": "Kalastuslupa"
 }

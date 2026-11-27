@@ -68,8 +68,8 @@
  "catch_form.enter_a_fish_species": "Увайсці ў рыбную візу.",
  "catch_form.enter_a_positive_length_in_centimetres": "Увесці пазітыўную даўжыну ў сантыметрах.",
  "catch_form.for_older_photos_enter_the_location_manually": "Для старых фота, увайдзіце ў месца ручна або пакідайце яе пустым.",
- "catch_form.latitude": "Латыву",
- "catch_form.longitude": "Даўжыня",
+ "catch_form.latitude": "Шырата",
+ "catch_form.longitude": "Даўгата",
  "catch_form.measured_length_cm": "Даўжыня памернага (cm)",
  "catch_form.new_catch": "Новы паход",
  "catch_form.photograph_catch_at_the_water": "Фота з'яўляецца у водах",
@@ -654,5 +654,14 @@
  "parking.notes": "Запісы",
  "rating.mine": "Ваш рэйтынг",
  "trips.edit_catch": "Змяніць улоў",
- "trips.edit": "Змяніць рыбалку"
+ "trips.edit": "Змяніць рыбалку",
+ "atlas.map": "Геаграфічная карта",
+ "parking.point": "Паркоўка",
+ "emoji.fishing": "Рыбалоўства",
+ "emoji.fish": "Рыбы",
+ "emoji.laughter": "Смех",
+ "emoji.sadness": "Смутак",
+ "emoji.heart": "Сэрца",
+ "waters.organisation": "Арганізацыя",
+ "waters.water_body": "Водны аб’ект"
 }
