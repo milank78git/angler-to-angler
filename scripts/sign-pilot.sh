@@ -15,7 +15,7 @@ printf '%s' "$ANDROID_ROTATED_KEYSTORE" | base64 --decode > "$work/rotated"
 printf '%s' "$ANDROID_PILOT_LINEAGE" | base64 --decode > "$work/lineage"
 unset ANDROID_ROTATED_KEYSTORE ANDROID_PILOT_LINEAGE
 # The public certificate is pinned to the distributed 0.4.4 APK.
-fingerprint=8194987893a64ee0abf250377c54a7d939b81743fa95020dd4a701ea45ad92b6
+fingerprint=$(cat scripts/pilot-original.sha256)
 package=$("$bt/aapt" dump badging "$apk" | sed -n '1p')
 pattern="^package: name='app\.anglers\.journal' versionCode='([0-9]+)' versionName='([0-9]+\.[0-9]+\.[0-9]+)'"
 [[ $package =~ $pattern ]] || { echo "Expected the standard pilot package and a numeric version" >&2; exit 1; }
