@@ -680,5 +680,20 @@
  "trips.edit": "Kemmañ ar veaj",
  "trips.edit_catch": "Kemmañ ar pesk tapet",
  "waters.angler_contributions": "Kemennoù ar besketaerien",
- "groups.owner": " · perc’henn"
+ "groups.owner": " · perc’henn",
+ "account.pages_open": "Digeriñ an arload",
+ "age.choose_date": "Dibab un deiziad en deiziataer",
+ "age.confirm_date": "Kadarnaat an deiziad ganedigezh",
+ "age.family_settings": "Aotreoù ar gerent",
+ "age.withdraw": "Tennañ an aotre",
+ "atlas.location_skip": "Kenderc’hel hep lec’hiadur",
+ "discussion.new_post": "Kemennadenn nevez",
+ "discussion.publish_post": "Embann ar gemennadenn",
+ "moderation.report": "Diskleriañ un endalc’had",
+ "store.deletion_request": "Goulenn dilemel ar gont",
+ "settings.system_notifications": "Arventennoù rebuziñ Android",
+ "water_photo.personal": "Ma luc’hskeudenn brevez",
+ "water_photo.remove": "Dilemel ma luc’hskeudenn",
+ "water_reports.withdraw_report": "Tennañ an danevell",
+ "emoji.thanks": "Trugarez"
 }

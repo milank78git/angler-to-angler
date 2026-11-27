@@ -598,5 +598,20 @@
  "groups.remove_tip": "რჩევის წაშლა",
  "alerts.community": "პირადი შეტყობინებები, პასუხები და აქტივობა ჯგუფებსა და ბაზარზე",
  "trips.remove_catch": "ამ ნადავლისა და მისი ფოტოს წაშლა",
- "waters.angler_contributions": "მეთევზეების ჩანაწერები"
+ "waters.angler_contributions": "მეთევზეების ჩანაწერები",
+ "account.pages_open": "აპის გახსნა",
+ "age.choose_date": "აირჩიე თარიღი კალენდრიდან",
+ "age.confirm_date": "დაადასტურე დაბადების თარიღი",
+ "age.family_settings": "მშობლის ნებართვები",
+ "age.withdraw": "ნებართვის გაუქმება",
+ "atlas.location_skip": "გაგრძელება მდებარეობის მითითების გარეშე",
+ "discussion.new_post": "ახალი პოსტი",
+ "discussion.publish_post": "პოსტის გამოქვეყნება",
+ "moderation.report": "კონტენტის გასაჩივრება",
+ "store.deletion_request": "ანგარიშის წაშლის მოთხოვნა",
+ "settings.system_notifications": "Android-ის შეტყობინებების პარამეტრები",
+ "water_photo.personal": "ჩემი პირადი ფოტო",
+ "water_photo.remove": "ჩემი ფოტოს წაშლა",
+ "water_reports.withdraw_report": "ჩემი შეტყობინების უკან გამოთხოვა",
+ "emoji.thanks": "მადლობა"
 }

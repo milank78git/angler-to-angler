@@ -679,5 +679,20 @@
  "parking.remove_info": "Уртаҡ туҡталҡа нөктәһен һәм уның тураһындағы баһаларҙы юйырғамы?",
  "alerts.community": "Шәхси хәбәрҙәр, яуаптар, төркөмдәге һәм баҙарҙағы яңылыҡтар",
  "trips.remove_catch": "Был тотолған балыҡты һәм уның фотоһын юйырға",
- "waters.angler_contributions": "Балыҡсыларҙың яҙмалары"
+ "waters.angler_contributions": "Балыҡсыларҙың яҙмалары",
+ "account.pages_open": "Ҡушымтаны асыу",
+ "age.choose_date": "Календарҙан датаны һайлау",
+ "age.confirm_date": "Тыуған көндө раҫлау",
+ "age.family_settings": "Ата-әсә рөхсәттәре",
+ "age.withdraw": "Рөхсәтте кире алыу",
+ "atlas.location_skip": "Урынды күрһәтмәй дауам итеү",
+ "discussion.new_post": "Яңы яҙма",
+ "discussion.publish_post": "Яҙманы баҫтырыу",
+ "moderation.report": "Йөкмәтке тураһында ялыу биреү",
+ "store.deletion_request": "Иҫәп яҙмаһын юйыуҙы һорау",
+ "settings.system_notifications": "Android хәбәрнамәләре көйләүҙәре",
+ "water_photo.personal": "Минең шәхси фотом",
+ "water_photo.remove": "Фотомды юйыу",
+ "water_reports.withdraw_report": "Хәбәрҙе кире алыу",
+ "emoji.thanks": "Рәхмәт"
 }

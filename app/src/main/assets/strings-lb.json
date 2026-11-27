@@ -704,5 +704,20 @@
  "parking.remove_info": "Déi gedeelt Parkplaz an d’Bewäertungen dozou ewechhuelen?",
  "alerts.community": "Privat Noriichten, Äntwerten an Aktivitéit an de Gruppen an op der Maartplaz",
  "trips.remove_catch": "Dëse Fang a seng Foto läschen",
- "waters.angler_contributions": "Bäiträg vu Fëscher"
+ "waters.angler_contributions": "Bäiträg vu Fëscher",
+ "account.pages_open": "App opmaachen",
+ "age.choose_date": "Datum am Kalenner auswielen",
+ "age.confirm_date": "Gebuertsdatum bestätegen",
+ "age.family_settings": "Erlabnesser vun den Elteren",
+ "age.withdraw": "Erlabnis zeréckzéien",
+ "atlas.location_skip": "Ouni Standuert weiderfueren",
+ "discussion.new_post": "Neie Bäitrag",
+ "discussion.publish_post": "Bäitrag verëffentlechen",
+ "moderation.report": "Inhalt mellen",
+ "store.deletion_request": "Läsche vum Kont ufroen",
+ "settings.system_notifications": "Android-Astellunge fir Benoriichtegungen",
+ "water_photo.personal": "Meng privat Foto",
+ "water_photo.remove": "Meng Foto läschen",
+ "water_reports.withdraw_report": "Meldung zeréckzéien",
+ "emoji.thanks": "Merci"
 }

@@ -675,5 +675,20 @@
  "parking.remove_info": "Zhromadnje dźělene parkowanišćo a jeho pohódnoćenja wotstronić?",
  "alerts.community": "Priwatne powěsće, wotmołwy a aktiwita w skupinach a na torhošću",
  "trips.remove_catch": "Tutón popad a jeho foto zhašeć",
- "waters.angler_contributions": "Přinoški rybarjow"
+ "waters.angler_contributions": "Přinoški rybarjow",
+ "account.pages_open": "Nałoženje wočinić",
+ "age.choose_date": "Datum z kalendara wubrać",
+ "age.confirm_date": "Datum narodźenja wobkrućić",
+ "age.family_settings": "Dowolnosće staršeju",
+ "age.withdraw": "Dowolnosć cofnyć",
+ "atlas.location_skip": "Bjez stejnišća pokročować",
+ "discussion.new_post": "Nowy přinošk",
+ "discussion.publish_post": "Přinošk wozjewić",
+ "moderation.report": "Wobsah zdźělić moderatoram",
+ "store.deletion_request": "Wo zhašenje konta prosyć",
+ "settings.system_notifications": "Nastajenja zdźělenjow w Androidźe",
+ "water_photo.personal": "Moje priwatne foto",
+ "water_photo.remove": "Moje foto zhašeć",
+ "water_reports.withdraw_report": "Zdźělenku cofnyć",
+ "emoji.thanks": "Dźakuju so"
 }

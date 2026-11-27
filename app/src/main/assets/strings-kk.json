@@ -703,5 +703,20 @@
  "parking.remove_info": "Ортақ тұрақ орнын және ол туралы пікірлерді жою керек пе?",
  "alerts.community": "Жеке хабарлар, жауаптар, топтардағы және сауда алаңындағы жаңалықтар",
  "trips.remove_catch": "Осы ауланған балық жазбасын және оның фотосын жою",
- "waters.angler_contributions": "Балықшылардың жазбалары"
+ "waters.angler_contributions": "Балықшылардың жазбалары",
+ "account.pages_open": "Қолданбаны ашу",
+ "age.choose_date": "Күнтізбеден күнді таңдау",
+ "age.confirm_date": "Туған күнді растау",
+ "age.family_settings": "Ата-ананың рұқсаттары",
+ "age.withdraw": "Рұқсатты қайтарып алу",
+ "atlas.location_skip": "Орналасқан жерді көрсетпей жалғастыру",
+ "discussion.new_post": "Жаңа жазба",
+ "discussion.publish_post": "Жазбаны жариялау",
+ "moderation.report": "Мазмұнға шағымдану",
+ "store.deletion_request": "Тіркелгіні жоюға өтініш беру",
+ "settings.system_notifications": "Android хабарландыру параметрлері",
+ "water_photo.personal": "Жеке фотосуретім",
+ "water_photo.remove": "Фотосуретімді өшіру",
+ "water_reports.withdraw_report": "Хабарламамды қайтарып алу",
+ "emoji.thanks": "Рақмет"
 }

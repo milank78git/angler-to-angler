@@ -86,10 +86,10 @@ Active signatures in Liquibase deployment order. Each link opens the effective d
 | `angler_market.publish_validated_draft(uuid, integer, jsonb)` | [20261126021000](../supabase/migrations/20261126021000_audit_publication_controls.sql#L1) |  |
 | `angler_market.rate(uuid, integer, integer, integer)` | [20261125165309](../supabase/migrations/20261125165309_market_purchase_funding.sql#L59) |  |
 | `angler_market.release_archived_tip()` | [20261125154111](../supabase/migrations/20261125154111_purchased_tip_retention.sql#L41) |  |
-| `angler_market.stamp_rating()` | [20261127032314](../supabase/migrations/20261127032314_journal_community_controls.sql#L266) |  |
+| `angler_market.stamp_rating()` | [20261127032314](../supabase/migrations/20261127032314_journal_community_controls.sql#L268) |  |
 | `angler_market.withdraw(uuid)` | [20261123232227](../supabase/migrations/20261123232227_test_tip_market.sql#L154) |  |
 | `angler_messages.history(uuid, uuid, bigint)` | [20261123160129](../supabase/migrations/20261123160129_message_reactions.sql#L67) |  |
-| `angler_messages.inbox(bigint)` | [20261127032314](../supabase/migrations/20261127032314_journal_community_controls.sql#L225) |  |
+| `angler_messages.inbox(bigint)` | [20261127032314](../supabase/migrations/20261127032314_journal_community_controls.sql#L227) |  |
 | `angler_messages.peer(uuid, uuid, uuid)` | [20261126080000](../supabase/migrations/20261126080000_age_and_guardians.sql#L442) |  |
 | `angler_messages.react(uuid, bigint, text)` | [20261123160129](../supabase/migrations/20261123160129_message_reactions.sql#L41) |  |
 | `angler_messages.report(uuid, bigint)` | [20261123155308](../supabase/migrations/20261123155308_private_messages.sql#L143) |  |
@@ -135,7 +135,7 @@ Active signatures in Liquibase deployment order. Each link opens the effective d
 | `public.angler_activity_summary(text, date, text, text)` | [20261126140000](../supabase/migrations/20261126140000_catalogue_activity_targets.sql#L84) |  |
 | `public.angler_card(uuid)` | [20261123112814](../supabase/migrations/20261123112814_angler_profile_cards.sql#L204) |  |
 | `public.angler_commerce(text, jsonb)` | [20261125075304](../supabase/migrations/20261125075304_play_market_settlement.sql#L195) |  |
-| `public.angler_community_signal(uuid)` | [20261127032314](../supabase/migrations/20261127032314_journal_community_controls.sql#L275) |  |
+| `public.angler_community_signal(uuid)` | [20261127032314](../supabase/migrations/20261127032314_journal_community_controls.sql#L277) |  |
 | `public.angler_directory(uuid)` | [20261123112814](../supabase/migrations/20261123112814_angler_profile_cards.sql#L206) |  |
 | `public.angler_discussion_helpful(text, uuid, boolean)` | [20261123153421](../supabase/migrations/20261123153421_water_discussions.sql#L149) |  |
 | `public.angler_discussion_post(text, uuid, uuid, text, date)` | [20261123153421](../supabase/migrations/20261123153421_water_discussions.sql#L145) |  |
@@ -166,7 +166,7 @@ Active signatures in Liquibase deployment order. Each link opens the effective d
 | `public.angler_group_tips(uuid, bigint)` | [20261123142819](../supabase/migrations/20261123142819_private_group_tips.sql#L79) |  |
 | `public.angler_groups()` | [20261123110524](../supabase/migrations/20261123110524_private_fishing_groups.sql#L123) |  |
 | `public.angler_journal_sync(text, jsonb)` | [20261125075258](../supabase/migrations/20261125075258_private_journal_sync.sql#L97) |  |
-| `public.angler_latest_reply()` | [20261127032314](../supabase/migrations/20261127032314_journal_community_controls.sql#L326) |  |
+| `public.angler_latest_reply()` | [20261127032314](../supabase/migrations/20261127032314_journal_community_controls.sql#L328) |  |
 | `public.angler_market_activate()` | [20261123232227](../supabase/migrations/20261123232227_test_tip_market.sql#L172) |  |
 | `public.angler_market_buy(uuid, integer, integer)` | [20261125075304](../supabase/migrations/20261125075304_play_market_settlement.sql#L112) |  |
 | `public.angler_market_detail(uuid)` | [20261123232227](../supabase/migrations/20261123232227_test_tip_market.sql#L168) |  |
@@ -179,7 +179,7 @@ Active signatures in Liquibase deployment order. Each link opens the effective d
 | `public.angler_message_history(uuid, uuid, bigint)` | [20261123155308](../supabase/migrations/20261123155308_private_messages.sql#L156) |  |
 | `public.angler_message_inbox(bigint)` | [20261123155308](../supabase/migrations/20261123155308_private_messages.sql#L154) |  |
 | `public.angler_message_react(uuid, bigint, text)` | [20261123160129](../supabase/migrations/20261123160129_message_reactions.sql#L95) |  |
-| `public.angler_message_read(uuid, bigint)` | [20261127032314](../supabase/migrations/20261127032314_journal_community_controls.sql#L244) |  |
+| `public.angler_message_read(uuid, bigint)` | [20261127032314](../supabase/migrations/20261127032314_journal_community_controls.sql#L246) |  |
 | `public.angler_message_report(uuid, bigint)` | [20261123155308](../supabase/migrations/20261123155308_private_messages.sql#L162) |  |
 | `public.angler_message_send(uuid, uuid, uuid, text)` | [20261123155308](../supabase/migrations/20261123155308_private_messages.sql#L158) |  |
 | `public.angler_my_details(jsonb)` | [20261126080000](../supabase/migrations/20261126080000_age_and_guardians.sql#L417) |  |
@@ -207,7 +207,7 @@ Active signatures in Liquibase deployment order. Each link opens the effective d
 | `public.angler_top_species()` | [20261124122648](../supabase/migrations/20261124122648_volunteered_species_counts.sql#L50) |  |
 | `public.angler_top_waters()` | [20261124122638](../supabase/migrations/20261124122638_water_reviews_and_visit_statistics.sql#L47) |  |
 | `public.angler_trip_species(uuid, integer, bigint, jsonb)` | [20261124122648](../supabase/migrations/20261124122648_volunteered_species_counts.sql#L38) |  |
-| `public.angler_watch_community(uuid)` | [20261127032314](../supabase/migrations/20261127032314_journal_community_controls.sql#L309) |  |
+| `public.angler_watch_community(uuid)` | [20261127032314](../supabase/migrations/20261127032314_journal_community_controls.sql#L311) |  |
 | `public.angler_watch_favourites(uuid, text[])` | [20261126060100](../supabase/migrations/20261126060100_favourite_post_watches.sql#L18) |  |
 | `public.angler_water_alerts(text)` | [20261124041826](../supabase/migrations/20261124041826_water_reports.sql#L29) |  |
 | `public.angler_water_discussion(text, uuid, bigint)` | [20261123153421](../supabase/migrations/20261123153421_water_discussions.sql#L143) |  |

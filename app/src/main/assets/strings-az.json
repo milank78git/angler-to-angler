@@ -709,5 +709,20 @@
  "parking.remove_info": "Paylaşılmış dayanacaq nöqtəsi və onun rəyləri silinsin?",
  "alerts.community": "Şəxsi mesajlar, cavablar, qrup və bazar fəaliyyəti",
  "trips.remove_catch": "Bu ovu və şəklini sil",
- "waters.angler_contributions": "Balıqçıların paylaşımları"
+ "waters.angler_contributions": "Balıqçıların paylaşımları",
+ "account.pages_open": "Tətbiqi aç",
+ "age.choose_date": "Təqvimdən tarix seç",
+ "age.confirm_date": "Doğum tarixini təsdiqlə",
+ "age.family_settings": "Valideyn icazələri",
+ "age.withdraw": "İcazəni geri götür",
+ "atlas.location_skip": "Məkan göstərmədən davam et",
+ "discussion.new_post": "Yeni paylaşım",
+ "discussion.publish_post": "Paylaşımı dərc et",
+ "moderation.report": "Məzmun barədə şikayət et",
+ "store.deletion_request": "Hesabın silinməsini tələb et",
+ "settings.system_notifications": "Android bildiriş ayarları",
+ "water_photo.personal": "Şəxsi fotom",
+ "water_photo.remove": "Fotomu sil",
+ "water_reports.withdraw_report": "Bildirişi geri götür",
+ "emoji.thanks": "Təşəkkürlər"
 }

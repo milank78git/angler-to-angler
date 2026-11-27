@@ -698,5 +698,20 @@
  "trips.edit": "Deasaich an turas",
  "trips.edit_catch": "Deasaich an glacadh",
  "catalog.species.pike": "Esox lucius",
- "waters.angler_contributions": "Na sgrìobh iasgairean"
+ "waters.angler_contributions": "Na sgrìobh iasgairean",
+ "account.pages_open": "Fosgail an aplacaid",
+ "age.choose_date": "Tagh ceann-latha air a’ mhìosachan",
+ "age.confirm_date": "Dearbhaich an ceann-latha breith",
+ "age.family_settings": "Ceadan phàrantan",
+ "age.withdraw": "Tarraing an cead air ais",
+ "atlas.location_skip": "Lean air adhart gun ionad",
+ "discussion.new_post": "Post ùr",
+ "discussion.publish_post": "Foillsich am post",
+ "moderation.report": "Dèan gearan mun t-susbaint",
+ "store.deletion_request": "Iarr gun dèid an cunntas a sguabadh às",
+ "settings.system_notifications": "Roghainnean bhrathan Android",
+ "water_photo.personal": "An dealbh prìobhaideach agam",
+ "water_photo.remove": "Thoir an dealbh agam air falbh",
+ "water_reports.withdraw_report": "Tarraing an aithisg air ais",
+ "emoji.thanks": "Tapadh leat"
 }

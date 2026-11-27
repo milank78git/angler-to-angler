@@ -703,5 +703,20 @@
  "trips.remove_catch": "Strika henda fiskin og myndina av honum",
  "trips.edit": "Broyt túrin",
  "trips.edit_catch": "Broyt veiðuna",
- "waters.angler_contributions": "Uppsløg frá fiskimonnum"
+ "waters.angler_contributions": "Uppsløg frá fiskimonnum",
+ "account.pages_open": "Lat appina upp",
+ "age.choose_date": "Vel dag í kalendaranum",
+ "age.confirm_date": "Vátta føðingardagin",
+ "age.family_settings": "Loyvi frá foreldrum",
+ "age.withdraw": "Tak loyvið aftur",
+ "atlas.location_skip": "Halt fram uttan staðseting",
+ "discussion.new_post": "Nýtt innlegg",
+ "discussion.publish_post": "Almannakunnger innleggið",
+ "moderation.report": "Fráboða innihald",
+ "store.deletion_request": "Bið um at fáa kontuna strikaða",
+ "settings.system_notifications": "Stillingar fyri fráboðanir í Android",
+ "water_photo.personal": "Mín privata mynd",
+ "water_photo.remove": "Strika mína mynd",
+ "water_reports.withdraw_report": "Tak fráboðanina aftur",
+ "emoji.thanks": "Takk"
 }
