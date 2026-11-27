@@ -671,5 +671,9 @@
  "trips.edit": "Wulět wobdźěłać",
  "trips.edit_catch": "Popad wobdźěłać",
  "groups.edit_tip": "Pokiw wobdźěłać",
- "groups.remove_tip": "Pokiw wotstronić"
+ "groups.remove_tip": "Pokiw wotstronić",
+ "parking.remove": "Parkowanišćo wotstronić",
+ "parking.remove_info": "Zhromadnje dźělene parkowanišćo a jeho pohódnoćenja wotstronić?",
+ "alerts.community": "Priwatne powěsće, wotmołwy a aktiwita w skupinach a na torhošću",
+ "trips.remove_catch": "Tutón popad a jeho foto zhašeć"
 }

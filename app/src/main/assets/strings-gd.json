@@ -690,5 +690,12 @@
  "sync.erase": "Sguab às an lethbhreac air loidhne",
  "sync.erase_info": "A bheil thu airson lethbhreac-glèidhidh a’ chunntais a sguabadh às agus stad a chur air sioncronachadh fèin-obrachail air na fònaichean ceangailte? Fuirichidh na h-innteartan a shàbhail thu air an fhòn seo an seo.",
  "sync.erased": "Chaidh an lethbhreac air loidhne a sguabadh às. Tha an leabhar-latha fhathast air an fhòn seo.",
- "groups.link_lifetime": "Faodaidh neach sam bith leis a’ cheangal seo a dhol dhan bhuidhinn taobh a-staigh 24 uair a thìde. Na co-roinn e ach leis an fheadhainn a tha thu airson cuireadh a thoirt dhaibh."
+ "groups.link_lifetime": "Faodaidh neach sam bith leis a’ cheangal seo a dhol dhan bhuidhinn taobh a-staigh 24 uair a thìde. Na co-roinn e ach leis an fheadhainn a tha thu airson cuireadh a thoirt dhaibh.",
+ "parking.remove": "Thoir air falbh an t-àite-parcaidh",
+ "parking.remove_info": "An toir thu air falbh an t-àite-parcaidh co-roinnte agus na lèirmheasan air?",
+ "alerts.community": "Teachdaireachdan prìobhaideach, freagairtean is gnìomhachd sna buidhnean agus air a’ mhargaidh",
+ "trips.remove_catch": "Sguab às an glacadh seo agus an dealbh dheth",
+ "trips.edit": "Deasaich an turas",
+ "trips.edit_catch": "Deasaich an glacadh",
+ "catalog.species.pike": "Esox lucius"
 }

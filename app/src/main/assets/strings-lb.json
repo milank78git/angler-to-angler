@@ -30,7 +30,7 @@
  "account.new_link_requested_check_your_inbox": "Et gëtt keng Link. Check Your Inbox.",
  "account.new_password": "Déi éischt Password",
  "account.open_inbox": "Opener Inbox",
- "account.open_journal": "D'Open Dagblad",
+ "account.open_journal": "Fëscherdagbuch opmaachen",
  "account.open_the_latest_message_sent_to": "Open déi aktuell Message an ",
  "account.open_your_webmail_in_the_browser_on": "Open Äre Webmail an de Browser op dësem Telefon.",
  "account.password": "Passwéier",
@@ -134,7 +134,7 @@
  "discussion.in_reply_to_a_post": "Reagéieren op engem Post",
  "discussion.loading_discussion": "Diskussionen...",
  "discussion.mark_helpful": "Mark ass méi hilfreich.",
- "discussion.marked_helpful_by_the_angler_who_asked": "Et gëtt kee Gott awer Allah an de Muhammad ass de Messenger vum Allah.",
+ "discussion.marked_helpful_by_the_angler_who_asked": "De Fëscher, deen d’Fro gestallt huet, huet dës Äntwert als hëllefräich markéiert.",
  "discussion.no_answers_yet": "No déi Reaktiounen.",
  "discussion.older_posts": "Älter Posten",
  "discussion.post_answer": "Postéiert",
@@ -680,7 +680,7 @@
  "waters.all_countries": "All Länner",
  "parking.copy": "Koordinate kopéieren",
  "sync.retry": "Elo synchroniséieren",
- "groups.remove_tip": "Tipp läschen",
+ "groups.remove_tip": "Tipp ewechhuelen",
  "groups.edit_tip": "Tipp änneren",
  "settings.language": "Sprooch vun der App",
  "settings.language_system": "Sprooch vum Telefon benotzen",
@@ -698,5 +698,10 @@
  "sync.erase": "Online-Kopie läschen",
  "sync.erase_info": "D’Sécherheetskopie vum Kont läschen an d’automatesch Synchronisatioun op de verbonnen Telefone stoppen? Déi gespäichert Andréi op dësem Telefon bleiwen erhalen.",
  "sync.erased": "D’Online-Kopie gouf geläscht. Den Tagebuch ass nach op dësem Telefon.",
- "groups.link_lifetime": "Jidderee mat dësem Link ka bannent 24 Stonne bäitrieden. Deelt en nëmme mat de Leit, déi Dir invitéiere wëllt."
+ "groups.link_lifetime": "Jidderee mat dësem Link ka bannent 24 Stonne bäitrieden. Deelt en nëmme mat de Leit, déi Dir invitéiere wëllt.",
+ "catalog.species.pike": "Esox lucius",
+ "parking.remove": "Parkplaz ewechhuelen",
+ "parking.remove_info": "Déi gedeelt Parkplaz an d’Bewäertungen dozou ewechhuelen?",
+ "alerts.community": "Privat Noriichten, Äntwerten an Aktivitéit an de Gruppen an op der Maartplaz",
+ "trips.remove_catch": "Dëse Fang a seng Foto läschen"
 }

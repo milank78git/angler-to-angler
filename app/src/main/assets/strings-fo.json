@@ -678,7 +678,7 @@
  "waters.all_countries": "Øll lond",
  "parking.copy": "Avrita samskipanartølini",
  "sync.retry": "Samstilla nú",
- "groups.remove_tip": "Tak ráðið burtur",
+ "groups.remove_tip": "Strika ráðið",
  "groups.edit_tip": "Broyt ráðið",
  "settings.language": "Mál í appini",
  "settings.language_system": "Nýt málið á telefonini",
@@ -696,5 +696,11 @@
  "sync.erase": "Strika avritið á netinum",
  "sync.erase_info": "Vilt tú strika trygdaravritið á kontuni og steðga sjálvvirknari samstilling á tilknýttum telefonum? Tað, ið er goymt á hesi telefonini, verður verandi her.",
  "sync.erased": "Avritið á netinum er strikað. Dagbókin er enn á hesi telefonini.",
- "groups.link_lifetime": "Øll við hesari leinkju kunnu koma upp í bólkin innan 24 tímar. Deil hana bara við tey, tú vilt bjóða."
+ "groups.link_lifetime": "Øll við hesari leinkju kunnu koma upp í bólkin innan 24 tímar. Deil hana bara við tey, tú vilt bjóða.",
+ "parking.remove": "Strika parkeringsstaðið",
+ "parking.remove_info": "Strika felags parkeringsstaðið og ummælini um tað?",
+ "alerts.community": "Privat boð, svar og virksemi í bólkum og á marknaðinum",
+ "trips.remove_catch": "Strika henda fiskin og myndina av honum",
+ "trips.edit": "Broyt túrin",
+ "trips.edit_catch": "Broyt veiðuna"
 }

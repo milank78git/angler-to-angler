@@ -659,7 +659,7 @@
  "parking.notes": "Noti",
  "rating.mine": "Il-klassifikazzjoni tiegħek",
  "trips.edit_catch": "Editja l-qabda",
- "trips.edit": "Editja l-ħarġa tas-sajd",
+ "trips.edit": "Editja l-ħarġa",
  "atlas.map": "Mappa",
  "emoji.fish": "Ħuta",
  "settings.title": "L-issettjar",
@@ -681,7 +681,7 @@
  "parking.copy": "Ikkopja l-koordinati",
  "sync.retry": "Issinkronizza issa",
  "groups.remove_tip": "Neħħi l-parir",
- "groups.edit_tip": "Ibdel il-parir",
+ "groups.edit_tip": "Editja l-parir",
  "settings.language": "Il-lingwa tal-app",
  "settings.language_system": "Uża l-lingwa tat-telefon",
  "rating.save": "Issejvja l-valutazzjoni",
@@ -698,5 +698,9 @@
  "sync.erase": "Ħassar il-kopja online",
  "sync.erase_info": "Trid tħassar il-kopja ta’ riżerva mill-kont u twaqqaf is-sinkronizzazzjoni awtomatika fuq it-telefowns marbuta? L-entrati ssejvjati fuq dan it-telefon jibqgħu hawn.",
  "sync.erased": "Il-kopja online tħassret. Il-ġurnal għadu fuq dan it-telefon.",
- "groups.link_lifetime": "Kull min għandu din il-ħolqa jista’ jissieħeb fil-grupp fi żmien 24 siegħa. Aqsamha biss ma’ min trid tistieden."
+ "groups.link_lifetime": "Kull min għandu din il-ħolqa jista’ jissieħeb fil-grupp fi żmien 24 siegħa. Aqsamha biss ma’ min trid tistieden.",
+ "parking.remove": "Neħħi l-post tal-parkeġġ",
+ "parking.remove_info": "Tneħħi l-post tal-parkeġġ maqsum mal-oħrajn u r-reċensjonijiet tiegħu?",
+ "alerts.community": "Messaġġi privati, tweġibiet u attività fil-gruppi u fis-suq",
+ "trips.remove_catch": "Ħassar din il-qabda u r-ritratt tagħha"
 }

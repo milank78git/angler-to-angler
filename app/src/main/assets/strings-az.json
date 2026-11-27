@@ -657,7 +657,7 @@
  "parking.notes": "Notlər",
  "rating.mine": "Qısaqın rating",
  "trips.edit_catch": "Ovu redaktə et",
- "trips.edit": "Balıq səfərini redaktə et",
+ "trips.edit": "Səfəri redaktə et",
  "atlas.map": "Coğrafi xəritə",
  "parking.point": "Avtodayanacaq",
  "emoji.fishing": "Balıqçılıq",
@@ -704,5 +704,9 @@
  "sync.erase": "Onlayn nüsxəni sil",
  "sync.erase_info": "Hesabın ehtiyat nüsxəsi silinsin və qoşulmuş telefonlarda avtomatik sinxronizasiya dayandırılsın? Bu telefonda saxlanmış qeydlər qalacaq.",
  "sync.erased": "Onlayn nüsxə silindi. Gündəlik bu telefonda qaldı.",
- "groups.link_lifetime": "Bu linki alan hər kəs 24 saat ərzində qrupa qoşula bilər. Linki yalnız dəvət etmək istədiyiniz şəxslərlə paylaşın."
+ "groups.link_lifetime": "Bu linki alan hər kəs 24 saat ərzində qrupa qoşula bilər. Linki yalnız dəvət etmək istədiyiniz şəxslərlə paylaşın.",
+ "parking.remove": "Dayanacaq nöqtəsini sil",
+ "parking.remove_info": "Paylaşılmış dayanacaq nöqtəsi və onun rəyləri silinsin?",
+ "alerts.community": "Şəxsi mesajlar, cavablar, qrup və bazar fəaliyyəti",
+ "trips.remove_catch": "Bu ovu və şəklini sil"
 }

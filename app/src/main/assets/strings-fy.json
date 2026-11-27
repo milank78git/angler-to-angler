@@ -30,7 +30,7 @@
  "account.new_link_requested_check_your_inbox": "De link is ferwurd. Check your inbox.",
  "account.new_password": "De nieuwe password",
  "account.open_inbox": "Ynskreaun ynbox",
- "account.open_journal": "Yn Open Journal",
+ "account.open_journal": "Fiskdeiboek iepenje",
  "account.open_the_latest_message_sent_to": "Op it earste krantsje is de lêste melding oan ",
  "account.open_your_webmail_in_the_browser_on": "Opnearje jo webmail yn de browser op dit telefoan.",
  "account.password": "Passwurd",
@@ -134,7 +134,7 @@
  "discussion.in_reply_to_a_post": "Yn it antwoord op in post",
  "discussion.loading_discussion": "De diskusje is ...",
  "discussion.mark_helpful": "Marker help",
- "discussion.marked_helpful_by_the_angler_who_asked": "De angels wurden al gau yn gebrûk naam.",
+ "discussion.marked_helpful_by_the_angler_who_asked": "De fisker dy’t de fraach stelde, hat dit antwurd as nuttich markearre.",
  "discussion.no_answers_yet": "No antwurde noch.",
  "discussion.older_posts": "Oan de post",
  "discussion.post_answer": "Post oanwêzen",
@@ -702,5 +702,9 @@
  "sync.erase": "Online kopy wiskje",
  "sync.erase_info": "De reservekopy út it akkount wiskje en automatyske syngronisaasje op keppele telefoans stopje? De notysjes op dizze telefoan bliuwe bewarre.",
  "sync.erased": "De online kopy is wiske. It deiboek stiet noch op dizze telefoan.",
- "groups.link_lifetime": "Elkenien mei dizze keppeling kin binnen 24 oeren by de groep komme. Diel de keppeling allinnich mei dejingen dy'tst útnûgje wolst."
+ "groups.link_lifetime": "Elkenien mei dizze keppeling kin binnen 24 oeren by de groep komme. Diel de keppeling allinnich mei dejingen dy'tst útnûgje wolst.",
+ "parking.remove": "Parkearplak fuortsmite",
+ "parking.remove_info": "It dielde parkearplak en de beoardielingen derfan fuortsmite?",
+ "alerts.community": "Priveeberjochten, antwurden en aktiviteit yn groepen en op de merk",
+ "trips.remove_catch": "Dizze fangst en de byhearrende foto wiskje"
 }

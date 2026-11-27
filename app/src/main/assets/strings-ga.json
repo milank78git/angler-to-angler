@@ -645,7 +645,7 @@
  "parking.notes": "Talaam, Talaam",
  "rating.mine": "Brazzers físeán catagóir Inexperienced",
  "trips.edit_catch": "Cuir an ghabháil in eagar",
- "trips.edit": "Cuir an turas iascaireachta in eagar",
+ "trips.edit": "Cuir an turas in eagar",
  "atlas.map": "Léarscáil",
  "parking.point": "Áit pháirceála",
  "emoji.fishing": "Iascaireacht",
@@ -689,5 +689,10 @@
  "sync.erase": "Scrios an chóip ar líne",
  "sync.erase_info": "An bhfuil tú ag iarraidh cóip chúltaca an chuntais a scriosadh agus sioncrónú uathoibríoch a stopadh ar na fóin nasctha? Fanfaidh na hiontrálacha atá sábháilte ar an bhfón seo anseo.",
  "sync.erased": "Scriosadh an chóip ar líne. Tá an dialann fós ar an bhfón seo.",
- "groups.link_lifetime": "Is féidir le haon duine a bhfuil an nasc seo aige dul isteach sa ghrúpa laistigh de 24 uair an chloig. Ná roinn é ach leis na daoine ar mhaith leat cuireadh a thabhairt dóibh."
+ "groups.link_lifetime": "Is féidir le haon duine a bhfuil an nasc seo aige dul isteach sa ghrúpa laistigh de 24 uair an chloig. Ná roinn é ach leis na daoine ar mhaith leat cuireadh a thabhairt dóibh.",
+ "parking.remove": "Bain an t-ionad páirceála",
+ "parking.remove_info": "An bhfuil fonn ort an t-ionad páirceála comhroinnte agus na léirmheasanna air a bhaint?",
+ "alerts.community": "Teachtaireachtaí príobháideacha, freagraí agus gníomhaíocht sna grúpaí agus san áit mhargaidh",
+ "trips.remove_catch": "Scrios an ghabháil seo agus an grianghraf di",
+ "catalog.species.zander": "Sander lucioperca"
 }

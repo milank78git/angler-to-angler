@@ -42,8 +42,8 @@ def check(show_coverage=False):
     czech = read(ASSETS / "strings-cs.json")
     fully_translated = {
         "an", "ast", "bg", "bs", "ca", "cs", "da", "de", "el", "en", "es", "et",
-        "fi", "fr", "gl", "hr", "it", "nl", "nn", "no", "oc", "pl", "pt", "ro",
-        "ru", "sk", "sl", "sr", "sv", "uk",
+        "fi", "fr", "gl", "hr", "hu", "it", "nl", "nn", "no", "oc", "pl", "pt",
+        "ro", "ru", "sk", "sl", "sr", "sv", "tr", "uk",
     }
     missing_total = 0
     complete = 0

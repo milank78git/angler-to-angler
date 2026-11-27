@@ -672,7 +672,7 @@
  "atlas.zoom_out": "Lütter maken",
  "waters.all_countries": "All Länner",
  "trips.edit_catch": "Fang bewerken",
- "trips.edit": "Tour bewerken",
+ "trips.edit": "Fohrt bewerken",
  "water_photo.remove": "Mien Foto wegmaken",
  "water_reports.no_reports": "Keen Mellen",
  "atlas_settings.check_now": "Nu nakieken",
@@ -682,5 +682,10 @@
  "alerts.weekly": "Niegen Fang in den Wekenwettstriet",
  "alerts.catches": "Niegen Fang in de Grupp",
  "alerts.tips": "Niegen Tipp in de Grupp",
- "alerts.replies": "Niege Antwoort op dien Fraag"
+ "alerts.replies": "Niege Antwoort op dien Fraag",
+ "parking.remove": "Parksteed wegmaken",
+ "parking.remove_info": "De deelt Parksteed un de Beoordelen doröver wegmaken?",
+ "alerts.community": "Private Narichten, Antern un wat in de Gruppen un op den Marktplatz passeert",
+ "trips.remove_catch": "Dissen Fang un sien Foto löschen",
+ "catalog.species.pike": "Esox lucius"
 }

@@ -670,5 +670,13 @@
  "alerts.weekly": "Tapadenn nevez e kevezadeg ar sizhun",
  "alerts.catches": "Tapadenn nevez er strollad",
  "alerts.tips": "Kuzul nevez er strollad",
- "alerts.replies": "Respont nevez d'ho koulenn"
+ "alerts.replies": "Respont nevez d'ho koulenn",
+ "parking.remove": "Dilemel al lec’h parkañ",
+ "parking.remove_info": "Dilemel al lec’h parkañ rannet hag ar soñjoù diwar e benn?",
+ "groups.edit_tip": "Kemmañ an ali",
+ "groups.remove_tip": "Dilemel an ali",
+ "alerts.community": "Kemennadennoù prevez, respontoù hag obererezh er strolladoù hag er marc’had",
+ "trips.remove_catch": "Dilemel ar pesk tapet-mañ hag e boltred",
+ "trips.edit": "Kemmañ ar veaj",
+ "trips.edit_catch": "Kemmañ ar pesk tapet"
 }
