@@ -163,34 +163,43 @@ export function createJournal(factory = globalThis.indexedDB, name = 'angler-fie
       });
 
   // Replace all members of a remote trip in one IndexedDB transaction.
-  function restoreTrip(id, document) {
-    return transaction(['trips', 'catches', 'photos', 'fingerprints'], 'readwrite', (tx) => {
-      invalidate(tx, 'trip/' + id);
-      const trips = tx.objectStore('trips'),
-        catches = tx.objectStore('catches'),
-        photos = tx.objectStore('photos');
-      const previous = catches.index('tripId').getAllKeys(id);
-      previous.onsuccess = () => {
-        for (const key of previous.result) {
-          catches.delete(key);
-          photos.delete(key);
-        }
-        if (!document) {
-          trips.delete(id);
+  function restoreTrip(id, document, expected = undefined) {
+    return transaction(['trips', 'catches', 'photos', 'fingerprints'], 'readwrite', (tx, result) => {
+      const key = 'trip/' + id;
+      const current = tx.objectStore('fingerprints').get(key);
+      current.onsuccess = () => {
+        if (expected && current.result?.version !== expected.version) {
+          result(false);
           return;
         }
-        trips.put(document.trip);
-        for (const { record, photo } of document.catches) {
-          const found = catches.get(record.id);
-          found.onsuccess = () => {
-            if (found.result && found.result.tripId !== id) {
-              tx.abort();
-              return;
-            }
-            catches.put(record);
-            if (photo) photos.put(photo, record.id);
-          };
-        }
+        result(true);
+        invalidate(tx, key);
+        const trips = tx.objectStore('trips'),
+          catches = tx.objectStore('catches'),
+          photos = tx.objectStore('photos');
+        const previous = catches.index('tripId').getAllKeys(id);
+        previous.onsuccess = () => {
+          for (const key of previous.result) {
+            catches.delete(key);
+            photos.delete(key);
+          }
+          if (!document) {
+            trips.delete(id);
+            return;
+          }
+          trips.put(document.trip);
+          for (const { record, photo } of document.catches) {
+            const found = catches.get(record.id);
+            found.onsuccess = () => {
+              if (found.result && found.result.tripId !== id) {
+                tx.abort();
+                return;
+              }
+              catches.put(record);
+              if (photo) photos.put(photo, record.id);
+            };
+          }
+        };
       };
     });
   }
@@ -208,7 +217,7 @@ export function createJournal(factory = globalThis.indexedDB, name = 'angler-fie
     restoreTrip,
     writeWaterPhoto,
     installCloudPhoto: (record, photo) =>
-      transaction(['photos', 'catches'], 'readwrite', (tx) => {
+      transaction(['photos', 'catches', 'fingerprints'], 'readwrite', (tx) => {
         const catches = tx.objectStore('catches');
         const request = catches.get(record.id);
         request.onsuccess = () => {
@@ -219,6 +228,7 @@ export function createJournal(factory = globalThis.indexedDB, name = 'angler-fie
             current.tripId === record.tripId &&
             current.cloudPhotoHash === record.cloudPhotoHash
           ) {
+            invalidate(tx, 'trip/' + current.tripId);
             tx.objectStore('photos').put(photo, record.id);
             catches.put({ ...current, hasPhoto: true });
           }

@@ -89,17 +89,22 @@ export async function encodeDocument(db, storage, subject, key, detached = false
 export async function localDocument(db, storage, subject, key, needBlocks = false, detached = false) {
   if (key.startsWith('pref/')) return encodeDocument(db, storage, subject, key);
   const cached = await db.fingerprint(key);
-  if (cached?.hashes && !!cached.detached === detached && !needBlocks) return { hashes: cached.hashes };
+  if (cached?.hashes && !!cached.detached === detached && !needBlocks)
+    return { hashes: cached.hashes, version: cached.version };
   const local = await encodeDocument(db, storage, subject, key, detached);
   if (!(await db.cacheHashes(key, cached?.version, local.hashes, detached)))
     throw Object.assign(Error('Journal changed during encoding'), { status: 409 });
-  return local;
+  return { ...local, version: cached?.version };
 }
 
 export async function uploadDocument(call, key, local, revision, floor = 0) {
-  for (const { id, hash, file } of local.photos || []) {
+  // Positions refer to the ordered photo references in this exact manifest.
+  const unavailable = {};
+  for (const [index, { id, hash, file }] of (local.photos || []).entries()) {
     const ref = { trip: key, id, hash };
-    if ((await call('photo_need', ref)).needed) await stagePhoto(call, ref, file);
+    if (!(await call('photo_need', ref)).needed) continue;
+    if (file) await stagePhoto(call, ref, file);
+    else unavailable[index] = true;
   }
   if (local.hashes.length) {
     const { hashes } = await call('missing', { hashes: [...local.blocks.keys()] });
@@ -111,6 +116,7 @@ export async function uploadDocument(call, key, local, revision, floor = 0) {
       revision,
       floor,
       parts: local.hashes,
+      ...(Object.keys(unavailable).length ? { unavailable } : {}),
       ...(local.photos ? { format: 2 } : {}),
     })
   ).revision;
@@ -128,7 +134,8 @@ export async function downloadDocument(call, hashes) {
   if (value.version !== 1) throw Error('Unsupported journal version');
   return value.value;
 }
-export async function restoreDocument(db, storage, subject, key, value, call = undefined) {
+/** Prepare and verify remote bytes without occupying the journal writer queue. */
+export async function prepareRestore(db, storage, subject, key, value, call = undefined) {
   if (key.startsWith('trip/')) {
     const id = key.slice(5);
     if (
@@ -145,7 +152,7 @@ export async function restoreDocument(db, storage, subject, key, value, call = u
         ))
     )
       throw Error('Invalid trip');
-    if (!value) return db.restoreTrip(id, null);
+    if (!value) return (expected = undefined) => db.restoreTrip(id, null, expected);
     const catches = [];
     for (const c of value.catches) {
       const photo =
@@ -161,13 +168,19 @@ export async function restoreDocument(db, storage, subject, key, value, call = u
         photo,
       });
     }
-    await db.restoreTrip(id, { trip: value.trip, catches });
-  } else if (key.startsWith('photo/')) await db.writeWaterPhoto(key.slice(6), photoBlob(value));
-  else {
+    return (expected = undefined) => db.restoreTrip(id, { trip: value.trip, catches }, expected);
+  }
+  if (key.startsWith('photo/')) return () => db.writeWaterPhoto(key.slice(6), photoBlob(value));
+  return async () => {
     const k = localKey(key.slice(5), subject);
     if (k && (value == null || typeof value === 'string')) {
       if (value == null) storage.removeItem(k);
       else storage.setItem(k, value);
     }
-  }
+  };
+}
+
+export async function restoreDocument(db, storage, subject, key, value, call = undefined) {
+  const apply = await prepareRestore(db, storage, subject, key, value, call);
+  await apply();
 }

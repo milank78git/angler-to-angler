@@ -119,7 +119,9 @@ export function bindPurchaseRating(view, nav, offerId) {
         nav.show();
       },
       (err) => {
-        if (err.status === 409) {
+        if (err.status === 429) {
+          toast(t('limits.hourly'));
+        } else if (err.status === 409) {
           toast(t('tip_ratings.this_purchase_was_already_rated_loading_the'));
           nav.show();
         } else {

@@ -207,7 +207,7 @@ export function bindCatchPhoto(article, record, url, view, call, file = undefine
       ? t('retention.pending')
       : live(row)
         ? t('retention.until').replace('{date}', stamp(row.expires))
-        : t(url ? 'retention.local' : 'retention.expired');
+        : t(url ? 'retention.local' : row.missing ? 'retention.unavailable' : 'retention.expired');
     panel.append(note);
     if (live(row)) panel.append(action('retention.renew', () => requestRenewal(subject, [row])));
     else if (url)

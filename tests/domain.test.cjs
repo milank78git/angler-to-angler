@@ -41,8 +41,10 @@ test('regional seasons include both boundaries and wrap across New Year', () => 
   );
 });
 test('unknown dates, stale packs, uncatalogued species and unsupported sections do not produce permission to fish', () => {
-  for (const day of ['2026-02-30', '2027-01-01', '2025-12-31', ''])
+  for (const day of ['2026-02-30', '2028-01-01', '2025-12-31', ''])
     assert.equal(d.season(pack, 'pike', 'main', day), 'unknown');
+  assert.equal(d.season(pack, 'pike', 'main', '2027-01-01'), 'closed');
+  assert.equal(d.season(pack, 'barbel', 'main', '2027-12-31'), 'closed');
   assert.equal(d.season(pack, 'carp', 'main', '2026-07-01'), 'unknown');
   assert.equal(d.season(pack, 'pike', 'other', '2026-07-01'), 'unknown');
   assert.equal(d.season(pack, 'pike', 'restricted', '2026-07-01'), 'prohibited');

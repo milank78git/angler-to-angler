@@ -42,6 +42,8 @@ final class AccountChecks {
   private volatile int passwordSignIns, refreshes;
   private static final String PASSWORD = "fixture-password";
   private volatile String ownGroup;
+  private volatile boolean rosterMember, invitationRevoked;
+  private static final String ROSTER_ID = "71111111-6111-4111-8111-111111111111";
   private volatile JSONObject savedCard;
   private volatile int cardRevision;
   private JSONObject privateDetails;
@@ -372,7 +374,7 @@ final class AccountChecks {
                                     new JSONObject()
                                         .put("id", ownGroup)
                                         .put("name", "River crew")
-                                        .put("memberCount", 1)
+                                        .put("memberCount", rosterMember ? 2 : 1)
                                         .put("owner", true));
                               response = new JSONObject().put("groups", list).toString();
                               break;
@@ -419,6 +421,22 @@ final class AccountChecks {
                               ownGroup =
                                   java.util.UUID.fromString(body.getString("group_id")).toString();
                               response = new JSONObject().put("id", ownGroup).toString();
+                              break;
+                            case "/rest/v1/rpc/angler_group_members":
+                              if (!body.getString("group_id").equals(ownGroup)) return 403;
+                              org.json.JSONArray roster = new org.json.JSONArray();
+                              if (rosterMember) roster.put(new JSONObject().put("id", ROSTER_ID).put("name","Lake visitor"));
+                              response = new JSONObject().put("items",roster).put("ownerName","River").put("next",JSONObject.NULL).toString();
+                              break;
+                            case "/rest/v1/rpc/angler_group_remove_member":
+                              if (!body.getString("group_id").equals(ownGroup) || !ROSTER_ID.equals(body.getString("member_id"))) return 403;
+                              rosterMember = false;
+                              response = "{}";
+                              break;
+                            case "/rest/v1/rpc/angler_group_revoke":
+                              if (!body.getString("group_id").equals(ownGroup)) return 403;
+                              invitationRevoked = true;
+                              response = "{}";
                               break;
                             case "/rest/v1/rpc/angler_group_link":
                               if (!body.getString("group_id").equals(ownGroup)) return 403;
@@ -712,9 +730,23 @@ final class AccountChecks {
     app.captureAccount(gate, "groups");
     click("River crew" + tr("groups.owner"));
     click(tr("groups.issue_invitation"));
-    TextView invitation = find(tr("groups.link_lifetime"));
+    TextView invitation = find(tr("groups.the_code_lasts_24_hours_a_new"));
     app.captureWindow(invitation.getRootView(), "group-invitation");
     dialogButton(android.R.id.button2);
+    click("River crew" + tr("groups.owner"));
+    rosterMember = true;
+    click(tr("public_cards.revoke_link"));
+    dialogButton(android.R.id.button1);
+    find(tr("groups.members") + "2");
+    if (!invitationRevoked) throw new AssertionError("Invitation was not revoked");
+    click("River crew" + tr("groups.owner"));
+    click(tr("groups.members").trim());
+    click("Lake visitor");
+    find(tr("groups.remove_member_confirm"));
+    dialogButton(android.R.id.button1);
+    find(tr("groups.members") + "1");
+    if (rosterMember) throw new AssertionError("Member was not removed");
+    click(tr("groups.back_to_groups"));
     click("River crew" + tr("groups.owner"));
     click(tr("groups.dissolve_group"));
     click(tr("common.cancel"));

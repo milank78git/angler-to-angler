@@ -50,3 +50,14 @@ Add each new ID to the complete dictionaries listed in the validator to keep the
 The discovery endpoint filters registered waters before counting all available offers, distinct authors, historical purchases of those active offers and their buyer reviews. Counts are independent of the page cursor. Sold-out and withdrawn offers leave discovery. A buyer keeps the originally purchased text. The tip's score aggregates purchases across its versions. The author's score includes reviews on other tips. Both expose the number of contributors. Neither measure establishes a catch success rate.
 
 Every journal destination has a contextual help chapter. The toolbar opens the chapter for the current screen. Each labelled field with a help button opens its own explanation and an optional link to the related chapter. The index searches all chapters. Closing help restores focus without discarding the draft. Native account and group screens open the same bundled guide. Replies and emoji retain their existing ownership and threading rules.
+
+### Czech pilot pack, 27 November 2026
+
+The independently reviewed pack for the **main channels** of Berounka 1 (401 001) and Sázava 1 (401 009) uses the 2026–2027 non-trout edition through 31 December 2027. The 2027 supplement changes daily fishing hours and other waters. The app models selected species, closure windows, lengths and restricted sections. Anglers still need the current permit conditions for hours, tackle and other local restrictions. The two RIS water records linked in the pack continue to supply their own dated observations.
+
+- [ČRS 2026–2027 non-trout edition, Prague waters 401 001 and 401 009](https://www.rybsvaz.cz/g/services/api/rest/public/documents/by-id/76218372455903586051702787/content/CRS_MIMIPSTRUH_REVIR_2026.pdf)
+- [ČRS 2027 supplement, general changes and Prague section](https://www.rybsvaz.cz/g/services/api/rest/public/documents/by-id/118672686944574654747009291/content/Dodatky_Soupisu_MP_a_P_reviry_2027.pdf)
+
+The separate European pack originally had 14 source-review deadlines and 48 individual end dates on 31 December 2026. The recreational eel prohibition in the specified EU marine and brackish waters of ICES subareas 3, 4, 6, 7, 8 and 9 applies from 1 April 2026 through 31 March 2027. All 14 affected country entries now use that interval. See [Council Regulation (EU) 2026/249, Articles 14(1), 14(8) and 62(2)(b)](https://eur-lex.europa.eu/eli/reg/2026/249/oj/eng/pdf).
+
+There are 13 source-review deadlines and 34 individual rule end dates left on 31 December 2026. The weekly Field guide review lists the affected source IDs. Verify each successor instrument, territory, species, activity and effective date before publishing the next edition. Expired entries yield an unverified result.

@@ -690,9 +690,8 @@
  "sync.erase": "Sguab às an lethbhreac air loidhne",
  "sync.erase_info": "A bheil thu airson lethbhreac-glèidhidh a’ chunntais a sguabadh às agus stad a chur air sioncronachadh fèin-obrachail air na fònaichean ceangailte? Fuirichidh na h-innteartan a shàbhail thu air an fhòn seo an seo.",
  "sync.erased": "Chaidh an lethbhreac air loidhne a sguabadh às. Tha an leabhar-latha fhathast air an fhòn seo.",
- "groups.link_lifetime": "Faodaidh neach sam bith leis a’ cheangal seo a dhol dhan bhuidhinn taobh a-staigh 24 uair a thìde. Na co-roinn e ach leis an fheadhainn a tha thu airson cuireadh a thoirt dhaibh.",
  "parking.remove": "Thoir air falbh an t-àite-parcaidh",
- "parking.remove_info": "An toir thu air falbh an t-àite-parcaidh co-roinnte agus na lèirmheasan air?",
+ "parking.remove_info": "Fuirichidh àite le lèirmheasan bho dhaoine eile air a’ mhapa còmhla riutha. A bheil thu airson na chuir thu ris a thoirt air falbh?",
  "alerts.community": "Teachdaireachdan prìobhaideach, freagairtean is gnìomhachd sna buidhnean agus air a’ mhargaidh",
  "trips.remove_catch": "Sguab às an glacadh seo agus an dealbh dheth",
  "trips.edit": "Deasaich an turas",
@@ -714,5 +713,10 @@
  "water_photo.remove": "Thoir an dealbh agam air falbh",
  "water_reports.withdraw_report": "Tarraing an aithisg air ais",
  "emoji.thanks": "Tapadh leat",
- "fish_catalogue.no_retention": "Feumar an t-iasg a chaidh a ghlacadh a chur air ais san uisge"
+ "fish_catalogue.no_retention": "Feumar an t-iasg a chaidh a ghlacadh a chur air ais san uisge",
+ "groups.remove_member_confirm": "A bheil thu airson am ball seo agus na chuir iad ris a thoirt às a’ bhuidheann?",
+ "trips.shared_copies": "Fuirichidh na lethbhreacan a chaidh a cho-roinneadh. Thoir air falbh iad fa leth.",
+ "retention.renew": "Ùraich airson 12 mìosan bhon latha an-diugh",
+ "retention.title": "Dealbhan san neul",
+ "retention.unavailable": "Chan eil an dealbh san neul ri fhaighinn"
 }

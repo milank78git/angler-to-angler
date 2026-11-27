@@ -33,6 +33,7 @@ export function bindGroupTip(view, nav, tripId, getText) {
     feedback.hidden = !message;
   }
   function reportError(error) {
+    if (error.status === 429) return report(t('limits.hourly'));
     const message =
       error.status === 401
         ? t('group_tip.sign_in_to_your_account_again_to')

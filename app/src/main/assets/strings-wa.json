@@ -674,7 +674,6 @@
  "alerts.ratings": "Vosse consey a rçuvou ene cote",
  "alerts.messages": "Novea messaedje privé",
  "messages.unread": "Nén léjhou",
- "groups.link_lifetime": "Tot l’ monde k’ a ci loyén pout intrer el groupe dins les 24 eures. Pårtaedjîz l’ loyén seulmint avou les djins k’ vos vloz inviter.",
  "sync.erase": "Disfacer li copeye so fyis",
  "sync.erase_info": "Disfacer li copeye di såvrité do conte et arester li sincronijhaedje otomatike so les telefones raloyîs? Les notes wårdêyes so vosse telefone dimorront chal.",
  "sync.erased": "Li copeye so fyis est disfacêye. Vosse djournå dimore so ç’ telefone.",
@@ -683,7 +682,7 @@
  "groups.edit_tip": "Candjî l’ consey",
  "groups.remove_tip": "Disfacer li consey",
  "trips.edit": "Candjî l’ evoyaedje di pexhe",
- "parking.remove_info": "Disfacer li poént di parcaedje pårtaedjî et les avisses?",
+ "parking.remove_info": "E plaece avou des avis d’ôtes djins dimore sol cåte avou leus avis. Oister vosse contribucion ?",
  "trips.remove_catch": "Disfacer cisse prîse et si foto",
  "alerts.community": "Messaedjes privés, responses, noveles do groupe et do martchî",
  "account.offline_expired": "Les set djoûs d’ accès sins internet sont passés. Raloyîz vos a internet et disblokîz l’ djournå po continouwer. Vos notes wårdêyes sont co so ç’ telefone.",
@@ -813,5 +812,10 @@
  "waters.published_coordinates": "Coordonêyes publicêyes",
  "waters.czechia_and_abroad": "Tchekeye et l’ etrindjir",
  "waters.official_details": "Detays oficirs",
- "guide.read_related_chapter": "Lére li tchapite ki va avou"
+ "guide.read_related_chapter": "Lére li tchapite ki va avou",
+ "groups.remove_member_confirm": "Oister ci mimbre eyet ses contribucions do groupe ?",
+ "trips.shared_copies": "Les copeyes pårtaedjeyes dimorèt. Disfacez les a pårt.",
+ "retention.renew": "Rinovler po 12 moes a pårti d’ ouy",
+ "retention.title": "Fotos sol nûlêye",
+ "retention.unavailable": "Li foto sol nûlêye n’ est nén disponibe"
 }

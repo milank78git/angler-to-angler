@@ -221,7 +221,15 @@ public final class GroupsActivity extends LocalizedActivity {
                 new Intent(this, FishingActivity.class)
                     .putExtra(
                         "weeklyDestination", args("groupId", id, "groupName", name).toString())));
-    if (owner)
+    if (owner) {
+      dialog.choice(t("groups.members").trim(), AccountLayout.Action.SECONDARY, () -> members(id, name, null));
+      dialog.choice(t("public_cards.revoke_link"), AccountLayout.Action.SECONDARY, () -> {
+        AccountLayout.Prompt confirm = ui.prompt(name);
+        confirm.action(t("public_cards.revoke_link"), AccountLayout.Action.DANGER,
+            () -> request("group_revoke", args("group_id", id), ignored -> refresh()));
+        confirm.action(t("common.cancel"), AccountLayout.Action.SECONDARY, null);
+        confirm.show();
+      });
       dialog.choice(
           t("groups.issue_invitation"),
           AccountLayout.Action.PRIMARY,
@@ -230,9 +238,41 @@ public final class GroupsActivity extends LocalizedActivity {
                   "group_link",
                   args("group_id", id),
                   result -> invitation(result.getString("code"))));
+    }
     dialog.choice(leave, AccountLayout.Action.DANGER, () -> confirmLeave(id, name, owner, leave));
     dialog.action(t("common.close"), AccountLayout.Action.SECONDARY, null);
     dialog.show();
+  }
+
+  private void members(String groupId, String groupName, String after) {
+    JSONObject query = after == null ? args("group_id", groupId) : args("group_id", groupId, "after_id", after);
+    request("group_members", query, result -> {
+      readingTips = true;
+      ui.page(t("groups.members") + groupName, false);
+      button(t("groups.back_to_groups"), AccountLayout.Action.LINK, this::refresh);
+      JSONArray items = result.getJSONArray("items");
+      if (after == null) {
+        ui.label(result.getString("ownerName") + t("groups.owner"));
+        if (items.length() == 0) ui.label(t("groups.members") + "1");
+      }
+      for (int i = 0; i < items.length(); i++) {
+        JSONObject item = items.getJSONObject(i);
+        String id = item.getString("id"), name = item.getString("name");
+        button(name, AccountLayout.Action.SECONDARY, () -> {
+          AccountLayout.Prompt confirm = ui.prompt(name);
+          confirm.description(t("groups.remove_member_confirm"));
+          confirm.action(t("tip_ratings.confirm"), AccountLayout.Action.DANGER,
+              () -> request("group_remove_member", args("group_id", groupId, "member_id", id),
+                  ignored -> members(groupId, groupName, null)));
+          confirm.action(t("common.cancel"), AccountLayout.Action.SECONDARY, null);
+          confirm.show();
+        });
+      }
+      if (!result.isNull("next")) {
+        String next = result.getString("next");
+        button(t("profiles.more_profiles"), AccountLayout.Action.LINK, () -> members(groupId, groupName, next));
+      }
+    });
   }
 
   private void catches(String id, String name, String cursor) {
@@ -382,7 +422,7 @@ public final class GroupsActivity extends LocalizedActivity {
     dialog = ui.prompt(t("groups.issue_invitation"));
     dialog.code(code);
     dialog.description(
-        t("groups.link_lifetime"));
+        t("groups.the_code_lasts_24_hours_a_new"));
     dialog.action(
         t("public_cards.share_link"),
         AccountLayout.Action.PRIMARY,

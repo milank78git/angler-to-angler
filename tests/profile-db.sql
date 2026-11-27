@@ -60,4 +60,5 @@ do $$begin if exists(select from angler_private.acceptances) or exists(select fr
 \ir community-corrections-db.sql
 \ir journal-community-db.sql
 \ir photo-retention-db.sql
+\ir review-regressions-db.sql
 rollback;

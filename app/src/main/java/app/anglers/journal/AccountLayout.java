@@ -169,7 +169,7 @@ final class AccountLayout {
     form.setPadding(dp(4), 0, dp(4), 0);
     add(column, form, 24);
     TextView heading = text(title, 28, ink, Typeface.create("sans-serif-medium", 0));
-    if (android.os.Build.VERSION.SDK_INT >= 28) heading.setAccessibilityHeading(true);
+    heading.setAccessibilityHeading(true);
     form.addView(heading);
     button(form, AppLanguage.text(activity, "common.help"), Action.LINK, this::showGuide);
     status = text("", 15, muted, Typeface.DEFAULT);
@@ -348,7 +348,7 @@ final class AccountLayout {
       mark.setClipToOutline(true);
       header.addView(mark, new LinearLayout.LayoutParams(dp(36), dp(36)));
       TextView heading = text(title, 23, ink, Typeface.create("serif", Typeface.BOLD));
-      if (android.os.Build.VERSION.SDK_INT >= 28) heading.setAccessibilityHeading(true);
+      heading.setAccessibilityHeading(true);
       LinearLayout.LayoutParams label = new LinearLayout.LayoutParams(0, -2, 1);
       label.setMarginStart(dp(12));
       header.addView(heading, label);

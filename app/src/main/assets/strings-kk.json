@@ -133,7 +133,7 @@
  "discussion.in_reply_to_a_post": "Ауыз іші шырышты қабығы",
  "discussion.loading_discussion": "Ауызды дискуссиясы...",
  "discussion.mark_helpful": "Марктің",
- "discussion.marked_helpful_by_the_angler_who_asked": "Бұл үшін ангелы мен қазықтардан тұрады.",
+ "discussion.marked_helpful_by_the_angler_who_asked": "Сұрақ қойған балықшы бұл жауапты пайдалы деп белгіледі",
  "discussion.no_answers_yet": "Ауыздан да не айтылады.",
  "discussion.older_posts": "Жүсірелік пост",
  "discussion.post_answer": "Posts Оған",
@@ -698,9 +698,8 @@
  "sync.erase": "Онлайн көшірмені жою",
  "sync.erase_info": "Тіркелгідегі сақтық көшірмені жойып, байланыстырылған телефондардағы автоматты синхрондауды тоқтату керек пе? Осы телефонда сақталған жазбалар осында қалады.",
  "sync.erased": "Онлайн көшірме жойылды. Күнделік осы телефонда қалды.",
- "groups.link_lifetime": "Осы сілтемені алған кез келген адам 24 сағат ішінде топқа қосыла алады. Оны тек шақырғыңыз келетін адамдарға жіберіңіз.",
  "parking.remove": "Тұрақ орнын жою",
- "parking.remove_info": "Ортақ тұрақ орнын және ол туралы пікірлерді жою керек пе?",
+ "parking.remove_info": "Басқалар бағалаған орын бағаларымен бірге картада қалады. Өз жазбаңды өшіру керек пе?",
  "alerts.community": "Жеке хабарлар, жауаптар, топтардағы және сауда алаңындағы жаңалықтар",
  "trips.remove_catch": "Осы ауланған балық жазбасын және оның фотосын жою",
  "waters.angler_contributions": "Балықшылардың жазбалары",
@@ -719,5 +718,10 @@
  "water_photo.remove": "Фотосуретімді өшіру",
  "water_reports.withdraw_report": "Хабарламамды қайтарып алу",
  "emoji.thanks": "Рақмет",
- "fish_catalogue.no_retention": "Ұсталған балықты суға қайта жіберу керек"
+ "fish_catalogue.no_retention": "Ұсталған балықты суға қайта жіберу керек",
+ "groups.remove_member_confirm": "Осы қатысушы мен оның жазбаларын топтан өшіру керек пе?",
+ "trips.shared_copies": "Бөліскен көшірмелер сақталады. Оларды бөлек өшір.",
+ "retention.renew": "Бүгіннен бастап 12 айға ұзарту",
+ "retention.title": "Бұлттағы фотолар",
+ "retention.unavailable": "Бұлттағы фото қолжетімсіз"
 }

@@ -13,8 +13,7 @@
  "sync.erase": "Onlinekopie löschen",
  "groups.remove_tip": "Tipp entfernen",
  "groups.edit_tip": "Tipp bearbeiten",
- "groups.link_lifetime": "Wer den Link hat, kann innerhalb von 24 Stunden beitreten. Teile ihn nur mit den gewünschten Mitgliedern.",
- "parking.remove_info": "Diesen geteilten Parkplatz mit seinen Bewertungen löschen?",
+ "parking.remove_info": "Orte mit Bewertungen anderer bleiben mit diesen Bewertungen auf der Karte. Deinen Beitrag entfernen?",
  "parking.remove": "Parkplatz löschen",
  "account.offline_expired": "Dein siebentägiger Offlinezugang ist abgelaufen. Verbinde dich mit dem Internet und entsperre das Tagebuch. Gespeicherte Einträge bleiben auf diesem Gerät.",
  "trips.remove_catch": "Diesen Fang und sein Foto löschen",
@@ -795,7 +794,7 @@
  "europe-rules.scopes.adlocal": "Andorra · gewöhnliche Flussabschnitte im Jahr 2026, ausgenommen einzeln aufgeführte Ausnahmen",
  "europe-rules.scopes.allocal": "Albanischer Teil des Ohridsees · Freizeitangeln auf Karpfen, Saison 2026",
  "europe-rules.scopes.amlocal": "Armenien · vertraglich geregeltes Freizeitangeln in nicht privaten Gewässern, Februar bis Dezember 2026. Einschränkungen am Sewansee gesondert prüfen.",
- "europe-rules.scopes.atl26": "2026 · Freizeitangeln in EU-Meeresgewässern und angrenzendem Brackwasser der ICES-Gebiete 3, 4, 6, 7, 8 und 9",
+ "europe-rules.scopes.atl26": "2026-04-01 – 2027-03-31 · Freizeitangeln in EU-Meeresgewässern und angrenzendem Brackwasser der ICES-Gebiete 3, 4, 6, 7, 8 und 9",
  "europe-rules.scopes.atlocal": "Österreich · Niederösterreich, § 1 NÖ Fischereiverordnung",
  "europe-rules.scopes.azlocal": "Aserbaidschan · Fangverbot für Hausen in den nationalen Gewässern",
  "europe-rules.scopes.bal26": "2026 · Ostsee, Untergebiete 22–32. Gezieltes Angeln auf Dorsch ist verboten. Beifang zurücksetzen, außer in den Untergebieten 27–32, wo er behalten werden darf.",
@@ -1174,9 +1173,12 @@
  "retention.until": "In der Cloud bis {date}",
  "retention.local": "Nur auf diesem Gerät",
  "retention.expired": "Cloud-Foto abgelaufen",
- "retention.renew": "Um 12 Monate verlängern",
+ "retention.renew": "Ab heute um 12 Monate verlängern",
  "retention.reupload": "Erneut in der Cloud speichern",
  "retention.pending": "Verlängerung wartet auf Verbindung",
  "retention.due": "In 30 Tagen ablaufende Fotos: {count}",
- "retention.policy": "Fangfotos bleiben 12 Monate in der Cloud. Öffnen Sie ein Foto in der Detailansicht oder verlängern Sie die Frist. Das Foto auf dem Gerät bleibt erhalten."
+ "retention.policy": "Fangfotos bleiben 12 Monate in der Cloud. Öffnen Sie ein Foto in der Detailansicht oder verlängern Sie die Frist. Das Foto auf dem Gerät bleibt erhalten.",
+ "groups.remove_member_confirm": "Dieses Mitglied und seine Gruppenbeiträge entfernen?",
+ "trips.shared_copies": "Geteilte Kopien bleiben erhalten. Entferne sie separat.",
+ "retention.unavailable": "Cloud-Foto nicht verfügbar"
 }

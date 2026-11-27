@@ -75,9 +75,12 @@ export async function waterReports(host, water, view) {
         const row = feedback.closest('.water-report-row') || host.querySelector('.water-report-row');
         row.querySelector(':scope > button').focus({ preventScroll: true });
       }
-    } catch {
+    } catch (error) {
       if (!view.active()) return;
-      status.textContent = [receipt, t('water_reports.reports_could_not_be_loaded')]
+      status.textContent = [
+        receipt,
+        t(error.status === 429 ? 'limits.hourly' : 'water_reports.reports_could_not_be_loaded'),
+      ]
         .filter(Boolean)
         .join(' ');
       offerRefresh(() => loadReports(receipt, uncertainKind));
@@ -106,7 +109,10 @@ export async function waterReports(host, water, view) {
       await rpc('water_report', { water_key: water, kind, withdraw: mine });
     } catch (error) {
       if (!view.active()) return;
-      if (error.status === 401 || error.status === 403 || error.status === 422) {
+      if (error.status === 429) {
+        status.textContent = t('limits.hourly');
+        setActionsDisabled(false);
+      } else if (error.status === 401 || error.status === 403 || error.status === 422) {
         status.textContent =
           error.status === 401
             ? t('profile_api.sign_in_again_to_use_the_online')

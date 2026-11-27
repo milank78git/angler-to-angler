@@ -306,8 +306,8 @@
     "atl26": {
       "title": "Council Regulation (EU) 2026/249 · European eel",
       "url": "https://eur-lex.europa.eu/eli/reg/2026/249/oj/eng",
-      "checked": "2026-11-24",
-      "reviewBy": "2026-12-31"
+      "checked": "2026-11-27",
+      "reviewBy": "2027-03-31"
     },
     "med26": {
       "title": "Council Regulation (EU) 2026/266 · Articles 4 and 6",
@@ -1396,7 +1396,8 @@
         "01-01",
         "12-31"
       ],
-      "validUntil": "2026-12-31"
+      "validUntil": "2027-03-31",
+      "validFrom": "2026-04-01"
     },
     {
       "country": "DE",
@@ -1409,7 +1410,8 @@
         "01-01",
         "12-31"
       ],
-      "validUntil": "2026-12-31"
+      "validUntil": "2027-03-31",
+      "validFrom": "2026-04-01"
     },
     {
       "country": "DK",
@@ -1422,7 +1424,8 @@
         "01-01",
         "12-31"
       ],
-      "validUntil": "2026-12-31"
+      "validUntil": "2027-03-31",
+      "validFrom": "2026-04-01"
     },
     {
       "country": "EE",
@@ -1435,7 +1438,8 @@
         "01-01",
         "12-31"
       ],
-      "validUntil": "2026-12-31"
+      "validUntil": "2027-03-31",
+      "validFrom": "2026-04-01"
     },
     {
       "country": "ES",
@@ -1448,7 +1452,8 @@
         "01-01",
         "12-31"
       ],
-      "validUntil": "2026-12-31"
+      "validUntil": "2027-03-31",
+      "validFrom": "2026-04-01"
     },
     {
       "country": "FI",
@@ -1461,7 +1466,8 @@
         "01-01",
         "12-31"
       ],
-      "validUntil": "2026-12-31"
+      "validUntil": "2027-03-31",
+      "validFrom": "2026-04-01"
     },
     {
       "country": "FR",
@@ -1474,7 +1480,8 @@
         "01-01",
         "12-31"
       ],
-      "validUntil": "2026-12-31"
+      "validUntil": "2027-03-31",
+      "validFrom": "2026-04-01"
     },
     {
       "country": "IE",
@@ -1487,7 +1494,8 @@
         "01-01",
         "12-31"
       ],
-      "validUntil": "2026-12-31"
+      "validUntil": "2027-03-31",
+      "validFrom": "2026-04-01"
     },
     {
       "country": "LT",
@@ -1500,7 +1508,8 @@
         "01-01",
         "12-31"
       ],
-      "validUntil": "2026-12-31"
+      "validUntil": "2027-03-31",
+      "validFrom": "2026-04-01"
     },
     {
       "country": "LV",
@@ -1513,7 +1522,8 @@
         "01-01",
         "12-31"
       ],
-      "validUntil": "2026-12-31"
+      "validUntil": "2027-03-31",
+      "validFrom": "2026-04-01"
     },
     {
       "country": "NL",
@@ -1526,7 +1536,8 @@
         "01-01",
         "12-31"
       ],
-      "validUntil": "2026-12-31"
+      "validUntil": "2027-03-31",
+      "validFrom": "2026-04-01"
     },
     {
       "country": "PL",
@@ -1539,7 +1550,8 @@
         "01-01",
         "12-31"
       ],
-      "validUntil": "2026-12-31"
+      "validUntil": "2027-03-31",
+      "validFrom": "2026-04-01"
     },
     {
       "country": "PT",
@@ -1552,7 +1564,8 @@
         "01-01",
         "12-31"
       ],
-      "validUntil": "2026-12-31"
+      "validUntil": "2027-03-31",
+      "validFrom": "2026-04-01"
     },
     {
       "country": "SE",
@@ -1565,7 +1578,8 @@
         "01-01",
         "12-31"
       ],
-      "validUntil": "2026-12-31"
+      "validUntil": "2027-03-31",
+      "validFrom": "2026-04-01"
     },
     {
       "country": "CY",

@@ -169,9 +169,29 @@ jobs:
       id-token: write
     uses: ./.github/workflows/account-pages.yml
 
+  migrate-pilot:
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.tag == ''))
+    needs: [build, profiles, account-pages]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    environment: pilot-database
+    concurrency:
+      group: hosted-pilot-database
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Migrate and verify the hosted pilot
+        env:
+          PILOT_DB_HOST: ${{ vars.PILOT_DB_HOST }}
+          PILOT_DB_PASSWORD: ${{ secrets.PILOT_DB_PASSWORD }}
+          PILOT_DB_CA: ${{ vars.PILOT_DB_CA }}
+        run: bash scripts/deploy-pilot-database.sh
+
   release:
     if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.tag == ''))
-    needs: [build, profiles, field-integration, account-pages]
+    needs: migrate-pilot
     runs-on: ubuntu-24.04
     permissions:
       contents: write

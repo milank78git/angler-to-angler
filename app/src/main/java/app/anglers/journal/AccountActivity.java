@@ -122,7 +122,7 @@ public final class AccountActivity extends LocalizedActivity {
     managing = false;
     profile = null;
     ui.page(text("account.account_sign_in"), true);
-    if (AccountStore.prefs(this).contains("subject") && AccountStore.remainingMillis(this) == 0)
+    if (AccountStore.offlineLeaseExpired(this))
       ui.label(text("account.offline_expired"));
     boolean ready = service != null && service.configured();
     if (DeviceVault.enrolled(this))
@@ -722,7 +722,9 @@ public final class AccountActivity extends LocalizedActivity {
     if (error instanceof IdentityService.EmailRateLimit)
       return text("account.too_many_attempts_please_try_again_later");
     if (error instanceof IdentityService.HttpFailure) {
-      String code = ((IdentityService.HttpFailure) error).code;
+      IdentityService.HttpFailure failure = (IdentityService.HttpFailure) error;
+      if (failure.status == 429) return text("account.too_many_attempts_please_try_again_later");
+      String code = failure.code;
       if ("AN002".equals(code)) return text("age.invalid_date");
       if ("AN001".equals(code)) return text("account.invisible_name");
       if ("PT409".equals(code)) return text("account.name_in_use");

@@ -46,6 +46,13 @@ final class AccountStore {
     return "adult".equals(band) || "teen".equals(band);
   }
 
+  static boolean offlineLeaseExpired(Context c) {
+    SharedPreferences p = prefs(c);
+    return p.contains("subject") && p.contains("verified")
+        && REVISION.equals(p.getString("revision", ""))
+        && System.currentTimeMillis() - p.getLong("verified", 0) >= WINDOW;
+  }
+
   static long remainingMillis(Context c) {
     SharedPreferences p = prefs(c);
     long age = System.currentTimeMillis() - p.getLong("verified", 0);
