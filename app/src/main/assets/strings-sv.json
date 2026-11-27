@@ -1168,5 +1168,15 @@
  "waters.sort_by_location": "Sortera efter plats",
  "waters.this_water_has_no_location_in_the": "Detta vatten har ingen plats i offline-atlasen.",
  "waters.trout_water": "Öringvatten",
- "waters.water_reports": "Vattenrapporter"
+ "waters.water_reports": "Vattenrapporter",
+ "retention.title": "Foton i molnet",
+ "retention.notice": "Vissa foton löper snart ut. Öppna dagboken för att förlänga tiden.",
+ "retention.until": "I molnet till {date}",
+ "retention.local": "Bara på den här enheten",
+ "retention.expired": "Molnfotot har löpt ut",
+ "retention.renew": "Förläng med 12 månader",
+ "retention.reupload": "Spara i molnet igen",
+ "retention.pending": "Förlängningen väntar på anslutning",
+ "retention.due": "Foton som löper ut inom 30 dagar: {count}",
+ "retention.policy": "Fångstfoton sparas i molnet i 12 månader. Öppna fotot i detalj eller förläng tiden. Fotot på enheten finns kvar."
 }

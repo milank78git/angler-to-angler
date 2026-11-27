@@ -395,6 +395,12 @@ public final class FishingActivity extends LocalizedActivity {
     }
 
     @JavascriptInterface
+    public void photoReminderDates(String dates) {
+      if(subject.equals(AccountStore.active(FishingActivity.this)))
+        PhotoExpiryReminder.remember(FishingActivity.this,subject,dates);
+    }
+
+    @JavascriptInterface
     public String licenseMessage() {
       return subject.equals(AccountStore.active(FishingActivity.this)) ? LicenseReminder.message(FishingActivity.this) : "";
     }
@@ -540,6 +546,7 @@ public final class FishingActivity extends LocalizedActivity {
     if (code == PositionRequest.PERMISSION) position.permissionResult();
     if (code == LICENSE_NOTIFY) {
       LicenseReminder.reconcile(this);
+      PhotoExpiryReminder.reconcile(this);
       signal("window.refreshLicense?.()");
     }
     if (code == NOTIFY) {
@@ -615,6 +622,7 @@ public final class FishingActivity extends LocalizedActivity {
     if (web!=null) {
       applyReadingPreferences();
       LicenseReminder.reconcile(this);
+      PhotoExpiryReminder.reconcile(this);
       signal("window.refreshFieldSettings?.();window.refreshLicense?.()");
       if (FieldAlerts.enabled(this,FieldAlerts.POSTS) || FieldAlerts.enabled(this,FieldAlerts.COMMUNITY)) FieldAlerts.checkPosts(this,null);
     }

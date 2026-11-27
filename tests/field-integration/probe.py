@@ -56,19 +56,30 @@ print('Unnamed car park verified (' + mode + ').')
 
 
 # Use an authenticated round trip and compare exact document bytes after a full database restore.
-journal_bytes = json.dumps({"version": 1, "value": {"trip": {"id": "restore", "notes": "Morning by the pond"},
-    "catches": []}}, separators=(",", ":")).encode()
+jpeg = b'\xff\xd8\xff' + bytes(range(256)) * 330 + b'\xff\xd9'
+photo_hash = hashlib.sha256(jpeg).hexdigest()
+photo = dict(trip='trip/restore', id='fish', hash=photo_hash)
+journal_bytes = json.dumps({"version": 2, "value": {"trip": {"id": "restore", "notes": "Morning by the pond"},
+    "catches": [{"record": {"id": "fish", "tripId": "restore", "hasPhoto": True}, "photoHash": photo_hash}]}},
+    separators=(",", ":")).encode()
 digest = hashlib.sha256(journal_bytes).hexdigest()
 
 def journal(op, **args):
     return post('/rest/v1/rpc/angler_journal_sync', {'op': op, 'args': args}, token)
 
 if mode == 'seed':
+    journal('enable')
+    for start in range(0, len(jpeg), 65536):
+        journal('photo_part', **photo, part=start//65536, data=base64.b64encode(jpeg[start:start+65536]).decode())
+    journal('photo_prepare', **photo)
     journal('put', hash=digest, data=base64.b64encode(journal_bytes).decode())
-    assert journal('save', key='trip/restore', revision=0, parts=[digest])['revision'] == 1
-documents = journal('list')['rows']
+    assert journal('save', key='trip/restore', revision=0, format=2, parts=[digest],
+                   photos=[{'id':'fish', 'hash':photo_hash}])['revision'] == 1
+documents = journal('list', format=2)['rows']
 assert any(row['key'] == 'trip/restore' and row['parts'] == [digest] for row in documents)
 assert base64.b64decode(journal('get', hash=digest)['data']) == journal_bytes
+restored = b''.join(base64.b64decode(journal('photo_get', **photo, offset=n)['data']) for n in range(0,len(jpeg),65536))
+assert restored == jpeg
 print('Private journal document verified (' + mode + ').')
 
 

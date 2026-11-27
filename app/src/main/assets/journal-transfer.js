@@ -1,3 +1,4 @@
+import { photoHash, stagePhoto, restorePhoto } from './journal-photos.js';
 /** Platform-independent transfer format. Hashes cover the exact bytes restored on another device. */
 const encoder = new TextEncoder();
 const decoder = new TextDecoder('utf-8', { fatal: true });
@@ -35,15 +36,32 @@ export async function documentKeys(db, storage, subject) {
   }
   return keys;
 }
-export async function encodeDocument(db, storage, subject, key) {
+function stableFields(_key, value) {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? Object.fromEntries(
+        Object.keys(value)
+          .sort()
+          .map((key) => [key, value[key]]),
+      )
+    : value;
+}
+export async function encodeDocument(db, storage, subject, key, detached = false) {
+  const photos = [];
   let value;
   if (key.startsWith('trip/')) {
     const id = key.slice(5),
       trip = await db.trip(id);
     if (trip) {
       const catches = [];
-      for (const record of await db.catches(id))
-        catches.push({ record, photo: await photoData(await db.photo(record.id)) });
+      for (const entry of await db.catches(id)) {
+        const { cloudPhotoHash, ...record } = entry;
+        const file = await db.photo(record.id);
+        if (detached) {
+          const digest = file ? await photoHash(file) : cloudPhotoHash;
+          if (digest) photos.push({ id: record.id, hash: digest, file });
+          catches.push({ record: { ...record, hasPhoto: !!digest }, photoHash: digest || null });
+        } else catches.push({ record, photo: await photoData(file) });
+      }
       value = { trip, catches };
     }
   } else if (key.startsWith('photo/')) value = await photoData(await db.waterPhoto(key.slice(6)));
@@ -54,7 +72,9 @@ export async function encodeDocument(db, storage, subject, key) {
   const hashes = [],
     blocks = new Map();
   if (value != null) {
-    const bytes = encoder.encode(JSON.stringify({ version: 1, value }));
+    const bytes = encoder.encode(
+      JSON.stringify({ version: detached ? 2 : 1, value }, detached ? stableFields : undefined),
+    );
     if (bytes.length > 1024 * 65536) throw Object.assign(Error('Document too large'), { status: 413 });
     for (let i = 0; i < bytes.length; i += 65536) {
       const part = bytes.subarray(i, i + 65536),
@@ -63,25 +83,37 @@ export async function encodeDocument(db, storage, subject, key) {
       blocks.set(digest, part);
     }
   }
-  return { hashes, blocks };
+  return { hashes, blocks, ...(detached ? { photos } : {}) };
 }
 /** Read a committed digest for comparisons. Materialize bytes only for dirty documents or an upload. */
-export async function localDocument(db, storage, subject, key, needBlocks = false) {
+export async function localDocument(db, storage, subject, key, needBlocks = false, detached = false) {
   if (key.startsWith('pref/')) return encodeDocument(db, storage, subject, key);
   const cached = await db.fingerprint(key);
-  if (cached?.hashes && !needBlocks) return { hashes: cached.hashes };
-  const local = await encodeDocument(db, storage, subject, key);
-  if (!(await db.cacheHashes(key, cached?.version, local.hashes)))
+  if (cached?.hashes && !!cached.detached === detached && !needBlocks) return { hashes: cached.hashes };
+  const local = await encodeDocument(db, storage, subject, key, detached);
+  if (!(await db.cacheHashes(key, cached?.version, local.hashes, detached)))
     throw Object.assign(Error('Journal changed during encoding'), { status: 409 });
   return local;
 }
 
 export async function uploadDocument(call, key, local, revision, floor = 0) {
+  for (const { id, hash, file } of local.photos || []) {
+    const ref = { trip: key, id, hash };
+    if ((await call('photo_need', ref)).needed) await stagePhoto(call, ref, file);
+  }
   if (local.hashes.length) {
     const { hashes } = await call('missing', { hashes: [...local.blocks.keys()] });
     for (const h of hashes) await call('put', { hash: h, data: toBase64(local.blocks.get(h)) });
   }
-  return (await call('save', { key, revision, floor, parts: local.hashes })).revision;
+  return (
+    await call('save', {
+      key,
+      revision,
+      floor,
+      parts: local.hashes,
+      ...(local.photos ? { format: 2 } : {}),
+    })
+  ).revision;
 }
 export async function downloadDocument(call, hashes) {
   if (!hashes.length) return null;
@@ -92,10 +124,11 @@ export async function downloadDocument(call, hashes) {
     chunks.push(bytes);
   }
   const value = JSON.parse(decoder.decode(await new Blob(chunks).arrayBuffer()));
+  if (value.version === 2 && Array.isArray(value.value?.catches)) return { ...value.value, detached: true };
   if (value.version !== 1) throw Error('Unsupported journal version');
   return value.value;
 }
-export async function restoreDocument(db, storage, subject, key, value) {
+export async function restoreDocument(db, storage, subject, key, value, call = undefined) {
   if (key.startsWith('trip/')) {
     const id = key.slice(5);
     if (
@@ -103,17 +136,31 @@ export async function restoreDocument(db, storage, subject, key, value) {
       (value.trip?.id !== id ||
         !Array.isArray(value.catches) ||
         value.catches.some(
-          (c) => !c.record?.id || c.record.tripId !== id || !!c.record.hasPhoto !== !!c.photo,
+          (c) =>
+            !c.record?.id ||
+            c.record.tripId !== id ||
+            !!c.record.hasPhoto !== !!(value.detached ? c.photoHash : c.photo) ||
+            (value.detached && c.photoHash && !/^[a-f0-9]{64}$/.test(c.photoHash)),
         ))
     )
       throw Error('Invalid trip');
-    await db.restoreTrip(
-      id,
-      value && {
-        trip: value.trip,
-        catches: value.catches.map((c) => ({ record: c.record, photo: photoBlob(c.photo) })),
-      },
-    );
+    if (!value) return db.restoreTrip(id, null);
+    const catches = [];
+    for (const c of value.catches) {
+      const photo =
+        value.detached && c.photoHash
+          ? await restorePhoto(
+              call,
+              { trip: key, id: c.record.id, hash: c.photoHash },
+              await db.photo(c.record.id),
+            )
+          : photoBlob(c.photo);
+      catches.push({
+        record: value.detached ? { ...c.record, hasPhoto: !!photo, cloudPhotoHash: c.photoHash } : c.record,
+        photo,
+      });
+    }
+    await db.restoreTrip(id, { trip: value.trip, catches });
   } else if (key.startsWith('photo/')) await db.writeWaterPhoto(key.slice(6), photoBlob(value));
   else {
     const k = localKey(key.slice(5), subject);

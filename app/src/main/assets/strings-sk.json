@@ -1168,5 +1168,15 @@
  "waters.this_water_has_no_location_in_the": "Tento revír nemá v offline atlase uvedenú polohu.",
  "waters.trout_water": "Pstruhový revír",
  "waters.water_body": "Vodný útvar",
- "waters.water_reports": "Hlásenia z revíru"
+ "waters.water_reports": "Hlásenia z revíru",
+ "retention.title": "Fotky v cloude",
+ "retention.notice": "Niektorým fotkám v cloude čoskoro skončí platnosť. Predĺžte ju v denníku.",
+ "retention.until": "V cloude do {date}",
+ "retention.local": "Iba v tomto zariadení",
+ "retention.expired": "Platnosť fotky v cloude skončila",
+ "retention.renew": "Predĺžiť o 12 mesiacov",
+ "retention.reupload": "Znova uložiť do cloudu",
+ "retention.pending": "Predĺženie čaká na pripojenie",
+ "retention.due": "Počet fotiek, ktorým do 30 dní skončí platnosť: {count}",
+ "retention.policy": "Fotky úlovkov sa v cloude uchovávajú 12 mesiacov. Otvorením detailu alebo ručným predĺžením začne nová lehota. Fotka v telefóne zostane."
 }

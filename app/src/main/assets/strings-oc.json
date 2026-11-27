@@ -1168,5 +1168,15 @@
  "waters.sort_by_location": "Triar per emplaçament",
  "waters.this_water_has_no_location_in_the": "Aquela aiga a pas d'emplaçament dins l'atlàs fòra linha.",
  "waters.trout_water": "Aiga a trochas",
- "waters.water_reports": "Rapòrts sus l'aiga"
+ "waters.water_reports": "Rapòrts sus l'aiga",
+ "retention.title": "Fòtos dins lo nívol",
+ "retention.notice": "D’unas fòtos expiran lèu. Dobrissètz lo jornal per las renovelar.",
+ "retention.until": "Dins lo nívol fins al {date}",
+ "retention.local": "Sonque sus aqueste aparelh",
+ "retention.expired": "Fòto expirada dins lo nívol",
+ "retention.renew": "Renovelar per 12 meses",
+ "retention.reupload": "Tornar enregistrar dins lo nívol",
+ "retention.pending": "Renovelament en espèra de connexion",
+ "retention.due": "Fòtos qu’expiran dins 30 jorns : {count}",
+ "retention.policy": "Las fòtos de las capturas demòran dins lo nívol pendent 12 meses. Dobrissètz la fòto en detalh o renovelatz lo delai. La fòto sus l’aparelh demòra."
 }

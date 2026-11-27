@@ -103,3 +103,5 @@ The profile picker includes 50 original illustrated angler portraits bundled in 
 ## License and governance
 
 Original source is licensed under [Apache 2.0](LICENSE). [NOTICE](NOTICE) covers attribution and third-party materials. The [terms of use](app/src/main/assets/terms-en.txt) and [privacy notice](app/src/main/assets/privacy-en.txt) are also bundled in Czech. See [repository controls](docs/github.md), [contribution guidelines](CONTRIBUTING.md) and [security reporting](SECURITY.md).
+
+Private cloud copies of catch photos last 12 months. Open the individual photo or renew it in the journal to extend the term. Expiry preserves local photos and the catch record.

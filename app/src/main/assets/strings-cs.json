@@ -1168,5 +1168,15 @@
   "age.correction_help": "O opravu data narození požádej na info@horistum.com. Podpora tvůj účet ověří soukromě.",
   "limits.hourly": "Dosáhl jsi hodinového limitu aktivity. Zkus to znovu po uplynutí hodinového limitu.",
   "verification.queue_full": "Na kontrolu už čeká 10 tvých fotek. Počkej na kontrolu nebo některou čekající fotku stáhni a pak přidej další.",
-  "group_catch.reported": "Úlovek byl předán ke kontrole."
+  "group_catch.reported": "Úlovek byl předán ke kontrole.",
+  "retention.title": "Fotky v cloudu",
+  "retention.notice": "Některým fotkám v cloudu brzy skončí platnost. Prodloužit ji můžete v deníku.",
+  "retention.until": "V cloudu do {date}",
+  "retention.local": "Jen v tomto zařízení",
+  "retention.expired": "Platnost fotky v cloudu skončila",
+  "retention.renew": "Prodloužit o 12 měsíců",
+  "retention.reupload": "Znovu uložit do cloudu",
+  "retention.pending": "Prodloužení čeká na připojení",
+  "retention.due": "Do 30 dnů vyprší platnost tohoto počtu fotek: {count}",
+  "retention.policy": "Fotky úlovků uchováváme v cloudu 12 měsíců. Otevřením detailu fotky nebo ručním prodloužením začne nová lhůta. Fotka v telefonu zůstane."
 }

@@ -1168,5 +1168,15 @@
  "waters.trout_water": "Auga troiteira",
  "waters.water_reports": "Informes sobre a auga",
  "atlas.help": "O atlas ordena os lugares de pesca alfabeticamente. Abre o mapa e achégao para ver vilas, estradas e curvas de nivel. A capa topográfica en liña só solicita a openmaps.fr os fragmentos de mapa visibles. O servizo recibe o teu enderezo IP e a zona que aparece na pantalla. Desactiva esta capa para usar o mapa sen conexión. Toca un marcador ou un grupo de marcadores para escoller un lugar. Os lugares sen posición publicada seguen na lista. O mesmo axuste permite ver imaxes aéreas ou de satélite nos detalles do lugar. Nese caso, ČÚZK ou EOX recibe a extensión do mapa e o enderezo IP do dispositivo.",
- "atlas.support_maps": "Apoiar openmaps.fr"
+ "atlas.support_maps": "Apoiar openmaps.fr",
+ "retention.title": "Fotos na nube",
+ "retention.notice": "Algunhas fotos caducarán axiña. Abre o diario para renovalas.",
+ "retention.until": "Na nube ata o {date}",
+ "retention.local": "Só neste dispositivo",
+ "retention.expired": "Foto caducada na nube",
+ "retention.renew": "Renovar por 12 meses",
+ "retention.reupload": "Gardar de novo na nube",
+ "retention.pending": "Renovación pendente de conexión",
+ "retention.due": "Fotos que caducan en 30 días: {count}",
+ "retention.policy": "As fotos das capturas gárdanse na nube durante 12 meses. Abre o detalle da foto ou renova o prazo. A foto do dispositivo consérvase."
 }

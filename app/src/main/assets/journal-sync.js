@@ -6,6 +6,8 @@ import {
   downloadDocument,
   restoreDocument,
 } from './journal-transfer.js';
+import { photoHash } from './journal-photos.js';
+import { refreshPhotoLeases, bindExpirySummary } from './photo-retention.js';
 import { rpc } from './profile-api.js';
 import { t, confirmAction, displayDay } from './ui.js';
 import { languageTag } from './i18n.js';
@@ -15,6 +17,7 @@ const subject = restricted ? null : window.Device?.subjectId?.();
 const prefix = 'journal.sync.v1.' + subject + '.';
 const call = (op, args) =>
   rpc('journal_sync', { op, args: { epoch: localStorage.getItem(prefix + 'epoch'), ...args } });
+export const photoRequest = (op, args) => call(op, args);
 const same = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
 const choiceKey = prefix + 'enabled';
 let status = enabled() ? 'waiting' : 'disabled';
@@ -37,6 +40,7 @@ function forgetCopy() {
     if (key?.startsWith(prefix)) localStorage.removeItem(key);
   }
   localStorage.setItem(choiceKey, '0');
+  window.Device?.photoReminderDates?.('[]');
   conflicts = [];
 }
 function enabled() {
@@ -75,11 +79,15 @@ async function run(resolution, retryRevision = true) {
       localStorage.setItem(prefix + 'registered', '1');
     }
     const remote = new Map();
+    let mediaSupported = false,
+      mediaRevision;
     let after = '',
       floor;
     const lastFloor = Number(localStorage.getItem(prefix + 'deletionFloor') || 0);
     while (true) {
-      const page = await call('list', { after });
+      const page = await call('list', { after, format: 2 });
+      if (!after) mediaRevision = page.photoRevision;
+      mediaSupported = page.photoFormat === 2;
       const { rows } = page;
       if (floor !== undefined && floor !== (page.floor || 0))
         throw Object.assign(Error('Journal changed'), { status: 409 });
@@ -92,10 +100,26 @@ async function run(resolution, retryRevision = true) {
     for (const key of keys) {
       if (!enabled()) return;
       const row = remote.get(key) || { revision: 0, parts: [] };
+      const tripMedia = mediaSupported && key.startsWith('trip/');
+      if (tripMedia && row.format !== 2 && row.parts.length) {
+        await call('photo_convert', { key, revision: row.revision });
+        again = true;
+        continue;
+      }
+      const detached = tripMedia;
       const checkpoint = prefix + 'base.' + key;
       const saved = localStorage.getItem(checkpoint);
-      const base = JSON.parse(saved || '[]');
-      const local = await Journal.lock(() => localDocument(Journal, localStorage, subject, key));
+      let base = JSON.parse(saved || '[]');
+      if (
+        row.legacy &&
+        saved &&
+        !same(base, row.parts) &&
+        (await photoHash(new Blob([base.join(',')]))) === row.legacy
+      )
+        base = row.parts;
+      const local = await Journal.lock(() =>
+        localDocument(Journal, localStorage, subject, key, false, detached),
+      );
       if (same(local.hashes, row.parts)) {
         if (!same(base, row.parts)) localStorage.setItem(checkpoint, JSON.stringify(row.parts));
         continue;
@@ -111,24 +135,24 @@ async function run(resolution, retryRevision = true) {
       if ((!unknownDeletion && same(base, row.parts)) || choice === 'local') {
         const upload = local.blocks
           ? local
-          : await Journal.lock(() => localDocument(Journal, localStorage, subject, key, true));
+          : await Journal.lock(() => localDocument(Journal, localStorage, subject, key, true, tripMedia));
         if (!same(local.hashes, upload.hashes)) {
           again = true;
           continue;
         }
         await uploadDocument(call, key, upload, row.revision, floor);
         uploaded = true;
-        localStorage.setItem(checkpoint, JSON.stringify(local.hashes));
+        localStorage.setItem(checkpoint, JSON.stringify(upload.hashes));
       } else if (same(base, local.hashes) || choice === 'cloud') {
         const data = await downloadDocument(call, row.parts);
         await Journal.lock(async () => {
           if (!enabled()) return;
-          const latest = await localDocument(Journal, localStorage, subject, key);
+          const latest = await localDocument(Journal, localStorage, subject, key, false, detached);
           if (!same(local.hashes, latest.hashes)) {
             again = true;
             return;
           }
-          await restoreDocument(Journal, localStorage, subject, key, data);
+          await restoreDocument(Journal, localStorage, subject, key, data, call);
           localStorage.setItem(checkpoint, JSON.stringify(row.parts));
           changed = true;
         });
@@ -143,6 +167,8 @@ async function run(resolution, retryRevision = true) {
       }
     }
     if (!enabled()) return;
+    if (mediaSupported && enabled())
+      await refreshPhotoLeases(call, subject, prefix, uploaded || changed ? null : mediaRevision);
     conflicts = detected;
     if (conflicts.length) notify('conflict');
     else if (!online()) notify('offline');
@@ -216,6 +242,7 @@ export function bindJournalSync(panel, waters) {
     label.textContent =
       status === 'done' && stamp ? t('sync.saved_at').replace('{time}', stamp) : t('sync.' + status);
     panel.append(label);
+    if (enabled()) bindExpirySummary(panel, subject);
     if (stamp && status !== 'done') {
       const previous = document.createElement('p');
       previous.className = 'meta';
@@ -238,7 +265,7 @@ export function bindJournalSync(panel, waters) {
         if (
           await confirmAction({
             title: t('sync.enable'),
-            message: t('sync.consent'),
+            message: t('sync.consent') + ' ' + t('retention.policy'),
             accept: t('sync.enable'),
           })
         ) {

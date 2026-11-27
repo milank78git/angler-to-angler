@@ -1168,5 +1168,15 @@
  "common.water_atlas_updates": "Atlas de água atualizações",
  "commerce.split": "Do produto de créditos adquiridos após IVA e taxas do Google, 85% vai para o autor, 10% para o aplicativo e 5% para a restauração da natureza.",
  "commerce.test": "Google Play mercado de testes · lucros simulados e pagamentos",
- "sync.consent": "Salvar viagens existentes e futuras, capturas, posições exatas, notas, fotos, marcadores e configurações do atlas em privado para sua conta. Um novo dispositivo restaura o seu diário sincronizado depois de iniciar sessão."
+ "sync.consent": "Salvar viagens existentes e futuras, capturas, posições exatas, notas, fotos, marcadores e configurações do atlas em privado para sua conta. Um novo dispositivo restaura o seu diário sincronizado depois de iniciar sessão.",
+ "retention.title": "Fotografias na nuvem",
+ "retention.notice": "Algumas fotografias expiram em breve. Abra o diário para as renovar.",
+ "retention.until": "Na nuvem até {date}",
+ "retention.local": "Apenas neste dispositivo",
+ "retention.expired": "Fotografia expirada na nuvem",
+ "retention.renew": "Renovar por 12 meses",
+ "retention.reupload": "Guardar novamente na nuvem",
+ "retention.pending": "Renovação pendente de ligação",
+ "retention.due": "Fotografias que expiram em 30 dias: {count}",
+ "retention.policy": "As fotografias das capturas ficam na nuvem durante 12 meses. Abra uma fotografia em detalhe ou renove o prazo. A fotografia no dispositivo é mantida."
 }

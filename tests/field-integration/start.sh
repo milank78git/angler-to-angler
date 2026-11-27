@@ -31,6 +31,7 @@ lb validate
 lb update-to-tag --tag=pilot-0.18
 lb update
 python3 tests/field-integration/journal-storage.py configure "$stage"
+psql "$url" -Xq -v ON_ERROR_STOP=1 -c "update angler_sync.photo_rollout set started_at=now() where started_at is null"
 before=$(psql "$url" -XAtc 'select count(*) from liquibase.databasechangelog')
 lb update
 after=$(psql "$url" -XAtc 'select count(*) from liquibase.databasechangelog')

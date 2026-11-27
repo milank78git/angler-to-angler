@@ -1168,5 +1168,15 @@
  "waters.this_water_has_no_location_in_the": "Cette eau n'a pas d'emplacement dans l'atlas hors ligne.",
  "waters.trout_water": "Eau à truites",
  "waters.water_body": "Masse d’eau",
- "waters.water_reports": "Rapports sur l'eau"
+ "waters.water_reports": "Rapports sur l'eau",
+ "retention.title": "Photos dans le cloud",
+ "retention.notice": "Certaines photos vont expirer. Ouvrez le carnet pour les renouveler.",
+ "retention.until": "Dans le cloud jusqu’au {date}",
+ "retention.local": "Seulement sur cet appareil",
+ "retention.expired": "Photo expirée dans le cloud",
+ "retention.renew": "Prolonger de 12 mois",
+ "retention.reupload": "Enregistrer à nouveau dans le cloud",
+ "retention.pending": "Renouvellement en attente de connexion",
+ "retention.due": "Photos expirant dans les 30 jours : {count}",
+ "retention.policy": "Les photos de prises restent 12 mois dans le cloud. Ouvrez une photo en grand ou prolongez sa durée. La photo sur cet appareil est conservée."
 }

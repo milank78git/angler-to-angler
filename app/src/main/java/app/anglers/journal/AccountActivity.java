@@ -524,6 +524,7 @@ public final class AccountActivity extends LocalizedActivity {
     }
     boolean firstRegistration = !profile.has("name");
     ui.label(text("age.registration_notice"));
+    ui.label(text("retention.policy"));
     boolean needsBirthDate = !profile.has("ageBand") || "unknown".equals(profile.optString("ageBand"));
     EditText birth = needsBirthDate ? ui.field(text("age.birth_date"), InputType.TYPE_CLASS_DATETIME | InputType.TYPE_DATETIME_VARIATION_DATE) : null;
     if (birth != null) {

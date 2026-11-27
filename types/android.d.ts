@@ -37,6 +37,7 @@ interface JournalDevice {
   checkNearby(): void;
   nearbyWater(id: string, description: string): void;
   licenseMessage(): string;
+  photoReminderDates(dates: string): void;
   licenseNotificationsEnabled(): boolean;
   enableLicenseNotifications(): void;
   watching(key: string): boolean;

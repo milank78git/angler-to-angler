@@ -127,7 +127,7 @@ async function onPhone(action, fixture) {
   if (action==='upload') {
     await click(button('retry')); await state('done');
     assert(el('#journal-sync').textContent.includes(label('sync.saved_at').split('{time}')[0]),'Missing account save time');
-    const rows=(await rpc('journal_sync',{op:'list',args:{}})).rows.filter(r=>r.key==='trip/'+id);
+    const rows=(await rpc('journal_sync',{op:'list',args:{format:2}})).rows.filter(r=>r.key==='trip/'+id);
     assert(rows.length===1 && rows[0].revision===1,'Duplicate or missing upload');
     await confirm('pause'); await state('disabled');
     await saveLicence(dateAfter(3),'week');
@@ -135,7 +135,7 @@ async function onPhone(action, fixture) {
     return {part:rows[0].parts[0],expiry:dateAfter(3)};
   }
   if (action==='isolation') {
-    const rows=(await rpc('journal_sync',{op:'list',args:{}})).rows;
+    const rows=(await rpc('journal_sync',{op:'list',args:{format:2}})).rows;
     assert(!rows.some(r=>r.key==='trip/'+id) && !(await Journal.trip(id)),'Other user saw the trip');
     let denied=false;
     try {await rpc('journal_sync',{op:'get',args:{hash:fixture.part}});} catch {denied=true;}
@@ -145,7 +145,7 @@ async function onPhone(action, fixture) {
     return;
   }
   if (action==='consent') {
-    const historicalRows = async () => (await rpc('journal_sync', {op:'list', args:{}}))
+    const historicalRows = async () => (await rpc('journal_sync', {op:'list', args:{format:2}}))
       .rows.filter(row => row.key === 'trip/historical');
     assert((await rpc('journal_sync', {op:'settings', args:{}})).enabled, 'Owner account must already sync');
     assert((await Journal.trip('historical'))?.waterName === 'Old private water', 'Upgrade lost the local trip');

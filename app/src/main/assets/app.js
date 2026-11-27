@@ -298,6 +298,7 @@ async function start() {
     const notice = window.Device?.fieldKind?.();
     const water = catalog.waterDirectory.byKey.get(window.Device?.fieldWater?.());
     if (notice === 'license') nav.open('anglerDetails');
+    else if (notice === 'photoExpiry') nav.open('trips');
     else if (notice === 'messages') nav.open('messageInbox');
     else if (notice === 'sales' || notice === 'ratings') nav.open('marketShelf', { shelf: 'mine' });
     else if (['tips', 'catches', 'weekly'].includes(notice)) {

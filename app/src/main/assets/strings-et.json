@@ -1168,5 +1168,15 @@
  "waters.sort_by_location": "Sorteeri asukoha järgi",
  "waters.this_water_has_no_location_in_the": "See vesi ei ole asukoht offline atlas.",
  "waters.trout_water": "Forellivesi",
- "waters.water_reports": "Veealased aruanded"
+ "waters.water_reports": "Veealased aruanded",
+ "retention.title": "Pilvefotod",
+ "retention.notice": "Mõne foto säilitusaeg lõpeb peagi. Pikenda seda päevikus.",
+ "retention.until": "Pilves kuni {date}",
+ "retention.local": "Ainult selles seadmes",
+ "retention.expired": "Pilvefoto säilitusaeg lõppes",
+ "retention.renew": "Pikenda 12 kuuks",
+ "retention.reupload": "Salvesta uuesti pilve",
+ "retention.pending": "Pikendamine ootab ühendust",
+ "retention.due": "30 päeva jooksul aeguvad fotod: {count}",
+ "retention.policy": "Saagifotosid säilitatakse pilves 12 kuud. Ava foto suurelt või pikenda säilitusaega. Foto jääb seadmesse alles."
 }
