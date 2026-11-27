@@ -153,3 +153,18 @@ test('atlas country hints favour the local network and time zone over the displa
   assert.equal(countryAt(json('us-borders'), {lon:-113.67,lat:46.92}), 'US');
   assert.equal(countryAt(json('us-borders'), {lon:-114.07,lat:51.05}), '');
 });
+
+test('the scoped recreational eel prohibition uses both inclusive dates in Article 62(2)(b)', async () => {
+  const { forFishingDate } = await import('../app/src/main/assets/fish-rules.js');
+  const rules = json('europe-rules');
+  const entries = rules.entries.filter(rule => rule.source === 'atl26');
+  assert.equal(entries.length, 14);
+  for (const rule of entries) {
+    for (const day of ['2026-04-01', '2027-01-01', '2027-03-31']) {
+      assert.equal(forFishingDate(rule, rules.sources.atl26, day), 'closed');
+    }
+    for (const day of ['2026-03-31', '2027-04-01']) {
+      assert.equal(forFishingDate(rule, rules.sources.atl26, day), 'unverified');
+    }
+  }
+});

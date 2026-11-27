@@ -75,9 +75,12 @@ export async function waterReports(host, water, view) {
         const row = feedback.closest('.water-report-row') || host.querySelector('.water-report-row');
         row.querySelector(':scope > button').focus({ preventScroll: true });
       }
-    } catch {
+    } catch (error) {
       if (!view.active()) return;
-      status.textContent = [receipt, t('water_reports.reports_could_not_be_loaded')]
+      status.textContent = [
+        receipt,
+        t(error.status === 429 ? 'limits.hourly' : 'water_reports.reports_could_not_be_loaded'),
+      ]
         .filter(Boolean)
         .join(' ');
       offerRefresh(() => loadReports(receipt, uncertainKind));
