@@ -71,6 +71,10 @@ Back up the private bucket and PostgreSQL together at a consistent recovery poin
 does not contain object bodies. Restore the bucket with the Storage API and verify the digest of
 each referenced object before restarting writers. The field-integration job rehearses this sequence.
 
+Separate five-minute cron transactions run logical cleanup (`angler_sync.maintain()`)
+and Storage requests (`angler_sync.maintain_storage()`). A slow Storage request cannot
+extend the account lock held by logical cleanup.
+
 Only the app writes objects to the `angler-journal` bucket. Keep manual uploads and folder
 placeholders out of it. Maintenance ignores noncanonical object paths. A storage failure leaves
 the affected object for another sweep. Check the PostgreSQL log for counts of deferred migrations
