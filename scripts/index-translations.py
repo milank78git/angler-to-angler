@@ -36,13 +36,20 @@ def read(path):
 def check():
     english = read(ASSETS / "strings-en.json")
     czech = read(ASSETS / "strings-cs.json")
-    if english.keys() != czech.keys():
-        raise ValueError(f"English/Czech message IDs differ: {english.keys() ^ czech.keys()}")
+    fully_translated = {"cs", "de", "en", "fr", "nl", "pl", "sk"}
+    missing_total = 0
+    complete = 0
     packs = sorted(ASSETS.glob("strings-*.json"))
     if read(ASSETS / "ui-locales.json") != [p.stem[8:] for p in packs]:
         raise ValueError("Update ui-locales.json to match the packaged dictionaries")
     for p in packs:
-        for key, value in read(p).items():
+        entries = read(p)
+        missing = english.keys() - entries.keys()
+        if missing and p.stem[8:] in fully_translated:
+            raise ValueError(f"{p.name}: missing {len(missing)} messages: {sorted(missing)[:8]}")
+        missing_total += len(missing)
+        complete += not missing
+        for key, value in entries.items():
             if key not in english or not MESSAGE_ID.fullmatch(key) or not isinstance(value, str) or not value.strip():
                 raise ValueError(f"{p.name}: invalid message {key!r}")
             if re.search(r"<(?:[A-Za-z/!?])", value):
@@ -104,7 +111,8 @@ def check():
             lookup = r"\bAppLanguage\.text\(\s*\w+,\s*"
         for match in re.finditer(lookup + r"\s*" + LITERAL + r"\s*\)", source):
             reference(ast.literal_eval(match[1]), name)
-    print(f"Validated {len(english)} English and Czech messages and {len(packs)} locale packs")
+    print(f"Validated {len(english)} message IDs. {complete}/{len(packs)} dictionaries have every key. "
+          f"{missing_total} localized messages are missing in total.")
 
 
 if __name__ == "__main__":
