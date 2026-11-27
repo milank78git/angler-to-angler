@@ -156,7 +156,10 @@ async function run(resolution, retryRevision = true) {
             again = true;
             return;
           }
-          await applyRestore();
+          if ((await applyRestore(local)) === false) {
+            again = true;
+            return;
+          }
           localStorage.setItem(checkpoint, JSON.stringify(row.parts));
           changed = true;
         });

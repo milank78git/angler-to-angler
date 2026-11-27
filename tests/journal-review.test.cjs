@@ -9,6 +9,16 @@ test('a legacy trip and a pruned history do not stop other records; restoration 
   const { window } = new JSDOM('<aside></aside>', { url: 'https://example.test' });
   Object.assign(globalThis, { window, document: window.document, localStorage: window.localStorage,
     Event: window.Event, indexedDB: new IDBFactory(), IDBKeyRange });
+  // Simulate the exclusive Web Lock used by the Android WebView, so a download
+  // incorrectly performed inside the critical section prevents the user edit.
+  let writer = Promise.resolve();
+  const locks = {request(_name, work) {
+    const next = writer.then(work);
+    writer = next.catch(() => {});
+    return next;
+  }};
+  Object.defineProperty(globalThis.navigator, 'locks', {configurable:true, value:locks});
+  t.after(() => delete globalThis.navigator.locks);
   const prefix = 'journal.sync.v1.owner.';
   localStorage.setItem(prefix + 'enabled', '1');
   localStorage.setItem(prefix + 'registered', '1');
@@ -86,4 +96,26 @@ test('a cloud-only catch uploads its metadata with an explicit missing-photo ref
   assert.equal(await uploadDocument(remote,'trip/day',{hashes:['manifest'],blocks:new Map(),
     photos:[{id:'available',hash:digest,file:null},{id:'fish',hash:digest,file:null}]},2,8),3);
   assert.deepEqual(calls,['photo_need','photo_need','missing','save']);
+});
+
+test('a prepared restore cannot discard a matching local original installed after download', async () => {
+  const { createJournal } = await import('../app/src/main/assets/journal.js');
+  const { localDocument, prepareRestore } = await import('../app/src/main/assets/journal-transfer.js');
+  const db = createJournal(new IDBFactory());
+  const bytes = Buffer.from('ffd8ff00','hex');
+  const digest = hash(bytes), key = 'trip/late';
+  const trip = {id:'late', notes:'original'};
+  const record = {id:'fish', tripId:'late', hasPhoto:false, cloudPhotoHash:digest};
+  await db.restoreTrip('late', {trip, catches:[{record,photo:null}]});
+  const prior = await localDocument(db, null, 'owner', key, false, true);
+  const apply = await prepareRestore(db, null, 'owner', key, {
+    trip:{...trip,notes:'updated cloud notes'}, detached:true,
+    catches:[{record:{id:'fish',tripId:'late',hasPhoto:true},photoHash:digest}],
+  },async()=>({expired:true}));
+  await db.installCloudPhoto(record,new Blob([bytes],{type:'image/jpeg'}));
+  const latest = await localDocument(db, null, 'owner', key, false, true);
+  assert.deepEqual(latest.hashes,prior.hashes);
+  assert.equal(await apply(prior),false);
+  assert.deepEqual(Buffer.from(await (await db.photo('fish')).arrayBuffer()),bytes);
+  assert.equal((await db.trip('late')).notes,'original');
 });

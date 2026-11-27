@@ -89,11 +89,12 @@ export async function encodeDocument(db, storage, subject, key, detached = false
 export async function localDocument(db, storage, subject, key, needBlocks = false, detached = false) {
   if (key.startsWith('pref/')) return encodeDocument(db, storage, subject, key);
   const cached = await db.fingerprint(key);
-  if (cached?.hashes && !!cached.detached === detached && !needBlocks) return { hashes: cached.hashes };
+  if (cached?.hashes && !!cached.detached === detached && !needBlocks)
+    return { hashes: cached.hashes, version: cached.version };
   const local = await encodeDocument(db, storage, subject, key, detached);
   if (!(await db.cacheHashes(key, cached?.version, local.hashes, detached)))
     throw Object.assign(Error('Journal changed during encoding'), { status: 409 });
-  return local;
+  return { ...local, version: cached?.version };
 }
 
 export async function uploadDocument(call, key, local, revision, floor = 0) {
@@ -151,7 +152,7 @@ export async function prepareRestore(db, storage, subject, key, value, call = un
         ))
     )
       throw Error('Invalid trip');
-    if (!value) return () => db.restoreTrip(id, null);
+    if (!value) return (expected = undefined) => db.restoreTrip(id, null, expected);
     const catches = [];
     for (const c of value.catches) {
       const photo =
@@ -167,7 +168,7 @@ export async function prepareRestore(db, storage, subject, key, value, call = un
         photo,
       });
     }
-    return () => db.restoreTrip(id, { trip: value.trip, catches });
+    return (expected = undefined) => db.restoreTrip(id, { trip: value.trip, catches }, expected);
   }
   if (key.startsWith('photo/')) return () => db.writeWaterPhoto(key.slice(6), photoBlob(value));
   return async () => {
