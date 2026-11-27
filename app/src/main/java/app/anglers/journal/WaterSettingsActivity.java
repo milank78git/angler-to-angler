@@ -55,7 +55,7 @@ public final class WaterSettingsActivity extends LocalizedActivity {
     screenOn.setChecked(appearance.getBoolean("screenOn",false));
     screenOn.setOnCheckedChangeListener((v,on) -> appearance.edit().putBoolean("screenOn",on).apply());
     ui.label(text("settings.notifications"));
-    for (String kind : new String[]{FieldAlerts.POSTS,FieldAlerts.WATERS,FieldAlerts.NEARBY}) {
+    for (String kind : new String[]{FieldAlerts.POSTS,FieldAlerts.COMMUNITY,FieldAlerts.WATERS,FieldAlerts.NEARBY}) {
       CheckBox box=ui.check(text("alerts."+kind));
       alertControls.put(kind,box);
       box.setChecked(FieldAlerts.enabled(this,kind));

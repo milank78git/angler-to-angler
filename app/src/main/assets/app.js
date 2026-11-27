@@ -1,3 +1,4 @@
+import { rpc } from './profile-api.js';
 import { replaceMarkup } from './markup.js';
 import { anglerDetails, bindLicenseNotice } from './angler-details.js';
 import { parkingEditor } from './parking-editor.js';
@@ -297,7 +298,17 @@ async function start() {
     const notice = window.Device?.fieldKind?.();
     const water = catalog.waterDirectory.byKey.get(window.Device?.fieldWater?.());
     if (notice === 'license') nav.open('anglerDetails');
-    else if (notice === 'posts' && water) nav.open('waterDiscussion', { id: water.id });
+    else if (notice === 'messages') nav.open('messageInbox');
+    else if (notice === 'sales' || notice === 'ratings') nav.open('marketShelf', { shelf: 'mine' });
+    else if (['tips', 'catches', 'weekly'].includes(notice)) {
+      nav.show();
+      window.Device?.openGroups?.();
+    } else if (notice === 'replies') {
+      const reply = await rpc('latest_reply').catch(() => null);
+      const site = catalog.waterDirectory.byKey.get(reply?.water);
+      if (site) nav.open('waterDiscussion', { id: site.id, questionId: reply.question });
+      else nav.show();
+    } else if (notice === 'posts' && water) nav.open('waterDiscussion', { id: water.id });
     else if (notice === 'nearby' && water) nav.open('water', { id: water.id });
     else if (notice === 'waters') {
       nav.stacks.get('waters')[0].additions = new Set(JSON.parse(window.Device.addedWaters()));

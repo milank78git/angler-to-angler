@@ -75,7 +75,14 @@ public final class AccountActivity extends LocalizedActivity {
     super.onNewIntent(intent);
     // A launcher tap only brings the current screen forward, including a pending mail callback.
     if (Intent.ACTION_MAIN.equals(intent.getAction()) && intent.getData() == null) return;
+    String invite = getIntent().getStringExtra("invite");
+    if (invite != null && intent.getData() != null) intent.putExtra("invite", invite);
     setIntent(intent);
+    if (intent.hasExtra("invite") && intent.getData() == null) {
+      if (!AccountStore.active(this).isEmpty()) enter();
+      else login();
+      return;
+    }
     if (intent.hasExtra("fieldAlert") && !AccountStore.active(this).isEmpty()) { enter(); return; }
     if ((intent.getBooleanExtra("groupsSignIn", false)
             || intent.getBooleanExtra("profileSignIn", false))
@@ -113,6 +120,8 @@ public final class AccountActivity extends LocalizedActivity {
     managing = false;
     profile = null;
     ui.page(text("account.account_sign_in"), true);
+    if (AccountStore.prefs(this).contains("subject") && AccountStore.remainingMillis(this) == 0)
+      ui.label(text("account.offline_expired"));
     boolean ready = service != null && service.configured();
     if (DeviceVault.enrolled(this))
       action(
@@ -642,6 +651,17 @@ public final class AccountActivity extends LocalizedActivity {
   }
 
   private void enter() {
+    String invite = getIntent().getStringExtra("invite");
+    if (invite != null) {
+      startActivity(new Intent(this, GroupsActivity.class).putExtra("invite", invite));
+      finish();
+      return;
+    }
+    if (AccountStore.active(this).equals(getIntent().getStringExtra("resumeJournal"))) {
+      setResult(RESULT_OK);
+      finish();
+      return;
+    }
     Intent journal=new Intent(this,FishingActivity.class).putExtra("openProfile",profileLogin)
         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
     if (AccountStore.active(this).equals(getIntent().getStringExtra("fieldOwner")))

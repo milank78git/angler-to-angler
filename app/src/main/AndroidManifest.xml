@@ -30,6 +30,14 @@
       </intent-filter>
       <intent-filter><action android:name="android.intent.action.VIEW"/><category android:name="android.intent.category.DEFAULT"/><category android:name="android.intent.category.BROWSABLE"/><data android:scheme="${applicationId}" android:host="account" android:path="/callback"/></intent-filter>
     </activity>
+    <activity android:name=".GroupInviteActivity" android:exported="true" android:taskAffinity="" android:noHistory="true" android:theme="@android:style/Theme.NoDisplay">
+      <intent-filter>
+        <action android:name="android.intent.action.VIEW"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+        <category android:name="android.intent.category.BROWSABLE"/>
+        <data android:scheme="${applicationId}" android:host="group" android:path="/join"/>
+      </intent-filter>
+    </activity>
     <service android:name=".FieldAlertJob" android:permission="android.permission.BIND_JOB_SERVICE" android:exported="true"/>
     <service android:name=".WaterCatalogueJob" android:permission="android.permission.BIND_JOB_SERVICE" android:exported="true"/>
     <activity android:name=".WaterSettingsActivity" android:exported="false"/>

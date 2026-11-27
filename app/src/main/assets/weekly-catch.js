@@ -146,6 +146,32 @@ function entryCard(item, round, view, nav) {
     };
     card.append(flag);
   }
+  if (!item.mine && item.canRemove) {
+    const remove = document.createElement('button');
+    remove.className = 'danger';
+    remove.textContent = t('weekly_catch.withdraw_entry');
+    remove.onclick = async () => {
+      if (
+        (await confirmAction({
+          title: t('weekly_catch.withdraw_this_entry'),
+          message: t('weekly_catch.the_competition_photo_and_its_votes_will'),
+          accept: remove.textContent,
+          destructive: true,
+        })) &&
+        view.active()
+      )
+        await submitChange(
+          view,
+          () => rpc('weekly_withdraw', { group_id: view.route.groupId, entry_id: item.id }),
+          () => {
+            view.route.offset = 0;
+            nav.show();
+          },
+          (err) => toast(problem(err)),
+        );
+    };
+    card.append(remove);
+  }
   if (!item.mine && !item.voted && !round.open) return card;
   const action = document.createElement('button');
   action.type = 'button';

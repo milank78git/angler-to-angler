@@ -46,6 +46,23 @@ folder.mkdir(parents=True, exist_ok=True)
 # The project home also provides the account instructions, with no forced redirect.
 (args.output / 'index.html').write_text('\n'.join(page))
 
+# Invitations stay in the fragment and are handed to a fixed Android package.
+invite_script = (ROOT / 'web/account/invite.js').read_text()
+invite_policy = policy.replace(digest(script), digest(invite_script))
+invite_page = ['<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">',
+               '<meta name="referrer" content="no-referrer">',
+               f'<meta http-equiv="Content-Security-Policy" content="{invite_policy}">',
+               f'<meta name="android-package" content="{package}"><title>Angler to Angler</title>',
+               f'<style>{style}</style></head><body><main>']
+for locale in ('en', 'cs'):
+    messages = json.loads((ROOT / 'app/src/main/assets' / f'strings-{locale}.json').read_bytes())
+    invite_page.append(f'<section lang="{locale}"><h1>{html.escape(messages["groups.invitation_code"])}</h1>'
+                       f'<a hidden>{html.escape(messages["groups.join_with_a_code"])}</a><p><code></code></p></section>')
+invite_page.append(f'</main><script>{invite_script}</script></body></html>')
+invite_dir = args.output / 'invite'
+invite_dir.mkdir(exist_ok=True)
+(invite_dir / 'index.html').write_text('\n'.join(invite_page))
+
 # The store requires public, directly accessible privacy and account deletion information.
 for route in ("terms", "privacy", "delete-account"):
     sections = []

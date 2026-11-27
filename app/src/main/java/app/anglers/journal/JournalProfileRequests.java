@@ -26,6 +26,7 @@ final class JournalProfileRequests implements AutoCloseable {
       case "directory":
       case "water_discussion":
       case "discussion_post":
+      case "latest_reply":
       case "discussion_reply":
       case "discussion_withdraw":
       case "discussion_helpful":
@@ -40,6 +41,7 @@ final class JournalProfileRequests implements AutoCloseable {
       case "journal_sync":
       case "parking_waters":
       case "parking_list":
+      case "parking_remove":
       case "parking_save":
       case "parking_feedback":
       case "parking_review":
@@ -69,6 +71,7 @@ final class JournalProfileRequests implements AutoCloseable {
       case "weekly_report":
       case "weekly_withdraw":
       case "message_inbox":
+      case "message_read":
       case "message_history":
       case "message_send":
       case "message_block":
@@ -85,6 +88,10 @@ final class JournalProfileRequests implements AutoCloseable {
       case "evidence_remove":
         break;
       default:
+        activity.runOnUiThread(() -> {
+          if (!activity.isDestroyed() && !activity.isFinishing() && subject.equals(AccountStore.active(activity)))
+            evaluate.accept("window.profileReply?.(" + id + ",400,null)");
+        });
         return;
     }
     io.execute(

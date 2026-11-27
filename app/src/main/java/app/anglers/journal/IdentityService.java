@@ -73,6 +73,10 @@ final class IdentityService {
     return request("/rest/v1/rpc/angler_post_signal", null, args);
   }
 
+  JSONObject communitySignal(JSONObject args) throws Exception {
+    return request("/rest/v1/rpc/angler_community_signal", null, args);
+  }
+
   void endPostWatch(JSONObject args) throws Exception {
     request("/rest/v1/rpc/angler_end_post_watch", null, args);
   }

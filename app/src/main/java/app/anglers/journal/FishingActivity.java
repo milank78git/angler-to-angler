@@ -48,7 +48,12 @@ public final class FishingActivity extends LocalizedActivity {
   private Uri cameraUri, deliveredCameraUri;
   private long cameraStarted, cameraReturned;
   private volatile String captureInfo = "";
-  private String subject;
+  private String subject, openingAgeBand;
+  private boolean renewing, awaitingUnlock;
+  private android.widget.Button unlockButton;
+  private android.widget.FrameLayout journalFrame;
+  private long nextLeaseCheck;
+  private static final int UNLOCK = 57;
   private PlayStore playStore;
   private String pendingReminder;
 
@@ -60,10 +65,13 @@ public final class FishingActivity extends LocalizedActivity {
       lockAccount();
       return;
     }
+    openingAgeBand = AccountStore.prefs(this).getString("ageBand", "");
     if (state != null) pendingReminder = state.getString("reminder");
     profileRequests = new JournalProfileRequests(this, subject, this::signal);
     web = new WebView(this);
-    setContentView(web);
+    journalFrame = new android.widget.FrameLayout(this);
+    journalFrame.addView(web);
+    setContentView(journalFrame);
     getSharedPreferences("appearance", MODE_PRIVATE).registerOnSharedPreferenceChangeListener(appearanceListener);
     if (Build.VERSION.SDK_INT >= 35) {
       findViewById(android.R.id.content)
@@ -155,6 +163,14 @@ public final class FishingActivity extends LocalizedActivity {
 
     @JavascriptInterface
     public String waterCatalogueVersion() { return WaterCatalogue.revision(FishingActivity.this); }
+
+    @JavascriptInterface
+    public void openGroups() {
+      runOnUiThread(() -> {
+        if (subject.equals(AccountStore.active(FishingActivity.this)))
+          startActivity(new Intent(FishingActivity.this, GroupsActivity.class));
+      });
+    }
 
     @JavascriptInterface
     public void openWaterSettings() {
@@ -540,6 +556,14 @@ public final class FishingActivity extends LocalizedActivity {
   @Override
   protected void onActivityResult(int code, int result, Intent data) {
     super.onActivityResult(code, result, data);
+    if (code == UNLOCK) {
+      awaitingUnlock = false;
+      if (result == RESULT_OK && subject.equals(AccountStore.active(this)) && unlockButton != null) {
+        journalFrame.removeView(unlockButton);
+        unlockButton = null;
+      }
+      return;
+    }
     if (code == CAMERA) {
       if (cameraUri != null)
         revokeUriPermission(
@@ -567,6 +591,7 @@ public final class FishingActivity extends LocalizedActivity {
 
   @Override
   public void onBackPressed() {
+    if (unlockButton != null || web == null) { moveTaskToBack(true); return; }
     web.evaluateJavascript(
         "typeof handleBack==='function' && handleBack()",
         result -> {
@@ -592,18 +617,51 @@ public final class FishingActivity extends LocalizedActivity {
       applyReadingPreferences();
       LicenseReminder.reconcile(this);
       signal("window.refreshFieldSettings?.();window.refreshLicense?.()");
-      if (FieldAlerts.enabled(this,FieldAlerts.POSTS)) FieldAlerts.checkPosts(this,null);
+      if (FieldAlerts.enabled(this,FieldAlerts.POSTS) || FieldAlerts.enabled(this,FieldAlerts.COMMUNITY)) FieldAlerts.checkPosts(this,null);
     }
     checkSession();
   }
 
   private void checkSession() {
-    if (isFinishing()) return;
-    if (!subject.equals(AccountStore.active(this))) {
+    sessionTimer.removeCallbacks(sessionCheck);
+    if (isFinishing() || !foreground || awaitingUnlock) return;
+    if (web != null && subject.equals(AccountStore.prefs(this).getString("subject", ""))
+        && AccountStore.active(this).isEmpty()) {
+      web.setVisibility(android.view.View.INVISIBLE);
+      if (unlockButton == null) {
+        unlockButton = new android.widget.Button(this);
+        unlockButton.setText(AppLanguage.text(this, "account.unlock_journal"));
+        journalFrame.addView(unlockButton, new android.widget.FrameLayout.LayoutParams(-1, -2, android.view.Gravity.CENTER));
+        unlockButton.setOnClickListener(v -> {
+          if (awaitingUnlock) return;
+          awaitingUnlock = true;
+          startActivityForResult(new Intent(this, AccountActivity.class).putExtra("resumeJournal", subject), UNLOCK);
+        });
+        unlockButton.performClick();
+      }
+      return;
+    }
+    if (!subject.equals(AccountStore.active(this))
+        || !openingAgeBand.equals(AccountStore.prefs(this).getString("ageBand", ""))) {
       lockAccount();
       return;
     }
-    sessionTimer.postDelayed(sessionCheck, AccountStore.remainingMillis(this));
+    web.setVisibility(android.view.View.VISIBLE);
+    long now = android.os.SystemClock.elapsedRealtime();
+    long remaining = AccountStore.remainingMillis(this);
+    if (!renewing && now >= nextLeaseCheck && remaining <= java.util.concurrent.TimeUnit.DAYS.toMillis(6)) {
+      renewing = true;
+      nextLeaseCheck = now + java.util.concurrent.TimeUnit.MINUTES.toMillis(15);
+      new Thread(() -> {
+        try { AccountStore.renewLease(this, subject); }
+        catch (Exception unavailable) { /* Keep the last confirmed offline deadline. */ }
+        runOnUiThread(() -> {
+          renewing = false;
+          if (!isDestroyed()) checkSession();
+        });
+      }, "journal-lease").start();
+    }
+    sessionTimer.postDelayed(sessionCheck, Math.min(remaining, java.util.concurrent.TimeUnit.MINUTES.toMillis(15)));
   }
 
   @Override

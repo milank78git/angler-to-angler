@@ -147,6 +147,24 @@ final class AccountStore {
     }
   }
 
+  /** Refresh the lease only after the server confirms identity, age band and current terms. */
+  static void renewLease(Context c, String id) throws Exception {
+    final long owner;
+    synchronized (AccountStore.class) {
+      owner = generation;
+      if (!id.equals(active(c))) return;
+    }
+    IdentityService service = new IdentityService(c);
+    IdentityService.Session credential = online(c, service, id, null);
+    JSONObject profile = service.profile(credential.access);
+    synchronized (AccountStore.class) {
+      if (owner != generation || session == null || !session.id.equals(id)) return;
+      boolean valid = profile != null && id.equals(profile.optString("id")) && profile.optBoolean("current")
+          && prefs(c).getString("ageBand", "").equals(profile.optString("ageBand"));
+      prefs(c).edit().putLong("verified", valid ? System.currentTimeMillis() : 0).apply();
+    }
+  }
+
   static String journal(Context c) {
     String id = active(c);
     if (id.isEmpty()) throw new IllegalStateException("Profile required");

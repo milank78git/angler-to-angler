@@ -4,14 +4,19 @@ import { point } from './domain.js';
 let sequence = 0;
 
 /** Own the request, accepted fix and manual edits for one mounted catch form. */
-export function bindCatchPosition(view) {
+export function bindCatchPosition(view, initial = null) {
   const button = by('gps'),
     latitude = by('lat'),
     longitude = by('lon');
   const label = button.querySelector('span');
   const idleLabel = label.textContent;
   let pending = 0,
-    accepted = null;
+    accepted = initial?.source === 'device' ? initial : null;
+  if (initial) {
+    latitude.value = String(initial.lat);
+    longitude.value = String(initial.lon);
+    by('kind').value = initial.kind;
+  }
 
   function cancel() {
     if (pending) window.Device.cancelLocation(pending);
@@ -52,7 +57,9 @@ export function bindCatchPosition(view) {
           ...coords,
           source: accepted ? 'device' : 'manual',
           accuracy: accepted?.accuracy ?? null,
-          time: accepted?.time ?? Date.now(),
+          time:
+            accepted?.time ??
+            (initial?.lat === coords.lat && initial?.lon === coords.lon ? initial.time : Date.now()),
           kind: by('kind').value,
         }
       );

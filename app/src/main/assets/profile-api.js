@@ -7,6 +7,7 @@ window.profileReply = (id, status, result) => {
   const callback = pending.get(id);
   if (callback) {
     pending.delete(id);
+    clearTimeout(callback.timer);
     if (status === 200) callback.resolve(result);
     else callback.reject(Object.assign(new Error('Profile request failed'), { status, reason: result }));
   }
@@ -15,10 +16,15 @@ window.profileReply = (id, status, result) => {
 export function rpc(operation, args = {}) {
   return new Promise((resolve, reject) => {
     const id = ++sequence;
-    pending.set(id, { resolve, reject });
+    const timer = setTimeout(() => {
+      pending.delete(id);
+      reject(Object.assign(new Error('Profile request timed out'), { status: 504 }));
+    }, 60000);
+    pending.set(id, { resolve, reject, timer });
     try {
       window.Device.profileRequest(id, operation, JSON.stringify(args));
     } catch (error) {
+      clearTimeout(timer);
       pending.delete(id);
       reject(error);
     }

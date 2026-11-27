@@ -48,7 +48,7 @@ export function catchRulesHtml(pack, directory, site, day, latin) {
 }
 
 /** Use the trip's country independently of the language and the last country browsed in the catalogue. */
-export function bindCatchSpecies(pack, trip, directory) {
+export function bindCatchSpecies(pack, trip, directory, original = null) {
   const select = by('fish'),
     search = by('catch-search'),
     manualName = by('fish-name');
@@ -128,6 +128,14 @@ export function bindCatchSpecies(pack, trip, directory) {
     if (panel.open && panel.isConnected) showSelection();
   };
   populate();
+  const savedId = original && (catchLatin(original, pack, directory) || original.speciesId || manual);
+  if (original) {
+    if (!Array.from(select.options).some((option) => option.value === savedId))
+      select.add(new Option(original.speciesName || savedId, savedId));
+    select.value = savedId;
+    if (savedId === manual) manualName.value = original.speciesName || '';
+    showSelection();
+  }
   return {
     setWater(water) {
       site = water;
@@ -136,6 +144,8 @@ export function bindCatchSpecies(pack, trip, directory) {
     record() {
       const id = select.value;
       if (id === manual) return { speciesId: null, speciesName: manualName.value.trim() };
+      if (original && id === savedId)
+        return { speciesId: original.speciesId, speciesName: original.speciesName };
       const pilotId = pilotIds.get(id);
       return {
         speciesId: pilotId || id,
