@@ -654,5 +654,14 @@
  "atlas.map": "Mapa",
  "emoji.fishing": "Iasgach",
  "emoji.fish": "Iasg",
- "waters.organisation": "Buidheann"
+ "waters.organisation": "Buidheann",
+ "settings.title": "Roghainnean",
+ "settings.filters": "Criathragan",
+ "atlas.list": "Liosta",
+ "messages.unread": "Gun leughadh",
+ "atlas.zoom_in": "Sùm a-steach",
+ "atlas.zoom_out": "Sùm a-mach",
+ "dated_rules.choose_species": "Tagh gnè",
+ "license.off": "Dheth",
+ "alerts.messages": "Teachdaireachd phrìobhaideach ùr"
 }

@@ -665,5 +665,14 @@
  "emoji.fish": "Fisk",
  "emoji.heart": "Hert",
  "waters.organisation": "Organisaasje",
- "emoji.thumbs_up": "Tomme omheech"
+ "emoji.thumbs_up": "Tomme omheech",
+ "settings.title": "Ynstellingen",
+ "settings.filters": "Filters",
+ "atlas.list": "List",
+ "messages.unread": "Net lêzen",
+ "atlas.zoom_in": "Ynzoome",
+ "atlas.zoom_out": "Utzoome",
+ "dated_rules.choose_species": "Kies in fisksoarte",
+ "license.off": "Ut",
+ "alerts.messages": "Nij priveeberjocht"
 }

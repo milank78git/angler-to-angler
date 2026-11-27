@@ -671,5 +671,14 @@
  "emoji.heart": "Hjarte",
  "waters.organisation": "Organisasjon",
  "waters.water_body": "Vassførekomst",
- "license.title": "Fiskekort"
+ "license.title": "Fiskekort",
+ "settings.title": "Innstillingar",
+ "settings.filters": "Filter",
+ "atlas.list": "Liste",
+ "messages.unread": "Ulesen",
+ "atlas.zoom_in": "Zoom inn",
+ "atlas.zoom_out": "Zoom ut",
+ "dated_rules.choose_species": "Vel art",
+ "license.off": "Av",
+ "alerts.messages": "Ny privat melding"
 }

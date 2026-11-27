@@ -652,5 +652,14 @@
  "emoji.fish": "Iasc",
  "emoji.sadness": "Brón",
  "waters.organisation": "Eagraíocht",
- "waters.water_body": "Limistéar uisce"
+ "waters.water_body": "Limistéar uisce",
+ "settings.title": "Socruithe",
+ "settings.filters": "Scagairí",
+ "atlas.list": "Liosta",
+ "messages.unread": "Neamhléite",
+ "atlas.zoom_in": "Zúmáil isteach",
+ "atlas.zoom_out": "Zúmáil amach",
+ "dated_rules.choose_species": "Roghnaigh speiceas",
+ "license.off": "As",
+ "alerts.messages": "Teachtaireacht phríobháideach nua"
 }

@@ -660,5 +660,14 @@
  "rating.mine": "Tínar hóvni",
  "atlas.map": "Kort",
  "emoji.fish": "Fiskur",
- "waters.organisation": "Felagsskapur"
+ "waters.organisation": "Felagsskapur",
+ "settings.title": "Stillingar",
+ "settings.filters": "Filtur",
+ "atlas.list": "Listi",
+ "messages.unread": "Ólisið",
+ "atlas.zoom_in": "Vaksa",
+ "atlas.zoom_out": "Minka",
+ "dated_rules.choose_species": "Vel fiskaslag",
+ "license.off": "Frá",
+ "alerts.messages": "Nýggj einkaboð"
 }

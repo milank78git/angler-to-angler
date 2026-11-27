@@ -665,5 +665,14 @@
  "emoji.laughter": "Chwerthin",
  "emoji.sadness": "Tristwch",
  "waters.organisation": "Sefydliad",
- "waters.water_body": "Corff o ddŵr"
+ "waters.water_body": "Corff o ddŵr",
+ "settings.title": "Gosodiadau",
+ "settings.filters": "Hidlyddion",
+ "atlas.list": "Rhestr",
+ "messages.unread": "Heb ei ddarllen",
+ "atlas.zoom_in": "Chwyddo i mewn",
+ "atlas.zoom_out": "Chwyddo allan",
+ "dated_rules.choose_species": "Dewis rhywogaeth",
+ "license.off": "I ffwrdd",
+ "alerts.messages": "Neges breifat newydd"
 }

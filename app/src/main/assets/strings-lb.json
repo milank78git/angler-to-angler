@@ -662,5 +662,14 @@
  "emoji.fish": "Fësch",
  "emoji.laughter": "Laachen",
  "waters.organisation": "Organisatioun",
- "waters.water_body": "Gewässer"
+ "waters.water_body": "Gewässer",
+ "settings.title": "Astellungen",
+ "settings.filters": "Filteren",
+ "atlas.list": "Lëscht",
+ "messages.unread": "Ongelies",
+ "atlas.zoom_in": "Vergréisseren",
+ "atlas.zoom_out": "Verklengeren",
+ "dated_rules.choose_species": "Fëschzort auswielen",
+ "license.off": "Aus",
+ "alerts.messages": "Nei privat Noriicht"
 }
