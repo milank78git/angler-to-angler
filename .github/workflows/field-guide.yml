@@ -20,7 +20,16 @@ jobs:
       - run: python3 scripts/review-field-guide.py
       - run: python3 tests/refresh-atlas-rules.py
       - if: github.event_name != 'pull_request'
-        run: python3 scripts/review-field-guide.py --check-sources
+        name: Check deadlines in the signed edition served to phones
+        env:
+          ANGLER_ATLAS_PUBLIC_KEY: ${{ vars.ANGLER_ATLAS_PUBLIC_KEY }}
+        run: |
+          git fetch --depth=1 origin refs/heads/water-atlas-v1
+          edition="$RUNNER_TEMP/published"
+          mkdir -p "$edition"
+          git show FETCH_HEAD:manifest.json > "$edition/manifest.json"
+          git show FETCH_HEAD:atlas.json.gz > "$edition/atlas.json.gz"
+          python3 scripts/review-field-guide.py --check-sources --published "$edition"
   refresh-candidates:
     if: github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && github.event.schedule == '35 4 1 * *')
     runs-on: ubuntu-24.04

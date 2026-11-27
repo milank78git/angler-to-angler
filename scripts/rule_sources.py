@@ -1,4 +1,7 @@
 """Read numeric and seasonal changes from recognized authority documents."""
+import gzip
+import subprocess
+import sys
 import calendar
 from copy import deepcopy
 from datetime import date
@@ -21,26 +24,35 @@ class SourceChanged(ValueError):
 class Article(HTMLParser):
     """Read a single official article independently of menus and page furniture."""
 
-    def __init__(self, css_class):
+    def __init__(self, css_class, *, exact=False, visible_only=False):
         super().__init__()
         self.css_class = css_class
+        self.exact = exact
+        self.visible_only = visible_only
+        self.hidden = 0
         self.depth = self.count = 0
         self.blocks = []
 
     def handle_starttag(self, tag, attrs):
+        if self.visible_only and tag in ("style", "script"):
+            self.hidden += 1
         if tag == "div":
-            if self.css_class in dict(attrs).get("class", "").split():
+            classes = dict(attrs).get("class", "").split()
+            matches = classes == [self.css_class] if self.exact else self.css_class in classes
+            if matches:
                 self.count += 1
                 self.depth = 1
             elif self.depth:
                 self.depth += 1
 
     def handle_endtag(self, tag):
+        if self.visible_only and tag in ("style", "script"):
+            self.hidden = max(0, self.hidden - 1)
         if tag == "div" and self.depth:
             self.depth -= 1
 
     def handle_data(self, text):
-        if self.depth:
+        if self.depth and not self.hidden:
             self.blocks.append(text)
 
     def extract(self, document):
@@ -184,3 +196,19 @@ def local_records(document, water, species_ids):
     if not records:
         raise SourceChanged("Empty local rules")
     return records
+
+
+def published_rules(folder):
+    """Read the rule payload authenticated by the pinned publication key."""
+    path = folder / "manifest.json"
+    if not path.exists():
+        return {}
+    manifest = json.loads(path.read_bytes())
+    if "signature" not in manifest:
+        return {}
+    verifier = Path(__file__).with_name("atlas-signature.py")
+    subprocess.run([sys.executable, str(verifier), str(path)], check=True, stdout=subprocess.DEVNULL)
+    packed = (folder / "atlas.json.gz").read_bytes()
+    if len(packed) != manifest["bytes"] or hashlib.sha256(packed).hexdigest() != manifest["sha256"]:
+        raise ValueError("Previous signed atlas digest mismatch")
+    return json.loads(gzip.decompress(packed)).get("anglingRules", {})
