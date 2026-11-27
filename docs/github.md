@@ -21,8 +21,8 @@ The installed version name comes from the manifest. The CI Android build number 
 
 ### Rotate the pilot signing identity
 
-Android 9 (API 28) is the minimum for this release. Keep the original pilot 0.4.4
-key offline. Use it once to authorize the new release signer. The APK build uses
+Android 9 (API 28) is the minimum for this release. With an offline copy of the
+original pilot 0.4.4 key, use it once to authorize the new release signer. The APK build uses
 the rotated private key and the public proof of rotation. Keep the Play key separate.
 
     keytool -genkeypair -storetype PKCS12 -keystore pilot-rotated.p12 -alias pilot-release -keyalg RSA -keysize 4096 -validity 10000
@@ -39,6 +39,24 @@ installed-data transfer and rejects rollback permission on the original certific
 Inspect these public capabilities offline with `apksigner lineage --in pilot.lineage --print-certs --verbose`. Android 8
 installations can continue using their installed version. Keep their local journals
 when moving to a supported device.
+
+#### When the original key is available only in Actions
+
+1. Keep the existing repository secret `ANDROID_PILOT_KEYSTORE`. Back up the new
+   `pilot-rotated.p12` and its password. Set `ANDROID_ROTATED_KEYSTORE` (base64),
+   `ANDROID_ROTATED_PASSWORD`, `ANDROID_ROTATED_ALIAS` and `ANDROID_ROTATED_CERTIFICATE`
+   from this new key as described above. Skip the offline rotation command.
+2. Run **Actions → Prepare pilot signing lineage → Run workflow** on `main`.
+   It checks the original and successor certificate fingerprints before authorizing
+   the transfer. The `pilot-lineage` artifact contains only the public proof.
+3. Download the artifact, unzip it and back up `pilot.lineage`. From the directory
+   containing the extracted file, save it as a repository Actions secret:
+
+   ```sh
+   base64 -w0 pilot.lineage | gh secret set ANDROID_PILOT_LINEAGE -R milank78git/angler-to-angler
+   ```
+
+4. Run **Android pilot** on `main` with the tag field empty to publish the APK.
 
 Configure the public Actions variable `ANGLER_ACCOUNT_CONFIG` as described in [Accounts](accounts.md). The closed-pilot mail configuration still restricts who can sign in.
 
