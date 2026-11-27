@@ -69,9 +69,8 @@ public final class FishingActivity extends LocalizedActivity {
     if (state != null) pendingReminder = state.getString("reminder");
     profileRequests = new JournalProfileRequests(this, subject, this::signal);
     web = new WebView(this);
-    journalFrame = new android.widget.FrameLayout(this);
-    journalFrame.addView(web);
-    setContentView(journalFrame);
+    setContentView(web);
+    journalFrame = findViewById(android.R.id.content);
     getSharedPreferences("appearance", MODE_PRIVATE).registerOnSharedPreferenceChangeListener(appearanceListener);
     if (Build.VERSION.SDK_INT >= 35) {
       findViewById(android.R.id.content)
