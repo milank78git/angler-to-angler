@@ -172,7 +172,7 @@ function entryCard(item, round, view, nav) {
     };
     card.append(remove);
   }
-  if (!item.mine && !item.voted && !round.open) return card;
+  if (!item.mine && (item.held || (!item.voted && !round.open))) return card;
   const action = document.createElement('button');
   action.type = 'button';
   action.className = item.mine ? 'danger' : item.voted ? 'secondary' : 'primary';

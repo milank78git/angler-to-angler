@@ -420,7 +420,7 @@ final class AccountChecks {
                                   java.util.UUID.fromString(body.getString("group_id")).toString();
                               response = new JSONObject().put("id", ownGroup).toString();
                               break;
-                            case "/rest/v1/rpc/angler_group_invite":
+                            case "/rest/v1/rpc/angler_group_link":
                               if (!body.getString("group_id").equals(ownGroup)) return 403;
                               response = new JSONObject().put("code", INVITE).toString();
                               break;
@@ -712,7 +712,7 @@ final class AccountChecks {
     app.captureAccount(gate, "groups");
     click("River crew" + tr("groups.owner"));
     click(tr("groups.issue_invitation"));
-    TextView invitation = find(tr("groups.invite_one_angler"));
+    TextView invitation = find(tr("groups.link_lifetime"));
     app.captureWindow(invitation.getRootView(), "group-invitation");
     dialogButton(android.R.id.button2);
     click("River crew" + tr("groups.owner"));
@@ -913,7 +913,7 @@ final class AccountChecks {
   void atlasSettings() throws Exception {
     app.clickReady("#atlas-settings");
     String daily = tr("atlas_settings.check_automatically_every_day");
-    for (String option : new String[]{"alerts.posts","alerts.waters","alerts.nearby","settings.large","settings.screen_on"}) {
+    for (String option : new String[]{"alerts.posts","alerts.community","alerts.waters","alerts.nearby","settings.large","settings.screen_on"}) {
       if (((CheckBox)find(tr(option))).isChecked()) throw new AssertionError("Unexpected default for " + option);
     }
     android.content.Context target = app.getTargetContext();

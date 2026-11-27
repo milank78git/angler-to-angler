@@ -646,6 +646,10 @@ public final class FishingActivity extends LocalizedActivity {
       lockAccount();
       return;
     }
+    if (unlockButton != null) {
+      journalFrame.removeView(unlockButton);
+      unlockButton = null;
+    }
     web.setVisibility(android.view.View.VISIBLE);
     long now = android.os.SystemClock.elapsedRealtime();
     long remaining = AccountStore.remainingMillis(this);

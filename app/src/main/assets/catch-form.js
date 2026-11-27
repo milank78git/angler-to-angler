@@ -26,8 +26,14 @@ const exampleNumber = new Intl.NumberFormat(languageTag, {
   useGrouping: false,
   numberingSystem: 'latn',
 });
-function bindPhotoPreview() {
+function bindPhotoPreview(existing) {
   let preview, file, capture;
+  if (existing) {
+    preview = URL.createObjectURL(existing);
+    by('photo-preview').src = preview;
+    by('photo-preview').hidden = false;
+    by('photo-label').textContent = t('catch_form.change_photo');
+  }
   function choose(input, camera) {
     if (!input.files[0]) return;
     file = input.files[0];
@@ -70,6 +76,8 @@ export async function catchForm({ view, nav, pack, waterDirectory }) {
   ]);
   if (!view.active()) return;
   if (!trip || (view.route.catchId && original?.tripId !== id)) return nav.journalAfterWrite(null);
+  const existingPhoto = original?.hasPhoto ? await Journal.photo(original.id) : null;
+  if (!view.active()) return;
   replaceMarkup(screen, catchFields(original));
   if (original) {
     by('catch-length').value = original.lengthMm == null ? '' : String(original.lengthMm / 10);
@@ -80,7 +88,7 @@ export async function catchForm({ view, nav, pack, waterDirectory }) {
   view.refreshWaters = (edition) => species.setWater(tripWater(edition, trip));
   view.refreshWaters(waterDirectory);
   const positionInput = bindCatchPosition(view, original?.position);
-  const photoInput = bindPhotoPreview();
+  const photoInput = bindPhotoPreview(existingPhoto);
   by('camera-photo').onclick = (event) => {
     if (positionInput.waiting()) {
       event.preventDefault();

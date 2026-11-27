@@ -75,6 +75,8 @@ public final class AccountActivity extends LocalizedActivity {
     super.onNewIntent(intent);
     // A launcher tap only brings the current screen forward, including a pending mail callback.
     if (Intent.ACTION_MAIN.equals(intent.getAction()) && intent.getData() == null) return;
+    String resume = getIntent().getStringExtra("resumeJournal");
+    if (resume != null && intent.getData() != null) intent.putExtra("resumeJournal", resume);
     String invite = getIntent().getStringExtra("invite");
     if (invite != null && intent.getData() != null) intent.putExtra("invite", invite);
     setIntent(intent);

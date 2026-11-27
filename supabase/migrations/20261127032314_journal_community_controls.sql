@@ -127,6 +127,8 @@ create table angler_groups_private.invitations (
 );
 alter table angler_groups_private.invitations enable row level security;
 revoke all on angler_groups_private.invitations from public,anon,authenticated;
+create trigger limit_group_links after insert on angler_groups_private.invitations
+  for each row execute function angler_private.limit_write('invites','40');
 create index group_invitation_expiry on angler_groups_private.invitations(expires_at);
 create function public.angler_group_link(group_id uuid) returns jsonb
 language plpgsql security definer set search_path='' as $$
@@ -231,7 +233,7 @@ begin
         and incoming.position>case when t.first_user=actor then t.first_read else t.second_read end) as unread
       from angler_messages.threads t join angler_messages.entries e on e.position=t.latest
       join angler_private.profiles a on a.user_id=case when t.first_user=actor then t.second_user else t.first_user end
-      where actor in (t.first_user,t.second_user) and (cursor_pos is null or t.latest<cursor_pos)
+      where actor in (t.first_user,t.second_user) and angler_private.age_years(a.born_on)>=15 and (cursor_pos is null or t.latest<cursor_pos)
       order by t.latest desc limit 21
   ), page as (select * from candidates order by latest desc limit 20)
   select jsonb_build_object('items',coalesce(jsonb_agg(jsonb_build_object('threadId',id,'peerName',display_name,
@@ -247,6 +249,8 @@ begin
     first_read=case when t.first_user=actor then greatest(t.first_read,$2) else t.first_read end,
     second_read=case when t.second_user=actor then greatest(t.second_read,$2) else t.second_read end
     where t.id=$1 and actor in (t.first_user,t.second_user)
+    and exists(select from angler_private.profiles peer where angler_private.age_years(peer.born_on)>=15
+      and peer.user_id=case when t.first_user=actor then t.second_user else t.first_user end)
     and exists(select from angler_messages.entries e where e.thread=t.id and e.position=$2);
   if not found then raise exception 'Message unavailable' using errcode='PT404'; end if;
   return '{}'::jsonb;
@@ -286,7 +290,8 @@ begin
       select from angler_groups_private.members m where m.user_id=actor and m.group_id=g.id)
   ) select jsonb_build_object(
     'messages',coalesce((select max(e.position) from angler_messages.threads t join angler_messages.entries e on e.thread=t.id
-      where general and actor in (t.first_user,t.second_user) and e.from_first<>(actor=t.first_user)
+      join angler_private.profiles peer on peer.user_id=case when t.first_user=actor then t.second_user else t.first_user end
+      where general and angler_private.age_years(peer.born_on)>=15 and actor in (t.first_user,t.second_user) and e.from_first<>(actor=t.first_user)
       and not (t.first_blocks or t.second_blocks) and e.position>case when t.first_user=actor then t.first_read else t.second_read end),0),
     'replies',coalesce((select max(r.position) from angler_discussions.posts q join angler_discussions.posts r on r.parent=q.id
       where general and q.author_id=actor and q.body is not null and r.author_id<>actor and r.body is not null),0),

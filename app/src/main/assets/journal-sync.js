@@ -354,7 +354,8 @@ async function start() {
   checking = true;
   notify('checking');
   try {
-    const canRestore = window.Device?.journalCloudDefault?.() || (await call('settings', {})).enabled;
+    const settings = await call('settings', {});
+    const canRestore = settings.enabled || (!settings.epoch && window.Device?.journalCloudDefault?.());
     if (canRestore) {
       // Use the journal writer lock so the empty check and local opt-in cannot straddle a trip edit.
       await Journal.lock(async () => {
@@ -363,6 +364,7 @@ async function start() {
         const hasHistory = keys.some(
           (key) => key.startsWith('trip/') || key.startsWith('photo/') || key.startsWith('pref/water/'),
         );
+        if (!hasHistory && settings.epoch) localStorage.setItem(prefix + 'epoch', settings.epoch);
         localStorage.setItem(choiceKey, hasHistory ? '0' : '1');
       });
     }
