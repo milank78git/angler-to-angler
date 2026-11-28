@@ -1377,6 +1377,9 @@ label.label-with-hint { display: inline-block; margin-inline-end: .45rem; }
 #world-map g:focus circle { stroke: #cf641a; stroke-width: 4px; }
 
 #world-map .parking-pin circle { fill: #9e3d16; stroke: white; }
+#world-map .atlas-position { pointer-events: none; }
+#world-map .atlas-position circle { fill: #226dc5; stroke: white; stroke-width: 2px; }
+#world-map .atlas-position .atlas-position-accuracy { fill: #226dc5; fill-opacity: .14; stroke: #226dc5; stroke-opacity: .4; stroke-width: 1px; }
 #parking-name { margin-bottom: 12px; }
 .parking-card + .parking-card { border-top: 1px solid var(--border); margin-top: 16px; }
 .parking-feedback { margin-block: 8px; }

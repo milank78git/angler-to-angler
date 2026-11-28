@@ -315,30 +315,43 @@ export async function listWaters({ view, pack, nav, waterDirectory }) {
   }
   /** Accept a location reply only for the pending request from this water list. */
   const receive = async ({ detail }) => {
-    if (!pending || detail.id !== pending) return;
+    if (!view.active() || !pending || detail.id !== pending) return;
     try {
-      if (!Number.isFinite(detail.fix?.lat) || !Number.isFinite(detail.fix?.lon)) {
+      const fix = detail.fix;
+      if (
+        !Number.isFinite(fix?.lat) ||
+        !Number.isFinite(fix?.lon) ||
+        Math.abs(fix.lat) > 90 ||
+        Math.abs(fix.lon) > 180
+      ) {
         status.textContent = t('atlas.location_failed');
         return;
       }
+      const warnings = [];
+      let country;
       if (locatingCountry) {
-        const code = await atlasCountryAt(detail.fix);
+        country = await atlasCountryAt(fix).catch(() => '');
         if (!view.active() || detail.id !== pending) return;
-        if (!code) {
-          status.textContent = t('fish_catalogue.country_unavailable_choose_it_from_the_list');
+        if (!country) warnings.push(t('fish_catalogue.country_unavailable_choose_it_from_the_list'));
+      }
+      const geometry = await waterDirectory.geography().catch(() => {
+        warnings.push(t('waters.could_not_load_the_water_outlines'));
+        return {};
+      });
+      if (!view.active() || detail.id !== pending) return;
+      const distances = waterDistances(atlas.waters, geometry, fix);
+      if (locatingCountry) {
+        if (country) setCountry(country);
+        else {
           route.filtersOpen = true;
           syncFilters();
-          return;
         }
-        setCountry(code);
-        route.limit = pageSize;
-        results();
       }
-      const shapes = await waterDirectory.geography();
-      if (!view.active() || detail.id !== pending) return;
-      route.distances = waterDistances(atlas.waters, shapes, detail.fix);
+      route.distances = distances;
+      // Apply the explicit request once, including when the angler opens the map after using the list.
+      route.pendingMapFocus = { lat: fix.lat, lon: fix.lon, accuracy: fix.accuracy };
       route.limit = pageSize;
-      status.textContent = distanceNote;
+      status.textContent = warnings.length ? warnings.join(' ') : distanceNote;
       results();
     } catch {
       if (view.active() && detail.id === pending) status.textContent = t('atlas.location_failed');
@@ -457,6 +470,8 @@ export async function listWaters({ view, pack, nav, waterDirectory }) {
   });
   by('water-country').onchange = () => {
     cancelLocation();
+    // A manual destination takes precedence over a location queued while the map was hidden.
+    delete route.pendingMapFocus;
     setLocationBusy(false);
     dismissOffer();
     status.textContent = route.distances ? distanceNote : '';
