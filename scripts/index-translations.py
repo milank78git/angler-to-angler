@@ -5,6 +5,7 @@ import json
 import re
 import subprocess
 from pathlib import Path
+from xml.etree import ElementTree
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "app/src/main/assets"
@@ -18,6 +19,21 @@ CODE_TYPES = {".js", ".cjs", ".mjs", ".ts", ".tsx", ".jsx", ".java", ".kt", ".kt
 # Applied database seeds include official water names and historic species search aliases.
 DATA_MIGRATIONS = {"20261123180057_public_catch_cards.sql", "20261124004714_european_market_directory.sql",
                    "20261124050000_czech_waters.sql", "20261124060100_european_water_seed.sql"}
+
+WRONG_FISHING_TERMS = {
+    "lt": r"\bangela(?:s|i|ms|is)?\b", "sq": r"\bengj\u00ebll\w*",
+    "tr": r"\bmelek\w*", "br": r"\banjel\b", "et": r"\b(?:ingel|ingli|inglit|inglid|ingleid)\b",
+    "bs": r"\bangel[ai]\b", "hr": r"\bangel[ai]\b", "sl": r"\bangel[ai]\b",
+    "sr": r"\bанђел\w*",
+    "ru": r"\bангел", "it": r"\bangel[io]\b", "el": r"\b[αά]γγ[εέ]λ",
+    "da": r"\b(?:engel|engle|engelskere)", "no": r"\b(?:engel|engle|engelskmenn)",
+}
+
+MISTRANSLATIONS = {
+    ("fr", "catch_form.this_photo_has_a_location_fix_after"): r"\b[\u00e9e]pargne\b",
+    ("fr", "messages.the_contents_of_the_retried_request_have"): r"\bdemande de retrait\b",
+    ("et", "help-topics.profile.steps.1"): r"\b(?:publish switch|inglers|direktiivis)\b",
+}
 
 
 def unique(entries):
@@ -48,14 +64,33 @@ def repeated_phrase(value):
     return None
 
 
-def prior_dictionary(ref, path):
+def prior_json(ref, path):
     if not ref:
-        return {}
+        return None
     name = path.relative_to(ROOT).as_posix()
     spec = f"{ref}:{name}"
     if subprocess.run(["git", "cat-file", "-e", spec], cwd=ROOT, stderr=subprocess.DEVNULL).returncode:
-        return {}
+        return None
     return json.loads(subprocess.check_output(["git", "show", spec], cwd=ROOT))
+
+
+def registered_locales(packs, against):
+    """Cross-check the app picker, Android system settings and the previous shipped set."""
+    manifest = ASSETS / "ui-locales.json"
+    locales = read(manifest)
+    if locales != sorted(p.stem[8:] for p in packs):
+        raise ValueError("Update ui-locales.json to match the packaged dictionaries")
+    android = ElementTree.parse(ROOT / "app/src/main/res/xml/locales_config.xml")
+    android_locales = [item.attrib["{http://schemas.android.com/apk/res/android}name"]
+                       for item in android.getroot().findall("locale")]
+    if sorted(tag.lower() for tag in android_locales) != locales:
+        raise ValueError("Android locales_config.xml and ui-locales.json must expose the same languages")
+    if against:
+        old_locales = prior_json(against, manifest)
+        if old_locales is not None:
+            removed = set(old_locales) - set(locales)
+            if removed:
+                raise ValueError(f"Previously shipped languages removed: {sorted(removed)}")
 
 
 def check(show_coverage=False, against=None):
@@ -67,25 +102,33 @@ def check(show_coverage=False, against=None):
         "is", "it", "lb", "lt", "lv", "mk", "mt", "nl", "nn", "no", "oc", "pl", "pt",
         "ro", "ru", "sco", "sk", "sl", "sq", "sr", "sv", "tr", "uk",
     }
+    guide = read(ASSETS / "help-topics.json")
+    guide_keys = {key for chapter in guide.values() for key in [chapter["title"], *chapter["steps"]]}
+    hint_keys = {entry["message"] for entry in read(ASSETS / "field-hints.json").values()}
+    complete_guides = complete_hints = 0
     missing_total = 0
     complete = 0
     packs = sorted(ASSETS.glob("strings-*.json"))
-    if read(ASSETS / "ui-locales.json") != [p.stem[8:] for p in packs]:
-        raise ValueError("Update ui-locales.json to match the packaged dictionaries")
     if against:
         subprocess.run(["git", "rev-parse", "--verify", f"{against}^{{commit}}"], cwd=ROOT, check=True, stdout=subprocess.DEVNULL)
+    registered_locales(packs, against)
     for p in packs:
         entries = read(p)
         locale = p.stem[8:]
-        previous = prior_dictionary(against, p)
+        previous = prior_json(against, p) or {}
         removed = (previous.keys() & english.keys()) - entries.keys()
         if removed:
             raise ValueError(f"{p.name}: existing translations removed: {sorted(removed)}")
         missing = english.keys() - entries.keys()
         if missing and p.stem[8:] in fully_translated:
             raise ValueError(f"{p.name}: missing {len(missing)} messages: {sorted(missing)[:8]}")
+        guide_count = len(guide_keys & entries.keys())
+        hint_count = len(hint_keys & entries.keys())
+        complete_guides += guide_count == len(guide_keys)
+        complete_hints += hint_count == len(hint_keys)
         if show_coverage:
-            print(f"{p.stem[8:]:4} {len(entries):4}/{len(english)}  ({len(missing)} missing)")
+            print(f"{locale:4} {len(entries):4}/{len(english)} messages, "
+                  f"{guide_count}/{len(guide_keys)} help titles and steps, {hint_count}/{len(hint_keys)} field hints")
         missing_total += len(missing)
         complete += not missing
         for key, value in entries.items():
@@ -114,13 +157,12 @@ def check(show_coverage=False, against=None):
             if p.stem == "strings-fr" and re.search(r"\bla (?:place de la )?bite\b", value, re.I):
                 raise ValueError(f"{p.name}: incorrect fishing terminology for {key}")
             if "angler" in source.lower():
-                wrong_fishing_terms = {
-                    "ru": r"\bангел", "it": r"\bangel[io]\b", "el": r"\b[αά]γγ[εέ]λ",
-                    "da": r"\b(?:engel|engle|engelskere)", "no": r"\b(?:engel|engle|engelskmenn)",
-                }
-                pattern = wrong_fishing_terms.get(p.stem[8:])
+                pattern = WRONG_FISHING_TERMS.get(locale)
                 if pattern and re.search(pattern, value, re.I):
                     raise ValueError(f"{p.name}: incorrect translation of angler for {key}")
+            pattern = MISTRANSLATIONS.get((locale, key))
+            if pattern and re.search(pattern, value, re.I):
+                raise ValueError(f"{p.name}: incorrect meaning in {key}")
             if re.search(r"\b(?:brazzers|pornhub)\b", value, flags=re.IGNORECASE):
                 raise ValueError(f"{p.name}: unrelated adult-site text in the translation for {key}")
             if re.search(r"\u2047|\bQShortcut\b|^@\s*(?:info|title|action|item)\b|[A-Za-z]+\.\s*kgm\b", value):
@@ -140,7 +182,7 @@ def check(show_coverage=False, against=None):
         if value not in english:
             raise ValueError(f"{path}: unknown message ID {value!r}")
 
-    for chapter in read(ASSETS / "help-topics.json").values():
+    for chapter in guide.values():
         for key in [chapter["title"], *chapter["steps"]]:
             reference(key, "help-topics.json")
 
@@ -190,6 +232,8 @@ def check(show_coverage=False, against=None):
             lookup = r"\bAppLanguage\.text\(\s*\w+,\s*"
         for match in re.finditer(lookup + r"\s*" + LITERAL + r"\s*\)", source):
             reference(ast.literal_eval(match[1]), name)
+    print(f"Complete help chapters: {complete_guides}/{len(packs)} languages. "
+          f"Complete field hints: {complete_hints}/{len(packs)} languages.")
     print(f"Validated {len(english)} message IDs. {complete}/{len(packs)} dictionaries have every key. "
           f"{missing_total} localized messages are missing in total.")
 
