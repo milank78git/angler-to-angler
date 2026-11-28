@@ -31,6 +31,10 @@ For the Google Play internal test, marketplace settlement and private journal sy
 
 16. In **Purchased tips**, open a technique and choose **Rate purchased tip**. Score its accuracy, technique description and match with the preview from 1 to 5. Review the three scores before confirming. Each purchase contributes once to the author’s average, including after edits or withdrawal. Verified anglers see the average and rating count before buying. The author’s profile also shows the averages by criterion.
 
+### Position on the atlas map
+
+**Find my fishing country** and **Sort by location** also center the map on the last position reported by the phone, with a local zoom that accommodates an approximate fix. A blue point marks that position; its surrounding circle shows the reported accuracy when it is larger than the point. A lookup completed in the list is applied when you next open the map. Panning or zooming afterward does not repeatedly snap back; request your location again to recenter.
+
 ## Structure and data
 
 - The WebView starts in `app.js`. Navigation owns the lifetime of each screen. The atlas, seasons, trip views and catch editor each import their dependencies explicitly.

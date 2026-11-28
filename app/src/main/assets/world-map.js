@@ -129,6 +129,21 @@ export function atlasMap(host, route, openWater, picker = null) {
     height = () => svg.clientHeight || 300;
   /** Convert the current tile zoom level to projected world pixels. */
   const unit = () => 256 * 2 ** camera.level;
+  /** Convert a reported accuracy radius to normalized Mercator units at the displayed latitude. */
+  function accuracyRadius(fix) {
+    if (!Number.isFinite(fix.accuracy) || fix.accuracy <= 0) return 0;
+    const latitude = geographic(mercator([fix.lon, fix.lat]))[1];
+    return fix.accuracy / (2 * Math.PI * 6378137 * Math.cos((latitude * Math.PI) / 180));
+  }
+  /** Center an explicit GPS result at a local scale that still contains coarse-position uncertainty. */
+  function focusLocation(fix) {
+    const [x, y] = mercator([fix.lon, fix.lat]);
+    const radius = accuracyRadius(fix);
+    const scale = radius ? (0.7 * Math.min(width(), height())) / (2 * radius) : Infinity;
+    camera = route.camera = { x, y, level: Math.max(0, Math.min(12, Math.log2(scale / 256))) };
+    route.mapPosition = fix;
+    draw();
+  }
   /** Change the camera scale for the current atlas viewport. */
   function zoom(level, x = width() / 2, y = height() / 2) {
     const before = unit();
@@ -234,6 +249,22 @@ export function atlasMap(host, route, openWater, picker = null) {
       pin.classList.add('parking-pin');
       pin.setAttribute('aria-hidden', 'true');
       pins.append(pin);
+    }
+    if (!picker && route.mapPosition) {
+      const fix = route.mapPosition;
+      const [px, py] = project(mercator([fix.lon, fix.lat]));
+      const position = mapPin(px, py, 6, '');
+      position.classList.add('atlas-position');
+      position.setAttribute('role', 'img');
+      position.setAttribute('aria-label', t('common.angler_position'));
+      const radius = accuracyRadius(fix) * s;
+      if (radius > 6) {
+        const area = document.createElementNS(svg.namespaceURI, 'circle');
+        area.classList.add('atlas-position-accuracy');
+        area.setAttribute('r', String(radius));
+        position.prepend(area);
+      }
+      pins.append(position);
     }
     markers.replaceChildren(pins);
     by('zoom-out').disabled = camera.level <= 0;
@@ -396,7 +427,10 @@ export function atlasMap(host, route, openWater, picker = null) {
       }
       missing = waters.length - rows.length;
       selected.replaceChildren();
-      if (!camera || route.cameraFilter !== key) fit();
+      if (route.pendingMapFocus && !host.hidden) {
+        focusLocation(route.pendingMapFocus);
+        delete route.pendingMapFocus;
+      } else if (!camera || route.cameraFilter !== key) fit();
       else draw();
       route.cameraFilter = key;
     },
