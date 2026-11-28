@@ -16,6 +16,9 @@ const minimum = {
   'journal-restore': 60,
   'community-ratings': 8,
   'community-writes': 359,
+  'atlas-actions': 22,
+  'member-actions': 42,
+  'photo-transfer': 15,
   'private-messages': 51,
   'share-preview': 68,
   'native-guide': 36,
@@ -29,6 +32,7 @@ test('the same behavioral contracts hold in each selected app language', async (
     await t.test(locale, (child) => {
       const output = execFileSync(process.execPath, [path.join(__dirname, 'scenarios/suite.mjs'), locale], {
         encoding: 'utf8',
+        timeout: 120000,
         stdio: ['ignore', 'pipe', 'pipe'],
       });
       const report = JSON.parse(output);

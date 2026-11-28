@@ -50,7 +50,31 @@ function words(key) {
   assert.equal(typeof dictionary[key], 'string', `Missing reference message: ${key}`);
   return dictionary[key];
 }
+// WebView timers belong to the page. Closing the jsdom fixture must also retire native Node timers.
+const timers = new Set();
+const repeat = globalThis.setInterval;
+const intervals = new Set();
+globalThis.setInterval = (...args) => {
+  const id = repeat(...args);
+  intervals.add(id);
+  return id;
+};
+const schedule = globalThis.setTimeout;
+const cancel = globalThis.clearTimeout;
+globalThis.setTimeout = (fn, delay, ...args) => {
+  const handle = schedule(() => {
+    timers.delete(handle);
+    fn(...args);
+  }, delay);
+  timers.add(handle);
+  return handle;
+};
+globalThis.clearTimeout = (handle) => {
+  timers.delete(handle);
+  cancel(handle);
+};
 const families = [
+  'native-guide',
   'navigation',
   'bridge',
   'public-cards',
@@ -61,9 +85,11 @@ const families = [
   'journal-restore',
   'community-ratings',
   'community-writes',
+  'atlas-actions',
+  'member-actions',
+  'photo-transfer',
   'private-messages',
   'share-preview',
-  'native-guide',
   'app-journeys',
 ];
 const counts = {},
@@ -100,5 +126,10 @@ try {
   assert.ok(seen.size, 'No matching suite');
   console.log(JSON.stringify({ locale, counts, total: seen.size, digest: digest.digest('hex') }));
 } finally {
+  for (const id of intervals) clearInterval(id);
+  globalThis.setInterval = repeat;
+  for (const handle of timers) cancel(handle);
+  globalThis.setTimeout = schedule;
+  globalThis.clearTimeout = cancel;
   window.close();
 }

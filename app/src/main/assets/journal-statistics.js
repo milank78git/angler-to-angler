@@ -1,4 +1,5 @@
 import { insertMarkup, replaceMarkup } from './markup.js';
+import { languageTag } from './i18n.js';
 import { Journal } from './journal.js';
 import { catchLatin } from './catch-species.js';
 import { fishDirectory } from './fish-catalogue.js';
@@ -13,18 +14,18 @@ function add(counts, key, label) {
 }
 /** Order the most frequent entries first and resolve equal counts by display label. */
 const ranked = (counts) =>
-  [...counts.values()].sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
+  [...counts.values()].sort((a, b) => b.count - a.count || a.label.localeCompare(b.label, languageTag));
 
 /** Preserve distinct catalogue identities even when two waters have the same name. */
 export function personalTotals(trips, catches, pack, fish) {
   const waters = new Map(),
     species = new Map();
-  for (const trip of trips)
-    add(
-      waters,
-      trip.waterId ? JSON.stringify([trip.country, trip.waterId]) : 'manual:' + trip.waterName,
-      trip.waterName,
-    );
+  for (const trip of trips) {
+    // Older restored trips can have a catalogue ID without a stored display name.
+    const label = trip.waterName || trip.waterId;
+    if (label)
+      add(waters, trip.waterId ? JSON.stringify([trip.country, trip.waterId]) : 'manual:' + label, label);
+  }
   for (const entry of catches) {
     const latin = catchLatin(entry, pack, fish);
     const label = fish?.names.get(latin)?.label || entry.speciesName || entry.speciesId;
