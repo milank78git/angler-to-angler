@@ -149,7 +149,7 @@ async function onPhone(action, fixture) {
       catch (error) { return error.status; }
     }
     const [foreignStatus, controlStatus] = await Promise.all(hashes.map(missingStatus));
-    assert([400,404,406].includes(controlStatus) && foreignStatus === controlStatus,
+    assert(controlStatus === 404 && foreignStatus === controlStatus,
       'Foreign or absent chunk returned an unexpected status: '+foreignStatus+'/'+controlStatus);
     assert(!(await rpc('my_details')).expiry,'Other user accessed the private licence');
     assert(!rows.some(row => row.key === 'trip/historical') && !await Journal.trip('historical'),

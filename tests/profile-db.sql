@@ -62,5 +62,6 @@ do $$begin if exists(select from angler_private.acceptances) or exists(select fr
 \ir photo-retention-db.sql
 \ir review-regressions-db.sql
 \ir nickname-errors-db.sql
+\ir journal-chunk-status-db.sql
 \ir function-access-db.sql
 rollback;

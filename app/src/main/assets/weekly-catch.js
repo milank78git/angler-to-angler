@@ -1,6 +1,6 @@
 import { replaceMarkup } from './markup.js';
 import { Journal, newJournalId } from './journal.js';
-import { photoPayload, rpc } from './profile-api.js';
+import { permittedGroups, photoPayload, rpc } from './profile-api.js';
 import { competitionPhoto } from './photo.js';
 import {
   back,
@@ -62,8 +62,8 @@ function readError(view, nav, err) {
 export async function weeklyGroups({ view, nav }) {
   let groups;
   try {
-    ({ groups } = await rpc('groups'));
-    groups = groups.filter((group) => group.canShareCatch !== false);
+    // A competition entry shares a catch with the selected group.
+    groups = await permittedGroups('canShareCatch');
   } catch (err) {
     return readError(view, nav, err);
   }

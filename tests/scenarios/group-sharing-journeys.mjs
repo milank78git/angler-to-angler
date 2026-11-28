@@ -148,4 +148,69 @@ export async function groupSharingJourneys({ check, words, mounted, tab }) {
       }
     });
   }
+
+  // Exercise both recipient pickers with split grants and a membership returned by an older service.
+  for (const surface of ['tip', 'weekly']) {
+    for (const [actor, nativeChild, ageBand] of [
+      ['restricted-phone', true, 'adult'],
+      ['restricted-server', false, 'child'],
+      ['adult-legacy', false, 'adult'],
+    ]) {
+      await check('group-recipients/' + surface + '/' + actor, async () => {
+        const { groupSharingOnly, profileRequest } = window.Device;
+        const eligible = surface === 'tip' ? 'Tip group' : 'Catch group';
+        const names = actor === 'adult-legacy' ? [eligible, 'Legacy membership'] : [eligible];
+        const recipients = [
+          { id: 'tip', name: 'Tip group', canShareTip: true, canShareCatch: false },
+          { id: 'catch', name: 'Catch group', canShareTip: false, canShareCatch: true },
+          { id: 'legacy', name: 'Legacy membership' },
+          { id: 'denied', name: 'Revoked group', canShareTip: false, canShareCatch: false },
+        ];
+        const operations = [];
+        window.Device.groupSharingOnly = () => nativeChild;
+        window.Device.profileRequest = (id, op, body) => {
+          if (op !== 'groups') return profileRequest(id, op, body);
+          operations.push(op);
+          queueMicrotask(() => window.profileReply(id, 200, { ageBand, groups: recipients }));
+        };
+        try {
+          await Journal.saveTrip(trip);
+          await Journal.saveCatch(fish, new Blob(['synthetic journal photo'], { type: 'image/jpeg' }));
+          await tab('trips');
+          document.querySelector('[data-trip="consent-trip"]').click();
+          await mounted('trip');
+          if (surface === 'tip') {
+            by('share-tip').click();
+            await mounted('shareCard');
+            by('share-tip-text').value = 'Try an evening float';
+            by('share-tip-text').dispatchEvent(new Event('input', { bubbles: true }));
+            by('tip-groups').click();
+            await nextTurn();
+            assert.equal(by('tip-destination').hidden, false);
+            assert.deepEqual(
+              [...by('tip-group').options].slice(1).map((o) => o.text),
+              names,
+            );
+            assert.equal(by('tip-post').disabled, true);
+          } else {
+            document.querySelector('[data-weekly-catch="consent-catch"]').click();
+            await mounted('weeklyGroups');
+            assert.deepEqual(
+              [...document.querySelectorAll('.weekly-groups button')].map((b) => b.textContent),
+              names,
+            );
+          }
+          assert.deepEqual(operations, ['groups']);
+        } finally {
+          Object.assign(window.Device, { groupSharingOnly, profileRequest });
+          if (by('share-tip-text')) {
+            by('share-tip-text').value = '';
+            by('share-tip-text').dispatchEvent(new Event('input', { bubbles: true }));
+          }
+          await tab('trips');
+          await Journal.removeTrip(trip.id);
+        }
+      });
+    }
+  }
 }

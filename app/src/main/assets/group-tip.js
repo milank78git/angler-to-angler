@@ -1,5 +1,5 @@
 import { newJournalId } from './journal.js';
-import { rpc } from './profile-api.js';
+import { permittedGroups, rpc } from './profile-api.js';
 import { button, by, field, t, toast, writeEntry } from './ui.js';
 
 /** Render a private group recipient selector and an explicit post action. */
@@ -55,8 +55,8 @@ export function bindGroupTip(view, nav, tripId, getText) {
     sync();
     report(t('group_tip.loading_groups'));
     try {
-      const result = await rpc('groups');
-      const groups = result.groups.filter((group) => group.canShareTip !== false);
+      // Tip consent is independent of permission to share a catch in the same group.
+      const groups = await permittedGroups('canShareTip');
       if (!view.active()) return;
       for (const group of groups) select.add(new Option(group.name, group.id));
       destination.hidden = !groups.length;

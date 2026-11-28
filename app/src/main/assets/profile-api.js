@@ -33,6 +33,18 @@ export function rpc(operation, args = {}) {
   });
 }
 
+/** Return recipients eligible for this action, including memberships from older servers.
+ * @param {'canShareCatch'|'canShareTip'} permission Grant required by the destination screen.
+ */
+export async function permittedGroups(permission) {
+  const result = await rpc('groups');
+  const groupOnly = result.ageBand === 'child' || window.Device?.groupSharingOnly?.();
+  // Group-only accounts require affirmative consent. Older adult memberships may omit the flag.
+  return result.groups.filter((group) =>
+    groupOnly ? group[permission] === true : group[permission] !== false,
+  );
+}
+
 /** Map account, access, revision and capacity errors to localized recovery text. */
 export function failure(error) {
   switch (error.status) {
