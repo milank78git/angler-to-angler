@@ -1,3 +1,4 @@
+import { newJournalId } from './journal.js';
 import { insertMarkup, replaceMarkup } from './markup.js';
 function waterButtons(selector) {
   return /** @type {NodeListOf<HTMLButtonElement>} */ (by('waters').querySelectorAll(selector));
@@ -81,7 +82,14 @@ function toggleFavorite(pack, id) {
   const w = pack.waters.find((x) => x.id === id);
   const key = `water.${window.Device.subjectId()}.${pack.id}.${id}`;
   if (isFavorite(pack, w)) localStorage.removeItem(key);
-  else localStorage.setItem(key, '1');
+  else {
+    // A deliberate re-add can have the exact same bytes as the last acknowledged favorite.
+    localStorage.setItem(
+      'journal.sync.v1.' + window.Device.subjectId() + '.added.pref/water/' + pack.id + '.' + id,
+      newJournalId(),
+    );
+    localStorage.setItem(key, '1');
+  }
   window.dispatchEvent(new Event('favourites-changed'));
   window.dispatchEvent(new Event('journal-edited'));
 }

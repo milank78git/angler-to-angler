@@ -72,6 +72,7 @@ jobs:
           else
             python3 scripts/index-translations.py --check
           fi
+      - run: python3 tests/translation-coverage.py
       - run: python3 tests/account-documents.py
       - run: python3 tests/account-links.py
       - if: vars.ANDROID_ROTATED_CERTIFICATE != '' || vars.ANGLER_APP_LINK_HOST != ''

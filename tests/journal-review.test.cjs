@@ -11,10 +11,10 @@ test('a legacy trip and a pruned history do not stop other records; restoration 
     Event: window.Event, indexedDB: new IDBFactory(), IDBKeyRange });
   // Simulate the exclusive Web Lock used by the Android WebView, so a download
   // incorrectly performed inside the critical section prevents the user edit.
-  let writer = Promise.resolve();
-  const locks = {request(_name, work) {
-    const next = writer.then(work);
-    writer = next.catch(() => {});
+  const writers = new Map();
+  const locks = {request(name, work) {
+    const next = (writers.get(name) ?? Promise.resolve()).then(work);
+    writers.set(name, next.catch(() => {}));
     return next;
   }};
   Object.defineProperty(globalThis.navigator, 'locks', {configurable:true, value:locks});
@@ -39,6 +39,7 @@ test('a legacy trip and a pruned history do not stop other records; restoration 
       operations.push(op);
       const reply = value => queueMicrotask(() => window.profileReply(id, 200, value));
       switch (op) {
+        case 'settings': return reply({enabled:true});
         case 'list': return reply({ rows: args.after ? [] : page, floor: 17, photoFormat: 2, photoRevision: '1' });
         case 'photo_list': return reply({photos: [], revision: '1'});
         case 'get': return reply({data:payload.toString('base64')});
@@ -89,12 +90,12 @@ test('a legacy trip and a pruned history do not stop other records; restoration 
   assert.equal(panel.querySelector('[data-action="sync.cloud"]'), null);
   assert.equal(panel.querySelector('[data-action="sync.local"]'), null);
   assert.equal(writes.some(w => w.key === 'trip/deleted'), false);
-  assert.equal(localStorage.getItem(prefix + 'deviceOnly.trip/deleted'), '1');
+  assert.equal((await Journal.syncHistory(['owner', '', 'trip/deleted'])).held, true);
   assert.equal((await Journal.trip('deleted')).notes, 'keep until explicitly resolved');
   panel.querySelector('[data-action="sync.upload_copy"]').click();
   await until(() => panel.dataset.state === 'done');
   assert.equal(writes.filter(w => w.key === 'trip/deleted').length, 1);
-  assert.equal(localStorage.getItem(prefix + 'deviceOnly.trip/deleted'), null);
+  assert.equal((await Journal.syncHistory(['owner', '', 'trip/deleted'])).held, false);
 
   // An unchanged phone copy still follows a confirmed deletion from the account.
   const unchanged = page.find(row => row.key === 'trip/new');
