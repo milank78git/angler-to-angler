@@ -65,11 +65,14 @@ test('standalone help resolves every chapter, field hint and guide control in th
   global.Device = { localeTag: () => 'en' };
   const locales = json('ui-locales.json');
   const chapters = Object.values(json('help-topics.json'));
-  const hints = Object.values(json('field-hints.json'));
+  const hints = json('field-hints.json');
+  // Each field dialog uses the visible form label for its heading and accessible name.
+  const fieldLabels = require('./help-field-labels.json');
+  assert.deepEqual(Object.keys(fieldLabels).sort(), Object.keys(hints).sort());
   const guideSource = readFileSync(resolve(assets, 'guide.js'), 'utf8');
   const controls = [...guideSource.matchAll(/\bt\('([^']+)'\)/g)].map(match => match[1]);
   const keys = [...new Set([...chapters.flatMap(ch => [ch.title, ...ch.steps]),
-    ...hints.map(hint => hint.message), ...controls])];
+    ...Object.values(hints).map(hint => hint.message), ...Object.values(fieldLabels).flat(), ...controls])];
   global.fetch = async path => ({ ok: true, json: async () => json(path) });
 
   for (const code of locales.filter(code => !code.includes('-'))) {
