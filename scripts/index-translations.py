@@ -93,6 +93,19 @@ def registered_locales(packs, against):
                 raise ValueError(f"Previously shipped languages removed: {sorted(removed)}")
 
 
+def validate_guide(locale, entries, english, guide_keys, guide_steps, hint_keys):
+    # A regional override may supply just the differences from its base language.
+    if "-" not in locale:
+        missing = guide_keys - entries.keys()
+        if missing:
+            raise ValueError(f"{locale}: missing help translations: {sorted(missing)}")
+    if locale == "en" or locale.startswith("en-"):
+        return
+    for key in (guide_steps | hint_keys) & entries.keys():
+        if len(english[key]) >= 45 and " ".join(entries[key].split()) == " ".join(english[key].split()):
+            raise ValueError(f"{locale}: English source copied into localized help: {key}")
+
+
 def check(show_coverage=False, against=None):
     english = read(ASSETS / "strings-en.json")
     czech = read(ASSETS / "strings-cs.json")
@@ -104,6 +117,7 @@ def check(show_coverage=False, against=None):
     }
     guide = read(ASSETS / "help-topics.json")
     guide_keys = {key for chapter in guide.values() for key in [chapter["title"], *chapter["steps"]]}
+    guide_steps = {key for chapter in guide.values() for key in chapter["steps"]}
     hint_keys = {entry["message"] for entry in read(ASSETS / "field-hints.json").values()}
     complete_guides = complete_hints = 0
     missing_total = 0
@@ -122,6 +136,7 @@ def check(show_coverage=False, against=None):
         missing = english.keys() - entries.keys()
         if missing and p.stem[8:] in fully_translated:
             raise ValueError(f"{p.name}: missing {len(missing)} messages: {sorted(missing)[:8]}")
+        validate_guide(locale, entries, english, guide_keys, guide_steps, hint_keys)
         guide_count = len(guide_keys & entries.keys())
         hint_count = len(hint_keys & entries.keys())
         complete_guides += guide_count == len(guide_keys)

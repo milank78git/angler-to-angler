@@ -59,5 +59,30 @@ class LocaleRegistryTest(unittest.TestCase):
         self.validate()
 
 
+class GuideContentTest(unittest.TestCase):
+    steps = {"atlas.help"}
+    titles = {"help-topics.waters.title"}
+    hints = {"field-hints.fish"}
+    english = {
+        "atlas.help": "The online map provider receives the map extent and device IP address.",
+        "help-topics.waters.title": "Waters",
+        "field-hints.fish": "Choose a fish from the list or enter the species name yourself.",
+    }
+
+    def validate(self, locale, entries):
+        translations.validate_guide(locale, entries, self.english, self.titles | self.steps, self.steps, self.hints)
+
+    def test_base_language_requires_every_title_and_step_including_shared_steps(self):
+        with self.assertRaisesRegex(ValueError, "missing help translations.*atlas.help"):
+            self.validate("br", {"help-topics.waters.title": "Dour"})
+
+    def test_region_may_inherit_steps_but_an_english_copy_is_still_rejected(self):
+        self.validate("fr-ca", {})
+        self.validate("en-gb", self.english)
+        for key in self.steps | self.hints:
+            with self.subTest(key=key), self.assertRaisesRegex(ValueError, "English source copied"):
+                self.validate("fr-ca", {key: self.english[key].replace(" ", "  ")})
+
+
 if __name__ == "__main__":
     unittest.main()
