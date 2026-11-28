@@ -4,6 +4,7 @@ import ast
 import json
 import re
 import subprocess
+from functools import lru_cache
 from pathlib import Path
 from xml.etree import ElementTree
 
@@ -93,6 +94,13 @@ def registered_locales(packs, against):
                 raise ValueError(f"Previously shipped languages removed: {sorted(removed)}")
 
 
+@lru_cache(maxsize=256)
+def english_phrases(source):
+    words = re.findall(r"[^\W_]+", source.casefold())
+    markers = {"the", "and", "your", "you", "with", "from", "its", "a", "an", "on", "for", "it", "if", "to"}
+    return {tuple(words[i:i + 5]) for i in range(len(words) - 4) if markers.intersection(words[i:i + 5])}
+
+
 def validate_guide(locale, entries, english, guide_keys, guide_steps, hint_keys):
     # A regional override may supply just the differences from its base language.
     if "-" not in locale:
@@ -116,6 +124,12 @@ def validate_guide(locale, entries, english, guide_keys, guide_steps, hint_keys)
                 raise ValueError(f"{locale}: missing map provider or IP disclosure: {key}")
         if len(english[key]) >= 45 and " ".join(entries[key].split()) == " ".join(english[key].split()):
             raise ValueError(f"{locale}: English source copied into localized help: {key}")
+        # Ordinary Scots prose can share whole phrases with English.
+        if locale.split("-")[0] != "sco":
+            phrases = english_phrases(english[key])
+            words = re.findall(r"[^\W_]+", value.casefold())
+            if any(tuple(words[i:i + 5]) in phrases for i in range(len(words) - 4)):
+                raise ValueError(f"{locale}: untranslated English phrase in help: {key}")
 
 
 def check(show_coverage=False, against=None):
@@ -148,7 +162,6 @@ def check(show_coverage=False, against=None):
         missing = english.keys() - entries.keys()
         if missing and p.stem[8:] in fully_translated:
             raise ValueError(f"{p.name}: missing {len(missing)} messages: {sorted(missing)[:8]}")
-        validate_guide(locale, entries, english, guide_keys, guide_steps, hint_keys)
         guide_count = len(guide_keys & entries.keys())
         hint_count = len(hint_keys & entries.keys())
         complete_guides += guide_count == len(guide_keys)
@@ -204,6 +217,8 @@ def check(show_coverage=False, against=None):
                 raise ValueError(f"{p.name}: keep the official D/E/R/W basin codes for {key}")
             if sorted(PLACEHOLDER.findall(value)) != sorted(PLACEHOLDER.findall(english[key])):
                 raise ValueError(f"{p.name}: placeholders differ for {key}")
+
+        validate_guide(locale, entries, english, guide_keys, guide_steps, hint_keys)
 
     def reference(value, path):
         if value not in english:

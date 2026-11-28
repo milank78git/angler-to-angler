@@ -76,6 +76,12 @@ class GuideContentTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "missing help translations.*atlas.help"):
             self.validate("br", {"help-topics.waters.title": "Dour"})
 
+    def test_partially_translated_paragraph_is_detected(self):
+        key = "field-hints.fish"
+        mixed = {key: "Wahl: Choose a fish from the list. Dann bestaetigen."}
+        with self.assertRaisesRegex(ValueError, "untranslated English phrase"):
+            self.validate("de-at", mixed)
+
     def test_base_language_requires_contextual_field_hints(self):
         entries = {"atlas.help": "Karte", "help-topics.waters.title": "Wasser"}
         with self.assertRaisesRegex(ValueError, "missing help translations.*field-hints.fish"):
