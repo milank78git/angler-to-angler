@@ -4,6 +4,7 @@ import { replaceMarkup } from './markup.js';
 import { anglerDetails, bindLicenseNotice } from './angler-details.js';
 import { parkingEditor } from './parking-editor.js';
 import { journalStatistics } from './journal-statistics.js';
+import { dismissJournalControls } from './journal-controls.js';
 import { createWaterDirectory, waterDistances } from './water-directory.js';
 import { fishCatalogue, fishDetail, setFishingRules } from './fish-catalogue.js';
 import { openGuide, closeGuide, attachHints } from './guide.js';
@@ -74,7 +75,8 @@ const nav = new Navigation(
 );
 
 /** Forward native navigation and device events to the current screen. */
-window.handleBack = () => dismissPhotoDetail() || closeGuide() || dismissConfirmation() || nav.back();
+window.handleBack = () =>
+  dismissPhotoDetail() || closeGuide() || dismissConfirmation() || dismissJournalControls() || nav.back();
 window.reminderChanged = () => window.dispatchEvent(new Event('reminderchange'));
 window.positionResult = (id, fix) =>
   window.dispatchEvent(new CustomEvent('angler-position', { detail: { id, fix } }));

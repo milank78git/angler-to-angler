@@ -306,16 +306,57 @@ function conflictLabel(conflict, waters) {
   return t('settings.title');
 }
 
-/** Bind the device's cloud-copy preferences and conflict actions to the journal screen. */
-export function bindJournalSync(panel, waters) {
+/** Bind the detailed controls and publish their state to an optional compact summary.
+ * @param {HTMLElement | null} panel
+ * @param {import('../../../../types/screens.js').ScreenContext['waterDirectory']} [waters]
+ * @param {(status: { state: string, label: string, notice: string, attention: boolean, available: boolean }) => void} [onStatus]
+ * @returns {() => void} Release this view's status listener without stopping account synchronization.
+ */
+export function bindJournalSync(panel, waters, onStatus) {
+  let disposed = false;
+  /** Stop updating an exited screen while leaving the shared synchronization scheduler running. */
+  function dispose() {
+    if (disposed) return;
+    disposed = true;
+    window.removeEventListener('journal-sync-status', render);
+  }
   if (panel && restricted) panel.textContent = t('age.local_journal');
-  if (!panel || !subject) return;
+  if (!panel || !subject) {
+    onStatus?.({
+      state: 'disabled',
+      label: t(restricted ? 'age.local_journal' : 'sync.disabled'),
+      notice: '',
+      attention: false,
+      available: false,
+    });
+    return dispose;
+  }
   /** Refresh the sync panel from consent, pending conflicts and the most recent result. */
   function render() {
-    if (!panel.isConnected) {
-      window.removeEventListener('journal-sync-status', render);
+    if (disposed || !panel.isConnected) {
+      dispose();
       return;
     }
+    const focused = panel.contains(document.activeElement) ? document.activeElement : null;
+    const focusedAction = focused?.getAttribute('data-action');
+    const actionIndex = focusedAction
+      ? Array.from(panel.querySelectorAll('[data-action]'))
+          .filter((element) => element.getAttribute('data-action') === focusedAction)
+          .indexOf(focused)
+      : -1;
+    if (focused)
+      queueMicrotask(() => {
+        // A state refresh must not strand keyboard focus or override a later focus decision.
+        if (disposed || !panel.isConnected || focused.isConnected || document.activeElement !== document.body)
+          return;
+        const disclosure = panel.closest('#journal-sync-details');
+        const restored = Array.from(panel.querySelectorAll('button[data-action]')).filter(
+          (element) => element.getAttribute('data-action') === focusedAction,
+        )[actionIndex];
+        const trigger = document.getElementById(disclosure?.getAttribute('aria-labelledby') || '');
+        const target = disclosure?.hasAttribute('hidden') ? trigger : restored || trigger;
+        if (target instanceof window.HTMLElement) target.focus();
+      });
     panel.replaceChildren();
     const label = document.createElement('p');
     label.setAttribute('role', 'status');
@@ -333,6 +374,36 @@ export function bindJournalSync(panel, waters) {
           : t('sync.' + status);
     panel.append(label);
     if (enabled()) bindExpirySummary(panel, subject);
+    const requiresAction =
+      [
+        'failed',
+        'check_failed',
+        'conflict',
+        'device_only',
+        'limited',
+        'offline',
+        'full',
+        'signin',
+        'erased',
+      ].includes(status) ||
+      (status === 'waiting' && deviceOnly.length > 0);
+    const notice = requiresAction
+      ? t(
+          status === 'waiting'
+            ? 'sync.device_only'
+            : status === 'limited'
+              ? 'limits.hourly'
+              : 'sync.' + status,
+        )
+      : panel.querySelector('summary')?.textContent || '';
+    // Keep failures and pending device-only decisions visible when the detailed controls are closed.
+    onStatus?.({
+      state: status,
+      label: label.textContent,
+      notice,
+      attention: !!notice,
+      available: true,
+    });
     if (stamp && status !== 'done') {
       const previous = document.createElement('p');
       previous.className = 'meta';
@@ -466,6 +537,7 @@ export function bindJournalSync(panel, waters) {
   }
   window.addEventListener('journal-sync-status', render);
   render();
+  return dispose;
 }
 window.addEventListener('offline', () => {
   if (enabled()) {

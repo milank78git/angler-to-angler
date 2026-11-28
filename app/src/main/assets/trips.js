@@ -1,6 +1,8 @@
 import { replaceMarkup } from './markup.js';
 import { bindCatchPhoto } from './photo-retention.js';
 import { bindJournalSync, photoRequest } from './journal-sync.js';
+import { bindJournalControls } from './journal-controls.js';
+import { openGuide } from './guide.js';
 import { catchLatin, catchRulesHtml } from './catch-species.js';
 import { fishDirectory } from './fish-catalogue.js';
 import { waterPicker, bindWaterPicker } from './water-picker.js';
@@ -48,14 +50,35 @@ export async function listTrips({ view, nav, waterDirectory }) {
   const total = trips.reduce((sum, trip) => sum + trip.catchCount, 0);
   replaceMarkup(
     screen,
-    `<section class="journal-head"><div class="journal-art" aria-hidden="true">${icon('book-open')}</div>
-    <h1>${t('trips.my_journal')}</h1><p>${icon('lock-keyhole')}${t('trips.private_on_this_phone')}</p>
-    <div id="journal-sync"></div><div class="metrics"><span><strong>${trips.length}</strong>${t('common.trips')}</span>
-      <span><strong>${total}</strong>${t('trips.catches')}</span></div></section>
+    `<section class="journal-head">
+      <div class="journal-heading-row"><h1>${t('trips.my_journal')}</h1>
+        <div class="journal-control">
+          <button id="journal-sync-toggle" type="button" class="icon-btn journal-sync-toggle"
+            aria-expanded="false" aria-controls="journal-sync-details" hidden>${icon('refresh-cw')}</button>
+          <section id="journal-sync-details" class="journal-popover" aria-labelledby="journal-sync-toggle" hidden><div id="journal-sync"></div></section>
+        </div>
+        <div class="journal-control">
+          <button id="journal-menu-toggle" type="button" class="icon-btn"
+            aria-label="${esc(t('stats.title') + ' · ' + t('common.help'))}"
+            title="${esc(t('stats.title') + ' · ' + t('common.help'))}"
+            aria-expanded="false" aria-controls="journal-menu">${icon('ellipsis-vertical')}</button>
+          <div id="journal-menu" class="journal-popover journal-menu" hidden>
+            ${button('trip-stats', t('stats.title'), 'secondary', 'chart-no-axes-column')}
+            ${button('trip-help', t('common.help'), 'secondary', 'circle-help')}
+          </div>
+        </div>
+      </div>
+      <div class="journal-summary"><span>${icon('lock-keyhole')}${t('trips.private_on_this_phone')}</span>
+        <span>${t('common.trips')}: ${trips.length}</span><span>${t('trips.catches')}: ${total}</span></div>
+      <p id="journal-local-status" class="meta" hidden></p>
+      <div class="journal-notices" role="status"><button id="journal-sync-notice" type="button" class="journal-sync-notice" hidden></button></div>
+    </section>
     <div class="list-heading"><h2>${t('trips.my_trips')}</h2>${button('add-trip', t('trips.new_trip'), 'primary', 'plus')}</div>
-    ${button('trip-stats', t('stats.title'), 'secondary')}` +
+    ` +
       (trips.length
-        ? textInput('trip-search', t('trips.find_by_water'), view.route.query, 'type="search"') +
+        ? '<div class="journal-search">' +
+          textInput('trip-search', t('trips.find_by_water'), view.route.query, 'type="search"') +
+          '</div>' +
           '<p id="trip-results" class="meta" role="status"></p><div id="trip-list" class="trip-list"></div>'
         : emptyState(
             'notebook-pen',
@@ -63,8 +86,48 @@ export async function listTrips({ view, nav, waterDirectory }) {
             t('trips.a_day_on_the_water_belongs_here'),
           )),
   );
-  bindJournalSync(by('journal-sync'), waterDirectory);
-  bind('trip-stats', () => nav.open('journalStatistics'));
+  // Keep disclosures outside the replaceable sync details so live updates preserve their state.
+  const controls = bindJournalControls(screen.querySelector('.journal-head'));
+  const syncToggle = by('journal-sync-toggle'),
+    syncNotice = by('journal-sync-notice'),
+    localStatus = by('journal-local-status');
+  const stopSync = bindJournalSync(by('journal-sync'), waterDirectory, (summary) => {
+    syncToggle.hidden = !summary.available;
+    syncToggle.dataset.state = summary.state;
+    syncToggle.classList.toggle('needs-attention', summary.attention);
+    syncToggle.setAttribute('aria-label', summary.label);
+    syncToggle.title = summary.label;
+    const mark = summary.attention
+      ? 'triangle-alert'
+      : summary.state === 'done'
+        ? 'check'
+        : ['disabled', 'erased'].includes(summary.state)
+          ? 'ban'
+          : '';
+    replaceMarkup(
+      syncToggle,
+      icon('refresh-cw') + (mark ? '<span class="journal-sync-mark">' + icon(mark) + '</span>' : ''),
+    );
+    if (!summary.attention && document.activeElement === syncNotice)
+      syncToggle.focus({ preventScroll: true });
+    syncNotice.hidden = !summary.available || !summary.attention;
+    replaceMarkup(syncNotice, icon('triangle-alert') + '<span>' + esc(summary.notice) + '</span>');
+    localStatus.hidden = summary.available || !summary.label;
+    localStatus.textContent = summary.available ? '' : summary.label;
+  });
+  view.dispose = () => {
+    controls.dispose();
+    stopSync();
+  };
+  bind('trip-stats', () => {
+    controls.close();
+    nav.open('journalStatistics');
+  });
+  bind('trip-help', () => {
+    // Help remembers its opener; close the menu first so focus returns to a visible control.
+    controls.close();
+    openGuide({ topic: 'journal' });
+  });
   bind('add-trip', () => nav.open('newTrip'));
   if (!trips.length) return;
 
