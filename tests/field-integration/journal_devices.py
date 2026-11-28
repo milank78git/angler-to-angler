@@ -2,6 +2,7 @@
 import subprocess
 import time
 import registration as ui
+from field_state import check_evidence, check_parking, provision_reviewer
 from community_state import check_cancelled_publication, check_public_card, check_sale
 
 FIRST = 'app.anglers.journal.preview'
@@ -95,3 +96,29 @@ def verify_installations(stage, owner, other):
     check_sale(stage, paid=True, revision=2, withdrawn=True, balance=77)
     print('Two-account market purchase, lost receipt, retry and immutable purchased revision verified. '
           'Month-only publication, cancelled revocation and anonymous access after revocation verified.', flush=True)
+
+    # The reviewer cannot grant itself privileges through the client. Use the independent operator fixture.
+    provision_reviewer(stage)
+    sign_in(FIRST, owner)
+    run(FIRST, 'proof-create')
+    check_evidence(stage, 'absent')
+    run(FIRST, 'proof-submit')
+    check_evidence(stage, 'pending')
+    run(FIRST, 'water-create')
+    check_parking(stage, owner=True, peer=False)
+
+    sign_in(SECOND, other)
+    run(SECOND, 'proof-review')
+    check_evidence(stage, 'measured')
+    run(SECOND, 'water-peer')
+    check_parking(stage, owner=True, peer=True)
+
+    sign_in(FIRST, owner)
+    run(FIRST, 'proof-cleanup')
+    check_evidence(stage, 'absent')
+    run(FIRST, 'water-owner')
+    check_parking(stage, owner=False, peer=True)
+
+    sign_in(SECOND, other)
+    run(SECOND, 'water-reopen')
+    print('Two-account journal edits, evidence review and withdrawal, discussion ownership and parking feedback verified.', flush=True)

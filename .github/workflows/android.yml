@@ -46,6 +46,12 @@ jobs:
           sudo -u postgres env PGDATABASE=angler_fixture python3 "$fixture/tests/market-race.py"
           sudo -u postgres env PGDATABASE=angler_fixture python3 "$fixture/tests/journal-maintenance-race.py"
           sudo -u postgres env PGDATABASE=angler_fixture python3 "$fixture/tests/photo-retention-race.py"
+          # Exercise device and push deliveries against the real ledger in an independent fixture.
+          sudo -u postgres createdb -T angler_fixture angler_payment_test
+          install -d "$fixture/supabase/functions/play-purchase"
+          install -m644 supabase/functions/play-purchase/verify.mjs "$fixture/supabase/functions/play-purchase/"
+          install -m644 tests/play-ledger-integration.mjs "$fixture/tests/"
+          sudo -u postgres env PGDATABASE=angler_payment_test node "$fixture/tests/play-ledger-integration.mjs"
           mkdir -p build/coverage
           sudo -u postgres psql -X --csv -v ON_ERROR_STOP=1 -d angler_fixture \
             < scripts/source-review/database-coverage.sql > build/coverage/database-functions.csv
