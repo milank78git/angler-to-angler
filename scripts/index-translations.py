@@ -37,13 +37,34 @@ def rule_numbers(text):
     return sorted(int(n) for n in re.findall(r"\d+", text))
 
 
-def check(show_coverage=False):
+def repeated_phrase(value):
+    """Find four consecutive copies of the same word or short phrase."""
+    words = re.findall(r"[^\W\d_]+", value.casefold())
+    for size in range(1, min(7, len(words) // 4) + 1):
+        for start in range(len(words) - 4 * size + 1):
+            phrase = words[start:start + size]
+            if phrase * 4 == words[start:start + 4 * size]:
+                return " ".join(phrase)
+    return None
+
+
+def prior_dictionary(ref, path):
+    if not ref:
+        return {}
+    name = path.relative_to(ROOT).as_posix()
+    spec = f"{ref}:{name}"
+    if subprocess.run(["git", "cat-file", "-e", spec], cwd=ROOT, stderr=subprocess.DEVNULL).returncode:
+        return {}
+    return json.loads(subprocess.check_output(["git", "show", spec], cwd=ROOT))
+
+
+def check(show_coverage=False, against=None):
     english = read(ASSETS / "strings-en.json")
     czech = read(ASSETS / "strings-cs.json")
     fully_translated = {
         "an", "ast", "az", "be", "bg", "bs", "ca", "cs", "cy", "da", "de", "el",
         "en", "es", "et", "eu", "fi", "fr", "fy", "ga", "gl", "hr", "hu", "hy",
-        "is", "it", "lt", "lv", "mk", "mt", "nl", "nn", "no", "oc", "pl", "pt",
+        "is", "it", "lb", "lt", "lv", "mk", "mt", "nl", "nn", "no", "oc", "pl", "pt",
         "ro", "ru", "sco", "sk", "sl", "sq", "sr", "sv", "tr", "uk",
     }
     missing_total = 0
@@ -51,8 +72,15 @@ def check(show_coverage=False):
     packs = sorted(ASSETS.glob("strings-*.json"))
     if read(ASSETS / "ui-locales.json") != [p.stem[8:] for p in packs]:
         raise ValueError("Update ui-locales.json to match the packaged dictionaries")
+    if against:
+        subprocess.run(["git", "rev-parse", "--verify", f"{against}^{{commit}}"], cwd=ROOT, check=True, stdout=subprocess.DEVNULL)
     for p in packs:
         entries = read(p)
+        locale = p.stem[8:]
+        previous = prior_dictionary(against, p)
+        removed = (previous.keys() & english.keys()) - entries.keys()
+        if removed:
+            raise ValueError(f"{p.name}: existing translations removed: {sorted(removed)}")
         missing = english.keys() - entries.keys()
         if missing and p.stem[8:] in fully_translated:
             raise ValueError(f"{p.name}: missing {len(missing)} messages: {sorted(missing)[:8]}")
@@ -69,6 +97,20 @@ def check(show_coverage=False):
             if (source[0].isspace() and not value[0].isspace()
                     or source[-1].isspace() and not value[-1].isspace()):
                 raise ValueError(f"{p.name}: missing separator for concatenated text in {key}")
+            phrase = repeated_phrase(value)
+            if phrase:
+                raise ValueError(f"{p.name}: repeated phrase {phrase!r} in {key}")
+            if "angler" in source.lower() and re.search(
+                r"\b(?:signed[- ]in angels?|the angel who asked|englishers|englishmen)\b", value, re.I
+            ):
+                raise ValueError(f"{p.name}: incorrect angling term in {key}")
+            if key == "help-topics.catch.steps.2":
+                misleading_terms = {
+                    "es": r"\b(?:angular|picadura)\b", "de": r"\b(?:des Angels|Bitterung)\b",
+                    "sk": r"\bpriamozdan", "kw": r"\bangel\b",
+                }
+                if locale in misleading_terms and re.search(misleading_terms[locale], value, re.I):
+                    raise ValueError(f"{p.name}: incorrect fishing position or bite in {key}")
             if p.stem == "strings-fr" and re.search(r"\bla (?:place de la )?bite\b", value, re.I):
                 raise ValueError(f"{p.name}: incorrect fishing terminology for {key}")
             if "angler" in source.lower():
@@ -156,4 +198,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true", help="Validate without modifying any resources (default)")
     parser.add_argument("--coverage", action="store_true", help="Also list coverage for every packaged locale")
-    check(parser.parse_args().coverage)
+    parser.add_argument("--against", metavar="REF", help="Reject loss of existing translations against a Git commit")
+    args = parser.parse_args()
+    check(args.coverage, args.against)

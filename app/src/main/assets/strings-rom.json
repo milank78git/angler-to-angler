@@ -653,5 +653,12 @@
  "sources.crs.short": "ČRS",
  "water_photo.cuzk": "© ČÚZK",
  "parking.notes": "Note",
- "rating.mine": "Ţi-am prinţe"
+ "rating.mine": "Ţi-am prinţe",
+ "account.mixed_script_name": "Ande sako lav tire aver anavesko pisin numa jekh alfabeto. Ande aver lava šaj pisines aver alfabeto.",
+ "account.review_profile": "Dža andre pe internet te dikhes tiro profilo thaj le kondicije.",
+ "groups.member_list": "Le članura le grupake",
+ "groups.more_members": "Maj but članura",
+ "groups.remove_member": "Ink'alav e člano andar e grupa",
+ "sync.device_only": "Kadala ramomata si numa pe kado telefono.",
+ "sync.upload_copy": "Arakh ando konto"
 }

@@ -447,6 +447,10 @@ final class AccountChecks {
                               response = accepted ? profile().toString() : "null";
                               break;
                             case "/rest/v1/rpc/angler_register":
+                              if ("\u0392ob Kemp".equals(body.getString("nickname"))) {
+                                response = new JSONObject().put("code", "AN003").toString();
+                                return 400;
+                              }
                               if (!body.getString("birth_date").equals("1978-01-01") || !body.getString("nickname").equals("River")
                                   || !body.getString("terms").equals("2026-11-26.2")
                                   || !body.getString("privacy").equals("2026-11-26.2")) return 400;
@@ -555,7 +559,7 @@ final class AccountChecks {
         tr("account.could_not_complete_this_step_check_your"));
     wrongEmail = false;
     checkMailboxReturn();
-    type(tr("account.display_name_2_60_characters"), "River");
+    type(tr("account.display_name_2_60_characters"), "\u0392ob Kemp");
     type(tr("age.birth_date"), "1978-01-01");
     String save = tr("common.save_profile");
     assertDisabled(save);
@@ -572,6 +576,10 @@ final class AccountChecks {
       find(tr("age.review_date").replace("{date}", "1978-01-01").replace("{age}", Integer.toString(years)));
       click(tr("common.cancel"));
       if (accepted) throw new AssertionError("Cancelled birth-date review registered the profile");
+      click(save);
+      click(tr("age.confirm_date"));
+      find(tr("account.mixed_script_name"));
+      type(tr("account.display_name_2_60_characters"), "River");
       click(save);
       click(tr("age.confirm_date"));
       Activity journal = app.waitForMonitorWithTimeout(monitor, 15000);
@@ -740,9 +748,11 @@ final class AccountChecks {
     find(tr("groups.members") + "2");
     if (!invitationRevoked) throw new AssertionError("Invitation was not revoked");
     click("River crew" + tr("groups.owner"));
-    click(tr("groups.members").trim());
+    click(tr("groups.member_list"));
+    find(tr("groups.member_list") + " · River crew");
     click("Lake visitor");
     find(tr("groups.remove_member_confirm"));
+    find(tr("groups.remove_member"));
     dialogButton(android.R.id.button1);
     find(tr("groups.members") + "1");
     if (rosterMember) throw new AssertionError("Member was not removed");
@@ -807,6 +817,15 @@ final class AccountChecks {
       Thread.sleep(100);
     if (preferences.getLong("verified", 0) < now)
       throw new AssertionError("Resuming the journal did not renew the offline lease");
+    // Older builds stored zero when an online profile or terms check invalidated the lease.
+    Activity review = next("WaterSettingsActivity", () -> app.js("window.Device.openWaterSettings()"));
+    preferences.edit().putLong("verified", 0).commit();
+    gate = next("AccountActivity", () -> app.runOnMainSync(review::finish));
+    find(tr("account.review_profile"));
+    type(tr("account.email"), "test@example.invalid");
+    type(tr("account.password"), PASSWORD);
+    click(tr("common.sign_in"));
+    app.waitForJournalWindow();
     Activity reopened = next("WaterSettingsActivity", () -> app.js("window.Device.openWaterSettings()"));
     preferences.edit().putLong("verified", now - java.util.concurrent.TimeUnit.DAYS.toMillis(8)).commit();
     gate = next("AccountActivity", () -> app.runOnMainSync(reopened::finish));

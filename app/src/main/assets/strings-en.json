@@ -1180,5 +1180,12 @@
   "retention.policy": "Cloud catch photos are kept for 12 months. Open a photo in detail or renew it to keep its cloud copy. The photo on your device stays.",
   "groups.remove_member_confirm": "Remove this member and their group contributions?",
   "trips.shared_copies": "Shared copies remain on public cards, in groups and competitions, and in catch verification. Remove them separately.",
-  "retention.unavailable": "Cloud photo unavailable"
+  "retention.unavailable": "Cloud photo unavailable",
+  "account.mixed_script_name": "Use one alphabet within each word of your nickname. Different words may use different alphabets.",
+  "account.review_profile": "Sign in online to check your current profile and terms.",
+  "groups.member_list": "Group members",
+  "groups.more_members": "More members",
+  "groups.remove_member": "Remove member",
+  "sync.device_only": "These entries are on this phone only.",
+  "sync.upload_copy": "Save to account"
 }

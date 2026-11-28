@@ -267,7 +267,7 @@
  "help-topics.catalog.steps.3": "Prieš žvejybą patikrinkite tikro vandens taisykles ir datą. tuščias dydžio ribas arba praleidžiantis sezonas reiškia, kad informacija vis dar turi būti patvirtinta.",
  "help-topics.catalog.title": "Žuvų katalogas ir vieta",
  "help-topics.catch.steps.1": "Pasirinkite žuvį, įveskite jo matuojamą ilgį centimetrais ir pasirinktinai savo bitą ar techniką.",
- "help-topics.catch.steps.2": "Norėdami įrodyti, kad žvejyba fotografuoja visą žuvį vandenyje su skalėmis. privatus taškas gali nurodyti anglerio padėtį arba piktą vietą.",
+ "help-topics.catch.steps.2": "Norėdamas užfiksuoti laimikį, prie vandens nufotografuok visą žuvį ir šalia padėtą liniuotę. Asmeniniame žemėlapyje gali pažymėti savo žvejybos vietą arba vietą, kurioje užkibo žuvis. Telefonas paprašys prieigos prie buvimo vietos, kai paliesi mygtuką.",
  "help-topics.catch.title": "Paimkite, nuotrauka ir vieta",
  "help-topics.evidence.steps.1": "Išsiųskite jį iš jo detalių ir atidarykite Mano pateiktas nuotraukas iš profilo, kad pamatytumėte rezultatą arba atsitraukite.",
  "help-topics.evidence.steps.2": "Skiriamasis vertėjas atskiria išmatuotą ilgio nuo skaičiavimo, naudodamas žinomą dydžio nuorodą.",
@@ -1180,5 +1180,12 @@
  "retention.policy": "Laimikių nuotraukos debesyje saugomos 12 mėnesių. Kad išsaugotumėte kopiją debesyje, atverkite viso dydžio nuotrauką arba pratęskite jos saugojimo laiką. Nuotrauka jūsų įrenginyje liks.",
  "groups.remove_member_confirm": "Pašalinti narį ir jo įrašus iš grupės?",
  "trips.shared_copies": "Bendrintos kopijos lieka. Pašalink jas atskirai.",
- "retention.unavailable": "Nuotrauka debesyje nepasiekiama"
+ "retention.unavailable": "Nuotrauka debesyje nepasiekiama",
+ "account.mixed_script_name": "Kiekviename slapyvardžio žodyje naudok tik vieną abėcėlę. Skirtinguose žodžiuose gali naudoti skirtingas abėcėles.",
+ "account.review_profile": "Prisijunk internetu ir patikrink profilį bei galiojančias sąlygas.",
+ "groups.member_list": "Grupės nariai",
+ "groups.more_members": "Daugiau narių",
+ "groups.remove_member": "Pašalinti narį",
+ "sync.device_only": "Šie įrašai yra tik šiame telefone.",
+ "sync.upload_copy": "Išsaugoti paskyroje"
 }

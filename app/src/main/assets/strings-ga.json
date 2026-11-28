@@ -610,7 +610,7 @@
  "help-topics.catalog.steps.3": "Roghnaigh an tír agus, le haghaidh uiscí na Seice, an cineál uisce. I gcomparáid leis na srianta íosmhéide agus speiceas leis na rialacha áitiúla don dáta iascaireachta. Tá a gcuid féin ag srianta uisce ina n-iomláine. Tuairiscigh earráid ar an gcárta speiceas a oscailt dréacht ríomhphoist don chothaitheoir catalóg.",
  "help-topics.catalog.title": "Catalóg éisc agus suíomh",
  "help-topics.catch.steps.1": "Cuardaigh le haghaidh speiceas sa tír turas nó ar fud na hEorpa. Roghnaigh speiceas eile le haghaidh iontráil láimhe. Cuir isteach an fad a thomhas i ceintiméadar agus is gnách an baoite nó an teicníc. Rialacha Oscailte don ghabháil seo chun an dáta turais agus uisce a sheiceáil le linn iad a scríobh.",
- "help-topics.catch.steps.2": "A dhoiciméadú grianghraf ghabháil an t-iasc ar fad ag an uisce le scála. Is féidir le pointe príobháideach a mharcáil seasamh an iascaire nó an suíomh bite. An suíomh iarratais fón nuair a sconna tú.",
+ "help-topics.catch.steps.2": "Chun an ghabháil a thaifeadadh, glac grianghraf den iasc iomlán cois uisce agus rialóir in aice leis. Is féidir leat d’áit iascaireachta nó an áit ar rug an t-iasc ar an mbaoite a mharcáil ar do léarscáil phríobháideach. Iarrfaidh an fón cead do shuíomh a úsáid nuair a thapálann tú an cnaipe.",
  "help-topics.catch.title": "Gabháil, grianghraf agus suíomh",
  "help-topics.evidence.steps.1": "Sábháil an ghabháil leis an ghabháil ar dtús. Cuir isteach é as a sonraí agus a oscailt Mo isteach grianghraif ghabháil faoi Próifíl a fheiceáil ar an toradh nó a tharraingt siar.",
  "help-topics.evidence.steps.2": "Déanann athbhreithniúóir sannta idirdhealú ar fhad a thomhas ó mheastachán ag baint úsáide as tagairt méid ar a dtugtar. Is féidir le grianghraf gailearaí fanacht san iris.",
@@ -1180,5 +1180,12 @@
  "retention.policy": "Coinnítear grianghraif de do ghabhálacha sa néal ar feadh 12 mhí. Oscail grianghraf ina iomláine nó déan an tréimhse stórála a athnuachan chun an chóip sa néal a choinneáil. Fanfaidh an grianghraf ar do ghléas.",
  "groups.remove_member_confirm": "An ball agus a chuid postálacha a bhaint den ghrúpa?",
  "trips.shared_copies": "Fanfaidh na cóipeanna comhroinnte ann. Bain iad ar leithligh.",
- "retention.unavailable": "Níl an grianghraf sa néal ar fáil"
+ "retention.unavailable": "Níl an grianghraf sa néal ar fáil",
+ "account.mixed_script_name": "Ná húsáid ach aibítir amháin i ngach focal de do leasainm. Is féidir aibítrí éagsúla a úsáid i bhfocail éagsúla.",
+ "account.review_profile": "Logáil isteach ar líne chun do phróifíl agus na téarmaí reatha a sheiceáil.",
+ "groups.member_list": "Baill an ghrúpa",
+ "groups.more_members": "Tuilleadh ball",
+ "groups.remove_member": "Bain an ball",
+ "sync.device_only": "Níl na taifid seo ach ar an bhfón seo.",
+ "sync.upload_copy": "Sábháil sa chuntas"
 }

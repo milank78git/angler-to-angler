@@ -25,7 +25,8 @@ let checking = false;
 let timer,
   busy = false,
   again = false,
-  conflicts = [];
+  conflicts = [],
+  deviceOnly = [];
 const lastSyncKey = prefix + 'lastSuccess';
 function online() {
   return navigator.onLine !== false;
@@ -42,6 +43,7 @@ function forgetCopy() {
   localStorage.setItem(choiceKey, '0');
   window.Device?.photoReminderDates?.('[]');
   conflicts = [];
+  deviceOnly = [];
 }
 function enabled() {
   return !!subject && localStorage.getItem(choiceKey) === '1';
@@ -68,7 +70,8 @@ async function run(resolution, retryRevision = true) {
     return;
   }
   busy = true;
-  const detected = [];
+  const detected = [],
+    retained = [];
   notify('working');
   let changed = false,
     uploaded = false,
@@ -110,7 +113,9 @@ async function run(resolution, retryRevision = true) {
       const detached = tripMedia;
       const checkpoint = prefix + 'base.' + key;
       const saved = localStorage.getItem(checkpoint);
-      let base = JSON.parse(saved || '[]');
+      const originalBase = JSON.parse(saved || '[]');
+      let base = originalBase;
+      const held = prefix + 'deviceOnly.' + key;
       if (
         row.legacy &&
         saved &&
@@ -122,20 +127,23 @@ async function run(resolution, retryRevision = true) {
         localDocument(Journal, localStorage, subject, key, false, detached),
       );
       if (same(local.hashes, row.parts)) {
-        if (!same(base, row.parts)) localStorage.setItem(checkpoint, JSON.stringify(row.parts));
+        localStorage.removeItem(held);
+        if (!same(originalBase, row.parts)) localStorage.setItem(checkpoint, JSON.stringify(row.parts));
         continue;
       }
       const choice =
         resolution?.key === key &&
         resolution.revision === row.revision &&
+        resolution.floor === floor &&
         same(resolution.local, local.hashes)
           ? resolution.choice
           : '';
+      if (row.parts.length) localStorage.removeItem(held);
       const unknownDeletion =
         saved === null &&
         !row.parts.length &&
         (row.revision > 0 || (previousFloor !== null && floor !== Number(previousFloor)));
-      if ((!unknownDeletion && same(base, row.parts)) || choice === 'local') {
+      if ((!unknownDeletion && !localStorage.getItem(held) && same(base, row.parts)) || choice === 'local') {
         const upload = local.blocks
           ? local
           : await Journal.lock(() => localDocument(Journal, localStorage, subject, key, true, tripMedia));
@@ -144,6 +152,7 @@ async function run(resolution, retryRevision = true) {
           continue;
         }
         await uploadDocument(call, key, upload, row.revision, floor);
+        localStorage.removeItem(held);
         uploaded = true;
         localStorage.setItem(checkpoint, JSON.stringify(upload.hashes));
       } else if (same(base, local.hashes) || (choice === 'cloud' && row.parts.length > 0)) {
@@ -170,27 +179,29 @@ async function run(resolution, retryRevision = true) {
           trip = await Journal.trip(key.slice(5));
           if (!trip && row.parts.length) trip = (await downloadDocument(call, row.parts))?.trip;
         }
-        detected.push({
-          key,
-          hasCloud: row.parts.length > 0,
-          revision: row.revision,
-          local: local.hashes,
-          trip,
-        });
+        const record = { key, revision: row.revision, floor, local: local.hashes, trip };
+        if (row.parts.length) detected.push(record);
+        else {
+          // A deletion on another device must not silently republish the phone's surviving copy.
+          // Remember it across restarts and advances of the global deletion floor.
+          localStorage.setItem(held, '1');
+          retained.push(record);
+        }
       }
     }
     if (!enabled()) return;
     if (mediaSupported && enabled())
       await refreshPhotoLeases(call, subject, prefix, uploaded || changed ? null : mediaRevision);
     conflicts = detected;
+    deviceOnly = retained;
     if (conflicts.length) notify('conflict');
     else if (!online()) notify('offline');
     else if (awaitingConversion) notify('waiting');
     else if (!again) {
-      if (uploaded || changed || !localStorage.getItem(lastSyncKey))
+      if (uploaded || changed || (!retained.length && !localStorage.getItem(lastSyncKey)))
         localStorage.setItem(lastSyncKey, String(Date.now()));
       localStorage.setItem(prefix + 'deletionFloor', String(floor));
-      notify('done');
+      notify(retained.length ? 'device_only' : 'done');
     }
   } catch (error) {
     if (enabled()) {
@@ -320,6 +331,7 @@ export function bindJournalSync(panel, waters) {
           clearTimeout(timer);
           localStorage.setItem(choiceKey, '0');
           conflicts = [];
+          deviceOnly = [];
           notify('disabled');
         }
       });
@@ -351,12 +363,26 @@ export function bindJournalSync(panel, waters) {
           notify(status);
         }
       });
+    if (status !== 'conflict' && status !== 'device_only' && !(status === 'waiting' && deviceOnly.length))
+      return;
+    if (deviceOnly.length && status !== 'device_only') {
+      const explanation = document.createElement('p');
+      explanation.textContent = t('sync.device_only');
+      panel.append(explanation);
+    }
+    function entryName(record) {
+      const name = document.createElement('p');
+      name.textContent = conflictLabel(record, waters);
+      panel.append(name);
+    }
+    for (const c of deviceOnly) {
+      entryName(c);
+      button('sync.upload_copy', () => run({ ...c, choice: 'local' }));
+    }
     if (status !== 'conflict') return;
     for (const c of conflicts) {
-      const name = document.createElement('p');
-      name.textContent = conflictLabel(c, waters);
-      panel.append(name);
-      for (const choice of c.hasCloud ? ['cloud', 'local'] : ['local'])
+      entryName(c);
+      for (const choice of ['cloud', 'local'])
         button('sync.' + choice, async () => {
           if (
             await confirmAction({

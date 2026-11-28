@@ -659,5 +659,12 @@
  "catalog.label": "Чехи",
  "catalog.species.pike": "Хихор",
  "settings.title": "Уагæвæрдтæ",
- "waters.angler_contributions": "Кӕсагахсджыты фыстытӕ"
+ "waters.angler_contributions": "Кӕсагахсджыты фыстытӕ",
+ "account.mixed_script_name": "Дӕ номы алы дзырд дӕр иу алфавиты дамгъӕтӕй ныффысс. Хицӕн дзырдтӕ хицӕн алфавиттӕй фыссын ӕмбӕлы.",
+ "account.review_profile": "Интернетӕй бахиз дӕ аккаунтмӕ, дӕ профиль ӕмӕ пайда кӕныны уавӕртӕ бавзарынмӕ.",
+ "groups.member_list": "Къорды уӕнгтӕ",
+ "groups.more_members": "Иуӕй-иу уӕнгтӕ иу хатт ма равдис",
+ "groups.remove_member": "Уӕнг къордӕй сисын",
+ "sync.device_only": "Ацы фыстытӕ ӕрмӕст ацы телефоны сты.",
+ "sync.upload_copy": "Аккаунты ӕвӕрын"
 }

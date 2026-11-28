@@ -45,7 +45,14 @@ test('a legacy trip and a pruned history do not stop other records; restoration 
         case 'photo_get': photoReply = () => reply({data:jpeg.toString('base64'),size:jpeg.length}); return;
         case 'missing': return reply({hashes:args.hashes});
         case 'put': return reply({});
-        case 'save': writes.push(args); return reply({revision:1});
+        case 'save': {
+          writes.push(args);
+          const prior = page.find(row => row.key === args.key);
+          const next = {key: args.key, revision: (prior?.revision || 0) + 1, parts: args.parts, format: 2};
+          if (prior) Object.assign(prior, next);
+          else page.push(next);
+          return reply({revision: next.revision});
+        }
         default: throw Error('Unexpected RPC '+op);
       }
     },
@@ -74,11 +81,39 @@ test('a legacy trip and a pruned history do not stop other records; restoration 
   assert.equal((await Journal.trip('deleted')).notes, 'keep until explicitly resolved');
   assert.deepEqual(writes.map(w=>[w.key,w.floor]), [['trip/new',17]]);
   assert.equal(operations.includes('photo_convert'), false);
-  // With the restore race settled, render the tombstone conflict as a separate pass.
-  page.splice(2,1);
+  // The tombstone keeps the phone copy, including on a second sync after pruning.
+  page.splice(1, 2);
+  page.splice(0, 1);
   t.mock.timers.tick(701);
-  await until(() => panel.dataset.state==='conflict' && panel.querySelector('[data-action="sync.local"]'));
+  await until(() => panel.dataset.state === 'device_only' && panel.querySelector('[data-action="sync.upload_copy"]'));
   assert.equal(panel.querySelector('[data-action="sync.cloud"]'), null);
+  assert.equal(panel.querySelector('[data-action="sync.local"]'), null);
+  assert.equal(writes.some(w => w.key === 'trip/deleted'), false);
+  assert.equal(localStorage.getItem(prefix + 'deviceOnly.trip/deleted'), '1');
+  assert.equal((await Journal.trip('deleted')).notes, 'keep until explicitly resolved');
+  panel.querySelector('[data-action="sync.upload_copy"]').click();
+  await until(() => panel.dataset.state === 'done');
+  assert.equal(writes.filter(w => w.key === 'trip/deleted').length, 1);
+  assert.equal(localStorage.getItem(prefix + 'deviceOnly.trip/deleted'), null);
+
+  // An unchanged phone copy still follows a confirmed deletion from the account.
+  const unchanged = page.find(row => row.key === 'trip/new');
+  unchanged.parts = [];
+  unchanged.revision++;
+  panel.querySelector('[data-action="sync.retry"]').click();
+  await until(() => panel.dataset.state === 'done');
+  assert.equal(await Journal.trip('new'), undefined);
+  assert.equal(writes.filter(w => w.key === 'trip/new').length, 1);
+
+  // Both surviving versions have changed since the checkpoint: both choices belong here.
+  const cloud = page.find(row => row.key === 'trip/deleted');
+  cloud.parts = [hash(Buffer.from('divergent account contents'))];
+  cloud.revision++;
+  await Journal.saveTrip({id: 'deleted', notes: 'divergent phone contents'});
+  panel.querySelector('[data-action="sync.retry"]').click();
+  await until(() => panel.dataset.state === 'conflict' && panel.querySelector('[data-action="sync.cloud"]'));
+  assert.ok(panel.querySelector('[data-action="sync.local"]'));
+  assert.equal(panel.querySelector('[data-action="sync.upload_copy"]'), null);
   window.close();
 });
 
