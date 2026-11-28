@@ -1,4 +1,5 @@
 import { Journal } from './journal.js';
+import { journalHistory, observeRevision, saveWithReceipt, sameParts as same } from './journal-history.js';
 import {
   documentKeys,
   localDocument,
@@ -6,7 +7,6 @@ import {
   downloadDocument,
   prepareRestore,
 } from './journal-transfer.js';
-import { photoHash } from './journal-photos.js';
 import { refreshPhotoLeases, bindExpirySummary } from './photo-retention.js';
 import { rpc } from './profile-api.js';
 import { t, confirmAction, displayDay } from './ui.js';
@@ -20,8 +20,11 @@ const call = (op, args) =>
   rpc('journal_sync', { op, args: { epoch: localStorage.getItem(prefix + 'epoch'), ...args } });
 /** Send a photo operation through the same subject-scoped journal dispatcher. */
 export const photoRequest = (op, args) => call(op, args);
-/** Compare ordered lists without treating a different part order as equivalent. */
-const same = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
+/** Serialize reconciliation across open WebViews for this account. */
+const syncLock = (work) => (navigator.locks ? navigator.locks.request(prefix + 'sync', work) : work());
+/** Open the local receipt history for the current cloud generation. */
+const historyForEpoch = () =>
+  journalHistory(Journal, localStorage, subject, localStorage.getItem(prefix + 'epoch'));
 const choiceKey = prefix + 'enabled';
 let status = enabled() ? 'waiting' : 'disabled';
 let checking = false;
@@ -41,12 +44,13 @@ function notify(value) {
   window.dispatchEvent(new Event('journal-sync-status'));
 }
 /** Clear this account's cloud preferences and alarms while retaining its local journal. */
-function forgetCopy() {
+async function forgetCopy(keepEpoch = undefined) {
+  localStorage.setItem(choiceKey, '0');
   for (let index = localStorage.length - 1; index >= 0; index--) {
     const key = localStorage.key(index);
-    if (key?.startsWith(prefix)) localStorage.removeItem(key);
+    if (key !== choiceKey && key?.startsWith(prefix)) localStorage.removeItem(key);
   }
-  localStorage.setItem(choiceKey, '0');
+  await Journal.clearSyncHistory(subject, keepEpoch);
   window.Device?.photoReminderDates?.('[]');
   conflicts = [];
   deviceOnly = [];
@@ -79,14 +83,31 @@ async function run(resolution, retryRevision = true) {
     return;
   }
   busy = true;
+  notify('working');
+  let reread;
+  try {
+    reread = await syncLock(() => synchronize(resolution, retryRevision));
+  } finally {
+    busy = false;
+    notify(status);
+    if (again) {
+      again = false;
+      schedule();
+    } else if (reread) await run(undefined, false);
+  }
+}
+/** Reconcile each document against its cloud revision and pending local receipts. */
+async function synchronize(resolution, retryRevision) {
+  if (!enabled()) return;
   const detected = [],
     retained = [];
-  notify('working');
   let changed = false,
     uploaded = false,
     awaitingConversion = false,
     reread = false;
   try {
+    const history = historyForEpoch();
+    await history.migrate();
     if (localStorage.getItem(prefix + 'registered') !== '1') {
       await call('enable', {});
       localStorage.setItem(prefix + 'registered', '1');
@@ -96,7 +117,6 @@ async function run(resolution, retryRevision = true) {
       mediaRevision;
     let after = '',
       floor;
-    const previousFloor = localStorage.getItem(prefix + 'deletionFloor');
     while (true) {
       const page = await call('list', { after, format: 2 });
       if (!after) mediaRevision = page.photoRevision;
@@ -109,7 +129,15 @@ async function run(resolution, retryRevision = true) {
       for (const row of rows) remote.set(row.key, row);
       after = rows.at(-1).key;
     }
-    const keys = new Set([...(await documentKeys(Journal, localStorage, subject)), ...remote.keys()]);
+    const tracked = await history.keys();
+    // Old servers removed the entire account on an age correction, sometimes with a null epoch.
+    if (!remote.size && tracked.length && (await call('settings', {})).enabled === false)
+      throw Object.assign(Error('Journal account removed'), { status: 410 });
+    const keys = new Set([
+      ...(await documentKeys(Journal, localStorage, subject)),
+      ...remote.keys(),
+      ...tracked,
+    ]);
     for (const key of keys) {
       if (!enabled()) return;
       const row = remote.get(key) || { revision: 0, parts: [] };
@@ -120,24 +148,34 @@ async function run(resolution, retryRevision = true) {
         continue;
       }
       const detached = tripMedia;
-      const checkpoint = prefix + 'base.' + key;
-      const saved = localStorage.getItem(checkpoint);
-      const originalBase = JSON.parse(saved || '[]');
-      let base = originalBase;
-      const held = prefix + 'deviceOnly.' + key;
-      if (
-        row.legacy &&
-        saved &&
-        !same(base, row.parts) &&
-        (await photoHash(new Blob([base.join(',')]))) === row.legacy
-      )
-        base = row.parts;
+      let state = (await history.get(key)) ?? { base: null, pending: [], held: false };
+      /** Save this document’s reconciliation state in its own receipt. */
+      const persist = (next) => history.put(key, next);
+      const observed = await observeRevision(state, row, floor);
+      if (observed.state !== state) {
+        state = observed.state;
+        await persist(state);
+      }
+      const base = state.base ?? [];
       const local = await Journal.lock(() =>
         localDocument(Journal, localStorage, subject, key, false, detached),
       );
+      const favoriteEdit = prefix + 'added.' + key;
+      const added = key.startsWith('pref/water/') && localStorage.getItem(favoriteEdit);
+      /** Clear the uploaded favorite marker only if no newer edit replaced it. */
+      function acknowledgeFavorite() {
+        if (added && localStorage.getItem(favoriteEdit) === added) localStorage.removeItem(favoriteEdit);
+      }
+      const confirmed = { base: row.parts, pending: observed.inFlight, held: false };
       if (same(local.hashes, row.parts)) {
-        localStorage.removeItem(held);
-        if (!same(originalBase, row.parts)) localStorage.setItem(checkpoint, JSON.stringify(row.parts));
+        if (
+          !state.base ||
+          !same(state.base, row.parts) ||
+          state.held ||
+          observed.inFlight.length !== state.pending.length
+        )
+          await persist(confirmed);
+        acknowledgeFavorite();
         continue;
       }
       const choice =
@@ -147,12 +185,20 @@ async function run(resolution, retryRevision = true) {
         same(resolution.local, local.hashes)
           ? resolution.choice
           : '';
-      if (row.parts.length) localStorage.removeItem(held);
-      const unknownDeletion =
-        saved === null &&
+      const pref = key.startsWith('pref/');
+      const uncertainDeletion =
         !row.parts.length &&
-        (row.revision > 0 || (previousFloor !== null && floor !== Number(previousFloor)));
-      if ((!unknownDeletion && !localStorage.getItem(held) && same(base, row.parts)) || choice === 'local') {
+        (state.held ||
+          (state.base === null &&
+            (row.revision > 0 || (state.legacyFloor !== undefined && state.legacyFloor !== floor))) ||
+          state.pending.some(
+            (attempt) => attempt.parts.length && (row.revision > attempt.revision || floor !== attempt.floor),
+          ));
+      if (
+        (!uncertainDeletion && same(base, row.parts)) ||
+        choice === 'local' ||
+        (pref && !row.parts.length && (added || !same(base, local.hashes)))
+      ) {
         const upload = local.blocks
           ? local
           : await Journal.lock(() => localDocument(Journal, localStorage, subject, key, true, tripMedia));
@@ -160,12 +206,17 @@ async function run(resolution, retryRevision = true) {
           again = true;
           continue;
         }
-        // Advance the local checkpoint only after the server accepts this exact manifest.
-        await uploadDocument(call, key, upload, row.revision, floor);
-        localStorage.removeItem(held);
+        // Track an ambiguous save before sending it and advance the checkpoint after confirmation.
+        await uploadDocument(call, key, upload, row.revision, floor, (args) =>
+          saveWithReceipt(call, args, state, persist),
+        );
+        await persist({ base: upload.hashes, pending: [], held: false });
+        acknowledgeFavorite();
         uploaded = true;
-        localStorage.setItem(checkpoint, JSON.stringify(upload.hashes));
-      } else if (same(base, local.hashes) || (choice === 'cloud' && row.parts.length > 0)) {
+      } else if (
+        (!uncertainDeletion && same(base, local.hashes)) ||
+        (choice === 'cloud' && row.parts.length > 0)
+      ) {
         const data = await downloadDocument(call, row.parts);
         // Fetch and check remote bytes before taking the device writer lock.
         const applyRestore = await prepareRestore(Journal, localStorage, subject, key, data, call);
@@ -176,11 +227,13 @@ async function run(resolution, retryRevision = true) {
             again = true;
             return;
           }
-          if ((await applyRestore(local)) === false) {
+          const receipt = pref ? undefined : history.receipt(key, confirmed);
+          if ((await applyRestore(local, receipt)) === false) {
             again = true;
             return;
           }
-          localStorage.setItem(checkpoint, JSON.stringify(row.parts));
+          if (pref) await persist(confirmed);
+          acknowledgeFavorite();
           changed = true;
         });
       } else {
@@ -195,7 +248,7 @@ async function run(resolution, retryRevision = true) {
         else {
           // A deletion on another device must not silently republish the phone's surviving copy.
           // Remember it across restarts and advances of the global deletion floor.
-          localStorage.setItem(held, '1');
+          if (!state.held) await persist({ ...state, held: true });
           retained.push(record);
         }
       }
@@ -211,13 +264,12 @@ async function run(resolution, retryRevision = true) {
     else if (!again) {
       if (uploaded || changed || (!retained.length && !localStorage.getItem(lastSyncKey)))
         localStorage.setItem(lastSyncKey, String(Date.now()));
-      localStorage.setItem(prefix + 'deletionFloor', String(floor));
       notify(retained.length ? 'device_only' : 'done');
     }
   } catch (error) {
     if (enabled()) {
       if (error.status === 410) {
-        forgetCopy();
+        await forgetCopy();
         notify('disabled');
       } else if (!online()) notify('offline');
       else if (error.status === 409 && retryRevision) reread = true;
@@ -227,14 +279,9 @@ async function run(resolution, retryRevision = true) {
       else notify('failed');
     }
   } finally {
-    busy = false;
-    notify(status);
     if (changed) window.dispatchEvent(new Event('journal-restored'));
-    if (again) {
-      again = false;
-      schedule();
-    } else if (reread) await run(undefined, false);
   }
+  return reread;
 }
 /** Prefer the fishing date and water over an internal record identifier. */
 function conflictLabel(conflict, waters) {
@@ -317,12 +364,16 @@ export function bindJournalSync(panel, waters) {
           busy = true;
           notify('working');
           try {
-            const { epoch } = await call('settings', {});
-            await call('enable', { epoch: epoch || null, consent: true });
-            if (epoch && epoch !== localStorage.getItem(prefix + 'epoch')) forgetCopy();
-            if (epoch) localStorage.setItem(prefix + 'epoch', epoch);
-            localStorage.setItem(prefix + 'registered', '1');
-            localStorage.setItem(choiceKey, '1');
+            await syncLock(async () => {
+              const { epoch, enabled: hasCopy } = await call('settings', {});
+              if (hasCopy === false) await forgetCopy();
+              else if ((epoch || null) !== localStorage.getItem(prefix + 'epoch'))
+                await forgetCopy(epoch || '');
+              await call('enable', { epoch: epoch || null, consent: true });
+              if (epoch) localStorage.setItem(prefix + 'epoch', epoch);
+              localStorage.setItem(prefix + 'registered', '1');
+              localStorage.setItem(choiceKey, '1');
+            });
           } catch {
             notify('failed');
           } finally {
@@ -367,8 +418,10 @@ export function bindJournalSync(panel, waters) {
         busy = true;
         notify('working');
         try {
-          await call('erase', {});
-          forgetCopy();
+          await syncLock(async () => {
+            await call('erase', {});
+            await forgetCopy();
+          });
           status = 'erased';
         } catch {
           status = 'failed';
@@ -436,6 +489,14 @@ async function start() {
   const choice = localStorage.getItem(choiceKey);
   if (choice !== null) {
     if (enabled()) schedule();
+    if (!enabled() || !online()) {
+      // Upgrade paused and offline journals even when no network round will run.
+      try {
+        await syncLock(() => historyForEpoch().migrate());
+      } catch {
+        notify('failed');
+      }
+    }
     return;
   }
   checking = true;

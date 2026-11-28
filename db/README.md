@@ -127,3 +127,15 @@ reindex index concurrently angler_private.profiles_unique_nickname;
 
 Check that the rebuilt unique index is valid. If PostgreSQL reports a collation version mismatch,
 rebuild all objects affected by that collation before refreshing the recorded version.
+
+The Android journal records each distinct pending save before sending its manifest.
+Trip and water-photo checkpoints and pending versions live in the journal's IndexedDB.
+Preferences keep theirs in localStorage. A lost response leaves the attempt pending.
+The next listing can acknowledge an earlier version even after another local edit.
+An ambiguous deletion keeps the surviving journal entry on the phone for an explicit
+upload. Adding a favorite again records a new local choice even when its value is identical.
+
+A correction below age 15 erases cloud content and rotates the account epoch. The next
+eligible session with the old epoch receives HTTP 410 and clears its sync history while
+keeping the offline journal. Opting in again merges the surviving data from each phone
+that joins the new epoch, including entries previously removed on another phone.

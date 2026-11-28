@@ -12,8 +12,10 @@ export function createJournal(factory = globalThis.indexedDB, name = 'angler-fie
   function open() {
     if (connection) return connection;
     connection = new Promise((resolve, reject) => {
-      const req = factory.open(name, 2);
+      const req = factory.open(name, 3);
       req.onupgradeneeded = (event) => {
+        req.result.createObjectStore('syncHistory');
+        if (event.oldVersion >= 2) return;
         req.result.createObjectStore('fingerprints');
         if (event.oldVersion >= 1) return;
         const trips = req.result.createObjectStore('trips', { keyPath: 'id' });
@@ -45,10 +47,10 @@ export function createJournal(factory = globalThis.indexedDB, name = 'angler-fie
   }
 
   /** Resolve only after commit. IDB aborts the entire operation if any request fails. */
-  async function transaction(stores, mode, operation) {
+  async function transaction(stores, mode, operation, options = undefined) {
     const db = await open();
     return new Promise((resolve, reject) => {
-      const tx = db.transaction(stores, mode);
+      const tx = db.transaction(stores, mode, options);
       let value;
       tx.oncomplete = () => resolve(value);
       tx.onabort = () => reject(tx.error || new Error('Journal transaction aborted'));
@@ -169,54 +171,69 @@ export function createJournal(factory = globalThis.indexedDB, name = 'angler-fie
       });
 
   // Replace all members of a remote trip in one IndexedDB transaction.
-  function restoreTrip(id, document, expected = undefined) {
-    return transaction(['trips', 'catches', 'photos', 'fingerprints'], 'readwrite', (tx, result) => {
-      const key = 'trip/' + id;
-      const current = tx.objectStore('fingerprints').get(key);
+  function restoreTrip(id, document, expected = undefined, receipt = undefined) {
+    return transaction(
+      ['trips', 'catches', 'photos', 'fingerprints', 'syncHistory'],
+      'readwrite',
+      (tx, result) => {
+        const key = 'trip/' + id;
+        const current = tx.objectStore('fingerprints').get(key);
+        current.onsuccess = () => {
+          if (expected && current.result?.version !== expected.version) {
+            result(false);
+            return;
+          }
+          if (receipt) tx.objectStore('syncHistory').put(receipt.state, receipt.id);
+          result(true);
+          invalidate(tx, key);
+          const trips = tx.objectStore('trips'),
+            catches = tx.objectStore('catches'),
+            photos = tx.objectStore('photos');
+          const previous = catches.index('tripId').getAllKeys(id);
+          previous.onsuccess = () => {
+            for (const key of previous.result) {
+              catches.delete(key);
+              photos.delete(key);
+            }
+            if (!document) {
+              trips.delete(id);
+              return;
+            }
+            trips.put(document.trip);
+            for (const { record, photo } of document.catches) {
+              const found = catches.get(record.id);
+              found.onsuccess = () => {
+                if (found.result && found.result.tripId !== id) {
+                  tx.abort();
+                  return;
+                }
+                catches.put(record);
+                if (photo) photos.put(photo, record.id);
+              };
+            }
+          };
+        };
+      },
+    );
+  }
+  /** Replace a water photo and record its sync receipt only for the expected local version. */
+  function writeWaterPhoto(key, blob, expected = undefined, receipt = undefined) {
+    return transaction(['photos', 'fingerprints', 'syncHistory'], 'readwrite', (tx, result) => {
+      const docKey = 'photo/' + key;
+      const current = tx.objectStore('fingerprints').get(docKey);
       current.onsuccess = () => {
         if (expected && current.result?.version !== expected.version) {
           result(false);
           return;
         }
+        const store = tx.objectStore('photos'),
+          id = ['water', key];
+        if (blob) store.put(blob, id);
+        else store.delete(id);
+        invalidate(tx, docKey);
+        if (receipt) tx.objectStore('syncHistory').put(receipt.state, receipt.id);
         result(true);
-        invalidate(tx, key);
-        const trips = tx.objectStore('trips'),
-          catches = tx.objectStore('catches'),
-          photos = tx.objectStore('photos');
-        const previous = catches.index('tripId').getAllKeys(id);
-        previous.onsuccess = () => {
-          for (const key of previous.result) {
-            catches.delete(key);
-            photos.delete(key);
-          }
-          if (!document) {
-            trips.delete(id);
-            return;
-          }
-          trips.put(document.trip);
-          for (const { record, photo } of document.catches) {
-            const found = catches.get(record.id);
-            found.onsuccess = () => {
-              if (found.result && found.result.tripId !== id) {
-                tx.abort();
-                return;
-              }
-              catches.put(record);
-              if (photo) photos.put(photo, record.id);
-            };
-          }
-        };
       };
-    });
-  }
-  /** Change the water-specific photo and its sync fingerprint in the same transaction. */
-  function writeWaterPhoto(key, blob) {
-    return transaction(['photos', 'fingerprints'], 'readwrite', (tx) => {
-      invalidate(tx, 'photo/' + key);
-      const store = tx.objectStore('photos'),
-        id = ['water', key];
-      if (blob) store.put(blob, id);
-      else store.delete(id);
     });
   }
   return {
@@ -241,6 +258,32 @@ export function createJournal(factory = globalThis.indexedDB, name = 'angler-fie
           }
         };
       }),
+    // Scope receipts to both the account and the generation of its cloud copy.
+    syncHistory: (id) => read('syncHistory', (store) => store.get(id)),
+    syncHistoryKeys: (subject, epoch) =>
+      read('syncHistory', (store) =>
+        store.getAllKeys(IDBKeyRange.bound([subject, epoch], [subject, epoch, []])),
+      ),
+    writeSyncHistory: (id, state) =>
+      transaction(['syncHistory'], 'readwrite', (tx) => tx.objectStore('syncHistory').put(state, id), {
+        durability: 'strict',
+      }),
+    clearSyncHistory: (subject, keepEpoch) =>
+      transaction(
+        ['syncHistory'],
+        'readwrite',
+        (tx) => {
+          const store = tx.objectStore('syncHistory');
+          const rows = store.openKeyCursor(IDBKeyRange.bound([subject], [subject, []]));
+          rows.onsuccess = () => {
+            const cursor = rows.result;
+            if (!cursor) return;
+            if (cursor.primaryKey[1] !== keepEpoch) store.delete(cursor.primaryKey);
+            cursor.continue();
+          };
+        },
+        { durability: 'strict' },
+      ),
     cacheHashes,
     fingerprint: (key) => read('fingerprints', (store) => store.get(key)),
     tripKeys: () => read('trips', (store) => store.getAllKeys()),

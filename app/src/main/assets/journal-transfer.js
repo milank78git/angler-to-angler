@@ -108,7 +108,14 @@ export async function localDocument(db, storage, subject, key, needBlocks = fals
 }
 
 /** Stage missing photo and document blocks before publishing the ordered manifest at its expected revision. */
-export async function uploadDocument(call, key, local, revision, floor = 0) {
+export async function uploadDocument(
+  call,
+  key,
+  local,
+  revision,
+  floor = 0,
+  save = (args) => call('save', args),
+) {
   // Positions refer to the ordered photo references in this exact manifest.
   const unavailable = {};
   for (const [index, { id, hash, file }] of (local.photos || []).entries()) {
@@ -122,7 +129,7 @@ export async function uploadDocument(call, key, local, revision, floor = 0) {
     for (const h of hashes) await call('put', { hash: h, data: toBase64(local.blocks.get(h)) });
   }
   return (
-    await call('save', {
+    await save({
       key,
       revision,
       floor,
@@ -164,7 +171,8 @@ export async function prepareRestore(db, storage, subject, key, value, call = un
         ))
     )
       throw Error('Invalid trip');
-    if (!value) return (expected = undefined) => db.restoreTrip(id, null, expected);
+    if (!value)
+      return (expected = undefined, receipt = undefined) => db.restoreTrip(id, null, expected, receipt);
     const catches = [];
     for (const c of value.catches) {
       const photo =
@@ -180,9 +188,12 @@ export async function prepareRestore(db, storage, subject, key, value, call = un
         photo,
       });
     }
-    return (expected = undefined) => db.restoreTrip(id, { trip: value.trip, catches }, expected);
+    return (expected = undefined, receipt = undefined) =>
+      db.restoreTrip(id, { trip: value.trip, catches }, expected, receipt);
   }
-  if (key.startsWith('photo/')) return () => db.writeWaterPhoto(key.slice(6), photoBlob(value));
+  if (key.startsWith('photo/'))
+    return (expected = undefined, receipt = undefined) =>
+      db.writeWaterPhoto(key.slice(6), photoBlob(value), expected, receipt);
   return async () => {
     const k = localKey(key.slice(5), subject);
     if (k && (value == null || typeof value === 'string')) {

@@ -44,6 +44,12 @@ def verify_installations(stage, owner, other):
     ui.adb('install', '-r', str(stage / 'client/build/standalone/angler-journal-debug.apk'))
     sign_in(SECOND, owner)
     run(SECOND, 'consent')
+    for cut, recovery in [('crash-before-send', 'crash-recover-before'),
+                          ('crash-after-commit', 'crash-recover-after')]:
+        run(SECOND, cut)
+        # Force-stop the WebView process without clearing application storage.
+        sign_in(SECOND, owner)
+        run(SECOND, recovery)
     sign_in(SECOND, other, fresh=True)
     run(SECOND, 'isolation')
     sign_in(SECOND, owner, fresh=True)
