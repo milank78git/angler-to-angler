@@ -117,6 +117,7 @@ async function onPhone(action, fixture) {
     const subject = Device.subjectId();
     const id = action.includes('before') ? 'crash-before-send' : 'crash-after-commit';
     const key = 'trip/' + id;
+    const trip = {id, day:'2026-11-24', waterName:'Test Brook', created:Date.now(), notes:'First version'};
     const epoch = (await rpc('journal_sync',{op:'settings',args:{}})).epoch || '';
     if (action.startsWith('crash-recover-')) {
       const decision = await until(() => {
@@ -143,7 +144,7 @@ async function onPhone(action, fixture) {
           await new Promise(() => {});
         }
       };
-      await Journal.saveTrip({id, notes:'First version'});
+      await Journal.saveTrip(trip);
       await until(() => waiting, 'committed receipt before native save');
       assert((await receipt()).pending.length === 1 && !(await rows()).some(row => row.key === key),
         'Before-send cut did not precede the remote save');
@@ -159,12 +160,12 @@ async function onPhone(action, fixture) {
         }
         reply(requestId,status,result);
       };
-      await Journal.saveTrip({id, notes:'First version'});
+      await Journal.saveTrip(trip);
       await until(() => dropped, 'committed save with undelivered reply');
       const sent = (await receipt()).pending[0].parts;
       assert((await rows()).some(row => row.key === key && JSON.stringify(row.parts) === JSON.stringify(sent)),
         'After-commit cut did not reach the server');
-      await Journal.saveTrip({id, notes:'Edited before force-stop'});
+      await Journal.saveTrip({...trip, notes:'Edited before force-stop'});
       return;
     }
     const record = (await rows()).find(row => row.key === key), history = await receipt();
