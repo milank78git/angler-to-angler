@@ -96,12 +96,24 @@ def registered_locales(packs, against):
 def validate_guide(locale, entries, english, guide_keys, guide_steps, hint_keys):
     # A regional override may supply just the differences from its base language.
     if "-" not in locale:
-        missing = guide_keys - entries.keys()
+        missing = (guide_keys | hint_keys) - entries.keys()
         if missing:
             raise ValueError(f"{locale}: missing help translations: {sorted(missing)}")
     if locale == "en" or locale.startswith("en-"):
         return
     for key in (guide_steps | hint_keys) & entries.keys():
+        value = entries[key]
+        if rule_numbers(value) != rule_numbers(english[key]):
+            raise ValueError(f"{locale}: help numbers differ from source: {key}")
+        if key in {"field-hints.lat", "field-hints.lon"}:
+            limit = 90 if key.endswith(".lat") else 180
+            if not re.search(rf"[-\u2212]\s*{limit}\b", value):
+                raise ValueError(f"{locale}: missing negative coordinate bound: {key}")
+        if key == "atlas.help":
+            normalized = value.replace("\u010c\u00daZK", "CUZK")
+            required = ("openmaps.fr", "CUZK", "EOX", "IP")
+            if any(token not in normalized for token in required if token in english[key]):
+                raise ValueError(f"{locale}: missing map provider or IP disclosure: {key}")
         if len(english[key]) >= 45 and " ".join(entries[key].split()) == " ".join(english[key].split()):
             raise ValueError(f"{locale}: English source copied into localized help: {key}")
 

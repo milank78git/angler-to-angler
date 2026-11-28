@@ -455,7 +455,7 @@
  "field-hints.fish-water-class": "Roghnaigh an cineál uisce a thaispeántar ar an gcead le haghaidh an uisce seo. Is féidir leis an íosmhéid agus na srianta uisce a bheith difriúil idir bric agus uiscí neamhthreaca.",
  "field-hints.hometown": "Cuir isteach an baile nó an limistéar is mian leat a chur ar do phróifíl. Seoladh sráide gan ghá.",
  "field-hints.kind": "Roghnaigh cé acu marcanna pointe seo ina raibh tú nó i gcás inar thóg an t-iasc an bhaoite.",
- "field-hints.lat": "Cuir isteach leathstad i gcéimeanna deachúlach ó 90 go 90. Bain úsáid as comhartha lúide ó dheas den diallait.",
+ "field-hints.lat": "Cuir isteach an domhanleithead i gcéimeanna deachúlacha idir −90 agus 90. Úsáid comhartha lúide ó dheas ón meánchiorcal.",
  "field-hints.length": "Cuir isteach an fad a thomhas i ceintiméadar, mar shampla 42.5. Fág é bán mura raibh tú a thomhas an t-iasc.",
  "field-hints.lon": "Cuir isteach an domhanfhad i gcéimeanna deachúlacha idir −180 agus 180. Úsáid comhartha lúide siar ó Greenwich.",
  "field-hints.lookup-class": "Seiceáil an cineál ar do chead nuair atá sé ar iarraidh ón atlas.",

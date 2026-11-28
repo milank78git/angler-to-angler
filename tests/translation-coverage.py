@@ -76,6 +76,25 @@ class GuideContentTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "missing help translations.*atlas.help"):
             self.validate("br", {"help-topics.waters.title": "Dour"})
 
+    def test_base_language_requires_contextual_field_hints(self):
+        entries = {"atlas.help": "Karte", "help-topics.waters.title": "Wasser"}
+        with self.assertRaisesRegex(ValueError, "missing help translations.*field-hints.fish"):
+            self.validate("de", entries)
+
+    def test_numeric_range_includes_the_negative_bound(self):
+        source = {"field-hints.lat": "Latitude from -90 to 90"}
+        with self.assertRaisesRegex(ValueError, "missing negative coordinate bound"):
+            translations.validate_guide("fr", {"field-hints.lat": "Latitude de 90 a 90"},
+                                        source, set(), set(), source.keys())
+
+    def test_map_provider_or_ip_cannot_disappear(self):
+        key = "atlas.help"
+        source = {key: "openmaps.fr, CUZK and EOX receive the IP address."}
+        for name in ("openmaps.fr", "CUZK", "EOX", "IP"):
+            with self.subTest(name=name), self.assertRaisesRegex(ValueError, "missing map provider or IP"):
+                translations.validate_guide("de", {key: source[key].replace(name, "")},
+                                            source, {key}, {key}, set())
+
     def test_region_may_inherit_steps_but_an_english_copy_is_still_rejected(self):
         self.validate("fr-ca", {})
         self.validate("en-gb", self.english)
