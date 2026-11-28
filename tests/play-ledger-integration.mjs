@@ -133,7 +133,7 @@ const services = {
 };
 const fromDevice = (holder = buyer) => fulfill({ ...services, token, holder });
 const subscription = 'projects/fixture/subscriptions/play';
-function fromPush(payload) {
+function fromPush(payload, backend = services) {
   const event = { packageName: 'app.anglers.journal', ...payload };
   return deliverPush(
     new Request('https://fixture.invalid', {
@@ -144,7 +144,7 @@ function fromPush(payload) {
       }),
     }),
     subscription,
-    services,
+    backend,
     () => {},
   );
 }
@@ -198,6 +198,38 @@ assert.equal(commerce(seller, 'status').pendingCredits, 0);
 await assert.rejects(fromDevice(), IneligiblePurchase);
 assert.equal(commerce(buyer, 'status').balance, 10);
 assert.equal(commerce(other, 'status').balance, 10);
+// Notifications can arrive out of order. A refund received before the first grant must stay final.
+const earlyToken = randomUUID(),
+  earlyOrder = randomUUID();
+const earlyRefund = {
+  voidedPurchaseNotification: { productType: 2, refundType: 1, purchaseToken: earlyToken },
+};
+const lateDelivery = { oneTimeProductNotification: { notificationType: 1, sku, purchaseToken: earlyToken } };
+const lateServices = {
+  ...services,
+  lookup: async (value) => {
+    assert.equal(value, earlyToken);
+    return {
+      ...purchase,
+      orderId: earlyOrder,
+      productLineItem: [
+        {
+          productId: sku,
+          productOfferDetails: { ...line, consumptionState: 'CONSUMPTION_STATE_YET_TO_BE_CONSUMED' },
+        },
+      ],
+    };
+  },
+  consume: async () => assert.fail('Consumed a receipt after its refund'),
+};
+assert.equal(await fromPush(earlyRefund, lateServices), 204);
+assert.equal(await fromPush(lateDelivery, lateServices), 204);
+await assert.rejects(fulfill({ ...lateServices, token: earlyToken, holder: buyer }), IneligiblePurchase);
+assert.equal(
+  sql("select count(*) from angler_commerce.lots where order_ref=:'order';", { order: earlyOrder }),
+  '0',
+);
+assert.equal(commerce(buyer, 'status').balance, 10);
 console.log(
   'Play publication, payment delivery, mixed purchase, stock and refund verified against PostgreSQL.',
 );

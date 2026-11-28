@@ -33,7 +33,7 @@ def check_evidence(stage, state):
     assert found == expected[state], f'Evidence state {state}: {found}'
 
 
-def check_parking(stage, owner, peer):
+def check_parking(stage, owner, peer, peer_note=True):
     found = json.loads(query(stage, """
         select json_build_object(
           'location', (select json_build_array(water, name, creator=:'seller'::uuid)
@@ -47,6 +47,24 @@ def check_parking(stage, owner, peer):
     if owner:
         reviews[fixture['seller']] = [3, 'Owner access note']
     if peer:
-        reviews[fixture['buyer']] = [5, 'Walk along the marked path']
+        reviews[fixture['buyer']] = [5, 'Walk along the marked path' if peer_note else None]
     assert found == {'location': ['CZ:401009', 'Upper gravel pull-in', True if owner else None],
                      'temporary': False, 'reviews': reviews}, f'Parking ownership or feedback differs: {found}'
+
+
+def check_discussion(stage, replied=False, marked=False):
+    # Identify the fixture by both the registered author and its text to catch duplicate publication.
+    result = json.loads(query(stage, """
+        with roots as (select id,water from angler_discussions.posts
+          where author_id=:'seller' and body='Footpath beside the mill' and parent is null)
+        select jsonb_build_array(
+          (select count(*) from roots),
+          (select count(*) from roots where water='CZ:401009'),
+          (select count(*) from angler_discussions.posts
+             where author_id=:'seller' and body='Temporary observation'),
+          (select coalesce(jsonb_agg(jsonb_build_array(p.author_id=:'buyer'::uuid,p.body,p.helpful,
+             p.water=r.water)),'[]') from roots r join angler_discussions.posts p on p.parent=r.id)
+        );
+    """))
+    answers = [[True, 'Confirmed from the bridge', marked]] if replied else []
+    assert result == [1, 1, 0, answers], f'Discussion ownership, thread or helpful mark differs: {result}'

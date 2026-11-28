@@ -2,7 +2,7 @@
 import subprocess
 import time
 import registration as ui
-from field_state import check_evidence, check_parking, provision_reviewer
+from field_state import check_discussion, check_evidence, check_parking, provision_reviewer
 from community_state import check_cancelled_publication, check_public_card, check_sale
 
 FIRST = 'app.anglers.journal.preview'
@@ -106,11 +106,15 @@ def verify_installations(stage, owner, other):
     check_evidence(stage, 'pending')
     run(FIRST, 'water-create')
     check_parking(stage, owner=True, peer=False)
+    check_discussion(stage)
 
     sign_in(SECOND, other)
     run(SECOND, 'proof-review')
     check_evidence(stage, 'measured')
     run(SECOND, 'water-peer')
+    check_parking(stage, owner=True, peer=True, peer_note=False)
+    check_discussion(stage, replied=True)
+    run(SECOND, 'water-restore-note')
     check_parking(stage, owner=True, peer=True)
 
     sign_in(FIRST, owner)
@@ -118,6 +122,7 @@ def verify_installations(stage, owner, other):
     check_evidence(stage, 'absent')
     run(FIRST, 'water-owner')
     check_parking(stage, owner=False, peer=True)
+    check_discussion(stage, replied=True, marked=True)
 
     sign_in(SECOND, other)
     run(SECOND, 'water-reopen')

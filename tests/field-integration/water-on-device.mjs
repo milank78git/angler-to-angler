@@ -12,6 +12,7 @@ export async function waterOnPhone(action, fixture, controls) {
     await click('#tabwaters');
     if (!find('#search')) await click('#tabwaters');
     await page('waters');
+    if (find('#water-country').value !== 'CZ') set('#water-country', 'CZ');
     set('#search', id);
     await click('[data-water="' + id + '"]');
     await page('water');
@@ -150,6 +151,17 @@ export async function waterOnPhone(action, fixture, controls) {
       !box.textContent.includes(peerNote) && box.textContent.includes(ownerNote),
       'Removing my note changed another note',
     );
+    expect(box.querySelector('select').value === '5', 'Clearing the note also removed its rating');
+    return;
+  }
+  if (action === 'water-restore-note') {
+    await openWater();
+    const card = await until(() => spot(parking), 'parking with rating only');
+    const box = await feedback(card);
+    expect(
+      box.querySelector('select').value === '5' && box.querySelector('textarea').value === '',
+      'Reopening the point did not preserve a rating without a note',
+    );
     await review(card, peerNote, '5');
     return;
   }
@@ -166,6 +178,7 @@ export async function waterOnPhone(action, fixture, controls) {
     await openWater('401001');
     await click('#open-discussion');
     await page('waterDiscussion');
+    await until(() => shown(find('#discussion-compose')), 'second water discussion loaded');
     expect(!post(note) && !post(answer), 'A different water showed the same discussion');
     await openWater();
     const card = await until(() => spot(parking), 'owned parking point');
