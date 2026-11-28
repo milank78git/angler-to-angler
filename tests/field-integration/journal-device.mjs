@@ -113,6 +113,68 @@ async function onPhone(action, fixture) {
   }
   if (!el('#journal-sync')) await openJournal();
   if (action==='ready') { await state('done'); return; }
+  if (action.startsWith('crash-')) {
+    const subject = Device.subjectId();
+    const id = action.includes('before') ? 'crash-before-send' : 'crash-after-commit';
+    const key = 'trip/' + id;
+    const epoch = (await rpc('journal_sync',{op:'settings',args:{}})).epoch || '';
+    if (action.startsWith('crash-recover-')) {
+      const decision = await until(() => {
+        const value = el('#journal-sync').dataset.state;
+        return ['done','disabled'].includes(value) && value;
+      }, 'post-crash sync decision');
+      if (decision === 'disabled') {
+        // WebView can lose a recent localStorage opt-in while retaining committed IndexedDB.
+        assert((await Journal.syncHistory([subject,epoch,key]))?.pending.length === 1,
+          'Losing device consent also lost the unacknowledged save');
+        await confirm('enable');
+      }
+    }
+    await state('done');
+    const rows = async () => (await rpc('journal_sync',{op:'list', args:{format:2, epoch:epoch || null}})).rows;
+    const receipt = () => Journal.syncHistory([subject,epoch,key]);
+    if (action === 'crash-before-send') {
+      const write = Journal.writeSyncHistory;
+      let waiting = false;
+      Journal.writeSyncHistory = async (address, value) => {
+        await write(address, value);
+        if (address[2] === key && value.pending.length) {
+          waiting = true;
+          await new Promise(() => {});
+        }
+      };
+      await Journal.saveTrip({id, notes:'First version'});
+      await until(() => waiting, 'committed receipt before native save');
+      assert((await receipt()).pending.length === 1 && !(await rows()).some(row => row.key === key),
+        'Before-send cut did not precede the remote save');
+      return;
+    }
+    if (action === 'crash-after-commit') {
+      const reply = window.profileReply;
+      let dropped = false;
+      window.profileReply = (requestId,status,result) => {
+        if (!dropped && status === 200 && typeof result?.revision === 'number' && Object.keys(result).length === 1) {
+          dropped = true;
+          return;
+        }
+        reply(requestId,status,result);
+      };
+      await Journal.saveTrip({id, notes:'First version'});
+      await until(() => dropped, 'committed save with undelivered reply');
+      const sent = (await receipt()).pending[0].parts;
+      assert((await rows()).some(row => row.key === key && JSON.stringify(row.parts) === JSON.stringify(sent)),
+        'After-commit cut did not reach the server');
+      await Journal.saveTrip({id, notes:'Edited before force-stop'});
+      return;
+    }
+    const record = (await rows()).find(row => row.key === key), history = await receipt();
+    const before = action === 'crash-recover-before';
+    assert((await Journal.trip(id))?.notes === (before ? 'First version' : 'Edited before force-stop'),
+      'Force-stop recovery lost the local trip edit');
+    assert(record?.revision === (before ? 1 : 2) && history.pending.length === 0 &&
+      JSON.stringify(record.parts) === JSON.stringify(history.base), 'Recovery left a conflict or replayed a save');
+    return;
+  }
   if (action==='offline') {
     await state('offline');
     const canvas=document.createElement('canvas'); canvas.width=32; canvas.height=32;
