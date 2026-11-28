@@ -21,10 +21,12 @@ public final class GroupsActivity extends LocalizedActivity {
   private AccountLayout.Prompt dialog;
   private EditText dialogInput;
 
+  /** Resolve the selected app language for the native groups UI. */
   private String t(String key) {
     return AppLanguage.text(this, key);
   }
 
+  /** Prepare the group screen and its account-scoped request state. */
   @Override
   public void onCreate(Bundle state) {
     super.onCreate(state);
@@ -37,18 +39,21 @@ public final class GroupsActivity extends LocalizedActivity {
     }
   }
 
+  /** Refresh private group state when the activity becomes visible. */
   @Override
   protected void onStart() {
     super.onStart();
     if (!busy) refresh();
   }
 
+  /** Release work associated with this groups activity. */
   @Override
   protected void onDestroy() {
     io.shutdownNow();
     super.onDestroy();
   }
 
+  /** Attach the requested private-group action to its native button. */
   private void button(String label, AccountLayout.Action style, Runnable action) {
     ui.button(
         ui.form,
@@ -59,10 +64,12 @@ public final class GroupsActivity extends LocalizedActivity {
         });
   }
 
+  /** Prepare the heading for the current group screen. */
   private String title() {
     return t("common.fishing_groups");
   }
 
+  /** Return to account verification before requesting private group data. */
   private void signIn() {
     readingTips = false;
     closeDialog();
@@ -81,6 +88,7 @@ public final class GroupsActivity extends LocalizedActivity {
         });
   }
 
+  /** Retrieve the active account's current group state. */
   private void refresh() {
     readingTips = false;
     if (subject.isEmpty() || !subject.equals(AccountStore.active(this))) {
@@ -101,6 +109,7 @@ public final class GroupsActivity extends LocalizedActivity {
     });
   }
 
+  /** Build the group screen from the latest membership and invitation response. */
   private void render(JSONArray groups) throws JSONException {
     ui.page(title(), false);
     ui.label(
@@ -206,6 +215,7 @@ public final class GroupsActivity extends LocalizedActivity {
     dialog.show();
   }
 
+  /** Present the actions currently available for the selected group. */
   private void actions(String id, String name, boolean owner, boolean tipsAllowed, boolean catchesAllowed) {
     String leave =
         owner ? t("groups.dissolve_group") : t("groups.leave_group");
@@ -244,6 +254,7 @@ public final class GroupsActivity extends LocalizedActivity {
     dialog.show();
   }
 
+  /** Show the returned membership list for the selected group. */
   private void members(String groupId, String groupName, String after) {
     JSONObject query = after == null ? args("group_id", groupId) : args("group_id", groupId, "after_id", after);
     request("group_members", query, result -> {
@@ -275,6 +286,7 @@ public final class GroupsActivity extends LocalizedActivity {
     });
   }
 
+  /** Present catch entries shared with the current group. */
   private void catches(String id, String name, String cursor) {
     readingTips = true;
     ui.page(t("age.catches") + " · " + name, false);
@@ -367,12 +379,14 @@ public final class GroupsActivity extends LocalizedActivity {
         });
   }
 
+  /** Handle the current group detail before leaving the groups activity. */
   @Override
   public void onBackPressed() {
     if (readingTips && !busy) refresh();
     else super.onBackPressed();
   }
 
+  /** Request confirmation before modifying or ending this membership. */
   private void confirmLeave(String id, String name, boolean owner, String leave) {
     dialog = ui.prompt(leave + "?");
     dialog.description(
@@ -391,6 +405,7 @@ public final class GroupsActivity extends LocalizedActivity {
     dialog.show();
   }
 
+  /** Apply the chosen action to the selected group tip. */
   private void tipAction(String group, String name, String cursor, JSONObject tip, String action) {
     boolean edit = action.equals("edit"), remove = action.equals("remove");
     String label = t(edit ? "groups.edit_tip" : remove ? "groups.remove_tip" : "moderation.report");
@@ -418,6 +433,7 @@ public final class GroupsActivity extends LocalizedActivity {
     dialog.show();
   }
 
+  /** Present the invitation to the angler for an explicit decision. */
   private void invitation(String code) {
     dialog = ui.prompt(t("groups.issue_invitation"));
     dialog.code(code);
@@ -437,12 +453,14 @@ public final class GroupsActivity extends LocalizedActivity {
     dialog.show();
   }
 
+  /** Dismiss the currently open group prompt. */
   private void closeDialog() {
     if (dialog != null) dialog.dismiss();
     dialog = null;
     dialogInput = null;
   }
 
+  /** Build the argument object for the group service call. */
   private static JSONObject args(String... pairs) {
     JSONObject json = new JSONObject();
     try {
@@ -454,6 +472,7 @@ public final class GroupsActivity extends LocalizedActivity {
   }
 
   private interface Result {
+    /** Display the native group prompt for the current activity. */
     void show(JSONObject response) throws JSONException;
   }
 

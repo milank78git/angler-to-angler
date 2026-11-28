@@ -7,6 +7,7 @@ export const newJournalId = () =>
 export function createJournal(factory = globalThis.indexedDB, name = 'angler-field-journal') {
   let connection;
 
+  /** Share the pending database connection and reopen it after a close, upgrade or failed open. */
   function open() {
     if (connection) return connection;
     connection = new Promise((resolve, reject) => {
@@ -60,6 +61,7 @@ export function createJournal(factory = globalThis.indexedDB, name = 'angler-fie
     });
   }
 
+  /** Return the request result only after the readonly transaction completes. */
   function read(store, query) {
     return transaction([store], 'readonly', (tx, result) => {
       const request = query(tx.objectStore(store));
@@ -203,6 +205,7 @@ export function createJournal(factory = globalThis.indexedDB, name = 'angler-fie
       };
     });
   }
+  /** Change the water-specific photo and its sync fingerprint in the same transaction. */
   function writeWaterPhoto(key, blob) {
     return transaction(['photos', 'fingerprints'], 'readwrite', (tx) => {
       invalidate(tx, 'photo/' + key);

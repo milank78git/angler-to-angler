@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 /** Starts the private account screen without forwarding caller-controlled data or extras. */
 public final class JournalLauncherActivity extends Activity {
+  /** Choose the initial activity from the stored account and launch intent. */
   @Override public void onCreate(Bundle state) {
     super.onCreate(state);
     if (isTaskRoot() && Intent.ACTION_MAIN.equals(getIntent().getAction())

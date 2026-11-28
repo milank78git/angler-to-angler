@@ -24,20 +24,24 @@ final class DeviceVault {
   private static final OAEPParameterSpec OAEP =
       new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA1, PSource.PSpecified.DEFAULT);
 
+  /** Check whether the device provides the required protected storage capability. */
   static boolean supported(Context c) {
     return c.getSystemService(KeyguardManager.class).isDeviceSecure();
   }
 
+  /** Check whether credentials are already enrolled in this device vault. */
   static boolean enrolled(Context c) {
     return supported(c) && AccountStore.prefs(c).contains(RECORD);
   }
 
+  /** Open the Android keystore that owns the device encryption keys. */
   private static KeyStore store() throws Exception {
     KeyStore keys = KeyStore.getInstance("AndroidKeyStore");
     keys.load(null);
     return keys;
   }
 
+  /** Retrieve the public key used to encrypt local session material. */
   private static PublicKey publicKey() throws Exception {
     KeyStore keys = store();
     if (!keys.containsAlias(ALIAS)) {
@@ -61,14 +65,17 @@ final class DeviceVault {
             new X509EncodedKeySpec(keys.getCertificate(ALIAS).getPublicKey().getEncoded()));
   }
 
+  /** Encode vault bytes into the persistent text representation. */
   private static String encode(byte[] bytes) {
     return Base64.encodeToString(bytes, Base64.NO_WRAP);
   }
 
+  /** Recover the binary vault payload from its stored text representation. */
   private static byte[] decode(JSONObject record, String key) throws Exception {
     return Base64.decode(record.getString(key), Base64.NO_WRAP);
   }
 
+  /** Encrypt the verified session before persisting it on the device. */
   static void save(Context c, IdentityService.Session session) throws Exception {
     if (!supported(c)) {
       clear(c);
@@ -96,6 +103,7 @@ final class DeviceVault {
       throw new java.io.IOException("Device session unavailable");
   }
 
+  /** Decrypt the stored session and reconstruct its verified identity. */
   static IdentityService.Session open(Context c) throws Exception {
     SharedPreferences prefs = AccountStore.prefs(c);
     JSONObject record = new JSONObject(prefs.getString(RECORD, ""));
@@ -129,6 +137,7 @@ final class DeviceVault {
     }
   }
 
+  /** Discard the local data that would otherwise restore the previous account. */
   static void clear(Context c) {
     AccountStore.prefs(c).edit().remove(RECORD).commit();
     try {

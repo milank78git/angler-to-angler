@@ -18,15 +18,18 @@ export function bindCatchPosition(view, initial = null) {
     by('kind').value = initial.kind;
   }
 
+  /** Cancel only the pending native request and restore the original button caption. */
   function cancel() {
     if (pending) window.Device.cancelLocation(pending);
     pending = 0;
     label.textContent = idleLabel;
   }
+  /** Discard the native fix as soon as an angler changes either coordinate by hand. */
   function manualEdit() {
     cancel();
     accepted = null;
   }
+  /** Accept only the fix for this form's outstanding request and mark the draft dirty. */
   function receive({ detail }) {
     if (!pending || detail.id !== pending) return;
     pending = 0;
@@ -50,6 +53,7 @@ export function bindCatchPosition(view, initial = null) {
 
   return {
     waiting: () => pending !== 0,
+    /** Preserve the origin, accuracy and observation time alongside a complete coordinate pair. */
     read() {
       const coords = point(latitude.value, longitude.value);
       return (
@@ -64,6 +68,7 @@ export function bindCatchPosition(view, initial = null) {
         }
       );
     },
+    /** Detach the native result listener and cancel any unfinished location lookup. */
     dispose() {
       window.removeEventListener('angler-position', receive);
       cancel();

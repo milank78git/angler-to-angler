@@ -28,6 +28,7 @@ public final class FishingActivity extends LocalizedActivity {
   private final android.content.SharedPreferences.OnSharedPreferenceChangeListener appearanceListener =
       (preferences, key) -> applyReadingPreferences();
 
+  /** Apply the user's text scale to the running journal WebView. */
   private void applyReadingPreferences() {
     if (web == null) return;
     float systemScale = getResources().getConfiguration().fontScale;
@@ -57,6 +58,7 @@ public final class FishingActivity extends LocalizedActivity {
   private PlayStore playStore;
   private String pendingReminder;
 
+  /** Build the journal WebView, native bridges and device resource owners for this activity. */
   @Override
   public void onCreate(Bundle state) {
     super.onCreate(state);
@@ -108,6 +110,7 @@ public final class FishingActivity extends LocalizedActivity {
     web.setWebViewClient(new LocalAssetClient(this, getAssets(), this::openExternal));
     web.setWebChromeClient(
         new WebChromeClient() {
+          /** Route the WebView file request through the device picker or camera activity. */
           @Override
           public boolean onShowFileChooser(
               WebView view, ValueCallback<Uri[]> callback, FileChooserParams params) {
@@ -157,12 +160,15 @@ public final class FishingActivity extends LocalizedActivity {
 
   /** Methods are accessible only to packaged scripts. Android UI calls run on the main thread. */
   public final class Device {
+    /** Pass the active owner's selected waters to background post notifications. */
     @JavascriptInterface
     public void postFavourites(String owner, String keys) { FieldAlerts.favourites(FishingActivity.this, owner, keys); }
 
+    /** Expose the locally installed atlas revision to the WebView. */
     @JavascriptInterface
     public String waterCatalogueVersion() { return WaterCatalogue.revision(FishingActivity.this); }
 
+    /** Open the native private-groups activity for this session. */
     @JavascriptInterface
     public void openGroups() {
       runOnUiThread(() -> {
@@ -171,37 +177,44 @@ public final class FishingActivity extends LocalizedActivity {
       });
     }
 
+    /** Open atlas update and device notification preferences. */
     @JavascriptInterface
     public void openWaterSettings() {
       runOnUiThread(() -> startActivity(new Intent(FishingActivity.this, WaterSettingsActivity.class)));
     }
 
+    /** Expose the installed Android version label in the journal header. */
     @JavascriptInterface
     public String versionLabel() {
       return AppVersion.label(FishingActivity.this);
     }
 
+    /** Select the IndexedDB namespace belonging to the active account. */
     @JavascriptInterface
     public String journalName() {
       return AccountStore.journal(FishingActivity.this);
     }
 
+    /** Tell the journal whether the active account is restricted to group sharing. */
     @JavascriptInterface
     public boolean groupSharingOnly() {
       return !AccountStore.canShareOutsideGroups(FishingActivity.this);
     }
 
+    /** Expose the current device account's cloud-copy default to the journal. */
     @JavascriptInterface
     public boolean journalCloudDefault() {
       return !groupSharingOnly() && AccountStore.prefs(FishingActivity.this).getBoolean("cloudJournal." + subject, false)
           && !subject.equals(AccountStore.prefs(FishingActivity.this).getString("legacyOwner", ""));
     }
 
+    /** Return the active device subject for owner-scoped journal operations. */
     @JavascriptInterface
     public String subjectId() {
       return subject;
     }
 
+    /** Open the native account management screen from the WebView. */
     @JavascriptInterface
     public void profile() {
       runOnUiThread(
@@ -212,31 +225,37 @@ public final class FishingActivity extends LocalizedActivity {
           });
     }
 
+    /** Release the temporary file associated with a delivered camera capture. */
     @JavascriptInterface
     public void releaseCameraPhoto() {
       runOnUiThread(FishingActivity.this::discardDeliveredPhoto);
     }
 
+    /** Return the position metadata associated with the recent camera capture. */
     @JavascriptInterface
     public String cameraFix() {
       return captureInfo;
     }
 
+    /** Read the group board destination supplied by the launching intent. */
     @JavascriptInterface
     public String weeklyDestination() {
       return getIntent().getStringExtra("weeklyDestination");
     }
 
+    /** Return to the native groups screen after leaving its journal board. */
     @JavascriptInterface
     public void closeGroupBoard() {
       if (getIntent().hasExtra("weeklyDestination")) runOnUiThread(FishingActivity.this::finish);
     }
 
+    /** Check whether the launching intent requests the profile on startup. */
     @JavascriptInterface
     public boolean openProfile() {
       return getIntent().getBooleanExtra("openProfile", false);
     }
 
+    /** Start the native sign-in flow requested by the journal. */
     @JavascriptInterface
     public void profileSignIn() {
       runOnUiThread(
@@ -249,11 +268,13 @@ public final class FishingActivity extends LocalizedActivity {
           });
     }
 
+    /** Dispatch an authenticated journal operation and correlate the response with its WebView request ID. */
     @JavascriptInterface
     public void profileRequest(int id, String operation, String body) {
       profileRequests.request(id, operation, body);
     }
 
+    /** Expose the current native appearance mode to the journal theme selector. */
     @JavascriptInterface
     public boolean nightMode() {
       int mask = android.content.res.Configuration.UI_MODE_NIGHT_MASK;
@@ -292,16 +313,19 @@ public final class FishingActivity extends LocalizedActivity {
       return AppLanguage.current(FishingActivity.this).toLanguageTag();
     }
 
+    /** Provide the system locale separately from the app's chosen language. */
     @JavascriptInterface
     public String systemLocaleTag() {
       return android.content.res.Resources.getSystem().getConfiguration().getLocales().get(0).toLanguageTag();
     }
 
+    /** Expose the base language used by older journal assets. */
     @JavascriptInterface
     public String locale() {
       return AppLanguage.current(FishingActivity.this).getLanguage();
     }
 
+    /** Open the native sharing flow for the prepared catch content. */
     @JavascriptInterface
     public boolean shareCatch(String caption, String jpeg) {
       return !groupSharingOnly() && subject.equals(AccountStore.active(FishingActivity.this)) && shares.open(caption, jpeg);
@@ -318,26 +342,31 @@ public final class FishingActivity extends LocalizedActivity {
       }
     }
 
+    /** Start the native position request used by the atlas. */
     @JavascriptInterface
     public void atlasLocation(int id) {
       runOnUiThread(() -> position.request(id, PositionRequest.Mode.ATLAS));
     }
 
+    /** Acquire a device fix for the journal's request identifier. */
     @JavascriptInterface
     public void location(int id) {
       runOnUiThread(() -> position.request(id));
     }
 
+    /** Cancel the native lookup associated with the WebView request ID. */
     @JavascriptInterface
     public void cancelLocation(int id) {
       runOnUiThread(() -> position.cancel(id));
     }
 
+    /** Open directions to the selected published parking position. */
     @JavascriptInterface
     public void driveToParking(double lat, double lon) {
       runOnUiThread(() -> ParkingNavigation.open(FishingActivity.this,lat,lon));
     }
 
+    /** Open the supported external map destination. */
     @JavascriptInterface
     public void navigate(double lat, double lon) {
       if (!Double.isFinite(lat)
@@ -348,12 +377,14 @@ public final class FishingActivity extends LocalizedActivity {
       chooseExternal(Intent.ACTION_VIEW, Uri.parse("geo:"+xy+"?q="+xy),"atlas_map.open");
     }
 
+    /** Open the external search action for the selected water. */
     @JavascriptInterface
     public void findWater(String name) {
       if (name!=null && !name.trim().isEmpty() && name.length()<1000)
         chooseExternal(Intent.ACTION_VIEW,Uri.parse("geo:0,0?q="+Uri.encode(name)),"atlas_map.search");
     }
 
+    /** Start the supported reporting action for a catalogue record. */
     @JavascriptInterface
     public void reportFish(String title,String body) {
       if (title==null || body==null || title.length()>300 || body.length()>2000) return;
@@ -361,18 +392,22 @@ public final class FishingActivity extends LocalizedActivity {
           +"&body="+Uri.encode(body)), "fish_rules.report");
     }
 
+    /** Expose the notification kind that launched this activity. */
     @JavascriptInterface
     public String fieldKind() { return getIntent().getStringExtra("fieldAlert"); }
 
+    /** Expose the water identity carried by the launching notification. */
     @JavascriptInterface
     public String fieldWater() { return getIntent().getStringExtra("fieldWater"); }
 
+    /** Return the water identities associated with the atlas edition alert. */
     @JavascriptInterface
     public String addedWaters() {
       return new org.json.JSONArray(FieldAlerts.prefs(FishingActivity.this)
           .getStringSet("additions", java.util.Collections.emptySet())).toString();
     }
 
+    /** Start a nearby-water check when the device subscription permits it. */
     @JavascriptInterface
     public void checkNearby() {
       runOnUiThread(() -> {
@@ -385,6 +420,7 @@ public final class FishingActivity extends LocalizedActivity {
       });
     }
 
+    /** Pass the selected nearby result back to Android's field alerts. */
     @JavascriptInterface
     public void nearbyWater(String id,String description) {
       if (id==null || id.length()>200 || description==null || description.length()>500) return;
@@ -394,22 +430,26 @@ public final class FishingActivity extends LocalizedActivity {
       });
     }
 
+    /** Reconcile native reminders with the active account's cloud photo expiries. */
     @JavascriptInterface
     public void photoReminderDates(String dates) {
       if (subject.equals(AccountStore.active(FishingActivity.this)))
         PhotoExpiryReminder.remember(FishingActivity.this, subject, dates);
     }
 
+    /** Read the ticket-expiry warning for the active account. */
     @JavascriptInterface
     public String licenseMessage() {
       return subject.equals(AccountStore.active(FishingActivity.this)) ? LicenseReminder.message(FishingActivity.this) : "";
     }
 
+    /** Expose the OS notification capability to the reminder form. */
     @JavascriptInterface
     public boolean licenseNotificationsEnabled() {
       return LicenseReminder.notificationsEnabled(FishingActivity.this);
     }
 
+    /** Request the device permission needed for ticket notifications. */
     @JavascriptInterface
     public void enableLicenseNotifications() {
       runOnUiThread(() -> {
@@ -426,11 +466,13 @@ public final class FishingActivity extends LocalizedActivity {
       });
     }
 
+    /** Check whether a reminder exists for this water and species. */
     @JavascriptInterface
     public boolean watching(String key) {
       return SeasonReminder.watching(FishingActivity.this, key);
     }
 
+    /** Apply the angler's season-watch toggle on the device. */
     @JavascriptInterface
     public void reminder(String key, boolean enabled) {
       runOnUiThread(
@@ -450,11 +492,13 @@ public final class FishingActivity extends LocalizedActivity {
     }
   }
 
+  /** Dispose of the temporary camera file after its WebView consumer releases it. */
   private void discardDeliveredPhoto() {
     CameraPhotoProvider.discard(this, deliveredCameraUri);
     deliveredCameraUri = null;
   }
 
+  /** Complete the pending file callback with the camera outcome. */
   private void finishCamera(Uri result) {
     if (result == null) CameraPhotoProvider.discard(this, cameraUri);
     else {
@@ -466,12 +510,14 @@ public final class FishingActivity extends LocalizedActivity {
     cameraUri = null;
   }
 
+  /** Enable the requested season watch through the native alarm owner. */
   private void enableReminder(String key) {
     if (!SeasonReminder.notificationsEnabled(this)) show(R.string.notify_error);
     else SeasonReminder.toggle(this, key, true);
     signal("window.reminderChanged?.()");
   }
 
+  /** Present the Android chooser for the prepared external intent. */
   private void chooseExternal(String action,Uri uri,String label) {
     runOnUiThread(() -> {
       Intent target=new Intent(action,uri);
@@ -481,6 +527,7 @@ public final class FishingActivity extends LocalizedActivity {
     });
   }
 
+  /** Route the permitted URI to a suitable external application. */
   private void openExternal(Uri target) {
     try {
       startActivity(new Intent(Intent.ACTION_VIEW, target));
@@ -489,14 +536,17 @@ public final class FishingActivity extends LocalizedActivity {
     }
   }
 
+  /** Present a localized native status message from its resource ID. */
   private void show(int resource) {
     Toast.makeText(this, resource, Toast.LENGTH_LONG).show();
   }
 
+  /** Send a device event to the current journal WebView. */
   private void signal(String js) {
     if (web != null) web.evaluateJavascript(js, null);
   }
 
+  /** Serialize the native fix or cancellation and preserve the journal's request ID. */
   private void positionResult(int id, Location fix) {
     if (id == CAMERA_FIX) {
       if (PositionRequest.acceptableEvidenceFix(fix)
@@ -538,6 +588,7 @@ public final class FishingActivity extends LocalizedActivity {
             + "})");
   }
 
+  /** Resume only the feature that initiated the Android permission request. */
   @Override
   public void onRequestPermissionsResult(int code, String[] names, int[] grants) {
     super.onRequestPermissionsResult(code, names, grants);
@@ -559,6 +610,7 @@ public final class FishingActivity extends LocalizedActivity {
     }
   }
 
+  /** Route the returning picker, camera or unlock result to its pending operation. */
   @Override
   protected void onActivityResult(int code, int result, Intent data) {
     super.onActivityResult(code, result, data);
@@ -589,12 +641,14 @@ public final class FishingActivity extends LocalizedActivity {
     }
   }
 
+  /** Preserve activity state needed after Android recreates the journal. */
   @Override
   protected void onSaveInstanceState(Bundle out) {
     super.onSaveInstanceState(out);
     out.putString("reminder", pendingReminder);
   }
 
+  /** Let the WebView consume Back before the activity exits. */
   @Override
   public void onBackPressed() {
     if (unlockButton != null || web == null) { moveTaskToBack(true); return; }
@@ -609,11 +663,13 @@ public final class FishingActivity extends LocalizedActivity {
         });
   }
 
+  /** Protect the open journal when its device session requires reauthentication. */
   private void lockAccount() {
     startActivity(new Intent(this, AccountActivity.class));
     finish();
   }
 
+  /** Resume the journal's foreground checks and device integrations. */
   @Override
   protected void onResume() {
     super.onResume();
@@ -629,6 +685,7 @@ public final class FishingActivity extends LocalizedActivity {
     checkSession();
   }
 
+  /** Check the active owner and lease before allowing continued journal access. */
   private void checkSession() {
     sessionTimer.removeCallbacks(sessionCheck);
     if (isFinishing() || !foreground || awaitingUnlock) return;
@@ -675,6 +732,7 @@ public final class FishingActivity extends LocalizedActivity {
     sessionTimer.postDelayed(sessionCheck, Math.min(remaining, java.util.concurrent.TimeUnit.MINUTES.toMillis(15)));
   }
 
+  /** Suspend foreground location and session work while the activity is hidden. */
   @Override
   protected void onPause() {
     foreground=false;
@@ -683,6 +741,7 @@ public final class FishingActivity extends LocalizedActivity {
     super.onPause();
   }
 
+  /** Release camera, request and WebView resources when the journal activity ends. */
   @Override
   protected void onDestroy() {
     WaterCatalogue.prefs(this).unregisterOnSharedPreferenceChangeListener(atlasListener);

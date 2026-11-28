@@ -10,8 +10,10 @@ import org.json.JSONObject;
 
 /** Verifies publication by the atlas signer using the public key pinned in this APK. */
 final class AtlasSignature {
+  /** Keep release verification independent of activity state. */
   private AtlasSignature() {}
 
+  /** Verify release metadata against the trusted atlas signing material before installation. */
   static void verify(String pin, JSONObject manifest) throws Exception {
     if (pin.isEmpty()) throw new GeneralSecurityException("Atlas signer is not configured");
     StringBuilder message = new StringBuilder("angler-atlas-v1\n");

@@ -5,6 +5,7 @@ import { fishDirectory } from './fish-catalogue.js';
 import { rpc, failure } from './profile-api.js';
 import { back, bindBack, by, button, esc, screen, t } from './ui.js';
 
+/** Increment the bucket for one recorded observation. */
 function add(counts, key, label) {
   const row = counts.get(key);
   if (row) row.count++;
@@ -30,6 +31,7 @@ export function personalTotals(trips, catches, pack, fish) {
   }
   return { waters: ranked(waters), species: ranked(species) };
 }
+/** Render the ranked entries or the localized empty state. */
 function list(rows) {
   return rows.length
     ? '<ol>' +
@@ -73,6 +75,7 @@ export async function journalStatistics({ view, nav, pack, waterDirectory }) {
     body = by('shared-visits');
   let loading = false,
     loaded = false;
+  /** Reload statistics for the active panel without changing the private journal. */
   async function refresh() {
     if (loading || loaded) return;
     loading = true;

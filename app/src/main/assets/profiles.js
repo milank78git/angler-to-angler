@@ -18,6 +18,7 @@ import {
 import { authorRating } from './tip-ratings.js';
 import { rpc, failure, photoPayload } from './profile-api.js';
 
+/** Prefer the uploaded image, then a known portrait index, then the generic fish icon. */
 function portrait(avatar, photo) {
   if (photo) return '<img class="angler-portrait" alt="" src="data:image/jpeg;base64,' + esc(photo) + '">';
   if (!Number.isInteger(avatar) || avatar < 1 || avatar > 50)
@@ -32,6 +33,7 @@ function portrait(avatar, photo) {
   );
 }
 
+/** Offer retry, sign-in or account settings according to the profile request failure. */
 export function showError(view, nav, error) {
   if (!view.active()) return;
   replaceMarkup(
@@ -235,6 +237,7 @@ export async function editProfile({ view, nav }) {
   const radios = Array.from(
     /** @type {NodeListOf<HTMLInputElement>} */ (screen.querySelectorAll('[name="portrait"]')),
   );
+  /** Refresh the draft profile image without publishing the profile. */
   function preview() {
     replaceMarkup(by('portrait-preview'), portrait(avatar, photo));
   }
@@ -256,6 +259,7 @@ export async function editProfile({ view, nav }) {
   const form = by('card-form'),
     fields = form.querySelector('fieldset'),
     save = by('save-card');
+  /** Prevent simultaneous edits while a profile submission is pending. */
   function lock(locked) {
     fields.disabled = save.disabled = by('reload-card').disabled = view.saving = locked;
   }

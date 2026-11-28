@@ -2,6 +2,7 @@ import { replaceMarkup } from './markup.js';
 import { maxLevel, mercator, geographic, topographicLayer } from './atlas-basemap.js';
 import { by, button, esc, link, t } from './ui.js';
 
+/** Create the SVG marker with its projected position and accessible label. */
 function mapPin(x, y, radius, label) {
   const ns = 'http://www.w3.org/2000/svg';
   const pin = document.createElementNS(ns, 'g');
@@ -33,6 +34,7 @@ export function waterPoint(water, shapes) {
   );
 }
 
+/** Bucket visible water positions into screen cells at the current zoom. */
 export function clusterWaters(rows, project, width, height) {
   const cells = new Map();
   for (const row of rows) {
@@ -51,6 +53,7 @@ export function clusterWaters(rows, project, width, height) {
 /** Preproject published water geometry once, so panning does not reprocess every polygon vertex. */
 function waterGeometry(water, shapes) {
   const extent = [1, 1, 0, 0];
+  /** Project the line vertices once and expand the feature's bounding extent. */
   function path(line) {
     return line
       .map((point, index) => {
@@ -123,6 +126,7 @@ export function atlasMap(host, route, openWater, picker = null) {
   const width = () => svg.clientWidth || 320,
     height = () => svg.clientHeight || 300;
   const unit = () => 256 * 2 ** camera.level;
+  /** Change the camera scale for the current atlas viewport. */
   function zoom(level, x = width() / 2, y = height() / 2) {
     const before = unit();
     camera.level = Math.min(maxLevel, Math.max(0, level));
@@ -130,6 +134,7 @@ export function atlasMap(host, route, openWater, picker = null) {
     camera.y += (y - height() / 2) * (1 / before - 1 / unit());
     draw();
   }
+  /** Fit the camera to the atlas records being displayed. */
   function fit() {
     if (picker?.start) {
       camera = route.camera = { ...picker.start };
@@ -159,6 +164,7 @@ export function atlasMap(host, route, openWater, picker = null) {
       : { x: 0.5, y: 0.5, level: 0 };
     draw();
   }
+  /** Rebuild the visible map layers and marker selection for the current camera. */
   function draw() {
     if (!camera || host.hidden) return;
     camera.x = Math.min(1, Math.max(0, camera.x));
@@ -250,6 +256,7 @@ export function atlasMap(host, route, openWater, picker = null) {
   };
   by('map-retry').onclick = retry;
   window.addEventListener('online', retry);
+  /** Open a single water directly or list the distinct records in a selected marker cluster. */
   function pick(target) {
     const el = target.closest('[data-group]');
     if (!el) return;
@@ -260,6 +267,7 @@ export function atlasMap(host, route, openWater, picker = null) {
     const choices = group.waters;
     index = 0;
     selected.replaceChildren();
+    /** Expose additional water records in the current map selection. */
     function more() {
       for (const { water } of choices.slice(index, index + 40)) {
         const b = document.createElement('button');
@@ -283,6 +291,7 @@ export function atlasMap(host, route, openWater, picker = null) {
     more();
     zoom(camera.level + 1, group.x / choices.length, group.y / choices.length);
   }
+  /** Convert the screen position into geographic coordinates for the map picker. */
   function choose(x, y) {
     if (!camera) return;
     const point = geographic([camera.x + (x - width() / 2) / unit(), camera.y + (y - height() / 2) / unit()]);
@@ -362,6 +371,7 @@ export function atlasMap(host, route, openWater, picker = null) {
   let cache = new WeakMap(),
     geometry;
   return {
+    /** Refresh the map after its input data or viewport changes. */
     update(waters, shapes, key) {
       if (shapes !== geometry) {
         cache = new WeakMap();
@@ -385,9 +395,11 @@ export function atlasMap(host, route, openWater, picker = null) {
       else draw();
       route.cameraFilter = key;
     },
+    /** Clear the tile layer while the map is hidden. */
     pause() {
       tiles.clear();
     },
+    /** Release this map's observers and interaction handlers when its view is retired. */
     dispose() {
       observer.disconnect();
       cancelAnimationFrame(frame);

@@ -3,6 +3,7 @@ const guideTag =
   globalThis.location?.pathname?.endsWith('/guide.html') && new URLSearchParams(location.search).get('lang');
 const requested =
   guideTag || globalThis.Device?.localeTag?.() || globalThis.Device?.locale?.() || navigator.language;
+/** Strip locale extensions before looking up bundled resources and recover from a malformed device tag. */
 function baseTag(tag) {
   try {
     return new Intl.Locale(tag).baseName;
@@ -17,6 +18,7 @@ export const language = parts[0];
 export let contentLanguage = 'en';
 let messages = {};
 
+/** Reject a missing resource before the dictionary overlay can install it. */
 async function json(path) {
   const response = await fetch(path);
   if (!response.ok) throw Error('Missing language resource ' + path);
@@ -42,6 +44,7 @@ export async function loadDictionary() {
   });
 }
 
+/** Look up the effective message after regional and English fallback have been applied. */
 export function label(key) {
   return messages[key] ?? key;
 }

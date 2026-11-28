@@ -27,6 +27,7 @@ function requestRenewal(subject, rows) {
   signal();
   window.dispatchEvent(new Event('journal-edited'));
 }
+/** Reconcile queued renewals and verified pages under one consent epoch. */
 export async function refreshPhotoLeases(call, subject, prefix, revision) {
   const epoch = localStorage.getItem(prefix + 'epoch');
   const valid = () =>
@@ -86,6 +87,7 @@ export async function refreshPhotoLeases(call, subject, prefix, revision) {
   }
   if (valid() && pageRevision) localStorage.setItem(prefix + 'photoRevision', pageRevision);
 }
+/** Show cloud-retention information only for an eligible, opted-in device account. */
 export function showsCloudPhotoPolicy() {
   const subject = window.Device?.subjectId?.();
   return (
@@ -94,6 +96,7 @@ export function showsCloudPhotoPolicy() {
     localStorage.getItem(prefixFor(subject) + 'enabled') === '1'
   );
 }
+/** Create a localized photo action bound to the current image or lease. */
 function action(text, onclick) {
   const button = document.createElement('button');
   button.type = 'button';
@@ -102,6 +105,7 @@ function action(text, onclick) {
   button.onclick = onclick;
   return button;
 }
+/** Offer renewal for the selected photos approaching their expiry date. */
 export function bindExpirySummary(panel, subject) {
   const prefix = prefixFor(subject);
   const due = read(leasesKey(prefix)).filter(
@@ -141,6 +145,7 @@ export function bindExpirySummary(panel, subject) {
   panel.append(group);
 }
 
+/** Close the full photo before Back navigates away from the journal screen. */
 export function dismissPhotoDetail() {
   const dialog = /** @type {HTMLDialogElement | null} */ (
     document.querySelector('dialog.journal-photo-detail[open]')

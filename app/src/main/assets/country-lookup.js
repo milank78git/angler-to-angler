@@ -1,6 +1,7 @@
 // These files are bundled with the atlas. A location lookup never needs a geocoding service.
 const borders = new Map();
 
+/** Share concurrent border reads and allow a later retry after a failed download. */
 export function countryBorders(region) {
   if (!borders.has(region)) {
     const pending = fetch(region + '-borders.json')
@@ -27,6 +28,7 @@ function insideRing(x, y, ring) {
   }
   return inside;
 }
+/** Locate a fix inside the country's polygon while excluding its interior holes. */
 export function countryAt(borders, { lon, lat }) {
   return (
     Object.keys(borders).find((code) =>
@@ -38,6 +40,7 @@ export function countryAt(borders, { lon, lat }) {
   );
 }
 
+/** Check bundled European and US borders without transmitting the device location. */
 export async function atlasCountryAt(fix) {
   return countryAt(await countryBorders('europe'), fix) || countryAt(await countryBorders('us'), fix);
 }

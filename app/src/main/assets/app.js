@@ -79,6 +79,7 @@ window.reminderChanged = () => window.dispatchEvent(new Event('reminderchange'))
 window.positionResult = (id, fix) =>
   window.dispatchEvent(new CustomEvent('angler-position', { detail: { id, fix } }));
 
+/** Mount the route, restore focus and scroll, and let only the current view clear its busy indicator. */
 async function render(view, area) {
   dismissPhotoDetail();
   dismissConfirmation();
@@ -103,6 +104,7 @@ async function render(view, area) {
   screen.setAttribute('aria-busy', 'true');
   try {
     const edition = catalog.waterDirectory;
+    // Rendering may outlive its route when a native request or IndexedDB read is slow.
     await views[page]({ view, nav, ...catalog });
     if (!view.active()) return;
     if (edition !== catalog.waterDirectory) view.refreshWaters?.(catalog.waterDirectory);
@@ -129,6 +131,7 @@ async function render(view, area) {
     if (view.active()) screen.removeAttribute('aria-busy');
   }
 }
+/** Keep the WebView theme, toggle label and Android system bars in sync. */
 function setTheme(mode) {
   const dark = mode === 'dark';
   document.documentElement.dataset.theme = mode;
@@ -137,6 +140,7 @@ function setTheme(mode) {
   if (window.Device && typeof Device.systemBars === 'function')
     Device.systemBars(dark, !!localStorage.getItem('ui.theme'));
 }
+/** Load the offline edition and wire device notifications before selecting the initial destination. */
 async function start() {
   document.documentElement.lang = contentLanguage;
   by('guide-open').ariaLabel = by('guide-open').title = t('common.help');
@@ -184,6 +188,7 @@ async function start() {
     Object.assign(catalog, { pack, rivers, hints });
     let installed,
       request = 0;
+    /** Publish a complete atlas edition only while its request is still the newest one. */
     async function readDirectory() {
       const key = window.Device?.waterCatalogueVersion?.() || '';
       if (installed === key) return false;
@@ -240,6 +245,7 @@ async function start() {
       else view.refreshWaters?.(catalog.waterDirectory);
     };
     await window.waterCatalogueChanged();
+    /** Send the active owner's known favourite water keys to the Android notification job. */
     function updatePostWaters() {
       const owner = window.Device?.subjectId?.();
       if (!owner || !window.Device?.postFavourites) return;

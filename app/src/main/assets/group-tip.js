@@ -2,6 +2,7 @@ import { newJournalId } from './journal.js';
 import { rpc } from './profile-api.js';
 import { button, by, field, t, toast, writeEntry } from './ui.js';
 
+/** Render a private group recipient selector and an explicit post action. */
 export function groupTipControls() {
   return (
     button('tip-groups', t('group_tip.choose_a_fishing_group'), 'secondary') +
@@ -28,10 +29,12 @@ export function bindGroupTip(view, nav, tripId, getText) {
     choose.disabled = loading || !getText();
     post.disabled = !getText() || !select.value;
   };
+  /** Show the status of posting the tip to the chosen group. */
   function report(message) {
     feedback.textContent = message;
     feedback.hidden = !message;
   }
+  /** Preserve the local draft when the group operation fails. */
   function reportError(error) {
     if (error.status === 429) return report(t('limits.hourly'));
     const message =

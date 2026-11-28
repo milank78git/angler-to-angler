@@ -13,9 +13,12 @@ final class AccountRequests implements AutoCloseable {
   private final ExecutorService io = Executors.newFixedThreadPool(2);
   private boolean busy;
 
+  /** Bind request delivery to the lifetime of this activity. */
   AccountRequests(Activity activity) { this.activity = activity; }
+  /** Report whether an account operation currently owns the UI. */
   boolean busy() { return busy; }
 
+  /** Load the identity provider list off the UI thread and present the result while eligible. */
   void discoverProviders(IdentityService service, Consumer<JSONObject> present) {
     io.execute(() -> {
       try {
@@ -29,8 +32,10 @@ final class AccountRequests implements AutoCloseable {
     });
   }
 
+  /** Retire the activity's outstanding requests and worker resources. */
   @Override public void close() { io.shutdownNow(); }
 
+  /** Serialize account work and deliver completion through the activity's UI thread. */
   <T> void run(Callable<T> work, Consumer<T> done, Consumer<Exception> failed, Runnable started, Runnable finished) {
     if (busy) return;
     busy = true;

@@ -16,9 +16,12 @@ final class FieldAlerts {
   private static final int JOB = 473002;
   private static final ExecutorService IO = Executors.newSingleThreadExecutor();
 
+  /** Open the device-local settings for field and community notifications. */
   static SharedPreferences prefs(Context c) { return c.getSharedPreferences("field-alerts", Context.MODE_PRIVATE); }
+  /** Read the persisted subscription for the specified notification kind. */
   static boolean enabled(Context c, String kind) { return prefs(c).getBoolean(kind,false); }
 
+  /** Persist the notification choice and update the associated background work. */
   static synchronized void set(Context c, String kind, boolean on) {
     SharedPreferences.Editor edit = prefs(c).edit().putBoolean(kind,on);
     if (POSTS.equals(kind)) {
@@ -46,6 +49,7 @@ final class FieldAlerts {
     }
   }
 
+  /** Clear notification state associated with the previous account. */
   static synchronized void clear(Context c) {
     revoke(c, "key");
     revoke(c, "communityKey");
@@ -66,6 +70,7 @@ final class FieldAlerts {
     });
   }
 
+  /** Update the waters monitored by the current account's field alerts. */
   static synchronized void favourites(Context c, String owner, String keys) {
     if (owner.isEmpty() || !owner.equals(AccountStore.active(c)) || keys.length() > 220000) return;
     SharedPreferences p = prefs(c);
@@ -111,10 +116,12 @@ final class FieldAlerts {
 
   private static final String[] COMMUNITY_KINDS={"messages","replies","tips","catches","weekly","sales","ratings"};
 
+  /** Retire pending community notifications for this device. */
   private static void cancelCommunity(Context c) {
     for (String kind : COMMUNITY_KINDS) c.getSystemService(NotificationManager.class).cancel(kind,1);
   }
 
+  /** Poll the subscribed community signals before posting an Android notification. */
   private static void checkCommunity(Context c) throws Exception {
     SharedPreferences p=prefs(c);
     String key=p.getString("communityKey","");
@@ -139,11 +146,13 @@ final class FieldAlerts {
     }
   }
 
+  /** Apply the nearby-water subscription before notifying about the location match. */
   static synchronized void nearby(Context c, String id, String name) {
     if (!id.equals(prefs(c).getString("lastNearby","")) && post(c,NEARBY,name,id))
       prefs(c).edit().putString("lastNearby",id).apply();
   }
 
+  /** Publish the Android alert with the destination associated with its kind. */
   static synchronized boolean post(Context c, String kind, String body, String water) {
     String setting=java.util.Arrays.asList(COMMUNITY_KINDS).contains(kind) ? COMMUNITY : kind;
     if (!enabled(c,setting)) return false;

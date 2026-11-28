@@ -29,6 +29,7 @@ import {
   trackEdits,
   writeEntry,
 } from './ui.js';
+/** Show the stored water, date and catch count for one journal entry. */
 function tripRow(trip, number) {
   const date = new Date(trip.day + 'T12:00:00Z');
   return `<button class="trip-row" data-trip="${esc(trip.id)}"><span class="date-stamp" aria-hidden="true"><strong>
@@ -70,6 +71,7 @@ export async function listTrips({ view, nav, waterDirectory }) {
   const search = by('trip-search'),
     list = by('trip-list');
   let rows;
+  /** Rebuild the trip list for the active journal query. */
   function render() {
     const query = Domain.fold(search.value);
     const visible = query ? rows.filter((row) => row.terms.some((term) => term.includes(query))) : rows;
@@ -129,6 +131,7 @@ export async function tripForm({ view, nav, pack, waterDirectory }) {
   customName.value = original?.waterName || '';
   by('notes').value = original?.notes || '';
   search.maxLength = customName.maxLength;
+  /** Keep the draft water identity and displayed location fields consistent. */
   function updateWaterFields() {
     const pending = !!search.value.trim();
     by('use-water-name').hidden = !pending;

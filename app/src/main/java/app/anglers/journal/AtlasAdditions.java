@@ -9,6 +9,7 @@ import java.util.Set;
 
 /** Compare published identities without loading geometry into the background worker's heap. */
 final class AtlasAdditions {
+  /** Collect the stable water identities from one provider edition. */
   private static void edition(JsonReader r,String provider,Set<String> ids) throws IOException {
     r.beginObject();
     while (r.hasNext()) {
@@ -28,16 +29,19 @@ final class AtlasAdditions {
     r.endObject();
   }
 
+  /** Read the available provider editions from the Europe snapshot. */
   private static void europe(JsonReader r,Set<String> ids) throws IOException {
     r.beginObject();
     while (r.hasNext()) edition(r,r.nextName(),ids);
     r.endObject();
   }
 
+  /** Decode the atlas stream as UTF-8 through a buffered JSON reader. */
   private static JsonReader reader(InputStream in) {
     return new JsonReader(new BufferedReader(new InputStreamReader(in,StandardCharsets.UTF_8)));
   }
 
+  /** Read the complete water-key set for the bundled or installed edition. */
   static Set<String> identities(Context c,String revision) throws IOException {
     Set<String> ids=new HashSet<>();
     if (revision.isEmpty()) {
@@ -56,6 +60,7 @@ final class AtlasAdditions {
     return ids;
   }
 
+  /** Compare editions and notify subscribers only about newly added water identities. */
   static void notify(Context c,String previous,String installed) {
     if (!FieldAlerts.enabled(c,FieldAlerts.WATERS)) return;
     try {

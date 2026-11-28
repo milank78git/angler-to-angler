@@ -6,6 +6,7 @@ import { bind, button, by, displayDay, esc, field, link, selectField, t } from '
 
 /** Render one dated national reference in both the lookup screen and a private catch draft. */
 export function nationalRulesHtml(data, site, type, latin, day, lookup = false) {
+  /** Render the dated status with the original authority link and verification date. */
   function entry(rule) {
     const source = data.rules.sources[rule.source];
     const status = forFishingDate(rule, source, day);
@@ -32,6 +33,7 @@ export function nationalRulesHtml(data, site, type, latin, day, lookup = false) 
     );
   }
 
+  /** Associate the rule group with its localized heading and an explicit missing-evidence message. */
   function section(id, title, rows, missing) {
     return (
       '<section class="surface"' +
@@ -116,6 +118,7 @@ export async function waterFishRules(view, nav, site) {
       button('water-fish-rules', t('fish_catalogue.title'), 'secondary'),
   );
 
+  /** Update the rule result from the current water class, species and date controls. */
   function refresh() {
     replaceMarkup(
       by('status'),

@@ -72,6 +72,7 @@ export async function profileDetailsSummary(view) {
   }
 }
 
+/** Edit licence expiry and reminder preferences against the revision last read from the server. */
 /** @param {import('../../../../types/screens.js').ScreenContext} context */
 export async function anglerDetails({ view, nav }) {
   let data;
@@ -137,6 +138,7 @@ export async function anglerDetails({ view, nav }) {
     expiry = by('permit-expiry'),
     lead = by('permit-lead');
   trackEdits(form, view);
+  /** Keep reminder controls consistent with an empty expiry and Android notification permission. */
   function update() {
     lead.disabled = !expiry.value;
     if (!expiry.value) lead.value = 'off';

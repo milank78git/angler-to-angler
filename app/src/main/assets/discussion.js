@@ -27,6 +27,7 @@ const removed = () => t('discussion.the_text_of_this_post_was_removed');
 const linked = () => t('discussion.this_post_has_a_text_reply_and');
 const report = () => t('discussion.report_post');
 
+/** Choose the translated recovery message for the discussion service response. */
 function errorText(error) {
   if (error.status === 429) return t('limits.hourly');
   if (error.status === 401 || error.status === 403) return t('discussion.sign_in_with_a_verified_account_to');
@@ -36,6 +37,7 @@ function errorText(error) {
   return t('common.could_not_connect_please_retry');
 }
 
+/** Render a post with its author, reply context and moderation state. */
 function postCard(item) {
   const card = document.createElement('article');
   card.className = 'surface discussion-post';
@@ -78,6 +80,7 @@ function postCard(item) {
   return card;
 }
 
+/** Append an actionable control to this post's own button row. */
 function action(card, label, callback, style = 'secondary') {
   let row = card.querySelector('.actions');
   if (!row) {
@@ -138,6 +141,7 @@ export async function waterDiscussion({ view, nav, waterDirectory }) {
   );
   bind('discussion-refresh', () => nav.show());
 
+  /** Expose only the discussion actions allowed by the server's post state. */
   function makeCard(item, isRoot) {
     const card = postCard(item);
     if (!questionId) {
@@ -239,6 +243,7 @@ export async function waterDiscussion({ view, nav, waterDirectory }) {
     return card;
   }
 
+  /** Request the next page of this discussion and retire stale screen results. */
   async function loadPage() {
     if (loading || view.saving || !view.active()) return;
     loading = true;

@@ -14,6 +14,7 @@ import android.os.SystemClock;
 /** Owns one user-initiated position request, including the time spent awaiting permission. */
 final class PositionRequest {
   interface Result {
+    /** Deliver the fix or cancellation to the owner of the specified request ID. */
     void deliver(int id, Location fix);
   }
 
@@ -29,6 +30,7 @@ final class PositionRequest {
   private LocationListener listener;
   private final Runnable timeout = () -> finish(active, null);
 
+  /** Bind native location results to the owning activity and callback. */
   PositionRequest(Activity activity, Result result) {
     this.activity = activity;
     this.result = result;
@@ -56,6 +58,7 @@ final class PositionRequest {
     }
   }
 
+  /** Resume the still-active position request after the Android permission decision. */
   void permissionResult() {
     permissionPending = false;
     if (active == 0) return;
@@ -63,6 +66,7 @@ final class PositionRequest {
     else finish(active, null);
   }
 
+  /** Check whether the app currently holds an appropriate location permission. */
   private boolean hasPermission() {
     return activity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
             == PackageManager.PERMISSION_GRANTED
@@ -70,6 +74,7 @@ final class PositionRequest {
             == PackageManager.PERMISSION_GRANTED);
   }
 
+  /** Register the location sources and timeout for the active request. */
   private void start(int id) {
     if (manager == null) {
       finish(id, null);
@@ -88,6 +93,7 @@ final class PositionRequest {
     }
     listener =
         new LocationListener() {
+          /** Ignore cached fixes older than the position request's start time. */
           @Override
           public void onLocationChanged(Location fix) {
             if (fix.getElapsedRealtimeNanos() < started) return;
@@ -95,12 +101,15 @@ final class PositionRequest {
             finish(id, fix);
           }
 
+          /** Provider status alone does not supply a usable position fix. */
           @Override
           public void onStatusChanged(String p, int s, Bundle b) {}
 
+          /** Keep the request deadline in force while other providers may still deliver. */
           @Override
           public void onProviderDisabled(String p) {}
 
+          /** Wait for an actual location fix from the newly available provider. */
           @Override
           public void onProviderEnabled(String p) {}
         };
@@ -119,11 +128,13 @@ final class PositionRequest {
     else finish(id, null);
   }
 
+  /** Require a genuine fix with acceptable measurement quality for catch evidence. */
   static boolean acceptableEvidenceFix(Location fix) {
     return fix != null && !fix.isFromMockProvider() && fix.hasAccuracy()
         && fix.getAccuracy() >= 0 && fix.getAccuracy() <= 100;
   }
 
+  /** Choose the newest eligible fix from the available location providers. */
   private Location recentFix(String[] providers, long now) {
     Location newest = null;
     for (String provider : providers) {
@@ -141,10 +152,12 @@ final class PositionRequest {
     return newest;
   }
 
+  /** Stop the lookup only when the supplied ID still owns the request. */
   void cancel(int id) {
     if (id == active) stop();
   }
 
+  /** Unregister listeners and clear the timeout for the active lookup. */
   void stop() {
     active = 0;
     handler.removeCallbacks(timeout);
@@ -158,6 +171,7 @@ final class PositionRequest {
     }
   }
 
+  /** Stop the request before delivering its single result to the awaiting caller. */
   private void finish(int id, Location fix) {
     if (id == 0 || id != active) return;
     stop();

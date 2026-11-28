@@ -75,6 +75,7 @@ export async function parkingEditor({ view, nav, waterDirectory }) {
   input.oninput = () => {
     view.dirty = true;
   };
+  /** Read the proposed parking position from the editor before saving the change. */
   function coordinates() {
     const selected = picker.point;
     by('parking-coordinates').textContent = selected

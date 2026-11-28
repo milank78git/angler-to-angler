@@ -8,14 +8,17 @@ final class AccountDocuments {
   private final AccountLayout ui;
   private final String deploymentNotice;
 
+  /** Keep the activity, themed layout and deployment notice together for this document reader. */
   AccountDocuments(Activity activity, AccountLayout ui, String deploymentNotice) {
     this.activity = activity;
     this.ui = ui;
     this.deploymentNotice = deploymentNotice;
   }
 
+  /** Resolve a document action label in the selected app language. */
   private String text(String key) { return AppLanguage.text(activity, key); }
 
+  /** Present the available document types before opening a reader. */
   void open() {
     AccountLayout.Prompt menu = ui.prompt(text("account.terms_and_privacy"));
     choice(menu, "terms", "account.terms_of_use");
@@ -25,11 +28,13 @@ final class AccountDocuments {
     menu.show();
   }
 
+  /** Bind a localized menu choice to the corresponding packaged document. */
   private void choice(AccountLayout.Prompt menu, String kind, String key) {
     String title = text(key);
     menu.choice(title, AccountLayout.Action.SECONDARY, () -> document(kind, title));
   }
 
+  /** Append the deployment and optional-profile notices when displaying privacy information. */
   private void document(String kind, String title) {
     try {
       String contents;

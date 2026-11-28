@@ -27,6 +27,7 @@ const exampleNumber = new Intl.NumberFormat(languageTag, {
   useGrouping: false,
   numberingSystem: 'latn',
 });
+/** Own temporary image URLs and keep a camera fix associated with the selected photo. */
 function bindPhotoPreview(existing) {
   let preview, file, capture;
   if (existing) {
@@ -35,6 +36,7 @@ function bindPhotoPreview(existing) {
     by('photo-preview').hidden = false;
     by('photo-label').textContent = t('catch_form.change_photo');
   }
+  /** Replace the draft image and release any camera resource superseded by a gallery choice. */
   function choose(input, camera) {
     if (!input.files[0]) return;
     file = input.files[0];
@@ -57,6 +59,7 @@ function bindPhotoPreview(existing) {
   return {
     file: () => file || by('photo').files[0],
     capture: () => capture,
+    /** Release any outstanding camera file and revoke the preview URL when the form is retired. */
     dispose() {
       window.Device?.releaseCameraPhoto?.();
       if (preview) URL.revokeObjectURL(preview);
@@ -155,6 +158,7 @@ export async function catchForm({ view, nav, pack, waterDirectory }) {
       id,
       async () => {
         const photo = original && !file ? undefined : await pixelJpeg(file, 1920);
+        // The original record lets IndexedDB reject an edit if another view has already changed it.
         await Journal.saveCatch(record, photo, original);
       },
       (error) =>
@@ -166,6 +170,7 @@ export async function catchForm({ view, nav, pack, waterDirectory }) {
     );
   };
 }
+/** Assemble the localized controls shared by new catches and edits to existing records. */
 function catchFields(original) {
   const kinds = [
     ['stand', t('common.angler_position')],

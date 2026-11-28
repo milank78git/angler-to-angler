@@ -21,21 +21,25 @@ public final class LicenseReminder extends BroadcastReceiver {
   private static final String FIRE = "app.anglers.journal.LICENSE_DUE";
   private static final int ID = 4816;
 
+  /** Open the device-private licence reminder state. */
   private static SharedPreferences prefs(Context c) {
     return c.getSharedPreferences("fishing-license", Context.MODE_PRIVATE);
   }
 
+  /** Build the stable Android broadcast intent used to schedule or cancel the reminder. */
   private static PendingIntent alarm(Context c) {
     return PendingIntent.getBroadcast(c, ID, new Intent(c, LicenseReminder.class).setAction(FIRE),
         PendingIntent.FLAG_IMMUTABLE);
   }
 
+  /** Remove the saved expiry and cancel outstanding licence reminders. */
   static synchronized void clear(Context c) {
     prefs(c).edit().clear().apply();
     c.getSystemService(AlarmManager.class).cancel(alarm(c));
     c.getSystemService(NotificationManager.class).cancel(ID);
   }
 
+  /** Persist a verified expiry only for the subject that still owns the device session. */
   static synchronized void remember(Context c, String subject, JSONObject saved) throws org.json.JSONException {
     if (!subject.equals(AccountStore.prefs(c).getString("subject",""))) return;
     SharedPreferences cache = prefs(c);
@@ -54,12 +58,14 @@ public final class LicenseReminder extends BroadcastReceiver {
     reconcile(c);
   }
 
+  /** Check device notification permissions before presenting the reminder controls. */
   static boolean notificationsEnabled(Context c) {
     NotificationManager manager = c.getSystemService(NotificationManager.class);
     NotificationChannel channel = manager.getNotificationChannel(CHANNEL);
     return manager.areNotificationsEnabled() && (channel == null || channel.getImportance() != NotificationManager.IMPORTANCE_NONE);
   }
 
+  /** Read the stored expiry only when the cached owner is still applicable. */
   private static LocalDate expiry(Context c) {
     SharedPreferences cache = prefs(c);
     String owner = cache.getString("owner","");
@@ -78,6 +84,7 @@ public final class LicenseReminder extends BroadcastReceiver {
     return AppLanguage.text(c, "license."+state).replace("{date}",formatted);
   }
 
+  /** Recalculate the due notification and schedule from the current calendar date. */
   static synchronized void reconcile(Context c) {
     SharedPreferences cache = prefs(c);
     AlarmManager alarms = c.getSystemService(AlarmManager.class);
@@ -107,6 +114,7 @@ public final class LicenseReminder extends BroadcastReceiver {
     cache.edit().putBoolean("delivered",true).apply();
   }
 
+  /** Re-evaluate the reminder after an alarm or Android lifecycle broadcast. */
   @Override public void onReceive(Context context, Intent event) {
     reconcile(context);
   }

@@ -8,6 +8,7 @@ import { button, by, displayDay, esc, link, loc, selectField, t, textInput } fro
 const manual = 'manual';
 const pageSize = 50;
 
+/** Render a scientific species selector alongside the optional manual-name input. */
 export function catchSpeciesFields() {
   return (
     '<div id="catch-filter">' +
@@ -77,6 +78,7 @@ export function bindCatchSpecies(pack, trip, directory, original = null) {
   }
   select.required = true;
 
+  /** Show the manual input or refresh the open rule panel for the selected species. */
   function showSelection() {
     const custom = select.value === manual;
     by('custom-fish').hidden = !custom;
@@ -86,6 +88,7 @@ export function bindCatchSpecies(pack, trip, directory, original = null) {
       replaceMarkup(body, catchRulesHtml(pack, directory, site, trip.day, custom ? null : select.value));
   }
 
+  /** Rebuild country-filtered choices while preserving a matching selection beyond the page boundary. */
   function populate() {
     const current = select.value;
     const country = by('catch-country-scope')?.value ?? trip.country;
@@ -137,10 +140,12 @@ export function bindCatchSpecies(pack, trip, directory, original = null) {
     showSelection();
   }
   return {
+    /** Refresh the draft's rule reference when the selected atlas record changes. */
     setWater(water) {
       site = water;
       showSelection();
     },
+    /** Project the selection back to the journal's legacy, scientific or manual species representation. */
     record() {
       const id = select.value;
       if (id === manual) return { speciesId: null, speciesName: manualName.value.trim() };

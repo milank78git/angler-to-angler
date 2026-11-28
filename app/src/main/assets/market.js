@@ -58,6 +58,7 @@ const editLabel = () => t('market.edit_offer');
 const waterName = (directory, key) => directory.byKey.get(key)?.name || '';
 const heading = (title) => back(t('common.back')) + '<h1>' + esc(title) + '</h1>';
 
+/** Translate the market rejection into the action available to the buyer or seller. */
 function errorText(status) {
   if (status === 429) return t('limits.hourly');
   if (status === 401 || status === 403) return t('market.sign_in_with_a_verified_account');
@@ -68,6 +69,7 @@ function errorText(status) {
   return t('market.connection_failed_please_retry');
 }
 
+/** Offer a retry only on the market screen that initiated this request. */
 function loadError(view, nav, err) {
   if (!view.active()) return;
   replaceMarkup(
@@ -126,6 +128,7 @@ function offerFacts(item, waterDirectory, directory) {
   );
 }
 
+/** Activate the test balance and refresh the shelf after the grant succeeds. */
 function claim(view, nav) {
   bind('market-activate', () =>
     submitChange(
@@ -147,6 +150,7 @@ export async function marketShelf({ view, nav, waterDirectory }) {
       .map(([key, label]) => button('shelf-' + key, label, shelf === key ? 'primary' : 'secondary'))
       .join('') +
     '</div>';
+  /** Reset pagination when the angler switches between available, purchased and owned tips. */
   function bindShelves() {
     for (const key of Object.keys(shelves())) {
       by('shelf-' + key).setAttribute('aria-pressed', String(key === shelf));
@@ -255,6 +259,7 @@ export async function marketShelf({ view, nav, waterDirectory }) {
   if (by('market-create')) bind('market-create', () => nav.open('marketEditor', { water }));
 }
 
+/** Present the wallet failure separately from the catalogue results. */
 function walletUnavailable() {
   return (
     '<p role="status">' +
@@ -488,6 +493,7 @@ export async function marketEditor({ view, nav, waterDirectory }) {
   dayInput.addEventListener('input', () => {
     automaticDay = false;
   });
+  /** Validate the offer date in the selected fishing location's time zone. */
   function updateDay() {
     dayInput.max = today(zoneOf(selectedWater()));
     if (automaticDay) dayInput.value = dayInput.max;
@@ -499,6 +505,7 @@ export async function marketEditor({ view, nav, waterDirectory }) {
   const picker = by('offer-species');
   const country = by('offer-country');
   const search = by('species-filter');
+  /** Rebuild the available offer species for the editor's current search and country. */
   function choices(selected) {
     const items = matchingSpecies(directory, country.value, search.value);
     picker.replaceChildren(new Option(t('market.choose_a_catalogue_species'), ''));
@@ -547,6 +554,7 @@ export async function marketEditor({ view, nav, waterDirectory }) {
     if (!draft.title || !draft.species || draft.technique.length < 10) return toast(errorText(422));
     review(draft);
   };
+  /** Present the terms that the seller is about to submit. */
   async function review(draft) {
     const commercial = playEdition() && !old;
     const message = [

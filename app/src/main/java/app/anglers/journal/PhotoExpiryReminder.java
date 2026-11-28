@@ -22,15 +22,18 @@ public final class PhotoExpiryReminder extends BroadcastReceiver {
   private static final int[] LEAD_DAYS = {30, 7};
   private static final String CHANNEL = "journal-photo-expiry";
 
+  /** Open the device-private cloud photo reminder state. */
   private static SharedPreferences preferences(Context context) {
     return context.getSharedPreferences(CHANNEL, Context.MODE_PRIVATE);
   }
 
+  /** Identify the Android alarm for the owner's photo reminder. */
   private static PendingIntent alarm(Context context) {
     return PendingIntent.getBroadcast(context, ID, new Intent(context, PhotoExpiryReminder.class),
         PendingIntent.FLAG_IMMUTABLE);
   }
 
+  /** Clear the saved expiry reminders and their device notification state. */
   static synchronized void clear(Context context) {
     preferences(context).edit().clear().apply();
     context.getSystemService(AlarmManager.class).cancel(alarm(context));
@@ -58,6 +61,7 @@ public final class PhotoExpiryReminder extends BroadcastReceiver {
     reconcile(context);
   }
 
+  /** Notify the signed-in photo owner about the upcoming expiry. */
   private static boolean notifyOwner(Context context, String owner) {
     NotificationManager manager = context.getSystemService(NotificationManager.class);
     String title = AppLanguage.text(context, "retention.title");
@@ -107,6 +111,7 @@ public final class PhotoExpiryReminder extends BroadcastReceiver {
     }
   }
 
+  /** Reconcile the photo reminder after the corresponding Android broadcast. */
   @Override public void onReceive(Context context, Intent event) {
     reconcile(context);
   }

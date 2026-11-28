@@ -26,10 +26,12 @@ public final class AccountActivity extends LocalizedActivity {
   private boolean managing;
   private JSONObject profile;
 
+  /** Resolve account-screen copy using the current app language. */
   private String text(String key) {
     return AppLanguage.text(this, key);
   }
 
+  /** Restore the sign-in context before choosing the account or registration screen. */
   @Override
   public void onCreate(Bundle state) {
     super.onCreate(state);
@@ -64,12 +66,14 @@ public final class AccountActivity extends LocalizedActivity {
     }
   }
 
+  /** Recheck account state when returning to the activity. */
   @Override
   protected void onResume() {
     super.onResume();
     if (managing && AccountStore.active(this).isEmpty()) login();
   }
 
+  /** Route a new account callback to the existing foreground activity. */
   @Override
   protected void onNewIntent(Intent intent) {
     super.onNewIntent(intent);
@@ -95,6 +99,7 @@ public final class AccountActivity extends LocalizedActivity {
     } else callback(intent);
   }
 
+  /** Cancel pending authentication work owned by this activity. */
   @Override
   protected void onDestroy() {
     requests.close();
@@ -103,6 +108,7 @@ public final class AccountActivity extends LocalizedActivity {
     super.onDestroy();
   }
 
+  /** Create an account control that respects the activity's current request state. */
   private Button action(String title, AccountLayout.Action style, Runnable handler) {
     return ui.button(
         ui.form,
@@ -113,10 +119,12 @@ public final class AccountActivity extends LocalizedActivity {
         });
   }
 
+  /** Open the localized terms, privacy and licence reader. */
   private void documents() {
     action(text("account.terms_and_privacy"), AccountLayout.Action.LINK, documents::open);
   }
 
+  /** Build the available email, provider and returning-device sign-in choices. */
   private void login() {
     signing = null;
     managing = false;
@@ -211,6 +219,7 @@ public final class AccountActivity extends LocalizedActivity {
     });
   }
 
+  /** Create the email field with the expected input mode and explanatory text. */
   private EditText addressField(String explanation) {
     EditText field =
         ui.field(
@@ -222,6 +231,7 @@ public final class AccountActivity extends LocalizedActivity {
     return field;
   }
 
+  /** Retain the submitted email only after the visible field passes validation. */
   private boolean readAddress(EditText field) {
     String value = field.getText().toString().trim();
     if (!android.util.Patterns.EMAIL_ADDRESS.matcher(value).matches()) {
@@ -232,6 +242,7 @@ public final class AccountActivity extends LocalizedActivity {
     return true;
   }
 
+  /** Select the input configuration appropriate to a new or existing password. */
   private EditText passwordField(boolean fresh) {
     EditText field =
         ui.field(
@@ -245,6 +256,7 @@ public final class AccountActivity extends LocalizedActivity {
     return field;
   }
 
+  /** Validate the password for this operation before sending an account request. */
   private boolean validPassword(EditText field, boolean fresh) {
     String value = field.getText().toString();
     if (!value.isEmpty() && (!fresh || value.codePointCount(0, value.length()) >= 8)) return true;
@@ -255,6 +267,7 @@ public final class AccountActivity extends LocalizedActivity {
     return false;
   }
 
+  /** Offer email registration, password login or recovery according to the selected mode. */
   private void emailForm(boolean recovery) {
     ui.page(
         recovery ? text("account.password_setup") : text("account.registration"),
@@ -304,6 +317,7 @@ public final class AccountActivity extends LocalizedActivity {
     action(text("account.back_to_sign_in"), AccountLayout.Action.LINK, this::login);
   }
 
+  /** Apply the password chosen for the verified recovery session. */
   private void choosePassword(IdentityService.Session recovery) {
     PendingSignIn.clear(AccountStore.prefs(this));
     ui.page(text("account.set_a_new_password"), false);
@@ -343,6 +357,7 @@ public final class AccountActivity extends LocalizedActivity {
               prompt,
               getMainExecutor(),
               new android.hardware.biometrics.BiometricPrompt.AuthenticationCallback() {
+                /** Continue the pending device-unlock flow after local authentication succeeds. */
                 @Override
                 public void onAuthenticationSucceeded(
                     android.hardware.biometrics.BiometricPrompt.AuthenticationResult result) {
@@ -350,6 +365,7 @@ public final class AccountActivity extends LocalizedActivity {
                   if (!isFinishing() && !isDestroyed()) openVault();
                 }
 
+                /** Handle termination of the device authentication prompt. */
                 @Override
                 public void onAuthenticationError(int code, CharSequence message) {
                   prompt = null;
@@ -362,12 +378,14 @@ public final class AccountActivity extends LocalizedActivity {
     }
   }
 
+  /** Resume a pending native unlock after the device credential screen returns. */
   @Override
   protected void onActivityResult(int request, int result, Intent data) {
     super.onActivityResult(request, result, data);
     if (request == 31 && result == RESULT_OK) openVault();
   }
 
+  /** Restore the locally protected account session after device authentication. */
   private void openVault() {
     run(
         () -> AccountStore.unlock(this),
@@ -379,6 +397,7 @@ public final class AccountActivity extends LocalizedActivity {
         });
   }
 
+  /** Explain the pending email step and expose the permitted retry action. */
   private void inbox() {
     String purpose = AccountStore.prefs(this).getString("pkcePurpose", "");
     boolean signup = "signup".equals(purpose);
@@ -439,16 +458,19 @@ public final class AccountActivity extends LocalizedActivity {
         });
   }
 
+  /** Persist the verifier, email and purpose together for the returning browser callback. */
   private boolean savePending(String verifier, String address, String purpose) {
     boolean saved = PendingSignIn.save(AccountStore.prefs(this), verifier, address, purpose, groupLogin, profileLogin);
     if (!saved) ui.message(text("account.could_not_save_the_sign_in_request"));
     return saved;
   }
 
+  /** Choose the recovery message for an expired verification link. */
   private String expiredEmailMessage() {
     return text("account.this_link_was_already_used_or_has");
   }
 
+  /** Start the selected provider flow with a fresh verifier bound to this device. */
   private void oauth(String provider) {
     try {
       String verifier = IdentityService.verifier();
@@ -460,6 +482,7 @@ public final class AccountActivity extends LocalizedActivity {
     }
   }
 
+  /** Match the incoming account response to the pending verification or recovery operation. */
   private void callback(Intent intent) {
     Uri uri = intent.getData();
     if (uri == null || service == null || requests.busy()) return;
@@ -492,6 +515,7 @@ public final class AccountActivity extends LocalizedActivity {
     android.util.Log.i("AnglerAuth", "Exchanging pending email or provider callback");
     boolean recovery = "recovery".equals(p.getString("pkcePurpose", ""));
     run(
+        // Bind the browser response to the verifier and identity saved on this installation.
         () -> service.exchange(code, verifier, expectedEmail),
         session -> {
           if (recovery) choosePassword(session);
@@ -499,6 +523,7 @@ public final class AccountActivity extends LocalizedActivity {
         });
   }
 
+  /** Read the registration state before granting access to the journal. */
   private void verified(IdentityService.Session auth) {
     PendingSignIn.clear(AccountStore.prefs(this));
     signing = auth;
@@ -511,6 +536,7 @@ public final class AccountActivity extends LocalizedActivity {
         });
   }
 
+  /** Present the required identity, age and document acceptance fields. */
   private void registration() {
     ui.page(text("account.angler_profile"), false);
     EditText nickname =
@@ -578,6 +604,7 @@ public final class AccountActivity extends LocalizedActivity {
     action(text("account.back_to_sign_in"), AccountLayout.Action.LINK, this::login);
   }
 
+  /** Populate the registration field from the native date picker. */
   private void chooseBirthDate(EditText input) {
     java.time.LocalDate today = java.time.LocalDate.now(java.time.ZoneId.of("Europe/Prague"));
     java.time.LocalDate initial = today.minusYears(18);
@@ -593,6 +620,7 @@ public final class AccountActivity extends LocalizedActivity {
     picker.show();
   }
 
+  /** Submit the entered profile and birth date with the current document versions. */
   private void submitRegistration(String name, String date, boolean firstRegistration) {
     run(() -> service.accept(signing.access, name, date), result -> {
       if (firstRegistration && signing.id.equals(result.optString("id")) && result.optBoolean("current")) {
@@ -603,6 +631,7 @@ public final class AccountActivity extends LocalizedActivity {
     });
   }
 
+  /** Choose the next account screen from the verified registration response. */
   private void finishProfile(JSONObject result) {
     if (!result.optBoolean("current")
         || signing == null
@@ -629,6 +658,7 @@ public final class AccountActivity extends LocalizedActivity {
     journal.show();
   }
 
+  /** Persist the verified account and its access state before entering the pilot. */
   private void activate(JSONObject result, boolean legacy) {
 
     IdentityService.Session auth = signing;
@@ -653,6 +683,7 @@ public final class AccountActivity extends LocalizedActivity {
         });
   }
 
+  /** Launch the destination requested by the signed-in user. */
   private void enter() {
     String invite = getIntent().getStringExtra("invite");
     if (invite != null) {
@@ -674,6 +705,7 @@ public final class AccountActivity extends LocalizedActivity {
     finish();
   }
 
+  /** Present the account actions available to the active profile. */
   private void manage() {
     managing = true;
     ui.page(AccountStore.prefs(this).getString("name", ""), false);
@@ -712,12 +744,14 @@ public final class AccountActivity extends LocalizedActivity {
     documents();
   }
 
+  /** Submit account work through the activity's serialized request controller. */
   private <T> void run(java.util.concurrent.Callable<T> work, java.util.function.Consumer<T> done) {
     requests.run(work, value -> { ui.message(""); done.accept(value); },
         error -> ui.message(errorMessage(error)),
         () -> ui.message(text("account.contacting_account_service")), () -> callback(getIntent()));
   }
 
+  /** Convert service and local authentication failures into localized recovery instructions. */
   private String errorMessage(Exception error) {
     if (error instanceof IdentityService.EmailRateLimit)
       return text("account.too_many_attempts_please_try_again_later");

@@ -36,6 +36,7 @@ const monthLabel = (month) =>
     new Date(month + 'T12:00:00Z'),
   );
 
+/** Pair stable method identifiers with translated descriptions for reports and contributions. */
 function methodChoices() {
   return [
     ['unspecified', unspecified()],
@@ -47,6 +48,7 @@ function methodChoices() {
   ];
 }
 
+/** Translate activity status codes including stale revisions and rate limits. */
 function problem(err) {
   if (err.status === 429) return t('limits.hourly');
   if (err.status === 401 || err.status === 403)
@@ -56,6 +58,7 @@ function problem(err) {
   return t('common.service_unavailable_check_your_connection_and_retry');
 }
 
+/** Render retry and Back actions only while this activity screen is active. */
 function failed(view, nav, err) {
   if (!view.active()) return;
   replaceMarkup(
@@ -72,6 +75,7 @@ function failed(view, nav, err) {
   bind('activity-retry', () => nav.show());
 }
 
+/** Describe a saved contribution using this edition's water and species labels. */
 function entryText(entry, directory, pack, fish, methods) {
   const water = directory.byKey.get(entry.water);
   const label = (pairs, key) => pairs.find(([id]) => id === key)?.[1] || key;
@@ -84,6 +88,7 @@ function entryText(entry, directory, pack, fish, methods) {
   ].join(' / ');
 }
 
+/** Confirm removal from shared statistics before submitting the expected revision. */
 async function withdraw(view, nav, item) {
   const accept = t('water_activity.withdraw_from_statistics');
   if (

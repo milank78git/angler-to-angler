@@ -43,15 +43,18 @@ export function visibleTiles(camera, width, height) {
 export function topographicLayer(group, onError) {
   const images = new Map();
   let timer;
+  /** Tell the map whether any requested relief tiles failed to load. */
   function status() {
     onError([...images.values()].some((image) => image.dataset.failed));
   }
+  /** Detach existing tile images before changing the visible layer. */
   function clear() {
     clearTimeout(timer);
     images.clear();
     group.replaceChildren();
     status();
   }
+  /** Retain visible tiles and request the tiles newly exposed by the camera. */
   function update(camera, width, height) {
     clearTimeout(timer);
     const tiles = visibleTiles(camera, width, height);
@@ -62,6 +65,7 @@ export function topographicLayer(group, onError) {
         images.delete(key);
       }
     }
+    /** Place a tile in projected coordinates at the current scale. */
     function position(image, tile) {
       image.setAttribute('x', tile.x);
       image.setAttribute('y', tile.y);

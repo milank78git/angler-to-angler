@@ -20,6 +20,7 @@ function cardFields(trip, entry) {
   ].filter(([, , value]) => value);
 }
 
+/** Build the shareable photo representation without sending the journal's original metadata. */
 async function photoCopy(id) {
   const stored = await Journal.photo(id);
   if (!stored) throw Error('Photo unavailable');

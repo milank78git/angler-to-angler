@@ -26,6 +26,7 @@ const mine = () => t('common.my_public_cards');
 const checkbox = (id, label) =>
   '<label class="card-option"><input type="checkbox" id="' + id + '">' + esc(label) + '</label>';
 
+/** Translate the public-card failure in the context of publication or withdrawal. */
 function message(error) {
   if (error.status === 429) return t('limits.hourly');
   if (error.status === 409) return t('public_cards.the_details_or_link_changed_refresh_the');
@@ -35,6 +36,7 @@ function message(error) {
   return t('common.service_unavailable_check_your_connection_and_retry');
 }
 
+/** Restore a navigable error screen after a public-card request fails. */
 function failed(view, nav, error) {
   if (!view.active()) return;
   replaceMarkup(
@@ -51,6 +53,7 @@ function failed(view, nav, error) {
   bind('refresh-public', () => nav.show());
 }
 
+/** Validate the returned card link before exposing open, share and revoke actions. */
 function linkControls(host, item, view, nav) {
   const url = new URL(item.url);
   if (url.protocol !== 'https:' || url.username || url.password || url.hash !== '#' + item.id)
@@ -164,6 +167,7 @@ export async function publicCardEditor({ view, nav, pack, waterDirectory }) {
   let latest,
     photoTask,
     revision = 0;
+  /** Regenerate the exact public payload and ignore obsolete asynchronous photo results. */
   async function preview() {
     const update = ++revision;
     latest = null;

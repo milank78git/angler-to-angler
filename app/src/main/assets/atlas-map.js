@@ -21,6 +21,7 @@ export function mapFeature(water, outlines) {
   return target ? { target, access, polygons, lines, points } : null;
 }
 
+/** Fit published coordinates into the drawing area while reserving space for labels. */
 function projection(points, width, height, padding) {
   const cos = Math.max(0.02, Math.cos((points[0][1] * Math.PI) / 180));
   let left = Infinity,
@@ -44,6 +45,7 @@ function projection(points, width, height, padding) {
 }
 
 const path = (line, xy) => 'M' + line.map((p) => xy(p).join(' ')).join('L');
+/** Load the available locator boundaries for this water's country. */
 async function countryOutline(country) {
   if (country === 'US') return [];
   const borders = await countryBorders('europe').catch(() => ({}));
@@ -119,11 +121,13 @@ function nearbyLabels(water, directory, target) {
   return nearby.sort((a, b) => a.km - b.km).slice(0, 4);
 }
 
+/** Resolve the geometry available for this record from the current atlas edition. */
 export async function waterFeature(water, directory) {
   const outlines = water.mapped ? await directory.geography().catch(() => ({})) : {};
   return mapFeature(water, outlines[water.key]);
 }
 
+/** Attach the offline sketch only if the requesting water screen is still mounted. */
 export async function attachAtlasMap(host, water, directory, view, featurePromise) {
   const feature = await featurePromise;
   const country =

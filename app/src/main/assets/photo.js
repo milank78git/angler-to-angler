@@ -1,6 +1,7 @@
 /** Decode and re-encode into pixels only, dropping source EXIF and location metadata. */
 export const pixelJpeg = (file, edge) => pixelCopy(file, edge, 'image/jpeg');
 
+/** Decode and redraw the image at a bounded size before exporting pixels in the requested format. */
 async function pixelCopy(file, maxEdge, type) {
   if (!file) return null;
   if (file.size > 30 * 1024 * 1024) throw Error('photo');

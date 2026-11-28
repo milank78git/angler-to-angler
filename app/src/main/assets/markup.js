@@ -16,6 +16,7 @@ function fragment(markup) {
   return purifier.sanitize(markup, { RETURN_DOM_FRAGMENT: true, ADD_TAGS: ['use'] });
 }
 
+/** Sanitize the detached template before replacing the current set of DOM children. */
 export function replaceMarkup(target, markup) {
   target.replaceChildren(fragment(markup));
 }

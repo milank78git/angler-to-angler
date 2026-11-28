@@ -7,6 +7,7 @@ let request = 0;
 const get = (id) => document.getElementById(id);
 const node = (tag, value) => Object.assign(document.createElement(tag), { textContent: value });
 
+/** Create a guide button whose activation stays within the current editing session. */
 function action(label, click) {
   const button = node('button', label);
   button.type = 'button';
@@ -75,6 +76,7 @@ export async function openGuide({ page, topic, field } = {}) {
     input.type = 'search';
     input.placeholder = input.ariaLabel = t('guide.search_the_guide');
     const list = document.createElement('div');
+    /** Search the translated chapter titles and steps and rebuild the index of matching chapters. */
     function results() {
       const query = fold(input.value.trim());
       list.replaceChildren();
@@ -90,6 +92,7 @@ export async function openGuide({ page, topic, field } = {}) {
   }
 }
 
+/** Consume Back only while the contextual guide dialog is open. */
 export function closeGuide() {
   const dialog = /** @type {HTMLDialogElement} */ (get('guide-dialog'));
   if (!dialog?.open) return false;

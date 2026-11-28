@@ -28,6 +28,7 @@ export function purchaseFunding(wallet, price, limit) {
 }
 export const estimate = (credits) =>
   t('commerce.estimate').replace('{amount}', money(Math.round(((credits * 100) / 1.21) * 0.85 * 0.85)));
+/** Require confirmation before enrolling an existing offer in real-money settlement. */
 export function enrollment(view, nav, item) {
   const node = by('commerce-enroll');
   if (!node) return;
@@ -65,11 +66,13 @@ function bindPlayCheckout(panel, view, balanceLine) {
   const messages = { catalog: '', inventory: '', receipts: '', checkout: '', balance: '' };
   let retryReceipt = false;
   let balanceRequest = 0;
+  /** Merge independent checkout messages without clearing another outstanding failure. */
   function render() {
     status.textContent = Object.values(messages).filter(Boolean).join(' ');
     retry.hidden = !(messages.catalog || messages.inventory || retryReceipt || messages.balance);
   }
 
+  /** Apply the newest wallet response only while its requesting view is active. */
   async function refreshBalance() {
     const request = ++balanceRequest;
     try {
@@ -84,6 +87,7 @@ function bindPlayCheckout(panel, view, balanceLine) {
     render();
   }
 
+  /** Bind each purchase button to the SKU returned by the billing catalogue. */
   function showPrices(items) {
     prices.replaceChildren();
     for (const [sku, quote] of Object.entries(items).sort((a, b) => a[1].credits - b[1].credits)) {
@@ -101,6 +105,7 @@ function bindPlayCheckout(panel, view, balanceLine) {
     }
   }
 
+  /** Route native billing events to their own checkout, inventory, receipt or balance status. */
   function report(event, items) {
     if (!view.active()) return;
     switch (event) {
@@ -157,6 +162,7 @@ function bindPlayCheckout(panel, view, balanceLine) {
   window.PlayMarket.refresh();
 }
 
+/** Render the wallet balance and attach the controls supported by this distribution. */
 export function walletPanel(view, nav, data) {
   const panel = by('commerce-wallet');
   if (!panel) return;

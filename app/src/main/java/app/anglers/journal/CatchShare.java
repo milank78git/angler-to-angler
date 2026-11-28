@@ -15,6 +15,7 @@ final class CatchShare {
   private final Activity activity;
   private final AtomicBoolean choosing = new AtomicBoolean();
 
+  /** Keep the owning activity for launching the system share chooser. */
   CatchShare(Activity activity) {
     this.activity = activity;
   }
@@ -61,6 +62,7 @@ final class CatchShare {
     return true;
   }
 
+  /** Release the chooser guard so the angler can start another share. */
   void finished() {
     choosing.set(false);
   }

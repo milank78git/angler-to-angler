@@ -21,16 +21,19 @@ final class LocalAssetClient extends WebViewClient {
   private final AssetManager assets;
   private final Consumer<Uri> openExternal;
 
+  /** Configure the asset client and its supported request handlers for this activity. */
   LocalAssetClient(AssetManager assets, Consumer<Uri> openExternal) {
     this(null, assets, openExternal);
   }
 
+  /** Configure the asset client and its supported request handlers for this activity. */
   LocalAssetClient(android.content.Context context, AssetManager assets, Consumer<Uri> openExternal) {
     this.context = context;
     this.assets = assets;
     this.openExternal = openExternal;
   }
 
+  /** Serve supported local journal assets through the WebView request boundary. */
   @Override
   public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
     Uri uri = request.getUrl();
@@ -61,6 +64,7 @@ final class LocalAssetClient extends WebViewClient {
         "text/plain", "utf-8", 404, "Missing", null, new ByteArrayInputStream(new byte[0]));
   }
 
+  /** Identify the map imagery requests permitted by the asset client. */
   private static boolean publishedMapImage(Uri uri) {
     String path = uri.getEncodedPath();
     if (path == null) return false;
@@ -78,6 +82,7 @@ final class LocalAssetClient extends WebViewClient {
         && "s2cloudless_3857".equals(uri.getQueryParameter("layers"));
   }
 
+  /** Select the WebView response MIME type for the requested asset name. */
   private static String contentType(String path) {
     switch (path.substring(path.lastIndexOf('.') + 1)) {
       case "html":
@@ -98,6 +103,7 @@ final class LocalAssetClient extends WebViewClient {
     }
   }
 
+  /** Separate in-app journal navigation from links intended for external handlers. */
   @Override
   public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
     Uri uri = request.getUrl();

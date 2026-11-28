@@ -5,8 +5,10 @@ import java.util.concurrent.TimeUnit;
 
 /** Stores and expires the email or provider challenge across activity and process restarts. */
 final class PendingSignIn {
+  /** Keep all pending verifier state in the supplied private preferences. */
   private PendingSignIn() {}
 
+  /** Commit the verifier and return destination together before leaving the app for verification. */
   static boolean save(SharedPreferences pending, String verifier, String address, String purpose,
       boolean groupLogin, boolean profileLogin) {
     boolean previouslyAccepted =
@@ -24,6 +26,7 @@ final class PendingSignIn {
             .commit();
   }
 
+  /** Remove the verifier and all metadata associated with the pending sign-in. */
   static void clear(SharedPreferences pending) {
     pending
         .edit()
@@ -37,6 +40,7 @@ final class PendingSignIn {
         .apply();
   }
 
+  /** Apply the separate validity windows for browser sign-in and email confirmation. */
   static boolean fresh(SharedPreferences pending) {
     long age = System.currentTimeMillis() - pending.getLong("pkceAt", 0);
     long limit =

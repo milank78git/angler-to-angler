@@ -1,6 +1,7 @@
 import { JWT, OAuth2Client } from 'npm:google-auth-library@9.15.1';
 import { fulfill, deliverPush, IneligiblePurchase } from './verify.mjs';
 
+/** Require the configured service value before issuing a provider or database request. */
 function env(name: string): string {
   const value = Deno.env.get(name);
   if (!value) throw Error('Missing configuration');
@@ -11,6 +12,7 @@ const root = 'https://androidpublisher.googleapis.com/androidpublisher/v3/applic
 const pushIdentity = new OAuth2Client();
 let publisher: JWT;
 
+/** Authorize the Android Publisher request with the configured service account. */
 async function google(url: string, method: 'POST' | 'GET') {
   if (!publisher) {
     const {client_email, private_key} = JSON.parse(env('PLAY_SERVICE_ACCOUNT_JSON'));
@@ -20,6 +22,7 @@ async function google(url: string, method: 'POST' | 'GET') {
   return (await publisher.request({url, method})).data;
 }
 
+/** Commit the receipt operation through the database RPC and propagate a terminal void explicitly. */
 async function ledger(op: string, args: object) {
   const key = env('SUPABASE_SERVICE_ROLE_KEY');
   const saved = await fetch(env('SUPABASE_URL') + '/rest/v1/rpc/angler_play_receipt', {
@@ -33,6 +36,7 @@ async function ledger(op: string, args: object) {
   return await saved.json();
 }
 
+/** Assemble the provider and ledger operations used for one receipt delivery. */
 function delivery() {
   return {
     mode: env('PLAY_PURCHASE_MODE'),

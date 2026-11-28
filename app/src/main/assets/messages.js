@@ -22,6 +22,7 @@ import {
 const inboxTitle = () => t('common.private_messages');
 const sendLabel = () => t('messages.send_privately');
 const stamp = new Intl.DateTimeFormat(languageTag, { dateStyle: 'medium', timeStyle: 'short' });
+/** Select the localized recovery message for the messaging service status. */
 function errorText(err) {
   if (err.status === 429) return t('limits.hourly');
   if (err.status === 403) return t('messages.messaging_is_unavailable_for_this_account_or');
@@ -39,6 +40,7 @@ async function listPages(view, read, render, empty) {
     items = by('message-items');
   let next = null,
     loading = false;
+  /** Append the next page using its cursor and leave previously loaded messages intact on failure. */
   async function load() {
     if (loading || view.saving || !view.active()) return;
     loading = true;
@@ -64,6 +66,7 @@ async function listPages(view, read, render, empty) {
   await load();
 }
 
+/** Provide stable live-status, list, retry and pagination elements for messaging screens. */
 function listShell() {
   return (
     '<div id="message-items"></div><p id="message-status" role="status"></p>' +

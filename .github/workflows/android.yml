@@ -93,7 +93,27 @@ jobs:
         with:
           name: auth-email-templates
           path: build/auth-email/
-      - run: node --test tests/*.test.cjs
+      - name: Run behavior scenarios and record JavaScript coverage
+        run: |
+          mkdir -p build/coverage
+          node --test --experimental-test-coverage \
+            --test-coverage-include='app/src/main/assets/*.js' --test-coverage-include='web/**/*.js' \
+            --test-coverage-include='supabase/functions/play-purchase/*.mjs' \
+            --test-reporter=spec --test-reporter-destination=stdout \
+            --test-reporter=lcov --test-reporter-destination=build/coverage/application.lcov tests/*.test.cjs
+      - name: Annotate runtime functions and calls
+        run: |
+          python3 -m venv "$RUNNER_TEMP/source-review"
+          "$RUNNER_TEMP/source-review/bin/pip" install -r scripts/source-review/requirements.txt
+          "$RUNNER_TEMP/source-review/bin/python" scripts/source-review/test_bridge.py
+          "$RUNNER_TEMP/source-review/bin/python" scripts/source-review/build.py build/source-review --coverage build/coverage/application.lcov
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: annotated-application-source
+          path: |
+            build/source-review/
+            build/coverage/application.lcov
+          if-no-files-found: error
       - run: python3 tests/water-release.py
       - run: python3 tests/atlas-signature.py
       - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4

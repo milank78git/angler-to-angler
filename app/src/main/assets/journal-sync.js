@@ -28,13 +28,16 @@ let timer,
   conflicts = [],
   deviceOnly = [];
 const lastSyncKey = prefix + 'lastSuccess';
+/** Treat an explicit offline signal as a reason to defer network work. */
 function online() {
   return navigator.onLine !== false;
 }
+/** Publish the sync status to any currently mounted status panel. */
 function notify(value) {
   status = value;
   window.dispatchEvent(new Event('journal-sync-status'));
 }
+/** Clear this account's cloud preferences and alarms while retaining its local journal. */
 function forgetCopy() {
   for (let index = localStorage.length - 1; index >= 0; index--) {
     const key = localStorage.key(index);
@@ -45,9 +48,11 @@ function forgetCopy() {
   conflicts = [];
   deviceOnly = [];
 }
+/** Require both an eligible device subject and an enabled account preference. */
 function enabled() {
   return !!subject && localStorage.getItem(choiceKey) === '1';
 }
+/** Coalesce edits while preserving a follow-up run when a sync is already active. */
 function schedule() {
   if (!enabled()) return;
   clearTimeout(timer);
@@ -62,6 +67,7 @@ function schedule() {
   notify('waiting');
   timer = setTimeout(() => run(), 700);
 }
+/** Reconcile local fingerprints and cloud revisions before committing restoration or upload results. */
 async function run(resolution, retryRevision = true) {
   if (busy || !enabled()) return;
   clearTimeout(timer);
@@ -151,12 +157,14 @@ async function run(resolution, retryRevision = true) {
           again = true;
           continue;
         }
+        // Advance the local checkpoint only after the server accepts this exact manifest.
         await uploadDocument(call, key, upload, row.revision, floor);
         localStorage.removeItem(held);
         uploaded = true;
         localStorage.setItem(checkpoint, JSON.stringify(upload.hashes));
       } else if (same(base, local.hashes) || (choice === 'cloud' && row.parts.length > 0)) {
         const data = await downloadDocument(call, row.parts);
+        // Fetch and check remote bytes before taking the device writer lock.
         const applyRestore = await prepareRestore(Journal, localStorage, subject, key, data, call);
         await Journal.lock(async () => {
           if (!enabled()) return;
@@ -248,9 +256,11 @@ function conflictLabel(conflict, waters) {
   return t('settings.title');
 }
 
+/** Bind the device's cloud-copy preferences and conflict actions to the journal screen. */
 export function bindJournalSync(panel, waters) {
   if (panel && restricted) panel.textContent = t('age.local_journal');
   if (!panel || !subject) return;
+  /** Refresh the sync panel from consent, pending conflicts and the most recent result. */
   function render() {
     if (!panel.isConnected) {
       window.removeEventListener('journal-sync-status', render);
@@ -370,6 +380,7 @@ export function bindJournalSync(panel, waters) {
       explanation.textContent = t('sync.device_only');
       panel.append(explanation);
     }
+    /** Describe a document conflict using the local journal identity where available. */
     function entryName(record) {
       const name = document.createElement('p');
       name.textContent = conflictLabel(record, waters);
@@ -407,6 +418,7 @@ window.addEventListener('offline', () => {
 });
 window.addEventListener('journal-edited', schedule);
 
+/** Resume reconciliation after the angler resolves a pending choice. */
 function resume() {
   if (status === 'check_failed') start();
   else schedule();

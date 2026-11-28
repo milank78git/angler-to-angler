@@ -7,6 +7,7 @@ import android.os.Bundle;
 
 /** Accept only an invitation code. Joining always requires the recipient's confirmation. */
 public final class GroupInviteActivity extends Activity {
+  /** Validate the incoming group URI and pass its invite code to the account confirmation flow. */
   @Override public void onCreate(Bundle state) {
     super.onCreate(state);
     Uri uri = getIntent().getData();
