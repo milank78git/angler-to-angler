@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
 import { setImmediate as nextTurn } from 'node:timers/promises';
+import { groupSharingJourneys } from './group-sharing-journeys.mjs';
+import { purchaseJourneys } from './market-journeys.mjs';
 import { Journal } from '../../app/src/main/assets/journal.js';
 
 // Synchronize on the production renderer's ready signal instead of an arbitrary sleep.
@@ -116,4 +118,6 @@ export async function run({ check, words, locale }) {
     await mounted('fishCatalogue');
     assert.equal(field('fish-query').value, 'Esox lucius');
   });
+  await purchaseJourneys({ check, words, mounted, tab });
+  await groupSharingJourneys({ check, words, mounted, tab });
 }

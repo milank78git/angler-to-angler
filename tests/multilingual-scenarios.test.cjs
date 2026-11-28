@@ -23,7 +23,7 @@ const minimum = {
   'private-messages': 51,
   'share-preview': 68,
   'native-guide': 36,
-  'app-journeys': 4,
+  'app-journeys': 13,
 };
 test('the same behavioral contracts hold in each selected app language', async (t) => {
   assert.equal(new Set(locales).size, locales.length);

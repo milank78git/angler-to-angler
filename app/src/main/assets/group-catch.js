@@ -21,7 +21,11 @@ import { replaceMarkup } from './markup.js';
 export async function groupCatch(view, nav, trip, entry, species) {
   const result = await rpc('groups');
   if (!view.active()) return;
-  const groups = result.groups.filter((group) => group.canShareCatch !== false);
+  // A group-only account needs an affirmative grant even if an older response omits permissions.
+  const groupOnly = result.ageBand === 'child' || window.Device?.groupSharingOnly?.();
+  const groups = result.groups.filter((group) =>
+    groupOnly ? group.canShareCatch === true : group.canShareCatch !== false,
+  );
   const form = field('catch-group', t('common.recipient'), '<select id="catch-group"></select>');
   replaceMarkup(
     screen,
