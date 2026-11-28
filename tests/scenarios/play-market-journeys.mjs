@@ -16,7 +16,7 @@ const sale = {
   commercial: true,
 };
 const account = {
-  mode: 'test',
+  mode: 'live',
   enrolled: true,
   balance: 60,
   welcomeBalance: 10,
@@ -63,8 +63,8 @@ export async function playMarketJourneys({ check, words, mounted, tab }) {
       await exercise(writes);
       assert.deepEqual(storePurchases, [], 'Using wallet credits unexpectedly launched Play checkout');
       assert.deepEqual(legacyWrites, [], 'Commercial writes entered the pilot wallet');
-    } finally {
       await tab('waters');
+    } finally {
       window.Device.profileRequest = bridge;
       if (play === undefined) delete window.PlayMarket;
       else window.PlayMarket = play;
@@ -101,7 +101,12 @@ export async function playMarketJourneys({ check, words, mounted, tab }) {
   ];
   for (const example of funding) {
     await check('play/buy/' + example.name, async () => {
-      const item = { ...sale, price: example.price, limit: 'limit' in example ? example.limit : 1 };
+      const item = {
+        ...sale,
+        commercial: example.enrolled ?? true,
+        price: example.price,
+        limit: 'limit' in example ? example.limit : 1,
+      };
       const wallet = {
         ...account,
         balance: example.balance,
@@ -112,6 +117,14 @@ export async function playMarketJourneys({ check, words, mounted, tab }) {
         field('offer-0').click();
         await mounted('marketDetail');
         assert.equal(field('market-technique'), null);
+        if (wallet.enrolled) {
+          assert.ok(field('screen').textContent.includes(words('commerce.price') + ' · ' + item.price));
+          assert.ok(
+            !field('screen').textContent.includes(
+              words('market.credit_amount').replace('{count}', String(item.price)),
+            ),
+          );
+        }
         if (example.reason) {
           assert.equal(field('market-buy'), null);
           assert.ok(field('screen').textContent.includes(words(example.reason)));
@@ -121,6 +134,9 @@ export async function playMarketJourneys({ check, words, mounted, tab }) {
         const [welcome, paid] = example.quote;
         field('market-buy').click();
         const terms = field('confirmation-message').textContent;
+        assert.ok(terms.includes(words('commerce.price') + ' · ' + item.price));
+        assert.ok(!terms.includes(words('market.credit_amount').replace('{count}', String(item.price))));
+        assert.equal(field('confirmation-accept').textContent, words('market.unlock_tip'));
         assert.ok(
           terms.includes(
             words('commerce.purchase_funding')
@@ -179,10 +195,11 @@ export async function playMarketJourneys({ check, words, mounted, tab }) {
         sale.title,
         sale.species,
         words('commerce.split'),
-        words('market.credit_amount').replace('{count}', '23'),
+        words('commerce.price') + ' · 23',
       ])
         assert.ok(summary.includes(expected));
       assert.ok(!summary.includes(technique));
+      assert.ok(!summary.includes(words('market.credit_amount').replace('{count}', '23')));
       field('confirmation-cancel').click();
       await nextTurn();
       assert.equal(writes.length, 0);

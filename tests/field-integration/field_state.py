@@ -66,5 +66,5 @@ def check_discussion(stage, replied=False, marked=False):
              p.water=r.water)),'[]') from roots r join angler_discussions.posts p on p.parent=r.id)
         );
     """))
-    answers = [[True, 'Confirmed from the bridge', marked]] if replied else []
+    answers = [[True, 'Confirmed from the bridge', marked, True]] if replied else []
     assert result == [1, 1, 0, answers], f'Discussion ownership, thread or helpful mark differs: {result}'

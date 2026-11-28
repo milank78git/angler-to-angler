@@ -45,6 +45,9 @@ import { today } from './domain.js';
 const market = () => t('market.title');
 /** Insert the credit amount into the language's market price label. */
 const credits = (n) => t('market.credit_amount').replace('{count}', String(n));
+/** Show the commercial price in the same credit unit as the Play editor and purchase quote. */
+const offerPrice = (amount, commercial) =>
+  commercial ? t('commerce.price') + ' · ' + amount : credits(amount);
 /** Label the pilot action that claims the initial test credits. */
 const activate = () => t('market.claim_100_test_credits');
 /** Map stored access codes to the displayed fishing access options. */
@@ -129,7 +132,7 @@ function offerFacts(item, waterDirectory, directory) {
       .map(esc)
       .join(' · ') +
     '</p><strong>' +
-    credits(item.price) +
+    offerPrice(item.price, item.commercial) +
     '</strong>' +
     tipRating +
     authorRating(item.authorRating)
@@ -349,9 +352,9 @@ export async function marketDetail({ view, nav, waterDirectory }) {
           ? balance == null
             ? button('market-activate', activate(), 'secondary')
             : '<p>' +
-              t('market.balance') +
-              ' · ' +
-              credits(balance) +
+              (wallet
+                ? t('commerce.balance').replace('{amount}', String(balance))
+                : t('market.balance') + ' · ' + credits(balance)) +
               '</p>' +
               (affordable
                 ? button('market-buy', t('market.unlock_tip'), 'primary')
@@ -396,13 +399,13 @@ export async function marketDetail({ view, nav, waterDirectory }) {
           title: t('market.confirm_tip_purchase'),
           message: [
             item.title,
-            credits(item.price),
+            offerPrice(item.price, !!wallet),
             payment,
             funding?.paid === 0 ? t('commerce.welcome_access') : '',
           ]
             .filter(Boolean)
             .join(' · '),
-          accept: t('market.buy_for') + credits(item.price),
+          accept: wallet ? t('market.unlock_tip') : t('market.buy_for') + credits(item.price),
         }))
       )
         return;
@@ -577,7 +580,7 @@ export async function marketEditor({ view, nav, waterDirectory }) {
       displayDay(draft.day),
       access()[draft.access],
       selectedWater()?.name || draft.water,
-      credits(draft.price),
+      offerPrice(draft.price, commercialTerms),
       draft.limit == null ? t('market.unlimited') : t('market.sales_limit') + draft.limit,
     ]
       .filter(Boolean)
