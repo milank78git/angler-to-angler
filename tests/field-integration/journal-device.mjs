@@ -138,9 +138,20 @@ async function onPhone(action, fixture) {
   if (action==='isolation') {
     const rows=(await rpc('journal_sync',{op:'list',args:{format:2}})).rows;
     assert(!rows.some(r=>r.key==='trip/'+id) && !(await Journal.trip(id)),'Other user saw the trip');
-    let denied=false;
-    try {await rpc('journal_sync',{op:'get',args:{hash:fixture.part}});} catch {denied=true;}
-    assert(denied && !(await rpc('my_details')).expiry,'Other user accessed private bytes or profile');
+    // A transport failure cannot demonstrate account isolation. Compare the real foreign hash
+    // to an absent control and require the live manifest API to report both as missing.
+    const absent = '0'.repeat(64);
+    const hashes = [fixture.part, absent];
+    const missing = await rpc('journal_sync', {op:'missing', args:{hashes}});
+    assert(JSON.stringify([...missing.hashes].sort()) === JSON.stringify([...hashes].sort()), 'Foreign chunk was discoverable');
+    async function missingStatus(hash) {
+      try { await rpc('journal_sync', {op:'get', args:{hash}}); return 200; }
+      catch (error) { return error.status; }
+    }
+    const [foreignStatus, controlStatus] = await Promise.all(hashes.map(missingStatus));
+    assert([400,404,406].includes(controlStatus) && foreignStatus === controlStatus,
+      'Foreign or absent chunk returned an unexpected status: '+foreignStatus+'/'+controlStatus);
+    assert(!(await rpc('my_details')).expiry,'Other user accessed the private licence');
     assert(!rows.some(row => row.key === 'trip/historical') && !await Journal.trip('historical'),
       'Other account could read the upgraded journal');
     return;

@@ -78,6 +78,7 @@ const families = [
   'navigation',
   'bridge',
   'public-cards',
+  'public-reader-lifecycle',
   'catch-entry',
   'field-guide',
   'field-rules',

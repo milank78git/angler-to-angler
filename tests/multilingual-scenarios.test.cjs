@@ -10,6 +10,7 @@ const minimum = {
   bridge: 3072,
   'catch-entry': 145,
   'public-cards': 576,
+  'public-reader-lifecycle': 3,
   'field-guide': 125,
   'field-rules': 81,
   'online-screens': 182,

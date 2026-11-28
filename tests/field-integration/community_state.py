@@ -37,6 +37,17 @@ def check_sale(stage, *, paid, revision=1, withdrawn=False, balance=None):
     assert actual == expected, f'Persisted purchase mismatch: {actual} != {expected}'
 
 
+def check_cancelled_publication(stage):
+    fixture = json.loads((stage / 'journal-device.json').read_text())
+    config = json.loads((stage / 'local.json').read_text())
+    count = subprocess.check_output(
+        ['psql', config['DB_URL'], '-XqAt', '-v', 'ON_ERROR_STOP=1',
+         '-v', 'source=' + str(uuid.UUID(fixture['cardSource']))],
+        input="select count(*) from angler_public_cards.cards where source_id=:'source'::uuid;",
+        text=True, timeout=12).strip()
+    assert count == '0', 'Cancelling publication wrote a database row'
+
+
 def check_public_card(stage, active):
     fixture = json.loads((stage / 'journal-device.json').read_text())
     config = json.loads((stage / 'local.json').read_text())

@@ -2,7 +2,7 @@
 import subprocess
 import time
 import registration as ui
-from community_state import check_public_card, check_sale
+from community_state import check_cancelled_publication, check_public_card, check_sale
 
 FIRST = 'app.anglers.journal.preview'
 SECOND = 'app.anglers.journal'
@@ -75,6 +75,8 @@ def verify_installations(stage, owner, other):
     sign_in(FIRST, owner)
     run(FIRST, 'market-edit-and-withdraw')
     check_sale(stage, paid=True, revision=2, withdrawn=True, balance=77)
+    run(FIRST, 'card-draft')
+    check_cancelled_publication(stage)
     run(FIRST, 'card-publish')
     check_public_card(stage, active=True)
     run(FIRST, 'card-cancel-revoke')

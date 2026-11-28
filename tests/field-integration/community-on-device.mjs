@@ -14,7 +14,21 @@ export async function communityOnPhone(action, fixture) {
       await new Promise((resolve) => setTimeout(resolve, 80));
     }
     const page = find('#screen')?.dataset.page;
-    throw Error('Waiting for ' + description + ' on ' + page);
+    const controls = [...document.querySelectorAll('#screen button[id]')].filter(shown).map((el) => el.id);
+    const feedback = [find('#notice')?.textContent, find('#screen [role="alert"]')?.textContent]
+      .filter(Boolean)
+      .join(' / ');
+    throw Error(
+      'Waiting for ' +
+        description +
+        ' on ' +
+        page +
+        ' (controls: ' +
+        controls +
+        ', feedback: ' +
+        feedback +
+        ')',
+    );
   }
   async function click(selector) {
     const element = await until(() => shown(find(selector)) && find(selector), selector);
@@ -166,7 +180,7 @@ export async function communityOnPhone(action, fixture) {
   }
 
   // Create the trip and catch through both forms, then publish a month-only card.
-  if (action === 'card-publish') {
+  if (action === 'card-draft') {
     await click('#tabtrips');
     if (!find('#add-trip')) await click('#tabtrips');
     await page('trips');
@@ -186,6 +200,7 @@ export async function communityOnPhone(action, fixture) {
     set('#technique', 'Private technique');
     find('#form').requestSubmit();
     await page('trip');
+    const source = (await until(() => find('[data-public-catch]'), 'new private catch')).dataset.publicCatch;
     await click('[data-public-catch]');
     await page('publicCardEditor');
     expect(
@@ -199,7 +214,13 @@ export async function communityOnPhone(action, fixture) {
     );
     await click('#public-publish');
     await confirm(false);
-    expect(!find('#screen a') && shown(find('#public-publish')), 'Cancelling publication created a link');
+    expect(
+      !find('#screen .actions a[href*="#"]') && shown(find('#public-publish')),
+      'Cancelling publication created a link',
+    );
+    return { cardSource: source };
+  }
+  if (action === 'card-publish') {
     await click('#public-publish');
     await confirm(true);
     const link = await until(() => find('#screen .actions a[href*="#"]'), 'published link');
