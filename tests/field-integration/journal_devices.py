@@ -2,6 +2,7 @@
 import subprocess
 import time
 import registration as ui
+from community_state import check_public_card, check_sale
 
 FIRST = 'app.anglers.journal.preview'
 SECOND = 'app.anglers.journal'
@@ -55,3 +56,34 @@ def verify_installations(stage, owner, other):
     notification(FIRST, False)
     print('Two independent Android installations verified offline save, retry, exact photo restore, '
           'upgrade consent, conflict resolution, account isolation and licence renewal.', flush=True)
+
+    # Two distinct registered accounts drive the actual pilot UI, native bridge and disposable Supabase.
+    run(FIRST, 'market-publish')
+    check_sale(stage, paid=False)
+    sign_in(SECOND, other, fresh=True)
+    run(SECOND, 'market-cancel-buy')
+    check_sale(stage, paid=False, balance=100)
+
+    receipt = stage / 'lose-next-purchase-receipt'
+    receipt.touch(exist_ok=False)
+    run(SECOND, 'market-lose-receipt')
+    assert not receipt.exists(), 'The proxy did not observe a committed purchase'
+    check_sale(stage, paid=True, balance=77)
+    run(SECOND, 'market-retry')
+    check_sale(stage, paid=True, balance=77)
+
+    sign_in(FIRST, owner)
+    run(FIRST, 'market-edit-and-withdraw')
+    check_sale(stage, paid=True, revision=2, withdrawn=True, balance=77)
+    run(FIRST, 'card-publish')
+    check_public_card(stage, active=True)
+    run(FIRST, 'card-cancel-revoke')
+    check_public_card(stage, active=True)
+    run(FIRST, 'card-revoke')
+    check_public_card(stage, active=False)
+
+    sign_in(SECOND, other)
+    run(SECOND, 'market-reopen')
+    check_sale(stage, paid=True, revision=2, withdrawn=True, balance=77)
+    print('Two-account market purchase, lost receipt, retry and immutable purchased revision verified. '
+          'Month-only publication, cancelled revocation and anonymous access after revocation verified.', flush=True)

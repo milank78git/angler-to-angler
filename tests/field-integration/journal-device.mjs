@@ -2,6 +2,7 @@
 import { execFileSync } from 'node:child_process';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { communityOnPhone } from './community-on-device.mjs';
 import { setTimeout as delay } from 'node:timers/promises';
 
 const [pkg, stage, dir] = process.argv.slice(2);
@@ -205,7 +206,8 @@ try {
   await waitForJournal();
   const fixture=stage==='seed'?{}:JSON.parse(await readFile(fixtureFile,'utf8'));
   async function step(action) {
-    const expression='('+onPhone.toString()+')('+JSON.stringify(action)+','+JSON.stringify(fixture)+')';
+    const scenario = /^(market|card)-/.test(action) ? communityOnPhone : onPhone;
+    const expression='('+scenario.toString()+')('+JSON.stringify(action)+','+JSON.stringify(fixture)+')';
     const result=await command('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true});
     if (result.exceptionDetails) throw Error(result.exceptionDetails.exception?.description || 'Journal scenario failed');
     Object.assign(fixture,result.result.value);
@@ -220,7 +222,7 @@ try {
     adb('reverse','tcp:58443','tcp:58443'); disconnected=false;
     await step('upload');
   } else await step(stage);
-  if (stage==='seed' || stage==='renew') await writeFile(fixtureFile,JSON.stringify(fixture),{mode:0o600});
+  if (stage==='seed' || stage==='renew' || /^(market|card)-/.test(stage)) await writeFile(fixtureFile,JSON.stringify(fixture),{mode:0o600});
 } finally {
   if (disconnected) adb('reverse','tcp:58443','tcp:58443');
   socket.close(); adb('forward','--remove','tcp:'+port);

@@ -21,6 +21,15 @@ class Gateway(BaseHTTPRequestHandler):
             conn.request(self.command,self.path,self.rfile.read(size) if size else None,headers)
             response = conn.getresponse()
             body = response.read()
+            # The mobile buyer loses only the acknowledgement. PostgreSQL has already committed the sale.
+            if self.path == '/rest/v1/rpc/angler_market_buy' and response.status == 200:
+                try:
+                    (stage / 'lose-next-purchase-receipt').unlink()
+                except FileNotFoundError:
+                    pass
+                else:
+                    self.send_error(503, 'Receipt unavailable')
+                    return
             self.send_response(response.status)
             self.send_header('Content-Type',response.getheader('Content-Type','application/json'))
             self.send_header('Content-Length',str(len(body)))
