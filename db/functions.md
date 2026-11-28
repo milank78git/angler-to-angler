@@ -128,7 +128,7 @@ Active signatures in Liquibase deployment order. Each link opens the effective d
 | `angler_sync.photo_quota()` | [20261127100000](../supabase/migrations/20261127100000_private_photo_retention.sql#L30) |  |
 | `angler_sync.photo_storage(text, uuid, bytea, integer, integer)` | [20261127121000](../supabase/migrations/20261127121000_review_journal_and_community.sql#L92) |  |
 | `angler_sync.put_chunk(uuid, jsonb)` | [20261126060300](../supabase/migrations/20261126060300_journal_object_storage.sql#L66) |  |
-| `angler_sync.read_chunk(uuid, text)` | [20261126060300](../supabase/migrations/20261126060300_journal_object_storage.sql#L54) |  |
+| `angler_sync.read_chunk(uuid, text)` | [20261128050300](../supabase/migrations/20261128050300_missing_journal_chunk.sql#L3) |  |
 | `angler_sync.save_document(uuid, jsonb)` | [20261126060300](../supabase/migrations/20261126060300_journal_object_storage.sql#L130) |  |
 | `angler_sync.storage_request(text, uuid, text)` | [20261126060300](../supabase/migrations/20261126060300_journal_object_storage.sql#L40) |  |
 | `angler_weekly.board(uuid, date, integer, text)` | [20261127032314](../supabase/migrations/20261127032314_journal_community_controls.sql#L67) |  |
