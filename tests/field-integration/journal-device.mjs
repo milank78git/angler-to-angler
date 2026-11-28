@@ -83,9 +83,22 @@ async function onPhone(action, fixture) {
     throw Error('Missing '+label+' (sync: '+document.querySelector('#journal-sync')?.dataset.state+')');
   };
   const el=selector=>document.querySelector(selector);
-  const click=async selector=>(await until(()=>el(selector+':not(:disabled)'),selector)).click();
   const state=name=>until(()=>el('#journal-sync')?.dataset.state===name,name);
   const assert=(test,message)=>{if(!test) throw Error(message);};
+  /** Open compact sync details before using their recovery or consent controls. */
+  const click=async selector=>{
+    let target=await until(()=>el(selector+':not(:disabled)'),selector);
+    if (target.closest('#journal-sync-details[hidden]')) {
+      const toggle=await until(()=>el('#journal-sync-toggle:not([hidden]):not(:disabled)'),'sync details toggle');
+      toggle.click();
+      await until(()=>el('#journal-sync-details:not([hidden])'),'opened sync details');
+      // A live synchronization result can replace the action while the panel opens.
+      target=await until(()=>el(selector+':not(:disabled)'),selector);
+    }
+    assert(!target.closest('[hidden]') && target.getClientRects().length > 0 &&
+      getComputedStyle(target).visibility !== 'hidden','Cannot activate hidden control '+selector);
+    target.click();
+  };
   await until(()=>el('#tabtrips'),'journal navigation');
   const {Journal}=await import('./journal.js');
   if (action === 'legacy') {
