@@ -1,28 +1,31 @@
 import { insertMarkup, replaceMarkup } from './markup.js';
+import { languageTag } from './i18n.js';
 import { Journal } from './journal.js';
 import { catchLatin } from './catch-species.js';
 import { fishDirectory } from './fish-catalogue.js';
 import { rpc, failure } from './profile-api.js';
 import { back, bindBack, by, button, esc, screen, t } from './ui.js';
 
+/** Increment the bucket for one recorded observation. */
 function add(counts, key, label) {
   const row = counts.get(key);
   if (row) row.count++;
   else counts.set(key, { label, count: 1 });
 }
+/** Order the most frequent entries first and resolve equal counts by display label. */
 const ranked = (counts) =>
-  [...counts.values()].sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
+  [...counts.values()].sort((a, b) => b.count - a.count || a.label.localeCompare(b.label, languageTag));
 
 /** Preserve distinct catalogue identities even when two waters have the same name. */
 export function personalTotals(trips, catches, pack, fish) {
   const waters = new Map(),
     species = new Map();
-  for (const trip of trips)
-    add(
-      waters,
-      trip.waterId ? JSON.stringify([trip.country, trip.waterId]) : 'manual:' + trip.waterName,
-      trip.waterName,
-    );
+  for (const trip of trips) {
+    // Older restored trips can have a catalogue ID without a stored display name.
+    const label = trip.waterName || trip.waterId;
+    if (label)
+      add(waters, trip.waterId ? JSON.stringify([trip.country, trip.waterId]) : 'manual:' + label, label);
+  }
   for (const entry of catches) {
     const latin = catchLatin(entry, pack, fish);
     const label = fish?.names.get(latin)?.label || entry.speciesName || entry.speciesId;
@@ -30,6 +33,7 @@ export function personalTotals(trips, catches, pack, fish) {
   }
   return { waters: ranked(waters), species: ranked(species) };
 }
+/** Render the ranked entries or the localized empty state. */
 function list(rows) {
   return rows.length
     ? '<ol>' +
@@ -41,7 +45,9 @@ function list(rows) {
     : '<p>' + esc(t('stats.empty')) + '</p>';
 }
 
-/** @param {import('../../../../types/screens.js').ScreenContext} context */
+/** Combine this device's journal totals with available community samples.
+ * @param {import('../../../../types/screens.js').ScreenContext} context
+ */
 export async function journalStatistics({ view, nav, pack, waterDirectory }) {
   const [entries, fish] = await Promise.all([Journal.statEntries(), fishDirectory().catch(() => null)]);
   if (!view.active()) return;
@@ -73,12 +79,14 @@ export async function journalStatistics({ view, nav, pack, waterDirectory }) {
     body = by('shared-visits');
   let loading = false,
     loaded = false;
+  /** Reload statistics for the active panel without changing the private journal. */
   async function refresh() {
     if (loading || loaded) return;
     loading = true;
     body.textContent = t('messages.loading');
     const [visits, catches] = await Promise.allSettled([rpc('top_waters'), rpc('top_species')]);
     if (!view.active()) return;
+    /** Identify the month and source of the shared sample displayed below a ranking. */
     const period = (result) =>
       '<p>' +
       esc(result.month.slice(0, 7)) +
@@ -87,6 +95,7 @@ export async function journalStatistics({ view, nav, pack, waterDirectory }) {
       ' ' +
       esc(t('stats.independent_reviews')) +
       '</p>';
+    /** Show the reason a community ranking could not load alongside the available private statistics. */
     const unavailable = (result) => '<p>' + esc(failure(result.reason)) + '</p>';
     const visitsHtml =
       visits.status === 'fulfilled'

@@ -15,10 +15,14 @@ import { languageTag } from './i18n.js';
 const restricted = window.Device?.groupSharingOnly?.();
 const subject = restricted ? null : window.Device?.subjectId?.();
 const prefix = 'journal.sync.v1.' + subject + '.';
+/** Attach this subject's sync epoch to each journal operation. */
 const call = (op, args) =>
   rpc('journal_sync', { op, args: { epoch: localStorage.getItem(prefix + 'epoch'), ...args } });
+/** Send a photo operation through the same subject-scoped journal dispatcher. */
 export const photoRequest = (op, args) => call(op, args);
+/** Serialize reconciliation across open WebViews for this account. */
 const syncLock = (work) => (navigator.locks ? navigator.locks.request(prefix + 'sync', work) : work());
+/** Open the local receipt history for the current cloud generation. */
 const historyForEpoch = () =>
   journalHistory(Journal, localStorage, subject, localStorage.getItem(prefix + 'epoch'));
 const choiceKey = prefix + 'enabled';
@@ -30,13 +34,16 @@ let timer,
   conflicts = [],
   deviceOnly = [];
 const lastSyncKey = prefix + 'lastSuccess';
+/** Treat an explicit offline signal as a reason to defer network work. */
 function online() {
   return navigator.onLine !== false;
 }
+/** Publish the sync status to any currently mounted status panel. */
 function notify(value) {
   status = value;
   window.dispatchEvent(new Event('journal-sync-status'));
 }
+/** Clear this account's cloud preferences and alarms while retaining its local journal. */
 async function forgetCopy(keepEpoch = undefined) {
   localStorage.setItem(choiceKey, '0');
   for (let index = localStorage.length - 1; index >= 0; index--) {
@@ -48,9 +55,11 @@ async function forgetCopy(keepEpoch = undefined) {
   conflicts = [];
   deviceOnly = [];
 }
+/** Require both an eligible device subject and an enabled account preference. */
 function enabled() {
   return !!subject && localStorage.getItem(choiceKey) === '1';
 }
+/** Coalesce edits while preserving a follow-up run when a sync is already active. */
 function schedule() {
   if (!enabled()) return;
   clearTimeout(timer);
@@ -65,6 +74,7 @@ function schedule() {
   notify('waiting');
   timer = setTimeout(() => run(), 700);
 }
+/** Reconcile local fingerprints and cloud revisions before committing restoration or upload results. */
 async function run(resolution, retryRevision = true) {
   if (busy || !enabled()) return;
   clearTimeout(timer);
@@ -86,6 +96,7 @@ async function run(resolution, retryRevision = true) {
     } else if (reread) await run(undefined, false);
   }
 }
+/** Reconcile each document against its cloud revision and pending local receipts. */
 async function synchronize(resolution, retryRevision) {
   if (!enabled()) return;
   const detected = [],
@@ -138,6 +149,7 @@ async function synchronize(resolution, retryRevision) {
       }
       const detached = tripMedia;
       let state = (await history.get(key)) ?? { base: null, pending: [], held: false };
+      /** Save this document’s reconciliation state in its own receipt. */
       const persist = (next) => history.put(key, next);
       const observed = await observeRevision(state, row, floor);
       if (observed.state !== state) {
@@ -150,6 +162,7 @@ async function synchronize(resolution, retryRevision) {
       );
       const favoriteEdit = prefix + 'added.' + key;
       const added = key.startsWith('pref/water/') && localStorage.getItem(favoriteEdit);
+      /** Clear the uploaded favorite marker only if no newer edit replaced it. */
       function acknowledgeFavorite() {
         if (added && localStorage.getItem(favoriteEdit) === added) localStorage.removeItem(favoriteEdit);
       }
@@ -193,6 +206,7 @@ async function synchronize(resolution, retryRevision) {
           again = true;
           continue;
         }
+        // Track an ambiguous save before sending it and advance the checkpoint after confirmation.
         await uploadDocument(call, key, upload, row.revision, floor, (args) =>
           saveWithReceipt(call, args, state, persist),
         );
@@ -204,6 +218,7 @@ async function synchronize(resolution, retryRevision) {
         (choice === 'cloud' && row.parts.length > 0)
       ) {
         const data = await downloadDocument(call, row.parts);
+        // Fetch and check remote bytes before taking the device writer lock.
         const applyRestore = await prepareRestore(Journal, localStorage, subject, key, data, call);
         await Journal.lock(async () => {
           if (!enabled()) return;
@@ -291,9 +306,11 @@ function conflictLabel(conflict, waters) {
   return t('settings.title');
 }
 
+/** Bind the device's cloud-copy preferences and conflict actions to the journal screen. */
 export function bindJournalSync(panel, waters) {
   if (panel && restricted) panel.textContent = t('age.local_journal');
   if (!panel || !subject) return;
+  /** Refresh the sync panel from consent, pending conflicts and the most recent result. */
   function render() {
     if (!panel.isConnected) {
       window.removeEventListener('journal-sync-status', render);
@@ -322,6 +339,7 @@ export function bindJournalSync(panel, waters) {
       previous.textContent = t('sync.last_success').replace('{time}', stamp);
       panel.append(previous);
     }
+    /** Create a localized sync recovery action that cannot submit an enclosing form. */
     const button = (labelKey, action) => {
       const el = document.createElement('button');
       el.type = 'button';
@@ -419,6 +437,7 @@ export function bindJournalSync(panel, waters) {
       explanation.textContent = t('sync.device_only');
       panel.append(explanation);
     }
+    /** Describe a document conflict using the local journal identity where available. */
     function entryName(record) {
       const name = document.createElement('p');
       name.textContent = conflictLabel(record, waters);
@@ -456,6 +475,7 @@ window.addEventListener('offline', () => {
 });
 window.addEventListener('journal-edited', schedule);
 
+/** Resume reconciliation after the angler resolves a pending choice. */
 function resume() {
   if (status === 'check_failed') start();
   else schedule();

@@ -1,5 +1,6 @@
 /** Owns destination history and the lifetime of the currently displayed screen. */
 export class Navigation {
+  /** Initialize independent histories for waters, rules and the private journal. */
   constructor(render, confirmDiscard, getScroll = () => 0) {
     this.render = render;
     this.confirmDiscard = confirmDiscard;
@@ -21,6 +22,7 @@ export class Navigation {
     return true;
   }
 
+  /** Switch tabs or push an in-tab destination after checking pending writes and edits. */
   open(page, props = {}) {
     this.leave(() => {
       if (this.stacks.has(page)) {
@@ -34,6 +36,7 @@ export class Navigation {
     });
   }
 
+  /** Let the current route handle Back before returning through its tab history. */
   back() {
     return this.leave(() => {
       const stack = this.stacks.get(this.area);
@@ -67,6 +70,7 @@ export class Navigation {
     this.show();
   }
 
+  /** Dispose the outgoing view and give the renderer a fresh lifetime for the new route. */
   show() {
     if (this.current) {
       this.current.route.scroll = this.getScroll();

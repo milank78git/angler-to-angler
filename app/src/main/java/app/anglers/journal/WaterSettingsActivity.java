@@ -15,24 +15,30 @@ public final class WaterSettingsActivity extends LocalizedActivity {
   private String pending;
   private final java.util.Map<String,CheckBox> alertControls=new java.util.HashMap<>();
 
+  /** Read the selected journal reading scale from device preferences. */
   static float textScale(android.content.Context c) {
     return c.getSharedPreferences("appearance",MODE_PRIVATE).getBoolean("large",false) ? 1.3f : 1f;
   }
 
+  /** Refresh the atlas status when the local edition or its check time changes. */
   private final android.content.SharedPreferences.OnSharedPreferenceChangeListener editionListener = (prefs, key) -> {
     if (WaterCatalogue.CHECKED.equals(key) || WaterCatalogue.REVISION.equals(key)) showStatus();
   };
 
+  /** Refresh the subscription status when Android's alert preferences change. */
   private final android.content.SharedPreferences.OnSharedPreferenceChangeListener alertListener =
       (prefs, key) -> showSubscriptionStatus();
 
+  /** Present the current alert subscription state in the settings screen. */
   private void showSubscriptionStatus() {
     boolean waiting = FieldAlerts.enabled(this, FieldAlerts.POSTS) && !FieldAlerts.prefs(this).contains("cursor");
     subscriptionStatus.setVisibility(waiting ? android.view.View.VISIBLE : android.view.View.GONE);
   }
 
+  /** Resolve water settings text using the selected app language. */
   private String text(String key) { return AppLanguage.text(this, key); }
 
+  /** Restore outstanding settings actions and build the native screen. */
   @Override public void onCreate(Bundle state) {
     super.onCreate(state);
     ui = new AccountLayout(this);
@@ -40,6 +46,7 @@ public final class WaterSettingsActivity extends LocalizedActivity {
     renderSettings();
   }
 
+  /** Build atlas refresh, reading and notification controls from current preferences. */
   private void renderSettings() {
     boolean checking = check != null && !check.isEnabled();
     ui.page(text("settings.title"), false);
@@ -85,6 +92,7 @@ public final class WaterSettingsActivity extends LocalizedActivity {
     showSubscriptionStatus();
   }
 
+  /** Resume the requested setting after its permission requirement is satisfied. */
   private void enablePending() {
     if (pending==null) return;
     if (android.os.Build.VERSION.SDK_INT>=33 && checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
@@ -103,10 +111,12 @@ public final class WaterSettingsActivity extends LocalizedActivity {
     pending=null;
   }
 
+  /** Preserve the pending settings action across native activity recreation. */
   @Override protected void onSaveInstanceState(Bundle state) {
     super.onSaveInstanceState(state); state.putString("alert",pending);
   }
 
+  /** Continue the requested notification or location change after a permission decision. */
   @Override public void onRequestPermissionsResult(int code,String[] names,int[] grants) {
     super.onRequestPermissionsResult(code,names,grants);
     if (code!=41 && code!=42) return;
@@ -114,6 +124,7 @@ public final class WaterSettingsActivity extends LocalizedActivity {
     else { pending=null; ui.message(text("settings.permission")); }
   }
 
+  /** Subscribe to live settings state while the activity is visible. */
   @Override protected void onStart() {
     super.onStart();
     WaterCatalogue.prefs(this).registerOnSharedPreferenceChangeListener(editionListener);
@@ -122,12 +133,14 @@ public final class WaterSettingsActivity extends LocalizedActivity {
     showSubscriptionStatus();
   }
 
+  /** Release the status observer when the native settings activity leaves the foreground. */
   @Override protected void onStop() {
     WaterCatalogue.prefs(this).unregisterOnSharedPreferenceChangeListener(editionListener);
     FieldAlerts.prefs(this).unregisterOnSharedPreferenceChangeListener(alertListener);
     super.onStop();
   }
 
+  /** Present the installed edition and current update outcome. */
   private void showStatus() {
     long last = WaterCatalogue.prefs(this).getLong(WaterCatalogue.CHECKED, 0);
     String edition = WaterCatalogue.prefs(this).getString(WaterCatalogue.DATE, "");
@@ -137,6 +150,7 @@ public final class WaterSettingsActivity extends LocalizedActivity {
         + (last == 0 ? text("atlas_settings.never") : DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, AppLanguage.current(this)).format(new Date(last))));
   }
 
+  /** Request a manual catalogue check and update its visible status. */
   private void refresh() {
     check.setEnabled(false);
     ui.message(text("atlas_settings.checking_the_atlas"));

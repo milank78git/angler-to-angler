@@ -14,6 +14,7 @@ public final class SeasonCalendarTest {
   }
 
   public static void main(String[] args) {
+    alarmBoundaries();
     SeasonCalendar winter =
         new SeasonCalendar(
             ZoneId.of("Europe/Prague"),
@@ -42,4 +43,26 @@ public final class SeasonCalendarTest {
     expect(null, winter.event(LocalDate.parse("2027-01-20")));
     expect(SeasonCalendar.Event.EXPIRES, winter.event(LocalDate.parse("2027-01-21")));
   }
+
+  /** The same local alarm crosses different UTC dates and daylight-saving offsets in these regions. */
+  private static void alarmBoundaries() {
+    for (String name : new String[] {"Europe/Prague", "America/New_York", "Pacific/Auckland", "Asia/Kathmandu"}) {
+      ZoneId zone = ZoneId.of(name);
+      for (String first : new String[] {"2028-02-29", "2028-03-26", "2028-10-29", "2028-12-31"}) {
+        LocalDate start = LocalDate.parse(first);
+        SeasonCalendar calendar = new SeasonCalendar(zone, start.minusDays(1), start.plusDays(4),
+            MonthDay.from(start), MonthDay.from(start.plusDays(1)));
+        Instant close = start.atTime(8, 0).atZone(zone).toInstant();
+        Instant open = start.plusDays(2).atTime(8, 0).atZone(zone).toInstant();
+        expect(close, calendar.next(close.minusMillis(1)));
+        expect(open, calendar.next(close));
+        expect(null, calendar.dueToday(close.toEpochMilli(), close.minusMillis(1)));
+        expect(SeasonCalendar.Event.CLOSES, calendar.dueToday(close.toEpochMilli(), close));
+        expect(SeasonCalendar.Event.CLOSES, calendar.dueToday(close.toEpochMilli(), start.atTime(23, 59).atZone(zone).toInstant()));
+        expect(null, calendar.dueToday(close.toEpochMilli(), start.plusDays(1).atStartOfDay(zone).toInstant()));
+        expect(SeasonCalendar.Event.OPENS, calendar.dueToday(open.toEpochMilli(), open));
+      }
+    }
+  }
+
 }

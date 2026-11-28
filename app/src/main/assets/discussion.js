@@ -21,12 +21,18 @@ import {
 } from './ui.js';
 
 const postTime = new Intl.DateTimeFormat(languageTag, { dateStyle: 'medium', timeStyle: 'short' });
+/** Identify the observations and questions section of a water discussion. */
 const questions = () => t('common.observations_and_questions');
+/** Label the author's action to withdraw an eligible post. */
 const withdraw = () => t('discussion.withdraw_post');
+/** Display the placeholder for a post whose text has been removed. */
 const removed = () => t('discussion.the_text_of_this_post_was_removed');
+/** Explain the withdrawal restriction for posts that already have text replies. */
 const linked = () => t('discussion.this_post_has_a_text_reply_and');
+/** Label the action used to flag a discussion post for review. */
 const report = () => t('discussion.report_post');
 
+/** Choose the translated recovery message for the discussion service response. */
 function errorText(error) {
   if (error.status === 429) return t('limits.hourly');
   if (error.status === 401 || error.status === 403) return t('discussion.sign_in_with_a_verified_account_to');
@@ -36,6 +42,7 @@ function errorText(error) {
   return t('common.could_not_connect_please_retry');
 }
 
+/** Render a post with its author, reply context and moderation state. */
 function postCard(item) {
   const card = document.createElement('article');
   card.className = 'surface discussion-post';
@@ -78,6 +85,7 @@ function postCard(item) {
   return card;
 }
 
+/** Append an actionable control to this post's own button row. */
 function action(card, label, callback, style = 'secondary') {
   let row = card.querySelector('.actions');
   if (!row) {
@@ -138,12 +146,14 @@ export async function waterDiscussion({ view, nav, waterDirectory }) {
   );
   bind('discussion-refresh', () => nav.show());
 
+  /** Expose only the discussion actions allowed by the server's post state. */
   function makeCard(item, isRoot) {
     const card = postCard(item);
     if (!questionId) {
       action(card, t('discussion.open_post'), () => nav.open('waterDiscussion', { id, questionId: item.id }));
       return card;
     }
+    /** Display the localized rejection for an unsuccessful discussion action. */
     const failed = (err) => toast(errorText(err));
     if (item.removed) return card;
     if (item.mine && !item.canWithdraw) {
@@ -239,6 +249,7 @@ export async function waterDiscussion({ view, nav, waterDirectory }) {
     return card;
   }
 
+  /** Request the next page of this discussion and retire stale screen results. */
   async function loadPage() {
     if (loading || view.saving || !view.active()) return;
     loading = true;

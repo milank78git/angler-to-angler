@@ -16,6 +16,7 @@ public final class JournalApplication extends Application
   private final Handler timer = new Handler(Looper.getMainLooper());
   private final Runnable lock = AccountStore::lock;
 
+  /** Register process-level activity tracking and device lifecycle observers. */
   @Override
   public void onCreate() {
     super.onCreate();
@@ -25,6 +26,7 @@ public final class JournalApplication extends Application
     registerActivityLifecycleCallbacks(this);
     registerReceiver(
         new BroadcastReceiver() {
+          /** Lock the in-memory account session when Android turns the screen off. */
           @Override
           public void onReceive(Context c, Intent i) {
             AccountStore.lock();
@@ -33,6 +35,7 @@ public final class JournalApplication extends Application
         new IntentFilter(Intent.ACTION_SCREEN_OFF));
   }
 
+  /** Track the transition into foreground activity ownership. */
   @Override
   public void onActivityStarted(Activity a) {
     if (visible++ == 0) {
@@ -45,6 +48,7 @@ public final class JournalApplication extends Application
     }
   }
 
+  /** Record the loss of foreground activities for the account-lock policy. */
   @Override
   public void onActivityStopped(Activity a) {
     if (--visible == 0) {
@@ -53,18 +57,23 @@ public final class JournalApplication extends Application
     }
   }
 
+  /** Foreground lock timing is tracked by start and stop events. */
   @Override
   public void onActivityCreated(Activity a, Bundle state) {}
 
+  /** Keep the existing foreground count across an activity resume. */
   @Override
   public void onActivityResumed(Activity a) {}
 
+  /** Allow transient pauses while start and stop events own the lock timing. */
   @Override
   public void onActivityPaused(Activity a) {}
 
+  /** Keep session credentials out of the activity state bundle. */
   @Override
   public void onActivitySaveInstanceState(Activity a, Bundle state) {}
 
+  /** The preceding stop event already reconciled the foreground count. */
   @Override
   public void onActivityDestroyed(Activity a) {}
 }

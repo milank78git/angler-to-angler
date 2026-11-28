@@ -36,6 +36,7 @@ final class AccountLayout {
   LinearLayout form;
   TextView status;
 
+  /** Read the current appearance settings before choosing colours for native account controls. */
   AccountLayout(Activity activity) {
     this.activity = activity;
     boolean systemDark =
@@ -59,14 +60,17 @@ final class AccountLayout {
     }
   }
 
+  /** Select a theme-specific colour and convert it to an Android color integer. */
   private int colour(String day, String night) {
     return Color.parseColor(dark ? night : day);
   }
 
+  /** Convert density-independent layout measurements to pixels on this device. */
   private int dp(float v) {
     return Math.round(v * activity.getResources().getDisplayMetrics().density);
   }
 
+  /** Create a rounded surface from its fill, stroke and corner radius. */
   private GradientDrawable shape(int fill, int stroke, int radius) {
     GradientDrawable d = new GradientDrawable();
     d.setColor(fill);
@@ -75,6 +79,7 @@ final class AccountLayout {
     return d;
   }
 
+  /** Create a text view with the screen typography and foreground colour. */
   private TextView text(String title, int size, int color, Typeface face) {
     TextView v = new TextView(activity);
     v.setText(title);
@@ -85,12 +90,14 @@ final class AccountLayout {
     return v;
   }
 
+  /** Attach a full-width control with the requested vertical spacing. */
   private void add(LinearLayout parent, View child, int gap) {
     LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(-1, -2);
     p.topMargin = dp(gap);
     parent.addView(child, p);
   }
 
+  /** Reset the account layout to a new titled screen and optional cover. */
   void page(String title, boolean cover) {
     Window window = activity.getWindow();
     window.setStatusBarColor(paper);
@@ -101,6 +108,7 @@ final class AccountLayout {
     scroll.setFillViewport(true);
     LinearLayout column =
         new LinearLayout(activity) {
+          /** Bound the form width on large screens without exceeding the parent constraint. */
           @Override
           protected void onMeasure(int width, int height) {
             int limit = Math.min(MeasureSpec.getSize(width), dp(524));
@@ -204,6 +212,7 @@ final class AccountLayout {
     web.loadUrl(guide.toString());
   }
 
+  /** Update the status area and collapse it for an empty message. */
   void message(String message) {
     status.setText(message);
     status.setVisibility(message.isEmpty() ? View.GONE : View.VISIBLE);
@@ -221,6 +230,7 @@ final class AccountLayout {
     });
   }
 
+  /** Create a secondary readable label for the account form. */
   TextView label(String s) {
     TextView v = text(s, 16, muted, Typeface.DEFAULT);
     v.setLineSpacing(dp(2), 1);
@@ -228,6 +238,7 @@ final class AccountLayout {
     return v;
   }
 
+  /** Decode the shared catch thumbnail for the native preview. */
   void catchPhoto(String encoded, String species) {
     byte[] frame = android.util.Base64.decode(encoded, android.util.Base64.DEFAULT);
     Bitmap bitmap = BitmapFactory.decodeByteArray(frame, 0, frame.length);
@@ -240,6 +251,7 @@ final class AccountLayout {
     add(form, photo, 8);
   }
 
+  /** Display the sender and the group tip in the same card. */
   void tip(String byline, String message) {
     LinearLayout card = new LinearLayout(activity);
     card.setOrientation(LinearLayout.VERTICAL);
@@ -252,6 +264,7 @@ final class AccountLayout {
     add(card, body, 8);
   }
 
+  /** Create and bind a themed action button in the supplied layout. */
   Button button(LinearLayout parent, String label, Action kind, Runnable click) {
     Button b = new Button(activity);
     b.setAllCaps(false);
@@ -285,10 +298,12 @@ final class AccountLayout {
     return b;
   }
 
+  /** Configure a single-line editable control with the requested Android input type. */
   EditText field(String hint, int type) {
     return field(form, hint, type);
   }
 
+  /** Configure a single-line editable control with the requested Android input type. */
   private EditText field(LinearLayout parent, String hint, int type) {
     EditText f = new EditText(activity);
     f.setSingleLine();
@@ -313,10 +328,12 @@ final class AccountLayout {
     private final LinearLayout body;
     private final LinearLayout actions;
 
+    /** Create the themed account dialog and its content and action areas. */
     Prompt(String title) {
       this(title, null);
     }
 
+    /** Create the themed account dialog and its content and action areas. */
     Prompt(String title, WebView reader) {
       super(activity);
       requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -365,12 +382,14 @@ final class AccountLayout {
       setCanceledOnTouchOutside(true);
     }
 
+    /** Append readable body text to the active native prompt. */
     void description(String value) {
       TextView paragraph = text(value, 16, ink, Typeface.DEFAULT);
       paragraph.setLineSpacing(dp(3), 1);
       add(body, paragraph, 14);
     }
 
+    /** Display a selectable code in a monospace field. */
     void code(String value) {
       TextView token = text(value, 17, primary, Typeface.MONOSPACE);
       token.setTextIsSelectable(true);
@@ -379,10 +398,12 @@ final class AccountLayout {
       add(body, token, 14);
     }
 
+    /** Attach an editable field to the prompt body. */
     EditText input(String hint, int type) {
       return field(body, hint, type);
     }
 
+    /** Add a choice to the prompt's content area. */
     void choice(String label, Action kind, Runnable next) {
       button(
           body,
@@ -399,6 +420,7 @@ final class AccountLayout {
       button(actions, label, Action.PRIMARY, submit).setId(android.R.id.button1);
     }
 
+    /** Add a prompt action and invoke its continuation after dismissal. */
     void action(String label, Action kind, Runnable next) {
       button(
               actions,
@@ -412,10 +434,12 @@ final class AccountLayout {
     }
   }
 
+  /** Open the builder for a titled native account dialog. */
   Prompt prompt(String title) {
     return new Prompt(title);
   }
 
+  /** Create the labelled acknowledgement control returned to the account form. */
   CheckBox check(String title) {
     CheckBox b = new CheckBox(activity);
     b.setText(title);

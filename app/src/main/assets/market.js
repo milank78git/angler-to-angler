@@ -41,23 +41,35 @@ import { rpc } from './profile-api.js';
 import { newJournalId } from './journal.js';
 import { today } from './domain.js';
 
+/** Use the localized market title across listing and error screens. */
 const market = () => t('market.title');
+/** Insert the credit amount into the language's market price label. */
 const credits = (n) => t('market.credit_amount').replace('{count}', String(n));
+/** Show the commercial price in the same credit unit as the Play editor and purchase quote. */
+const offerPrice = (amount, commercial) =>
+  commercial ? t('commerce.price') + ' · ' + amount : credits(amount);
+/** Label the pilot action that claims the initial test credits. */
 const activate = () => t('market.claim_100_test_credits');
+/** Map stored access codes to the displayed fishing access options. */
 const access = () => ({
   shore: t('market.from_shore'),
   boat: t('market.from_a_boat'),
   both: t('market.shore_or_boat'),
 });
+/** Resolve shelf identifiers to the names shown in the market selector. */
 const shelves = () => ({
   browse: t('market.available'),
   purchased: t('market.purchased_tips'),
   mine: t('market.my_offers'),
 });
+/** Display the same localized edit action on the offer detail and editor screens. */
 const editLabel = () => t('market.edit_offer');
+/** Resolve a market water key against the active directory for display. */
 const waterName = (directory, key) => directory.byKey.get(key)?.name || '';
+/** Return the back control and the escaped heading for an offer screen. */
 const heading = (title) => back(t('common.back')) + '<h1>' + esc(title) + '</h1>';
 
+/** Translate the market rejection into the action available to the buyer or seller. */
 function errorText(status) {
   if (status === 429) return t('limits.hourly');
   if (status === 401 || status === 403) return t('market.sign_in_with_a_verified_account');
@@ -68,6 +80,7 @@ function errorText(status) {
   return t('market.connection_failed_please_retry');
 }
 
+/** Offer a retry only on the market screen that initiated this request. */
 function loadError(view, nav, err) {
   if (!view.active()) return;
   replaceMarkup(
@@ -119,13 +132,14 @@ function offerFacts(item, waterDirectory, directory) {
       .map(esc)
       .join(' · ') +
     '</p><strong>' +
-    credits(item.price) +
+    offerPrice(item.price, item.commercial) +
     '</strong>' +
     tipRating +
     authorRating(item.authorRating)
   );
 }
 
+/** Activate the test balance and refresh the shelf after the grant succeeds. */
 function claim(view, nav) {
   bind('market-activate', () =>
     submitChange(
@@ -137,7 +151,9 @@ function claim(view, nav) {
   );
 }
 
-/** @param {import('../../../../types/screens.js').ScreenContext} context */
+/** Load the requested shelf, water filter and cursor for the current store edition.
+ * @param {import('../../../../types/screens.js').ScreenContext} context
+ */
 export async function marketShelf({ view, nav, waterDirectory }) {
   const { shelf = 'browse', cursor = null, water = null } = view.route;
   const play = playEdition();
@@ -147,6 +163,7 @@ export async function marketShelf({ view, nav, waterDirectory }) {
       .map(([key, label]) => button('shelf-' + key, label, shelf === key ? 'primary' : 'secondary'))
       .join('') +
     '</div>';
+  /** Reset pagination when the angler switches between available, purchased and owned tips. */
   function bindShelves() {
     for (const key of Object.keys(shelves())) {
       by('shelf-' + key).setAttribute('aria-pressed', String(key === shelf));
@@ -255,6 +272,7 @@ export async function marketShelf({ view, nav, waterDirectory }) {
   if (by('market-create')) bind('market-create', () => nav.open('marketEditor', { water }));
 }
 
+/** Present the wallet failure separately from the catalogue results. */
 function walletUnavailable() {
   return (
     '<p role="status">' +
@@ -264,7 +282,9 @@ function walletUnavailable() {
   );
 }
 
-/** @param {import('../../../../types/screens.js').ScreenContext} context */
+/** Load the offer revision and the actions available to its current viewer.
+ * @param {import('../../../../types/screens.js').ScreenContext} context
+ */
 export async function marketDetail({ view, nav, waterDirectory }) {
   const { id } = view.route;
   const play = playEdition();
@@ -332,9 +352,9 @@ export async function marketDetail({ view, nav, waterDirectory }) {
           ? balance == null
             ? button('market-activate', activate(), 'secondary')
             : '<p>' +
-              t('market.balance') +
-              ' · ' +
-              credits(balance) +
+              (wallet
+                ? t('commerce.balance').replace('{amount}', String(balance))
+                : t('market.balance') + ' · ' + credits(balance)) +
               '</p>' +
               (affordable
                 ? button('market-buy', t('market.unlock_tip'), 'primary')
@@ -379,13 +399,13 @@ export async function marketDetail({ view, nav, waterDirectory }) {
           title: t('market.confirm_tip_purchase'),
           message: [
             item.title,
-            credits(item.price),
+            offerPrice(item.price, !!wallet),
             payment,
             funding?.paid === 0 ? t('commerce.welcome_access') : '',
           ]
             .filter(Boolean)
             .join(' · '),
-          accept: t('market.buy_for') + credits(item.price),
+          accept: wallet ? t('market.unlock_tip') : t('market.buy_for') + credits(item.price),
         }))
       )
         return;
@@ -425,6 +445,7 @@ export async function marketEditor({ view, nav, waterDirectory }) {
   const commercialTerms = old ? old.commercial === true : playEdition();
   const initialWater = old?.water ?? route.water;
   const deviceZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+  /** Use the selected water's timezone when validating an offer's local availability dates. */
   const zoneOf = (water) => water?.zone || deviceZone;
   const currentDay = today(zoneOf(waterDirectory.byKey.get(initialWater)));
   replaceMarkup(
@@ -488,6 +509,7 @@ export async function marketEditor({ view, nav, waterDirectory }) {
   dayInput.addEventListener('input', () => {
     automaticDay = false;
   });
+  /** Validate the offer date in the selected fishing location's time zone. */
   function updateDay() {
     dayInput.max = today(zoneOf(selectedWater()));
     if (automaticDay) dayInput.value = dayInput.max;
@@ -499,6 +521,7 @@ export async function marketEditor({ view, nav, waterDirectory }) {
   const picker = by('offer-species');
   const country = by('offer-country');
   const search = by('species-filter');
+  /** Rebuild the available offer species for the editor's current search and country. */
   function choices(selected) {
     const items = matchingSpecies(directory, country.value, search.value);
     picker.replaceChildren(new Option(t('market.choose_a_catalogue_species'), ''));
@@ -529,6 +552,7 @@ export async function marketEditor({ view, nav, waterDirectory }) {
   trackEdits(form, view);
   form.onsubmit = (event) => {
     event.preventDefault();
+    /** Read the current value from the matching offer editor control. */
     const val = (id) =>
       /** @type {HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement} */ (
         by('offer-' + id)
@@ -547,6 +571,7 @@ export async function marketEditor({ view, nav, waterDirectory }) {
     if (!draft.title || !draft.species || draft.technique.length < 10) return toast(errorText(422));
     review(draft);
   };
+  /** Present the terms that the seller is about to submit. */
   async function review(draft) {
     const commercial = playEdition() && !old;
     const message = [
@@ -555,7 +580,7 @@ export async function marketEditor({ view, nav, waterDirectory }) {
       displayDay(draft.day),
       access()[draft.access],
       selectedWater()?.name || draft.water,
-      credits(draft.price),
+      offerPrice(draft.price, commercialTerms),
       draft.limit == null ? t('market.unlimited') : t('market.sales_limit') + draft.limit,
     ]
       .filter(Boolean)

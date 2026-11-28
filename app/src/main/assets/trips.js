@@ -29,6 +29,7 @@ import {
   trackEdits,
   writeEntry,
 } from './ui.js';
+/** Show the stored water, date and catch count for one journal entry. */
 function tripRow(trip, number) {
   const date = new Date(trip.day + 'T12:00:00Z');
   return `<button class="trip-row" data-trip="${esc(trip.id)}"><span class="date-stamp" aria-hidden="true"><strong>
@@ -70,6 +71,7 @@ export async function listTrips({ view, nav, waterDirectory }) {
   const search = by('trip-search'),
     list = by('trip-list');
   let rows;
+  /** Rebuild the trip list for the active journal query. */
   function render() {
     const query = Domain.fold(search.value);
     const visible = query ? rows.filter((row) => row.terms.some((term) => term.includes(query))) : rows;
@@ -102,7 +104,9 @@ export async function listTrips({ view, nav, waterDirectory }) {
   };
   view.refreshWaters(waterDirectory);
 }
-/** @param {import('../../../../types/screens.js').ScreenContext} context */
+/** Load the original trip for editing or initialize a new journal entry.
+ * @param {import('../../../../types/screens.js').ScreenContext} context
+ */
 export async function tripForm({ view, nav, pack, waterDirectory }) {
   const { route } = view;
   const original = route.id ? await Journal.trip(route.id) : null;
@@ -129,6 +133,7 @@ export async function tripForm({ view, nav, pack, waterDirectory }) {
   customName.value = original?.waterName || '';
   by('notes').value = original?.notes || '';
   search.maxLength = customName.maxLength;
+  /** Keep the draft water identity and displayed location fields consistent. */
   function updateWaterFields() {
     const pending = !!search.value.trim();
     by('use-water-name').hidden = !pending;
@@ -197,7 +202,9 @@ export async function tripForm({ view, nav, pack, waterDirectory }) {
     );
   };
 }
-/** @param {import('../../../../types/screens.js').ScreenContext} context */
+/** Load a trip together with its catches and expose its journal actions.
+ * @param {import('../../../../types/screens.js').ScreenContext} context
+ */
 export async function tripScreen({ view, nav, pack, waterDirectory }) {
   const { id } = view.route;
   const [trip, catches] = await Promise.all([Journal.trip(id), Journal.catches(id)]);

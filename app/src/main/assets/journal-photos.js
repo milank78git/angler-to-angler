@@ -1,10 +1,12 @@
 /** Keep binary originals independent of revisions to the trip that describes them. */
 const partSize = 65536;
+/** Identify the exact photo bytes for journal deduplication and retention checks. */
 export const photoHash = async (blob) =>
   Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', await blob.arrayBuffer())), (b) =>
     b.toString(16).padStart(2, '0'),
   ).join('');
 
+/** Upload ordered chunks and prepare the server reference only after the last chunk succeeds. */
 export async function stagePhoto(call, ref, file, operation = 'photo_prepare') {
   if (!file || file.size > 16777216)
     throw Object.assign(Error('Photo unavailable or too large'), { status: 413 });
@@ -17,6 +19,7 @@ export async function stagePhoto(call, ref, file, operation = 'photo_prepare') {
   return call(operation, ref);
 }
 
+/** Reuse a verified local original or verify the complete reassembled cloud image. */
 export async function restorePhoto(call, ref, existing) {
   if (existing && (await photoHash(existing)) === ref.hash) return existing;
   const parts = [];

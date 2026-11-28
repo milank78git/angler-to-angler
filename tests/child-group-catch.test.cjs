@@ -51,4 +51,23 @@ test('the group catch form sends only previewed fields to an explicitly selected
   const {request_id, ...fields} = sent[0];
   assert.ok(request_id);
   assert.deepEqual(fields, {group_id: 'private', day: trip.day, species: 'Perch', length_mm: 320, photo: null});
+
+  // A restored client and the service can briefly have different age information.
+  // Check the old membership shape as well as an explicit denial on the same response.
+  for (const [ageBand, eligible] of [['child', false], ['adult', true]]) {
+    await t.test('server age band ' + ageBand + ' with a legacy membership', async () => {
+      window.Device.groupSharingOnly = () => false;
+      window.Device.profileRequest = (id, op) => {
+        assert.equal(op, 'groups');
+        queueMicrotask(() => window.profileReply(id, 200, {ageBand, groups: [
+          {id: 'previous', name: 'Returning group'},
+          {id: 'blocked', name: 'Not permitted', canShareCatch: false},
+        ]}));
+      };
+      await render();
+      const recipients = by('catch-group');
+      if (eligible) assert.deepEqual(Array.from(recipients.options, option => option.value), ['', 'previous']);
+      else assert.equal(recipients, null);
+    });
+  }
 });

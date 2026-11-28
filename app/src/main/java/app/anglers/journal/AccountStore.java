@@ -14,6 +14,7 @@ final class AccountStore {
   private static IdentityService.Session session;
   private static long generation;
 
+  /** Open the device-private account preferences backing the active identity. */
   static SharedPreferences prefs(Context c) {
     return c.getSharedPreferences("angler-account", Context.MODE_PRIVATE);
   }
@@ -29,10 +30,12 @@ final class AccountStore {
     }
   }
 
+  /** Clear the in-memory session so returning to the journal requires unlocking. */
   static synchronized void lock() {
     session = null;
   }
 
+  /** Return the subject only when the live session matches the stored active owner. */
   static synchronized String active(Context c) {
     return session != null
             && session.id.equals(prefs(c).getString("subject", ""))
@@ -41,6 +44,7 @@ final class AccountStore {
         : "";
   }
 
+  /** Apply the cached age band only to the verified active account. */
   static boolean canShareOutsideGroups(Context c) {
     String band = active(c).isEmpty() ? "" : prefs(c).getString("ageBand", "");
     return "adult".equals(band) || "teen".equals(band);
@@ -57,6 +61,7 @@ final class AccountStore {
     return now - verified >= WINDOW ? "account.offline_expired" : null;
   }
 
+  /** Calculate the remaining validity of the device's cached verification. */
   static long remainingMillis(Context c) {
     SharedPreferences p = prefs(c);
     long age = System.currentTimeMillis() - p.getLong("verified", 0);
@@ -67,6 +72,7 @@ final class AccountStore {
     return WINDOW - age;
   }
 
+  /** Store the session in the device vault before it can be reused. */
   private static void persist(Context c, IdentityService.Session value) {
     try {
       DeviceVault.save(c, value);
@@ -75,7 +81,9 @@ final class AccountStore {
     } // Password sign-in still works.
   }
 
+  /** Load the protected session back into process memory. */
   static synchronized IdentityService.Session unlock(Context c) throws Exception {
+    // Publish the in-memory session only after the device vault successfully decrypts it.
     session = DeviceVault.open(c);
     return session;
   }
@@ -147,6 +155,7 @@ final class AccountStore {
     }
   }
 
+  /** Dispatch the operation under the indicated active subject's session. */
   static JSONObject rpc(
       Context c, IdentityService service, String id, String method, JSONObject args)
       throws Exception {
@@ -181,6 +190,7 @@ final class AccountStore {
     }
   }
 
+  /** Select the local journal namespace owned by the active profile. */
   static String journal(Context c) {
     String id = active(c);
     if (id.isEmpty()) throw new IllegalStateException("Profile required");
@@ -189,6 +199,7 @@ final class AccountStore {
         : "angler-field-journal-" + id;
   }
 
+  /** Invalidate the current session generation and clear the account's local sign-in state. */
   static synchronized IdentityService.Session logout(Context c) {
     IdentityService.Session previous = session;
     generation++;

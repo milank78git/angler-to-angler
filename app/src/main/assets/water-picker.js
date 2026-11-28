@@ -2,6 +2,7 @@ import { by, button, esc, selectField, t, textInput } from './ui.js';
 import { fold } from './domain.js';
 import { matchesWater } from './water-directory.js';
 
+/** Render the search and selection controls with optional keyboard-accessible suggestions. */
 export function waterPicker(id, label, emptyLabel, { suggestions = false } = {}) {
   const select = selectField(id, label, emptyLabel ? [['', emptyLabel]] : [], '');
   const footer =
@@ -37,6 +38,7 @@ export function waterPicker(id, label, emptyLabel, { suggestions = false } = {})
   );
 }
 
+/** Disambiguate similar water names using the available number, country and source code. */
 export function waterOption(water) {
   return [water.name, water.number, water.country, water.code !== water.number ? water.code : '']
     .filter(Boolean)
@@ -50,6 +52,7 @@ function bindSuggestions(id, search, select) {
   let open = false,
     active;
 
+  /** Collapse suggestions and clear the accessible active option. */
   function close() {
     open = false;
     active = undefined;
@@ -59,6 +62,7 @@ function bindSuggestions(id, search, select) {
     search.removeAttribute('aria-activedescendant');
   }
 
+  /** Expose only the currently filtered options in the suggestion list. */
   function render() {
     if (!open || !search.value.trim()) return close();
     active = undefined;
@@ -80,12 +84,14 @@ function bindSuggestions(id, search, select) {
     search.setAttribute('aria-expanded', String(!list.hidden));
   }
 
+  /** Open the suggestions for the current query and reset their scroll position. */
   function show() {
     open = true;
     render();
     list.scrollTop = 0;
   }
 
+  /** Commit the selected water and emit the same change event as the native select. */
   function choose(row) {
     select.value = row.dataset.key;
     close();
@@ -149,6 +155,7 @@ export function bindWaterPicker(id, view, directory, selectedKey, country, onSea
   const pageSize = 60;
   let limit = pageSize,
     retained;
+  /** Rebuild the bounded page while distinguishing a typed query from a committed identity. */
   function populate(key, typing = false) {
     const query = fold(search.value);
     const selected = directory.byKey.get(key) || (retained?.key === key ? retained : undefined);

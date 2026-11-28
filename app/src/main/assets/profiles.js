@@ -18,6 +18,7 @@ import {
 import { authorRating } from './tip-ratings.js';
 import { rpc, failure, photoPayload } from './profile-api.js';
 
+/** Prefer the uploaded image, then a known portrait index, then the generic fish icon. */
 function portrait(avatar, photo) {
   if (photo) return '<img class="angler-portrait" alt="" src="data:image/jpeg;base64,' + esc(photo) + '">';
   if (!Number.isInteger(avatar) || avatar < 1 || avatar > 50)
@@ -32,6 +33,7 @@ function portrait(avatar, photo) {
   );
 }
 
+/** Offer retry, sign-in or account settings according to the profile request failure. */
 export function showError(view, nav, error) {
   if (!view.active()) return;
   replaceMarkup(
@@ -50,7 +52,9 @@ export function showError(view, nav, error) {
   if (by('sign-in')) bind('sign-in', () => window.Device.profileSignIn());
 }
 
-/** @param {import('../../../../types/screens.js').ScreenContext} context */
+/** Load the owner's profile or another angler's visible card for the selected route.
+ * @param {import('../../../../types/screens.js').ScreenContext} context
+ */
 export async function profileScreen({ view, nav }) {
   const id = view.route.id || null;
   const own = !id;
@@ -153,7 +157,9 @@ export async function profileScreen({ view, nav }) {
   }
 }
 
-/** @param {import('../../../../types/screens.js').ScreenContext} context */
+/** Load the current profile and retain the editor while the user reviews and submits changes.
+ * @param {import('../../../../types/screens.js').ScreenContext} context
+ */
 export async function editProfile({ view, nav }) {
   let card;
   try {
@@ -235,6 +241,7 @@ export async function editProfile({ view, nav }) {
   const radios = Array.from(
     /** @type {NodeListOf<HTMLInputElement>} */ (screen.querySelectorAll('[name="portrait"]')),
   );
+  /** Refresh the draft profile image without publishing the profile. */
   function preview() {
     replaceMarkup(by('portrait-preview'), portrait(avatar, photo));
   }
@@ -256,6 +263,7 @@ export async function editProfile({ view, nav }) {
   const form = by('card-form'),
     fields = form.querySelector('fieldset'),
     save = by('save-card');
+  /** Prevent simultaneous edits while a profile submission is pending. */
   function lock(locked) {
     fields.disabled = save.disabled = by('reload-card').disabled = view.saving = locked;
   }
@@ -309,7 +317,9 @@ export async function editProfile({ view, nav }) {
   };
 }
 
-/** @param {import('../../../../types/screens.js').ScreenContext} context */
+/** List the directory page selected by the current search and pagination state.
+ * @param {import('../../../../types/screens.js').ScreenContext} context
+ */
 export async function directoryScreen({ view, nav }) {
   let page;
   try {

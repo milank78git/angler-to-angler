@@ -12,12 +12,14 @@ final class JournalProfileRequests implements AutoCloseable {
   private final String subject;
   private final Consumer<String> evaluate;
 
+  /** Bind the authenticated request worker to the original activity and account. */
   JournalProfileRequests(Activity activity, String subject, Consumer<String> evaluate) {
     this.activity = activity;
     this.subject = subject;
     this.evaluate = evaluate;
   }
 
+  /** Validate the requested journal operation before dispatching it for the active subject. */
   void request(int id, String operation, String body) {
     switch (operation) {
       case "my_details":
@@ -128,6 +130,7 @@ final class JournalProfileRequests implements AutoCloseable {
         });
   }
 
+  /** Retire the worker handling authenticated WebView requests. */
   @Override public void close() {
     io.shutdownNow();
   }

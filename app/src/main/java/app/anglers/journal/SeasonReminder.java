@@ -27,19 +27,23 @@ public final class SeasonReminder extends BroadcastReceiver {
   private static final String FIRE = "app.anglers.journal.SEASON";
   private static final String CHANNEL = "fishing-seasons";
 
+  /** Open the persisted season subscriptions for this installation. */
   private static SharedPreferences prefs(Context c) {
     return c.getSharedPreferences("season-watches", 0);
   }
 
+  /** Cancel the native alarm and remove the persisted schedule for every subscription. */
   static void clearSubscriptions(Context c) {
     for (String key : prefs(c).getAll().keySet()) cancel(c, key);
     c.getSystemService(NotificationManager.class).cancelAll();
   }
 
+  /** Check whether a specific water and species combination has a saved watch. */
   static boolean watching(Context c, String key) {
     return prefs(c).contains(key);
   }
 
+  /** Construct the pending intent that identifies this subscription and scheduled transition. */
   private static PendingIntent alarm(Context c, String key, long stamp) {
     Intent i =
         new Intent(c, SeasonReminder.class)
@@ -51,6 +55,7 @@ public final class SeasonReminder extends BroadcastReceiver {
         c, 0, i, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
   }
 
+  /** Check native permission and notification availability for season alerts. */
   static boolean notificationsEnabled(Context context) {
     NotificationManager manager = context.getSystemService(NotificationManager.class);
     NotificationChannel channel = manager.getNotificationChannel(CHANNEL);
@@ -58,11 +63,13 @@ public final class SeasonReminder extends BroadcastReceiver {
         && (channel == null || channel.getImportance() != NotificationManager.IMPORTANCE_NONE);
   }
 
+  /** Remove this subscription and cancel its pending alarm. */
   private static void cancel(Context context, String key) {
     prefs(context).edit().remove(key).apply();
     context.getSystemService(AlarmManager.class).cancel(alarm(context, key, 0));
   }
 
+  /** Validate the user's watch key before creating or removing its schedule. */
   static void toggle(Context context, String key, boolean enabled) {
     if (key == null
         || key.length() > 200
@@ -78,6 +85,7 @@ public final class SeasonReminder extends BroadcastReceiver {
     }
   }
 
+  /** Recompute the subscribed season event after an alarm or a device lifecycle change. */
   @Override
   public void onReceive(Context context, Intent intent) {
     try {
@@ -100,6 +108,7 @@ public final class SeasonReminder extends BroadcastReceiver {
     }
   }
 
+  /** Prefer the installed atlas rules and fall back to the bundled catalogue when appropriate. */
   private static JSONObject catalog(Context c) throws Exception {
     String key = WaterCatalogue.revision(c);
     if (!key.isEmpty()) {
@@ -200,6 +209,7 @@ public final class SeasonReminder extends BroadcastReceiver {
     alerts.edit().putString("generic-day", day.toString()).apply();
   }
 
+  /** Publish the localized season alert linked to its subscribed water and species. */
   private static void post(Context c, String key, String title, String body) {
     NotificationManager manager = c.getSystemService(NotificationManager.class);
     manager.createNotificationChannel(

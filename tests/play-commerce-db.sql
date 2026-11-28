@@ -203,6 +203,28 @@ end $$;
 reset role;
 update angler_commerce.settings set mode='off';
 
+-- Replay a pending request through the public dispatcher and keep the ledger unchanged.
+savepoint payout_contract;
+update angler_commerce.settings set mode='test';
+set local role authenticated;
+select pg_temp.as_user(72);
+do $$begin
+  begin
+    perform public.angler_commerce('payout');
+    raise exception 'An underfunded seller could request a payout';
+  exception when sqlstate 'PT422' then null;
+  end;
+end $$;
+reset role;
+insert into angler_commerce.payouts(author,halers) values (auth.uid(),12500);
+set local role authenticated;
+select pg_temp.check_that(public.angler_commerce('payout')->>'requested' = '12500',
+  'A pending payout retry must return the original amount');
+reset role;
+select pg_temp.check_that((select count(*) from angler_commerce.payouts where author=auth.uid() and paid_at is null)=1,
+  'Retry created another payout');
+rollback to payout_contract;
+
 -- Only the transaction dispatcher may enter locked, actor-bound commerce operations.
 select pg_temp.check_that(not exists (
   select from (values ('anon'), ('authenticated')) as roles(name)

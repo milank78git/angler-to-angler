@@ -17,6 +17,7 @@ final class PlayReceipts {
   private final Map<String, Receipt> receipts = new HashMap<>();
   private final Consumer<String> verify;
 
+  /** Bind transitions into verification to the supplied receipt verifier. */
   PlayReceipts(Consumer<String> verify) {
     this.verify = verify;
   }
@@ -43,6 +44,7 @@ final class PlayReceipts {
     });
   }
 
+  /** Apply verification completion only to a receipt still awaiting this result. */
   void complete(String token, boolean verified) {
     Receipt receipt = receipts.get(token);
     if (receipt == null || receipt.state != State.VERIFYING) return;
@@ -50,10 +52,14 @@ final class PlayReceipts {
     else receipts.remove(token);
   }
 
+  /** Report whether any purchase still awaits confirmation from Play. */
   boolean pending() { return contains(State.PENDING); }
+  /** Report whether any receipt is undergoing backend verification. */
   boolean verifying() { return contains(State.VERIFYING); }
+  /** Report whether an earlier verification attempt needs another delivery. */
   boolean needsRetry() { return contains(State.RETRY); }
 
+  /** Check recorded purchases for the specified delivery state. */
   private boolean contains(State state) {
     return receipts.values().stream().anyMatch(receipt -> receipt.state == state);
   }

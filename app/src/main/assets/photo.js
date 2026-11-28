@@ -1,6 +1,7 @@
 /** Decode and re-encode into pixels only, dropping source EXIF and location metadata. */
 export const pixelJpeg = (file, edge) => pixelCopy(file, edge, 'image/jpeg');
 
+/** Decode and redraw the image at a bounded size before exporting pixels in the requested format. */
 async function pixelCopy(file, maxEdge, type) {
   if (!file) return null;
   if (file.size > 30 * 1024 * 1024) throw Error('photo');
@@ -34,6 +35,7 @@ export async function competitionPhoto(file, edge) {
   const buffer = await webp.arrayBuffer(),
     bytes = new Uint8Array(buffer),
     view = new DataView(buffer);
+  /** Read a four-byte WebP chunk identifier at the supplied offset. */
   const type = (offset) => view.getUint32(offset);
   if (bytes.length < 20 || type(0) !== 0x52494646 || type(8) !== 0x57454250) throw Error('WebP');
   for (let offset = 12; offset + 8 <= bytes.length; ) {

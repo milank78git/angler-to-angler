@@ -168,4 +168,7 @@
   <changeSet id="20261128030000" author="angler" dbms="postgresql">
     <sqlFile path="../supabase/migrations/20261128030000_age_correction_journal_epoch.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
   </changeSet>
+  <changeSet id="20261128050300" author="angler" dbms="postgresql">
+    <sqlFile path="../supabase/migrations/20261128050300_missing_journal_chunk.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="false"/>
+  </changeSet>
 </databaseChangeLog>

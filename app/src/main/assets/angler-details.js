@@ -17,12 +17,14 @@ import {
 } from './ui.js';
 import { rpc, failure } from './profile-api.js';
 
+/** Read the signed-in account's angler details through the mobile bridge. */
 const read = () => rpc('my_details');
 let refreshing;
 
 /** Refresh the device's offline alarm from the verified account, without blocking the atlas. */
 export function bindLicenseNotice(nav) {
   const banner = by('license-notice');
+  /** Show the latest license reminder supplied by Android and update banner visibility. */
   const display = () => {
     const message = window.Device?.licenseMessage?.() || '';
     banner.textContent = message;
@@ -72,6 +74,7 @@ export async function profileDetailsSummary(view) {
   }
 }
 
+/** Edit licence expiry and reminder preferences against the revision last read from the server. */
 /** @param {import('../../../../types/screens.js').ScreenContext} context */
 export async function anglerDetails({ view, nav }) {
   let data;
@@ -137,6 +140,7 @@ export async function anglerDetails({ view, nav }) {
     expiry = by('permit-expiry'),
     lead = by('permit-lead');
   trackEdits(form, view);
+  /** Keep reminder controls consistent with an empty expiry and Android notification permission. */
   function update() {
     lead.disabled = !expiry.value;
     if (!expiry.value) lead.value = 'off';

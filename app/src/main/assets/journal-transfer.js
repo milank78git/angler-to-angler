@@ -2,31 +2,39 @@ import { photoHash, stagePhoto, restorePhoto } from './journal-photos.js';
 /** Platform-independent transfer format. Hashes cover the exact bytes restored on another device. */
 const encoder = new TextEncoder();
 const decoder = new TextDecoder('utf-8', { fatal: true });
+/** Encode bytes in bounded pieces so a large block does not overflow the argument stack. */
 function toBase64(bytes) {
   let value = '';
   for (let i = 0; i < bytes.length; i += 8192) value += String.fromCharCode(...bytes.subarray(i, i + 8192));
   return btoa(value);
 }
+/** Restore the raw bytes of a journal attachment from its transfer representation. */
 const fromBase64 = (data) => Uint8Array.from(atob(data), (char) => char.charCodeAt(0));
+/** Compute the SHA-256 identifier used to compare transferred content. */
 const hash = async (bytes) =>
   Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)), (b) =>
     b.toString(16).padStart(2, '0'),
   ).join('');
+/** Serialize an optional photo with its MIME type for transfer to another journal. */
 const photoData = async (blob) =>
   blob ? { type: blob.type, data: toBase64(new Uint8Array(await blob.arrayBuffer())) } : null;
+/** Restore an optional transferred photo as a typed binary blob. */
 const photoBlob = (photo) => (photo ? new Blob([fromBase64(photo.data)], { type: photo.type }) : null);
 
+/** Export only portable preferences that belong to this subject or the approved global set. */
 export function preferenceKey(key, subject) {
   if (key.startsWith('water.' + subject + '.')) return 'water/' + key.slice(subject.length + 7);
   if (key === 'atlas.country.' + subject) return 'country';
   if (['ui.theme', 'fish.country', 'atlas.topographic'].includes(key)) return key;
   return null;
 }
+/** Translate a portable preference back into this device owner's storage namespace. */
 function localKey(key, subject) {
   if (key.startsWith('water/')) return 'water.' + subject + '.' + key.slice(6);
   if (key === 'country') return 'atlas.country.' + subject;
   return ['ui.theme', 'fish.country', 'atlas.topographic'].includes(key) ? key : null;
 }
+/** Enumerate trips, water photos and approved preferences without reading photo bodies. */
 export async function documentKeys(db, storage, subject) {
   const keys = (await db.tripKeys()).map((id) => 'trip/' + id);
   for (const [, id] of await db.waterPhotoKeys()) keys.push('photo/' + id);
@@ -36,6 +44,7 @@ export async function documentKeys(db, storage, subject) {
   }
   return keys;
 }
+/** Sort object keys before hashing and preserve array order in the manifest. */
 function stableFields(_key, value) {
   return value && typeof value === 'object' && !Array.isArray(value)
     ? Object.fromEntries(
@@ -45,6 +54,7 @@ function stableFields(_key, value) {
       )
     : value;
 }
+/** Serialize the versioned document into digest-addressed blocks and optional detached photo references. */
 export async function encodeDocument(db, storage, subject, key, detached = false) {
   const photos = [];
   let value;
@@ -97,6 +107,7 @@ export async function localDocument(db, storage, subject, key, needBlocks = fals
   return { ...local, version: cached?.version };
 }
 
+/** Stage missing photo and document blocks before publishing the ordered manifest at its expected revision. */
 export async function uploadDocument(
   call,
   key,
@@ -128,6 +139,7 @@ export async function uploadDocument(
     })
   ).revision;
 }
+/** Verify each downloaded block before decoding the complete versioned document. */
 export async function downloadDocument(call, hashes) {
   if (!hashes.length) return null;
   const chunks = [];
@@ -191,6 +203,7 @@ export async function prepareRestore(db, storage, subject, key, value, call = un
   };
 }
 
+/** Prepare all remote data before invoking the writer that replaces local state. */
 export async function restoreDocument(db, storage, subject, key, value, call = undefined) {
   const apply = await prepareRestore(db, storage, subject, key, value, call);
   await apply();

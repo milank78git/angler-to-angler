@@ -1,8 +1,10 @@
 import { replaceMarkup } from './markup.js';
+import { languageTag } from './i18n.js';
 import { rpc, failure } from './profile-api.js';
 import { button, displayDay, esc, link, selectField, t } from './ui.js';
 
 let parking;
+/** Share the bundled parking dataset and clear the cached request after a failed read. */
 export async function parkingPoints() {
   parking ||= fetch('parking.json')
     .then((r) => {
@@ -16,9 +18,10 @@ export async function parkingPoints() {
   return parking;
 }
 
+/** Format an aggregated community rating for display. */
 function score(row) {
   return row.votes
-    ? Number(row.average).toLocaleString() + ' / 5 · ' + t('common.ratings') + ' ' + row.votes
+    ? Number(row.average).toLocaleString(languageTag) + ' / 5 · ' + t('common.ratings') + ' ' + row.votes
     : t('common.no_ratings_yet');
 }
 
@@ -72,6 +75,7 @@ async function parkingFeedback(host, point, onSummary) {
     status = host.querySelector('[role=status]');
   const [save, more] = host.querySelectorAll('button'),
     list = host.querySelector('ul');
+  /** Append the returned parking notes and the reporting controls for addressable entries. */
   function showNotes(page) {
     for (const entry of page.noteItems ?? page.items) {
       const text = typeof entry === 'string' ? entry : entry.text;
@@ -97,10 +101,12 @@ async function parkingFeedback(host, point, onSummary) {
     data.next = page.next;
     more.hidden = !page.next;
   }
+  /** Enable saving only when the proposed stars or note differ from the stored feedback. */
   function changed() {
     save.disabled =
       (Number(stars.value) || null) === (data.myStars ?? null) && note.value.trim() === (data.myNote || '');
   }
+  /** Rebuild this community panel from its latest server response. */
   function render(result) {
     data = result;
     onSummary(result);
@@ -147,9 +153,11 @@ async function parkingFeedback(host, point, onSummary) {
   };
 }
 
+/** Bind the shared parking list and the actions available to this account. */
 export async function waterParking(host, water, nav) {
   const bundled = (await parkingPoints().catch(() => ({})))[water.key] || [];
   if (!host.isConnected) return;
+  /** Open the parking editor with its parent water and the selected parking record. */
   const edit = (parking) => nav.open('parkingEditor', { id: water.id, parking });
   replaceMarkup(
     host,
@@ -164,6 +172,7 @@ export async function waterParking(host, water, nav) {
   const rows = host.querySelector('.parking-rows'),
     status = host.querySelector('[role=status]'),
     refresh = host.querySelector('#parking-refresh');
+  /** Rebuild this community panel from its latest server response. */
   function render(remote, online) {
     const points = new Map(bundled.map((p) => [p.id, { ...p, revision: 1 }]));
     for (const p of remote) points.set(p.id, { ...points.get(p.id), ...p, point: [p.lon, p.lat] });
@@ -222,6 +231,7 @@ export async function waterParking(host, water, nav) {
         const stats = document.createElement('p');
         stats.className = 'meta';
         card.append(stats);
+        /** Refresh a parking entry's displayed score and note count after a community change. */
         const update = (row) => {
           stats.textContent = score(row) + ' · ' + t('parking.notes') + ' (' + row.notes + ')';
         };
@@ -236,6 +246,7 @@ export async function waterParking(host, water, nav) {
       index++;
     }
   }
+  /** Refresh the current water's community information from the service. */
   async function load() {
     refresh.disabled = true;
     status.textContent = t('parking.loading');
@@ -256,8 +267,10 @@ export async function waterParking(host, water, nav) {
   await load();
 }
 
+/** Expose the private rating controls alongside the aggregate for this water. */
 export async function waterRating(host, water) {
   const heading = '<h2>' + esc(t('rating.title')) + '</h2>';
+  /** Refresh the current water's community information from the service. */
   async function load(operation = 'water_rating', args = {}) {
     host.setAttribute('aria-busy', 'true');
     try {
@@ -269,7 +282,7 @@ export async function waterRating(host, water) {
         heading +
           '<p role="status">' +
           (data.count
-            ? esc(Number(data.average).toLocaleString()) +
+            ? esc(Number(data.average).toLocaleString(languageTag)) +
               ' / 5 · ' +
               esc(t('common.ratings')) +
               ' ' +
@@ -306,6 +319,7 @@ export async function waterRating(host, water) {
       host.removeAttribute('aria-busy');
     }
   }
+  /** Submit the revised water rating and refresh the displayed summary. */
   function write(stars) {
     host.querySelectorAll('select,button').forEach((el) => (el.disabled = true));
     load('water_rate', { stars });

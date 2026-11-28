@@ -35,12 +35,15 @@ final class WaterCatalogue {
   private static final ExecutorService IO = Executors.newSingleThreadExecutor();
   enum Result { CURRENT, UPDATED, FAILED, SKIPPED }
 
+  /** Access the locally installed atlas revision and update preferences. */
   static SharedPreferences prefs(Context c) {
     return c.getSharedPreferences("water-atlas", Context.MODE_PRIVATE);
   }
 
+  /** Read whether background catalogue updates are enabled. */
   static boolean automatic(Context c) { return prefs(c).getBoolean("automatic", true); }
 
+  /** Register background atlas checks under Android's job scheduling constraints. */
   static void schedule(Context c) {
     JobScheduler scheduler = c.getSystemService(JobScheduler.class);
     if (!automatic(c)) { scheduler.cancel(JOB); return; }
@@ -51,12 +54,14 @@ final class WaterCatalogue {
     }
   }
 
+  /** Persist the user's update choice and reconcile scheduled work. */
   static void setAutomatic(Context c, boolean value) {
     prefs(c).edit().putBoolean("automatic", value).apply();
     schedule(c);
     if (value) check(c, false, null);
   }
 
+  /** Return the revision identifier of the installed water edition. */
   static String revision(Context c) {
     String pin = c.getString(R.string.atlas_public_key);
     if (pin.isEmpty() || !pin.equals(prefs(c).getString("verifiedSigner", ""))) return "";
@@ -64,10 +69,12 @@ final class WaterCatalogue {
     return key.matches("[a-f0-9]{64}") && file(c, key).isFile() ? key : "";
   }
 
+  /** Locate the on-device file holding the water catalogue revision. */
   private static File file(Context c, String key) {
     return new File(c.getDir("atlas", Context.MODE_PRIVATE), key + ".json");
   }
 
+  /** Open the requested atlas data from local storage. */
   static InputStream open(Context c, String key) throws IOException {
     String current = revision(c);
     if (current.isEmpty() || key == null || !key.matches("[a-f0-9]{64}")
@@ -168,6 +175,7 @@ final class WaterCatalogue {
     } finally { archive.delete(); if (data != null) data.delete(); }
   }
 
+  /** Copy the atlas stream while respecting its download limits. */
   private static void copy(InputStream in, OutputStream out, int expected) throws IOException {
     byte[] buffer = new byte[32768];
     int total = 0, n;

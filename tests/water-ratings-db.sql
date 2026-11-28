@@ -10,6 +10,8 @@ begin
   perform pg_temp.as_user(72);
   r := public.angler_water_rate('CZ:401009',2);
   if r->>'count' is distinct from '2' or (r->>'average')::numeric<>3 then raise exception 'Aggregate mismatch'; end if;
+  perform pg_temp.check_that(public.angler_water_rating('CZ:401009') = r,
+    'Reading a rating must return the same aggregate and the signed-in angler''s vote');
   perform public.angler_water_rate('CZ:401009',5);
   perform pg_temp.as_user(71);
   r := public.angler_water_rate('CZ:401009',null);

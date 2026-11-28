@@ -16,6 +16,7 @@ const labels = {
   withdraw: t('verification.remove_review_record'),
 };
 
+/** Offer an eligible catch for review with a preview of the evidence being sent. */
 export function addVerificationAction(article, record, trip, view, nav) {
   const action = document.createElement('button');
   action.className = 'secondary';
@@ -86,6 +87,7 @@ export function addVerificationAction(article, record, trip, view, nav) {
   article.append(action);
 }
 
+/** Distinguish a measured length from an estimate or other review outcome. */
 function reviewResult({ outcome, mm }) {
   if (outcome !== 'measured' && outcome !== 'estimated') {
     return '<strong>' + esc(outcomes[outcome]) + '</strong>';
@@ -104,11 +106,14 @@ function reviewResult({ outcome, mm }) {
   );
 }
 
+/** Format the capture timestamp in the selected app language. */
 function localTime(value) {
   return new Date(value).toLocaleString(document.documentElement.lang);
 }
 
-/** @param {import('../../../../types/screens.js').ScreenContext} context */
+/** List the signed-in angler's evidence and the controls available for each catch.
+ * @param {import('../../../../types/screens.js').ScreenContext} context
+ */
 export async function evidenceScreen({ view, nav }) {
   let page;
   try {
@@ -187,7 +192,9 @@ export async function evidenceScreen({ view, nav }) {
   );
 }
 
-/** @param {import('../../../../types/screens.js').ScreenContext} context */
+/** Load the evidence assigned to the reviewer before enabling a decision.
+ * @param {import('../../../../types/screens.js').ScreenContext} context
+ */
 export async function reviewScreen({ view, nav }) {
   let item;
   try {

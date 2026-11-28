@@ -12,6 +12,7 @@ const quickChoices = [
   ['🐟', 'emoji.fish'],
 ];
 
+/** Create the interactive control for a single reaction choice. */
 function control(text, onClick) {
   const button = document.createElement('button');
   button.type = 'button';
@@ -20,6 +21,7 @@ function control(text, onClick) {
   return button;
 }
 
+/** Present the supported emoji choices for this message. */
 function choices(choose, current) {
   const row = document.createElement('div');
   row.className = 'emoji-choices';
@@ -58,6 +60,7 @@ export function messageReactions(view, data, item, explainError) {
   const region = document.createElement('div');
   region.className = 'message-reactions';
 
+  /** Refresh the reaction controls using the server's latest counts and selection. */
   function render(focus) {
     region.replaceChildren();
     const feedback = document.createElement('p');
@@ -72,6 +75,7 @@ export function messageReactions(view, data, item, explainError) {
     error.hidden = true;
     region.append(feedback, error);
 
+    /** Submit the chosen reaction before updating its visible state. */
     async function save(glyph) {
       error.hidden = true;
       let receipt;

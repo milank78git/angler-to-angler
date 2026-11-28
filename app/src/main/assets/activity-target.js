@@ -13,6 +13,7 @@ export function activityTargetLabel(key, pack, fish) {
   );
 }
 
+/** Render the country scope, search input and stable species selector for an activity report. */
 export function targetFields(country) {
   return (
     selectField(
@@ -40,6 +41,7 @@ export function bindTargetPicker(fish, pack, saved, report = false) {
   const savedFish = fish.names.get(initial);
   if (savedFish && !savedFish.countries.includes(scope.value)) scope.value = '';
   let limit = pageSize;
+  /** Keep the explicit selection reachable when it falls outside the first page of results. */
   function populate(selected) {
     const matches = matchingSpecies(fish, scope.value, search.value);
     const options = report ? [new Option(t('common.all'), '')] : [];
@@ -55,6 +57,7 @@ export function bindTargetPicker(fish, pack, saved, report = false) {
     by('activity-matches').textContent = t('fish_catalogue.species_count') + ' · ' + matches.length;
     by('activity-more').hidden = matches.length <= limit;
   }
+  /** Return to the first results page when the search query or country changes. */
   function filter() {
     limit = pageSize;
     populate(select.value);

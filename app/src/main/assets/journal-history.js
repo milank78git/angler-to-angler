@@ -3,15 +3,20 @@ import { photoHash } from './journal-photos.js';
 /** Keep each sync decision in the storage that holds the corresponding local document. */
 export function journalHistory(db, storage, subject, epoch) {
   const prefix = 'journal.sync.v1.' + subject + '.';
+  /** Locate the receipt for a portable preference in this account’s local storage. */
   const prefKey = (key) => prefix + 'state.' + key;
+  /** Scope an IndexedDB receipt to its owner, cloud generation and document. */
   const id = (key) => [subject, epoch || '', key];
+  /** Read the receipt from the same storage as its local document. */
   const get = async (key) =>
     key.startsWith('pref/') ? JSON.parse(storage.getItem(prefKey(key)) || 'null') : db.syncHistory(id(key));
+  /** Persist the pending or acknowledged state before releasing the caller. */
   const put = async (key, state) => {
     if (key.startsWith('pref/')) storage.setItem(prefKey(key), JSON.stringify(state));
     else await db.writeSyncHistory(id(key), state);
   };
 
+  /** Move legacy checkpoints and held decisions before deleting their old keys. */
   async function migrate() {
     const legacy = new Set();
     for (let index = 0; index < storage.length; index++) {
@@ -47,6 +52,7 @@ export function journalHistory(db, storage, subject, epoch) {
     if (oldFloor !== null) storage.removeItem(prefix + 'deletionFloor');
   }
 
+  /** Enumerate both journal and preference receipts for reconciliation. */
   async function keys() {
     const result = (await db.syncHistoryKeys(subject, epoch || '')).map((key) => key[2]);
     for (let index = 0; index < storage.length; index++) {
@@ -58,10 +64,12 @@ export function journalHistory(db, storage, subject, epoch) {
   return { get, put, migrate, keys, receipt: (key, state) => ({ id: id(key), state }) };
 }
 
+/** Compare ordered manifest parts, including their position and count. */
 export const sameParts = (a, b) => a.length === b.length && a.every((part, i) => part === b[i]);
 
 /** A listing can acknowledge any attempted version, including a manifest converted by maintenance. */
 export async function observeRevision(state, row, floor) {
+  /** Recognize the listed manifest or its pre-conversion photo digest. */
   const matches = async (parts) =>
     sameParts(parts, row.parts) ||
     (!!row.legacy && (await photoHash(new Blob([parts.join(',')]))) === row.legacy);

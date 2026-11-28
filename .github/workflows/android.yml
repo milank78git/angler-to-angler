@@ -31,6 +31,8 @@ jobs:
           sed '/^create extension /d' supabase/migrations/20261124060300_water_directory_schedule.sql > "$fixture/supabase/migrations/atlas-schedule-fixture.sql"
           # Commit the fixture only inside this disposable database for multi-session database tests.
           sudo -u postgres createdb angler_fixture
+          sudo -u postgres psql -X -v ON_ERROR_STOP=1 -d angler_fixture \
+            -c "alter database angler_fixture set track_functions = 'all'"
           sed 's/^rollback;$/commit;/' "$fixture/tests/profile-db.sql" > "$fixture/tests/committed.sql"
           install -m644 tests/{market,journal-maintenance,photo-retention}-race.py "$fixture/tests/"
           sudo -u postgres env PGTZ=UTC psql -X -v ON_ERROR_STOP=1 -d angler_fixture -f "$fixture/tests/committed.sql"
@@ -44,6 +46,20 @@ jobs:
           sudo -u postgres env PGDATABASE=angler_fixture python3 "$fixture/tests/market-race.py"
           sudo -u postgres env PGDATABASE=angler_fixture python3 "$fixture/tests/journal-maintenance-race.py"
           sudo -u postgres env PGDATABASE=angler_fixture python3 "$fixture/tests/photo-retention-race.py"
+          # Exercise device and push deliveries against the real ledger in an independent fixture.
+          sudo -u postgres createdb -T angler_fixture angler_payment_test
+          install -d "$fixture/supabase/functions/play-purchase"
+          install -m644 supabase/functions/play-purchase/verify.mjs "$fixture/supabase/functions/play-purchase/"
+          install -m644 tests/play-ledger-integration.mjs "$fixture/tests/"
+          sudo -u postgres env PGDATABASE=angler_payment_test node "$fixture/tests/play-ledger-integration.mjs"
+          mkdir -p build/coverage
+          sudo -u postgres psql -X --csv -v ON_ERROR_STOP=1 -d angler_fixture \
+            < scripts/source-review/database-coverage.sql > build/coverage/database-functions.csv
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: database-function-coverage
+          path: build/coverage/database-functions.csv
+          if-no-files-found: error
   android-package:
     if: github.event_name != 'workflow_dispatch' || (github.ref == 'refs/heads/main' && inputs.tag == '')
     runs-on: ubuntu-24.04
@@ -94,7 +110,27 @@ jobs:
         with:
           name: auth-email-templates
           path: build/auth-email/
-      - run: node --test tests/*.test.cjs
+      - name: Run behavior scenarios and record JavaScript coverage
+        run: |
+          mkdir -p build/coverage
+          node --test --experimental-test-coverage \
+            --test-coverage-include='app/src/main/assets/*.js' --test-coverage-include='web/**/*.js' \
+            --test-coverage-include='supabase/functions/play-purchase/*.mjs' \
+            --test-reporter=spec --test-reporter-destination=stdout \
+            --test-reporter=lcov --test-reporter-destination=build/coverage/application.lcov tests/*.test.cjs
+      - name: Annotate runtime functions and calls
+        run: |
+          python3 -m venv "$RUNNER_TEMP/source-review"
+          "$RUNNER_TEMP/source-review/bin/pip" install -r scripts/source-review/requirements.txt
+          "$RUNNER_TEMP/source-review/bin/python" scripts/source-review/test_bridge.py
+          "$RUNNER_TEMP/source-review/bin/python" scripts/source-review/build.py build/source-review --coverage build/coverage/application.lcov
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: annotated-application-source
+          path: |
+            build/source-review/
+            build/coverage/application.lcov
+          if-no-files-found: error
       - run: python3 tests/water-release.py
       - run: python3 tests/atlas-signature.py
       - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4

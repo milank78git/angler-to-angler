@@ -4,13 +4,21 @@ import { languageTag } from './i18n.js';
 import { t, toast } from './ui.js';
 
 const day = 86400000;
+/** Namespace photo-retention state by the owner of the private journal. */
 const prefixFor = (subject) => 'journal.sync.v1.' + subject + '.';
+/** Select the owner's locally cached list of photo leases. */
 const leasesKey = (prefix) => prefix + 'photos';
+/** Select the owner's queued renewal requests for later synchronization. */
 const queueKey = (prefix) => prefix + 'photoRenewals';
+/** Read a cached retention list, treating a missing key as an empty list. */
 const read = (key) => JSON.parse(localStorage.getItem(key) || '[]');
+/** Match the trip, record, content hash and renewal cycle before reusing a photo request. */
 const samePhoto = (a, b) => a.trip === b.trip && a.id === b.id && a.hash === b.hash && a.cycle === b.cycle;
+/** Notify open photo views after the cached lease state changes. */
 const signal = () => window.dispatchEvent(new Event('photo-leases'));
+/** Recognize an active lease only while its expiry timestamp is still in the future. */
 const live = (row) => row.active && Date.parse(row.expires) > Date.now();
+/** Show the expiry date in the language selected for the application. */
 const stamp = (iso) => new Intl.DateTimeFormat(languageTag, { dateStyle: 'medium' }).format(new Date(iso));
 
 /** Persist an intention with the server-issued generation, including when offline. */
@@ -27,8 +35,10 @@ function requestRenewal(subject, rows) {
   signal();
   window.dispatchEvent(new Event('journal-edited'));
 }
+/** Reconcile queued renewals and verified pages under one consent epoch. */
 export async function refreshPhotoLeases(call, subject, prefix, revision) {
   const epoch = localStorage.getItem(prefix + 'epoch');
+  /** Ensure sync remains enabled for the original epoch before applying a renewal result. */
   const valid = () =>
     localStorage.getItem(prefix + 'enabled') === '1' && localStorage.getItem(prefix + 'epoch') === epoch;
   const pending = read(queueKey(prefix));
@@ -62,6 +72,7 @@ export async function refreshPhotoLeases(call, subject, prefix, revision) {
     localStorage.setItem(leasesKey(prefix), stored);
     signal();
   }
+  /** Group expiration reminders by the calendar date visible on the device. */
   const localDay = (row) => {
     const date = new Date(row.expires);
     return [
@@ -86,6 +97,7 @@ export async function refreshPhotoLeases(call, subject, prefix, revision) {
   }
   if (valid() && pageRevision) localStorage.setItem(prefix + 'photoRevision', pageRevision);
 }
+/** Show cloud-retention information only for an eligible, opted-in device account. */
 export function showsCloudPhotoPolicy() {
   const subject = window.Device?.subjectId?.();
   return (
@@ -94,6 +106,7 @@ export function showsCloudPhotoPolicy() {
     localStorage.getItem(prefixFor(subject) + 'enabled') === '1'
   );
 }
+/** Create a localized photo action bound to the current image or lease. */
 function action(text, onclick) {
   const button = document.createElement('button');
   button.type = 'button';
@@ -102,6 +115,7 @@ function action(text, onclick) {
   button.onclick = onclick;
   return button;
 }
+/** Offer renewal for the selected photos approaching their expiry date. */
 export function bindExpirySummary(panel, subject) {
   const prefix = prefixFor(subject);
   const due = read(leasesKey(prefix)).filter(
@@ -141,6 +155,7 @@ export function bindExpirySummary(panel, subject) {
   panel.append(group);
 }
 
+/** Close the full photo before Back navigates away from the journal screen. */
 export function dismissPhotoDetail() {
   const dialog = /** @type {HTMLDialogElement | null} */ (
     document.querySelector('dialog.journal-photo-detail[open]')
@@ -157,10 +172,12 @@ export function bindCatchPhoto(article, record, url, view, call, file = undefine
   const panel = document.createElement('div');
   article.prepend(panel);
   let disposed = false;
+  /** Read this catch's lease only while its journal owner has synchronization enabled. */
   const current = () =>
     subject &&
     localStorage.getItem(prefix + 'enabled') === '1' &&
     read(leasesKey(prefix)).find((row) => row.trip === 'trip/' + record.tripId && row.id === record.id);
+  /** Refresh the visible retention panel and detach its listener when the screen closes. */
   const refresh = () => {
     if (!view.active() || !panel.isConnected) {
       window.removeEventListener('photo-leases', refresh);

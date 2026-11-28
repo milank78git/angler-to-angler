@@ -27,6 +27,7 @@ function datedRule(water, species, day) {
   return water.datedRules[species].find((rule) => rule.from <= day && day <= rule.until) || null;
 }
 
+/** Show a size and date window only for a verified result on the selected section. */
 export function localSeasonHtml(pack, w, section, speciesId, day) {
   const official = section === 'main' ? datedRule(w, speciesId, day) : undefined;
   let status = Domain.season(pack, speciesId, section, day);
@@ -37,7 +38,16 @@ export function localSeasonHtml(pack, w, section, speciesId, day) {
     unknown: t('seasons.no_verified_rule_for_this_selection'),
     prohibited: t('seasons.fishing_is_prohibited_in_this_section'),
   };
-  const valid = status === 'closed' || status === 'outside';
+  const glyph = {
+    closed: 'calendar-off',
+    prohibited: 'ban',
+    unknown: 'circle-help',
+    outside: 'calendar-days',
+  }[status];
+  const heading = `<strong>${icon(glyph)}${labels[status]}</strong>`;
+  // An old selection may refer to a species that disappeared from the new atlas edition.
+  if (status === 'unknown' || status === 'prohibited')
+    return `<div class="panel result ${status}">${heading}</div>`;
   const windowLabel = official
     ? [official.from, official.until].map(displayDay).join(' – ')
     : pack.species[speciesId].window
@@ -49,21 +59,15 @@ export function localSeasonHtml(pack, w, section, speciesId, day) {
           }).format(new Date('2000-' + d + 'T12:00Z')),
         )
         .join(' – ');
-  const glyph = {
-    closed: 'calendar-off',
-    prohibited: 'ban',
-    unknown: 'circle-help',
-    outside: 'calendar-days',
-  }[status];
   const minCm = official ? official.minCm : w.size[speciesId];
   const minimum = minCm ? ' · ' + t('seasons.minimum_size') + ' ' + minCm + ' cm' : '';
   const maximum = official?.maxCm
     ? ' · ' + t('fish_catalogue.maximum_retained_size') + ' ' + official.maxCm + ' cm'
     : '';
-  return `<div class="panel result ${status}"><strong>${icon(glyph)}${labels[status]}</strong>
-    ${valid ? `<p>${windowLabel}${minimum}${maximum}</p>` : ''}</div>`;
+  return `<div class="panel result ${status}">${heading}<p>${windowLabel}${minimum}${maximum}</p></div>`;
 }
 
+/** Refresh the local status, evidence period and available reminder action together. */
 function ruleResult(pack, w) {
   const section = by('section').value,
     speciesId = by('species').value;
@@ -100,7 +104,9 @@ function ruleResult(pack, w) {
   );
   bind('watch-toggle', () => Device.reminder(key, !watching));
 }
-/** @param {import('../../../../types/screens.js').ScreenContext} context */
+/** Resolve the current water and display the applicable seasonal rules and reminders.
+ * @param {import('../../../../types/screens.js').ScreenContext} context
+ */
 export async function rulesScreen({ view, pack, nav, waterDirectory, hints }) {
   const { route } = view;
   const contextual = route.page === 'waterRules';
@@ -120,6 +126,7 @@ export async function rulesScreen({ view, pack, nav, waterDirectory, hints }) {
   if (contextual) bindBack(nav);
   let current;
   view.dispose = () => current?.dispose();
+  /** Replace the lookup controls when the selected water or catalogue edition changes. */
   async function showWater(water) {
     if (current && route.id === (water?.id ?? null)) return;
     current?.dispose();
@@ -234,6 +241,7 @@ async function showWaterRules(view, pack, nav, waterDirectory, site) {
       route.day = by('rule-date').value;
       ruleResult(pack, w);
     };
+  /** Refresh the displayed rule when Android reports a change to the reminder. */
   const refresh = () => ruleResult(pack, w);
   window.addEventListener('reminderchange', refresh);
   view.dispose = () => window.removeEventListener('reminderchange', refresh);

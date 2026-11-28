@@ -9,6 +9,7 @@ import android.os.Looper;
 public final class WaterCatalogueJob extends JobService {
   private JobParameters active;
 
+  /** Begin the atlas check and request a retry only if the same active job reports failure. */
   @Override public boolean onStartJob(JobParameters params) {
     active = params;
     WaterCatalogue.check(this, false, result -> new Handler(Looper.getMainLooper()).post(() -> {
@@ -20,6 +21,7 @@ public final class WaterCatalogueJob extends JobService {
     return true;
   }
 
+  /** Allow Android to retry an interrupted check while automatic updates are enabled. */
   @Override public boolean onStopJob(JobParameters params) {
     active = null;
     return WaterCatalogue.automatic(this);

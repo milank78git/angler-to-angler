@@ -1,5 +1,6 @@
 /** Render the same allowlisted document in the journal preview and the anonymous reader. */
 export function renderPublicCard(host, card, locale, words) {
+  /** Create a DOM node and assign user text through its text content. */
   const make = (tag, text) => {
     const el = document.createElement(tag);
     if (text !== undefined) el.textContent = text;
@@ -20,6 +21,7 @@ export function renderPublicCard(host, card, locale, words) {
   author.className = 'public-catch-author';
   body.append(heading, author);
   const details = make('dl');
+  /** Append the public field label and value to the catch details. */
   const row = (label, element) => {
     const value = make('dd');
     value.append(element);

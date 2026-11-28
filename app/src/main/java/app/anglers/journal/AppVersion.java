@@ -6,8 +6,10 @@ import android.content.pm.PackageManager;
 
 /** Formats the version of the installed Android package for the account screens and journal. */
 final class AppVersion {
+  /** Use the static installed-package lookup for version labels. */
   private AppVersion() {}
 
+  /** Expose the installed build's version label to the journal UI. */
   static String label(Context context) {
     String packageName = context.getPackageName();
     try {

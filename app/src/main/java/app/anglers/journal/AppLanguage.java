@@ -27,6 +27,7 @@ final class AppLanguage {
     return context.getSharedPreferences("appearance", Context.MODE_PRIVATE).getString("language", "");
   }
 
+  /** Use an explicit app language when selected, otherwise use the device locale without extensions. */
   static Locale current(Context context) {
     String tag = selection(context);
     return tag.isEmpty() ? context.getResources().getConfiguration().getLocales().get(0).stripExtensions()
@@ -45,6 +46,7 @@ final class AppLanguage {
     prefs.edit().remove("language").apply();
   }
 
+  /** Apply the app language to the activity context on Android versions using local preferences. */
   static Context localized(Context base) {
     if (android.os.Build.VERSION.SDK_INT >= 33 || selection(base).isEmpty()) return base;
     android.content.res.Configuration copy = new android.content.res.Configuration(base.getResources().getConfiguration());
@@ -52,6 +54,7 @@ final class AppLanguage {
     return base.createConfigurationContext(copy);
   }
 
+  /** Present translated language names and apply the chosen locale through the supported Android API. */
   static void pick(android.app.Activity activity) {
     List<Locale> locales = new ArrayList<>();
     try {
@@ -99,6 +102,7 @@ final class AppLanguage {
     return result;
   }
 
+  /** Search localized documents from the most specific resource back to English. */
   static String document(Context context, String kind) throws IOException {
     List<String> candidates = codes(context);
     Collections.reverse(candidates);
@@ -112,6 +116,7 @@ final class AppLanguage {
     throw new FileNotFoundException(kind);
   }
 
+  /** Add a bundled dictionary to the current set of localized strings. */
   private static void overlay(Context context, String code) throws IOException, JSONException {
     JSONObject pack = new JSONObject(IdentityService.asset(context, "strings-" + code + ".json"));
     for (Iterator<String> keys = pack.keys(); keys.hasNext(); ) {
@@ -120,6 +125,7 @@ final class AppLanguage {
     }
   }
 
+  /** Reload the dictionary on a locale change and resolve a single UI message key. */
   static synchronized String text(Context context, String key) {
     Locale locale = current(context);
     if (!locale.equals(loaded)) {
@@ -140,5 +146,6 @@ final class AppLanguage {
     return messages.getOrDefault(key, key);
   }
 
+  /** Keep locale resolution and dictionary caching on the shared static API. */
   private AppLanguage() {}
 }

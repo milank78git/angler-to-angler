@@ -8,6 +8,7 @@ import { button, confirmAction, esc, t } from './ui.js';
 export function bindSharedSpecies(panel, pack, trip, catches, state) {
   const host = panel.querySelector('div');
   let ready = false;
+  /** Read the latest voluntary species contribution for this trip. */
   async function refresh() {
     host.textContent = t('messages.loading');
     try {
@@ -21,6 +22,7 @@ export function bindSharedSpecies(panel, pack, trip, catches, state) {
         const latin = catchLatin(c, pack, directory);
         if (directory.names.has(latin)) counts[latin] = (counts[latin] || 0) + 1;
       }
+      /** Display the shared species counts using catalogue names when available. */
       const describe = (values) =>
         Object.entries(values || {})
           .map(([latin, n]) => (directory.names.get(latin)?.label || latin) + ' · ' + n)
@@ -43,6 +45,7 @@ export function bindSharedSpecies(panel, pack, trip, catches, state) {
             : '') +
           (saved.counts ? button('withdraw-species', t('stats.withdraw_species'), 'secondary') : ''),
       );
+      /** Apply the requested contribution against its last known revision. */
       async function write(values, title) {
         if (
           !(await confirmAction({
@@ -74,6 +77,7 @@ export function bindSharedSpecies(panel, pack, trip, catches, state) {
       error(e);
     }
   }
+  /** Keep local catch entries when sharing the species summary fails. */
   function error(e) {
     if (!panel.isConnected) return;
     replaceMarkup(

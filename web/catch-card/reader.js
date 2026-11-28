@@ -16,6 +16,7 @@ const report = /** @type {HTMLButtonElement} */ (document.querySelector('#report
 const reportStatus = document.querySelector('#report-status');
 let request;
 
+/** Replace the public reader's status without retaining a previous card action. */
 function status(text) {
   const p = document.createElement('p');
   p.textContent = text;

@@ -1,5 +1,6 @@
 import { newJournalId } from './journal.js';
 import { insertMarkup, replaceMarkup } from './markup.js';
+/** Build the navigation actions available for this atlas record. */
 function waterButtons(selector) {
   return /** @type {NodeListOf<HTMLButtonElement>} */ (by('waters').querySelectorAll(selector));
 }
@@ -44,11 +45,13 @@ export function waterMap(w, rivers, boundariesOnly = false, interactive = false)
     292 / (Math.max(...xs) - Math.min(...xs)),
     120 / (Math.max(...ys) - Math.min(...ys)),
   );
+  /** Project river coordinates into the compact water preview. */
   const xy = (p) => [(170 + (p[0] * cos - cx) * scale).toFixed(1), (85 - (p[1] - cy) * scale).toFixed(1)];
   const paths = lines.map((line) => {
     const points = line.map((p) => xy(p).join(',')).join(' ');
     return `<polyline points="${points}" fill="none" stroke="#57978d" stroke-width="5" stroke-linejoin="round"/>`;
   });
+  /** Place a labelled marker in the water detail map. */
   function marker(point, label, color) {
     const [x, y] = xy(point);
     return `<g transform="translate(${x} ${y})"><circle r="9" fill="${color}" stroke="white" stroke-width="1.7"/>
@@ -69,15 +72,18 @@ export function waterMap(w, rivers, boundariesOnly = false, interactive = false)
       interactive ? `<span>${t('atlas_map.open')}</span></button>` : ''
     }<figcaption>${link('https://www.openstreetmap.org/copyright', '© OpenStreetMap contributors · ODbL')}</figcaption></figure>`;
 }
+/** Read the active owner's bookmark for this water and atlas pack. */
 function isFavorite(pack, w) {
   return localStorage.getItem(`water.${window.Device.subjectId()}.${pack.id}.${w.id}`) === '1';
 }
+/** Render the current bookmark state and accessible toggle label. */
 function favoriteButton(pack, w) {
   const saved = isFavorite(pack, w);
   const label = saved ? t('waters.remove_from_favorites') : t('waters.save_to_favorites');
   return `<button class="icon-btn favorite" type="button" data-favorite="${esc(w.id)}"
     aria-label="${esc(label + ' · ' + w.name)}" aria-pressed="${saved}">${icon('bookmark')}</button>`;
 }
+/** Persist the bookmark change and notify observers of the updated favourites. */
 function toggleFavorite(pack, id) {
   const w = pack.waters.find((x) => x.id === id);
   const key = `water.${window.Device.subjectId()}.${pack.id}.${id}`;
@@ -118,7 +124,9 @@ function coverage(directory, country) {
   );
 }
 
-/** @param {import('../../../../types/screens.js').ScreenContext} context */
+/** Build the interactive water list from the active directory and available parking data.
+ * @param {import('../../../../types/screens.js').ScreenContext} context
+ */
 export async function listWaters({ view, pack, nav, waterDirectory }) {
   const parking = await parkingPoints().catch(() => null);
   if (!view.active()) return;
@@ -145,7 +153,7 @@ export async function listWaters({ view, pack, nav, waterDirectory }) {
   }
   const countries = [...new Set([...Object.keys(waterDirectory.countries), 'CZ', 'US'])]
     .map((code) => [code, countryName(code)])
-    .sort((a, b) => a[1].localeCompare(b[1]));
+    .sort((a, b) => a[1].localeCompare(b[1], languageTag));
   const subject = window.Device.subjectId();
   const countryPreference = 'atlas.country.' + subject;
   const locationChoice = 'atlas.location-choice.' + subject;
@@ -209,6 +217,7 @@ export async function listWaters({ view, pack, nav, waterDirectory }) {
     });
   const filters = by('atlas-filters'),
     toggle = by('atlas-filter-toggle');
+  /** Keep the rendered filter controls synchronized with the route state. */
   function syncFilters() {
     filters.hidden = !(route.filtersOpen ?? matchMedia('(min-width: 600px)').matches);
     toggle.setAttribute('aria-expanded', String(!filters.hidden));
@@ -230,6 +239,7 @@ export async function listWaters({ view, pack, nav, waterDirectory }) {
   let sharedParking = new Set(),
     parkingRequest = 0;
   const indexError = by('parking-index-error');
+  /** Retrieve shared parking records for the current map filter. */
   async function loadSharedParking() {
     const request = ++parkingRequest;
     indexError.hidden = true;
@@ -263,6 +273,7 @@ export async function listWaters({ view, pack, nav, waterDirectory }) {
   const status = by('nearby-status');
   if (route.distances) status.textContent = distanceNote;
 
+  /** Retire the current location suggestion. */
   function dismissOffer() {
     const offer = by('atlas-location-offer');
     if (offer) {
@@ -271,6 +282,7 @@ export async function listWaters({ view, pack, nav, waterDirectory }) {
       window.dispatchEvent(new Event('journal-edited'));
     }
   }
+  /** Apply the new country to the route and its visible atlas results. */
   function setCountry(code) {
     route.country = code;
     localStorage.setItem(countryPreference, code);
@@ -280,14 +292,17 @@ export async function listWaters({ view, pack, nav, waterDirectory }) {
     replaceMarkup(by('water-coverage'), coverage(waterDirectory, code));
     syncFilters();
   }
+  /** Update location controls while a native fix is pending. */
   function setLocationBusy(busy) {
     by('nearby').disabled = busy;
     by('atlas-locate-country').disabled = busy;
   }
+  /** Cancel the current native lookup before replacing its result or leaving the view. */
   function cancelLocation() {
     if (pending) window.Device.cancelLocation(pending);
     pending = 0;
   }
+  /** Start a location lookup for the angler's explicit atlas action. */
   function requestLocation(findCountry) {
     if (pending) return;
     if (!window.Device?.atlasLocation) return toast(t('waters.location_unavailable'));
@@ -298,6 +313,7 @@ export async function listWaters({ view, pack, nav, waterDirectory }) {
     status.textContent = t('atlas.locating');
     window.Device.atlasLocation(pending);
   }
+  /** Accept a location reply only for the pending request from this water list. */
   const receive = async ({ detail }) => {
     if (!pending || detail.id !== pending) return;
     try {
@@ -353,6 +369,7 @@ export async function listWaters({ view, pack, nav, waterDirectory }) {
     route.mapOpen = !route.mapOpen;
     results();
   });
+  /** Rebuild the visible results from the current country, query and location filters. */
   function results() {
     const q = Domain.fold(route.query || '');
     const { distances, limit = pageSize } = route;
@@ -467,6 +484,7 @@ export async function listWaters({ view, pack, nav, waterDirectory }) {
   results();
   if (route.parkingOnly) loadSharedParking();
 }
+/** Render the actions available on this water's detail screen. */
 function waterActions() {
   return (
     '<div class="quick-actions">' +
@@ -479,6 +497,7 @@ function waterActions() {
   );
 }
 
+/** Connect the detail controls to the selected water's stable identity. */
 function bindWaterActions(nav, water) {
   bind('new-trip', () => nav.open('newTrip', { water: water.id }));
   bind('open-rules', () => nav.open('waterRules', { id: water.id }));
@@ -494,7 +513,9 @@ function bindWaterActions(nav, water) {
   bind('water-market', () => nav.open('marketShelf', { water: water.key }));
 }
 
-/** @param {import('../../../../types/screens.js').ScreenContext} context */
+/** Resolve the current water and present its map, local information and community actions.
+ * @param {import('../../../../types/screens.js').ScreenContext} context
+ */
 export function waterScreen({ view, pack, rivers, nav, waterDirectory }) {
   const { route } = view;
   const site = waterDirectory.byId.get(route.id);
@@ -584,6 +605,7 @@ export function waterScreen({ view, pack, rivers, nav, waterDirectory }) {
     else waterReports(by('water-reports'), site.key, view);
     return;
   }
+  /** Render the symbol and escaped text for a point of interest on this water. */
   const landmark = (mark, text) =>
     `<li><span class="point p${mark === '!' ? 'danger' : mark}">${mark}</span>${esc(text)}</li>`;
   replaceMarkup(

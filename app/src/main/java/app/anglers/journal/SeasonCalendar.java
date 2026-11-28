@@ -21,6 +21,7 @@ final class SeasonCalendar {
     final LocalDate from, until;
     final boolean closed;
 
+    /** Record one published closure or opening with inclusive validity dates. */
     Period(LocalDate from, LocalDate until, boolean closed) {
       this.from = from;
       this.until = until;
@@ -34,6 +35,7 @@ final class SeasonCalendar {
   private final LocalDate from, until;
   private final MonthDay first, last;
 
+  /** Associate recurring rules and their validity range with the fishing water's zone. */
   SeasonCalendar(ZoneId zone, LocalDate from, LocalDate until, MonthDay first, MonthDay last) {
     this.zone = zone;
     this.from = from;
@@ -42,12 +44,14 @@ final class SeasonCalendar {
     this.last = last;
   }
 
+  /** Replace recurring rules with the available published periods from their effective date. */
   void useDatedRules(LocalDate since, List<Period> records) {
     observedFrom = since;
     periods.clear();
     periods.addAll(records);
   }
 
+  /** Look up the closure for a date and preserve uncertainty outside verified coverage. */
   private Boolean closed(LocalDate date) {
     if (observedFrom != null && !date.isBefore(observedFrom)) {
       for (Period period : periods)
@@ -61,6 +65,7 @@ final class SeasonCalendar {
         : !day.isBefore(first) && !day.isAfter(last);
   }
 
+  /** Compare adjacent days to identify an opening, closure or end of verified coverage. */
   Event event(LocalDate day) {
     Boolean before = closed(day.minusDays(1)), after = closed(day);
     if (before == null || before.equals(after)) return null;
@@ -68,6 +73,7 @@ final class SeasonCalendar {
     return after ? Event.CLOSES : Event.OPENS;
   }
 
+  /** Find the next scheduled transition in the fishing water's time zone. */
   Instant next(Instant now) {
     LocalDate day = now.atZone(zone).toLocalDate(), expiry = until.plusDays(1);
     for (Period period : periods)

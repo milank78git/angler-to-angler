@@ -1,6 +1,6 @@
 import { replaceMarkup } from './markup.js';
 import { Journal, newJournalId } from './journal.js';
-import { photoPayload, rpc } from './profile-api.js';
+import { permittedGroups, photoPayload, rpc } from './profile-api.js';
 import { competitionPhoto } from './photo.js';
 import {
   back,
@@ -19,10 +19,14 @@ import {
   toast,
 } from './ui.js';
 
+/** Identify the weekly catch competition in the selected language. */
 const title = () => t('common.catch_of_the_week');
+/** Wrap the server's WebP bytes as a browser-readable image source. */
 const photoUrl = (bytes) => 'data:image/webp;base64,' + bytes;
+/** Label the action for entering a catch in the current competition. */
 const nominate = () => t('weekly_catch.enter_catch');
 
+/** Translate a competition rejection into a membership, timing or retry message. */
 function problem(error) {
   if (error.status === 429) return t('limits.hourly');
   if (error.status === 401) return t('weekly_catch.sign_in_again_to_use_the_competition');
@@ -34,6 +38,7 @@ function problem(error) {
   return t('common.could_not_connect_please_retry');
 }
 
+/** Offer retry and sign-in according to the failed competition request. */
 function readError(view, nav, err) {
   if (!view.active()) return;
   replaceMarkup(
@@ -57,8 +62,8 @@ function readError(view, nav, err) {
 export async function weeklyGroups({ view, nav }) {
   let groups;
   try {
-    ({ groups } = await rpc('groups'));
-    groups = groups.filter((group) => group.canShareCatch !== false);
+    // A competition entry shares a catch with the selected group.
+    groups = await permittedGroups('canShareCatch');
   } catch (err) {
     return readError(view, nav, err);
   }
@@ -90,12 +95,14 @@ export async function weeklyGroups({ view, nav }) {
   }
 }
 
+/** Compute the displayed Sunday from the round's UTC Monday. */
 function endOfWeek(monday) {
   const end = new Date(monday + 'T12:00:00Z');
   end.setUTCDate(end.getUTCDate() + 6);
   return end.toISOString().slice(0, 10);
 }
 
+/** Render one weekly entry and the voting or moderation actions allowed for it. */
 function entryCard(item, round, view, nav) {
   const card = document.createElement('article');
   card.className = 'surface weekly-entry';
@@ -290,7 +297,9 @@ async function entryPreview(view, nav, pack, round) {
   });
 }
 
-/** @param {import('../../../../types/screens.js').ScreenContext} context */
+/** Load the round for the chosen group and render the available voting or entry actions.
+ * @param {import('../../../../types/screens.js').ScreenContext} context
+ */
 export async function weeklyBoard({ view, nav, pack }) {
   const r = view.route;
   let round;
@@ -348,6 +357,7 @@ export async function weeklyBoard({ view, nav, pack }) {
     r.offset = 0;
     nav.show();
   });
+  /** Change the selected round without losing its group context. */
   function step(week, offset) {
     r.week = week;
     r.offset = offset;
@@ -384,6 +394,7 @@ function monthlyChallenge(panel, groupId) {
   const host = panel.querySelector('.fold-body');
   let loaded = false,
     pending = false;
+  /** Reload the opt-in monthly competition panel for this group. */
   async function refresh(joining = null) {
     if (pending) return;
     pending = true;

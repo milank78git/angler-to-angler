@@ -80,6 +80,7 @@ export async function attachWaterPhoto(host, site, bundled, feature, view) {
   remove.hidden = true;
   label.textContent = t('water_photo.add');
 
+  /** Replace the current water preview with the available local or packaged image. */
   function display(blob) {
     own = blob;
     currentImage?.remove();
@@ -132,6 +133,7 @@ export async function attachWaterPhoto(host, site, bundled, feature, view) {
   area = areaImagery(site.country, mapped?.target);
   display(stored);
   input.disabled = false;
+  /** Persist the chosen water image and refresh its preview after the write. */
   async function save(file) {
     if (input.disabled) return;
     input.disabled = remove.disabled = true;

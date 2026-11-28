@@ -21,11 +21,13 @@ import { fold, validDay } from './domain.js';
 
 let cache, installedRules;
 
+/** Invalidate the assembled species directory when a new rules edition is installed. */
 export function setFishingRules(rules) {
   installedRules = rules;
   cache = null;
 }
 let requestId = 1000000;
+/** Load a named fish catalogue resource and surface a missing edition. */
 const json = async (name) => {
   const response = await fetch(name + '.json');
   if (!response.ok) throw Error(name);
@@ -65,6 +67,7 @@ export function fishDirectory() {
   return cache;
 }
 
+/** Ask the selected locale for the region name and retain the country code as fallback. */
 export function countryName(code) {
   try {
     return new Intl.DisplayNames([languageTag], { type: 'region' }).of(code);
@@ -72,11 +75,15 @@ export function countryName(code) {
     return code;
   }
 }
+/** Show the scientific name once when the display name already matches it. */
 export const fishOption = (fish) =>
   fish.label === fish.latin ? fish.latin : fish.label + ' · ' + fish.latin;
 
+/** Resolve a catalogue entry's translation key using the current dictionary. */
 const words = (entry) => t(entry.message);
+/** Label the catalogue scope that includes all European entries. */
 const fullList = () => t('fish_catalogue.all_of_europe');
+/** Use the same translated title when linking to or opening the fish catalogue. */
 const catalogue = () => t('fish_catalogue.title');
 
 /** Both pickers use one persisted country and the same searchable species list. */
@@ -85,12 +92,14 @@ export function preferredCountry(data) {
   return data.countries.includes(code) ? code : '';
 }
 
+/** Sort region labels in the app language while preserving their stable country codes. */
 export function countryOptions(data) {
   const countries = data.countries.map((code) => [code, countryName(code)]);
   countries.sort((a, b) => a[1].localeCompare(b[1], languageTag));
   return [['', fullList()], ...countries];
 }
 
+/** Filter against the requested country and normalized names before locale-aware sorting. */
 export function matchingSpecies(data, country, query) {
   const term = fold(query.trim());
   return data.species
@@ -122,6 +131,7 @@ function listedSizes(rules, country, waterClass) {
   return result;
 }
 
+/** Distinguish strict lower bounds, inclusive minimums and maximum retained sizes. */
 export function sizeTerms(rule) {
   return [
     rule.overCm != null && t('fish_catalogue.length_must_exceed') + ' ' + rule.overCm + ' cm',
@@ -152,6 +162,7 @@ export async function fishCatalogue({ view, nav }) {
   bindBack(nav);
   const query = by('fish-query');
   query.value = route.query || '';
+  /** Refresh the paginated species list and its count for the current filter. */
   function render() {
     const matched = matchingSpecies(data, route.country, query.value);
     by('fish-count').textContent =
@@ -187,6 +198,7 @@ export async function fishCatalogue({ view, nav }) {
     );
     by('more-fish').hidden = shown.length >= matched.length;
   }
+  /** Apply the selected country to the active catalogue query. */
   function selectCountry(code) {
     if (route.country !== code) {
       delete route.siteId;
@@ -200,6 +212,7 @@ export async function fishCatalogue({ view, nav }) {
     render();
   }
   let pending = 0;
+  /** Retire the outstanding native country lookup before changing context. */
   function cancelLookup() {
     if (pending) window.Device.cancelLocation(pending);
     pending = 0;
@@ -218,6 +231,7 @@ export async function fishCatalogue({ view, nav }) {
     route.limit = (route.limit || 50) + 50;
     render();
   });
+  /** Ignore unrelated location replies when choosing the fish catalogue's country. */
   const receive = async ({ detail }) => {
     if (!pending || detail.id !== pending) return;
     try {
@@ -248,6 +262,7 @@ export async function fishCatalogue({ view, nav }) {
   render();
 }
 
+/** Format a month-day boundary independently of the device time zone. */
 export function seasonalDay(day) {
   return new Intl.DateTimeFormat(languageTag, { day: 'numeric', month: 'short', timeZone: 'UTC' }).format(
     new Date('2000-' + day + 'T12:00Z'),
@@ -361,6 +376,7 @@ export async function fishDetail({ view, nav, waterDirectory }) {
     address.hidden = false;
     window.Device?.reportFish?.(t('fish_rules.report') + ' · ' + latin, body);
   });
+  /** Display published conditions for the selected species and fishing jurisdiction. */
   function rules() {
     const code = by('rule-country').value,
       region = data.rules.countries[code];
@@ -378,6 +394,7 @@ export async function fishDetail({ view, nav, waterDirectory }) {
       code === 'CZ' || fish.river || !fish.marine,
     );
     const today = fishingDay || new Date().toISOString().slice(0, 10);
+    /** Render the scope and source alongside one fisheries rule. */
     function article(r, sizeOnly = false) {
       const source = data.rules.sources[r.source];
       const size = sizeTerms(r);

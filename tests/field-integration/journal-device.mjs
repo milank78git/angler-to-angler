@@ -2,6 +2,10 @@
 import { execFileSync } from 'node:child_process';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { webviewControls } from './webview-controls.mjs';
+import { waterOnPhone } from './water-on-device.mjs';
+import { evidenceOnPhone } from './evidence-on-device.mjs';
+import { communityOnPhone } from './community-on-device.mjs';
 import { setTimeout as delay } from 'node:timers/promises';
 
 const [pkg, stage, dir] = process.argv.slice(2);
@@ -200,9 +204,20 @@ async function onPhone(action, fixture) {
   if (action==='isolation') {
     const rows=(await rpc('journal_sync',{op:'list',args:{format:2}})).rows;
     assert(!rows.some(r=>r.key==='trip/'+id) && !(await Journal.trip(id)),'Other user saw the trip');
-    let denied=false;
-    try {await rpc('journal_sync',{op:'get',args:{hash:fixture.part}});} catch {denied=true;}
-    assert(denied && !(await rpc('my_details')).expiry,'Other user accessed private bytes or profile');
+    // A transport failure cannot demonstrate account isolation. Compare the real foreign hash
+    // to an absent control and require the live manifest API to report both as missing.
+    const absent = '0'.repeat(64);
+    const hashes = [fixture.part, absent];
+    const missing = await rpc('journal_sync', {op:'missing', args:{hashes}});
+    assert(JSON.stringify([...missing.hashes].sort()) === JSON.stringify([...hashes].sort()), 'Foreign chunk was discoverable');
+    async function missingStatus(hash) {
+      try { await rpc('journal_sync', {op:'get', args:{hash}}); return 200; }
+      catch (error) { return error.status; }
+    }
+    const [foreignStatus, controlStatus] = await Promise.all(hashes.map(missingStatus));
+    assert(controlStatus === 404 && foreignStatus === controlStatus,
+      'Foreign or absent chunk returned an unexpected status: '+foreignStatus+'/'+controlStatus);
+    assert(!(await rpc('my_details')).expiry,'Other user accessed the private licence');
     assert(!rows.some(row => row.key === 'trip/historical') && !await Journal.trip('historical'),
       'Other account could read the upgraded journal');
     return;
@@ -268,7 +283,9 @@ try {
   await waitForJournal();
   const fixture=stage==='seed'?{}:JSON.parse(await readFile(fixtureFile,'utf8'));
   async function step(action) {
-    const expression='('+onPhone.toString()+')('+JSON.stringify(action)+','+JSON.stringify(fixture)+')';
+    const family = action.split('-')[0];
+    const scenario = ({market:communityOnPhone, card:communityOnPhone, water:waterOnPhone, proof:evidenceOnPhone})[family] || onPhone;
+    const expression='('+scenario.toString()+')('+JSON.stringify(action)+','+JSON.stringify(fixture)+',('+webviewControls.toString()+')())';
     const result=await command('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true});
     if (result.exceptionDetails) throw Error(result.exceptionDetails.exception?.description || 'Journal scenario failed');
     Object.assign(fixture,result.result.value);
@@ -283,7 +300,7 @@ try {
     adb('reverse','tcp:58443','tcp:58443'); disconnected=false;
     await step('upload');
   } else await step(stage);
-  if (stage==='seed' || stage==='renew') await writeFile(fixtureFile,JSON.stringify(fixture),{mode:0o600});
+  if (stage==='seed' || stage==='renew' || /^(market|card|water|proof)-/.test(stage)) await writeFile(fixtureFile,JSON.stringify(fixture),{mode:0o600});
 } finally {
   if (disconnected) adb('reverse','tcp:58443','tcp:58443');
   socket.close(); adb('forward','--remove','tcp:'+port);

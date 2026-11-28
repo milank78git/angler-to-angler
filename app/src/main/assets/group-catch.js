@@ -1,6 +1,6 @@
 import { newJournalId, Journal } from './journal.js';
 import { competitionPhoto } from './photo.js';
-import { rpc, photoPayload, failure } from './profile-api.js';
+import { rpc, permittedGroups, photoPayload, failure } from './profile-api.js';
 import {
   back,
   bindBack,
@@ -19,9 +19,9 @@ import { replaceMarkup } from './markup.js';
 
 /** Preview the exact payload addressed to one closed group. The journal location and notes stay local. */
 export async function groupCatch(view, nav, trip, entry, species) {
-  const result = await rpc('groups');
+  // Ask for catch recipients before showing the private group picker.
+  const groups = await permittedGroups('canShareCatch');
   if (!view.active()) return;
-  const groups = result.groups.filter((group) => group.canShareCatch !== false);
   const form = field('catch-group', t('common.recipient'), '<select id="catch-group"></select>');
   replaceMarkup(
     screen,

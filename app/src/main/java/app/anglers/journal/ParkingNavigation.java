@@ -14,8 +14,10 @@ import java.util.LinkedHashMap;
 
 /** Offer an explicit driving route when supported and a pinned destination to other map apps. */
 final class ParkingNavigation {
+  /** Keep map intent construction independent of a retained activity instance. */
   private ParkingNavigation() {}
 
+  /** Launch the map handler for a checked destination and report its availability. */
   static void open(Activity activity, double lat, double lon) {
     if (!Double.isFinite(lat) || !Double.isFinite(lon) || Math.abs(lat)>90 || Math.abs(lon)>180) return;
     String point=lat+","+lon;
@@ -46,6 +48,7 @@ final class ParkingNavigation {
         }).show();
   }
 
+  /** Build driving directions from the published parking coordinates. */
   private static void driving(PackageManager pm,LinkedHashMap<String,Intent> choices,String pkg,String uri) {
     Intent intent=new Intent(Intent.ACTION_VIEW,Uri.parse(uri)).setPackage(pkg);
     if(intent.resolveActivity(pm)!=null) choices.put(pkg,intent);

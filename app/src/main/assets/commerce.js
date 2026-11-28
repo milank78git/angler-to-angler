@@ -3,13 +3,20 @@ import { rpc, failure } from './profile-api.js';
 import { by, t, button, confirmAction, toast } from './ui.js';
 import { languageTag } from './i18n.js';
 
+/** Route a store operation through the authenticated commerce RPC. */
 const dispatch = (op, args = {}) => rpc('commerce', { op, args });
+/** Format integer halers as Czech koruna in the selected language. */
 const money = (halers) =>
   new Intl.NumberFormat(languageTag, { style: 'currency', currency: 'CZK' }).format(halers / 100);
+/** Choose the Play store flow when the Android billing bridge is present. */
 export const playEdition = () => !!window.PlayMarket;
+/** Read the wallet and the optional offer's commercial enrollment state. */
 export const commerceStatus = (offer) => dispatch('status', offer ? { offer } : {});
+/** Request the next page of commercial offers for the selected water. */
 export const commerceDiscover = (water, cursor) => dispatch('discover', { water, cursor });
+/** Submit the seller's offer through the commercial store dispatcher. */
 export const commercePublish = (args) => dispatch('publish', args);
+/** Send the displayed revision, price and paid-credit amount with the purchase. */
 export const commerceBuy = (offer, revision, price, paid) =>
   dispatch('buy', { offer, revision, price, paid });
 
@@ -26,8 +33,10 @@ export function purchaseFunding(wallet, price, limit) {
   const paid = price - welcome;
   return { welcome, paid, available: wallet.balance - wallet.welcomeBalance >= paid };
 }
+/** Display the estimated seller proceeds in the selected currency format. */
 export const estimate = (credits) =>
   t('commerce.estimate').replace('{amount}', money(Math.round(((credits * 100) / 1.21) * 0.85 * 0.85)));
+/** Require confirmation before enrolling an existing offer in real-money settlement. */
 export function enrollment(view, nav, item) {
   const node = by('commerce-enroll');
   if (!node) return;
@@ -48,6 +57,7 @@ export function enrollment(view, nav, item) {
     }
   };
 }
+/** Insert the available credit balance into the wallet's localized label. */
 const balanceText = (amount) => t('commerce.balance').replace('{amount}', String(amount));
 
 /** Billing, inventory and account balance arrive independently. Each updates its own message. */
@@ -65,11 +75,13 @@ function bindPlayCheckout(panel, view, balanceLine) {
   const messages = { catalog: '', inventory: '', receipts: '', checkout: '', balance: '' };
   let retryReceipt = false;
   let balanceRequest = 0;
+  /** Merge independent checkout messages without clearing another outstanding failure. */
   function render() {
     status.textContent = Object.values(messages).filter(Boolean).join(' ');
     retry.hidden = !(messages.catalog || messages.inventory || retryReceipt || messages.balance);
   }
 
+  /** Apply the newest wallet response only while its requesting view is active. */
   async function refreshBalance() {
     const request = ++balanceRequest;
     try {
@@ -84,6 +96,7 @@ function bindPlayCheckout(panel, view, balanceLine) {
     render();
   }
 
+  /** Bind each purchase button to the SKU returned by the billing catalogue. */
   function showPrices(items) {
     prices.replaceChildren();
     for (const [sku, quote] of Object.entries(items).sort((a, b) => a[1].credits - b[1].credits)) {
@@ -101,6 +114,7 @@ function bindPlayCheckout(panel, view, balanceLine) {
     }
   }
 
+  /** Route native billing events to their own checkout, inventory, receipt or balance status. */
   function report(event, items) {
     if (!view.active()) return;
     switch (event) {
@@ -157,9 +171,11 @@ function bindPlayCheckout(panel, view, balanceLine) {
   window.PlayMarket.refresh();
 }
 
+/** Render the wallet balance and attach the controls supported by this distribution. */
 export function walletPanel(view, nav, data) {
   const panel = by('commerce-wallet');
   if (!panel) return;
+  /** Add an informational paragraph as text to the wallet view. */
   const line = (text) => {
     const paragraph = document.createElement('p');
     paragraph.textContent = text;

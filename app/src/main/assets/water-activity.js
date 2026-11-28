@@ -24,18 +24,27 @@ import {
   toast,
 } from './ui.js';
 
+/** Supply the shared heading for the activity screens in the active language. */
 const title = () => t('common.water_activity');
+/** Label contributions whose method or target was left unspecified. */
 const unspecified = () => t('water_activity.unspecified');
+/** Label a summary filter that includes every available category. */
 const all = () => t('common.all');
+/** Label the number of fish recorded across the selected contributions. */
 const fishLabel = () => t('water_activity.total_recorded_fish');
+/** Identify the species the angler set out to catch in the contribution form. */
 const targetLabel = () => t('water_activity.trip_target_species');
+/** Label the primary fishing method associated with a trip. */
 const methodLabel = () => t('water_activity.main_fishing_method');
+/** Identify the signed-in angler's contribution history. */
 const mineLabel = () => t('common.my_activity_contributions');
+/** Format a reporting month in UTC so a timezone change cannot move it into the previous month. */
 const monthLabel = (month) =>
   new Intl.DateTimeFormat(languageTag, { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(
     new Date(month + 'T12:00:00Z'),
   );
 
+/** Pair stable method identifiers with translated descriptions for reports and contributions. */
 function methodChoices() {
   return [
     ['unspecified', unspecified()],
@@ -47,6 +56,7 @@ function methodChoices() {
   ];
 }
 
+/** Translate activity status codes including stale revisions and rate limits. */
 function problem(err) {
   if (err.status === 429) return t('limits.hourly');
   if (err.status === 401 || err.status === 403)
@@ -56,6 +66,7 @@ function problem(err) {
   return t('common.service_unavailable_check_your_connection_and_retry');
 }
 
+/** Render retry and Back actions only while this activity screen is active. */
 function failed(view, nav, err) {
   if (!view.active()) return;
   replaceMarkup(
@@ -72,8 +83,10 @@ function failed(view, nav, err) {
   bind('activity-retry', () => nav.show());
 }
 
+/** Describe a saved contribution using this edition's water and species labels. */
 function entryText(entry, directory, pack, fish, methods) {
   const water = directory.byKey.get(entry.water);
+  /** Resolve a stored option ID to its display name, preserving unknown historical values. */
   const label = (pairs, key) => pairs.find(([id]) => id === key)?.[1] || key;
   return [
     water?.name || entry.water,
@@ -84,6 +97,7 @@ function entryText(entry, directory, pack, fish, methods) {
   ].join(' / ');
 }
 
+/** Confirm removal from shared statistics before submitting the expected revision. */
 async function withdraw(view, nav, item) {
   const accept = t('water_activity.withdraw_from_statistics');
   if (
@@ -278,7 +292,9 @@ export async function waterActivity({ view, nav, pack, rivers, waterDirectory })
   }
   if (!view.active()) return;
   const sample = report.sample;
+  /** Prepend the unrestricted choice to a summary filter. */
   const withAll = (rows) => [['', all()], ...rows];
+  /** Display a summary value and its label as escaped text. */
   const metric = (label, value) => '<p>' + esc(label) + ' · <strong>' + esc(value) + '</strong></p>';
   replaceMarkup(
     screen,

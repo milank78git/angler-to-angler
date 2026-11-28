@@ -1,3 +1,4 @@
+/** Create an identifier for a new private record or a retryable write before contacting a service. */
 export const newJournalId = () =>
   typeof crypto.randomUUID === 'function'
     ? crypto.randomUUID()
@@ -7,6 +8,7 @@ export const newJournalId = () =>
 export function createJournal(factory = globalThis.indexedDB, name = 'angler-field-journal') {
   let connection;
 
+  /** Share the pending database connection and reopen it after a close, upgrade or failed open. */
   function open() {
     if (connection) return connection;
     connection = new Promise((resolve, reject) => {
@@ -25,6 +27,7 @@ export function createJournal(factory = globalThis.indexedDB, name = 'angler-fie
       req.onsuccess = () => {
         const db = req.result;
         const opened = connection;
+        /** Release the cached connection only if it still refers to the database that closed. */
         const forget = () => {
           if (connection === opened) connection = undefined;
         };
@@ -62,6 +65,7 @@ export function createJournal(factory = globalThis.indexedDB, name = 'angler-fie
     });
   }
 
+  /** Return the request result only after the readonly transaction completes. */
   function read(store, query) {
     return transaction([store], 'readonly', (tx, result) => {
       const request = query(tx.objectStore(store));
@@ -153,8 +157,10 @@ export function createJournal(factory = globalThis.indexedDB, name = 'angler-fie
       };
     });
   }
+  /** Serialize journal writers across tabs when the browser supplies the Web Locks API. */
   const lock = (operation) =>
     globalThis.navigator?.locks ? navigator.locks.request(name + ':write', operation) : operation();
+  /** Notify journal observers only after the underlying write has completed successfully. */
   const change =
     (operation) =>
     (...args) =>
@@ -210,6 +216,7 @@ export function createJournal(factory = globalThis.indexedDB, name = 'angler-fie
       },
     );
   }
+  /** Replace a water photo and record its sync receipt only for the expected local version. */
   function writeWaterPhoto(key, blob, expected = undefined, receipt = undefined) {
     return transaction(['photos', 'fingerprints', 'syncHistory'], 'readwrite', (tx, result) => {
       const docKey = 'photo/' + key;

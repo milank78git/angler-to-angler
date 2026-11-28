@@ -10,16 +10,19 @@ import android.os.Bundle;
 public final class AccountCallbackActivity extends Activity {
   static final String PROJECT_CALLBACK = "https://milank78git.github.io/angler-to-angler/account/";
 
+  /** Construct the account return destination for the Android package. */
   static String redirect(Context app) {
     if (app.getResources().getBoolean(R.bool.use_project_pages)) return PROJECT_CALLBACK;
     return app.getResources().getBoolean(R.bool.use_verified_links) ? webCallback(app)
         : app.getPackageName() + "://account/callback";
   }
 
+  /** Build the HTTPS return URL using this variant's verified host and Android package. */
   private static String webCallback(Context app) {
     return "https://" + app.getString(R.string.app_link_host) + "/account/" + app.getPackageName() + "/callback";
   }
 
+  /** Check that the incoming URI belongs to this installation's callback route. */
   static boolean matches(Context app, Intent intent) {
     Uri uri = intent.getData();
     if (!Intent.ACTION_VIEW.equals(intent.getAction()) || uri == null || !uri.isHierarchical()) return false;
@@ -28,6 +31,7 @@ public final class AccountCallbackActivity extends Activity {
     return base.equals(webCallback(app)) || base.equals(app.getPackageName() + "://account/callback");
   }
 
+  /** Forward a supported callback to the account screen and finish the trampoline activity. */
   @Override
   public void onCreate(Bundle state) {
     super.onCreate(state);

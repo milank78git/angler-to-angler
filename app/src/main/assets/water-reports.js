@@ -36,6 +36,7 @@ export async function waterReports(host, water, view) {
     rows.set(kind, { row, summary, button, mine: false });
   }
 
+  /** Keep report actions from racing the current submission. */
   function setActionsDisabled(disabled) {
     for (const { button } of rows.values()) button.disabled = disabled;
   }
@@ -87,12 +88,14 @@ export async function waterReports(host, water, view) {
     }
   }
 
+  /** Offer to reload the current report after a stale response. */
   function offerRefresh(read) {
     refresh.onclick = read;
     refresh.hidden = false;
     refresh.disabled = false;
   }
 
+  /** Apply the report action and refresh the visible state on success. */
   async function changeReport(kind) {
     const { row, button, summary, mine } = rows.get(kind);
     if (button.disabled || !view.active()) return;

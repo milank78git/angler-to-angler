@@ -8,6 +8,7 @@ import android.os.Looper;
 /** Android batches post checks when the device has connectivity. */
 public final class FieldAlertJob extends JobService {
   private JobParameters active;
+  /** Begin the scheduled community alert check for the current account. */
   @Override public boolean onStartJob(JobParameters params) {
     active=params;
     FieldAlerts.checkPosts(this, () -> new Handler(Looper.getMainLooper()).post(() -> {
@@ -15,5 +16,6 @@ public final class FieldAlertJob extends JobService {
     }));
     return true;
   }
+  /** Retire the current scheduled check when Android stops its job. */
   @Override public boolean onStopJob(JobParameters params) { active=null; return false; }
 }

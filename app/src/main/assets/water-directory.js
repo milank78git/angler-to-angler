@@ -1,6 +1,7 @@
 import { fold } from './domain.js';
 import { internationalWaters } from './international-waters.js';
 
+/** Merge pilot, national and imported water identities while preserving their source metadata. */
 export function createWaterDirectory(
   pack,
   snapshot,
@@ -58,6 +59,7 @@ export function createWaterDirectory(
   for (const w of internationalWaters) {
     waters.push({ ...w, key: w.id, country: 'US', provider: 'FWP' });
   }
+  /** Overlay the current edition's outlines on the available water shapes when the map requests them. */
   const geography = async () => ({ ...(shapes ?? (await loadWaterShapes())), ...outlines });
   return {
     waters,
@@ -94,6 +96,7 @@ export function tripWater(directory, trip) {
 }
 
 const rad = Math.PI / 180;
+/** Compute great-circle distance in kilometres between two geographic positions. */
 function km([x, y], lon, lat) {
   const h =
     Math.sin(((lat - y) * rad) / 2) ** 2 +
@@ -101,6 +104,7 @@ function km([x, y], lon, lat) {
   return 12742 * Math.asin(Math.sqrt(Math.min(1, h)));
 }
 
+/** Clamp the closest point to the segment before measuring its geographic distance. */
 function segmentDistance(x, y, endX, endY, lon, lat, scale) {
   const dx = (endX - x) * scale,
     dy = endY - y;
@@ -151,6 +155,7 @@ export function waterDistances(waters, shapes, { lon, lat }) {
 }
 
 let pendingShapes;
+/** Share the outline fetch and allow a subsequent retry if the edition cannot be loaded. */
 export function loadWaterShapes() {
   pendingShapes ??= fetch('czech-water-shapes.json')
     .then((response) => {

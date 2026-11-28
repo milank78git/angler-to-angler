@@ -9,6 +9,7 @@ const criteria = [
 ];
 const decimal = new Intl.NumberFormat(languageTag, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
+/** Render the per-criterion score for the selected rating summary. */
 function breakdown(scores, average = false) {
   return (
     '<dl class="rating-breakdown">' +
@@ -45,6 +46,7 @@ export function authorRating(summary, detailed = false) {
   );
 }
 
+/** Show review controls for the buyer's purchase when the server allows it. */
 export function purchaseRating(item) {
   if (!item.purchased || !('myRating' in item)) return '';
   if (item.myRating)
@@ -88,6 +90,7 @@ export function purchaseRating(item) {
   );
 }
 
+/** Submit the displayed purchase rating and recover the form after failure. */
 export function bindPurchaseRating(view, nav, offerId) {
   const form = by('rating-form');
   if (!form) return;

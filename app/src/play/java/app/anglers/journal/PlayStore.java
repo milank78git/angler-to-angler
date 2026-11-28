@@ -43,11 +43,13 @@ final class PlayStore implements PurchasesUpdatedListener {
     final String sku;
     final int credits;
 
+    /** Associate the published product ID with its corresponding credit denomination. */
     Pack(String sku, int credits) {
       this.sku = sku;
       this.credits = credits;
     }
 
+    /** Resolve one of the explicitly supported Play product IDs. */
     static Pack find(String sku) {
       for (Pack pack : values()) if (pack.sku.equals(sku)) return pack;
       return null;
@@ -66,6 +68,7 @@ final class PlayStore implements PurchasesUpdatedListener {
   private long catalogQuery, inventoryQuery;
   private boolean connecting, checkoutOpen, closed;
 
+  /** Configure the billing integration supplied by this build variant. */
   PlayStore(FishingActivity activity, WebView web, String subject) {
     this.activity = activity;
     this.web = web;
@@ -77,6 +80,7 @@ final class PlayStore implements PurchasesUpdatedListener {
     web.addJavascriptInterface(new Controls(), "PlayMarket");
   }
 
+  /** Require the original subject and a live activity before publishing billing state. */
   private boolean active() {
     return !closed && !activity.isFinishing() && subject.equals(AccountStore.active(activity));
   }
@@ -87,12 +91,15 @@ final class PlayStore implements PurchasesUpdatedListener {
         "window.playMarketResult?.(" + JSONObject.quote(event) + "," + data + ")", null);
   }
 
+  /** Forward a payload-free billing status to the mounted WebView. */
   private void signal(String event) {
     emit(event, new JSONObject());
   }
 
   public final class Controls {
+    /** Request current billing information for the mounted wallet. */
     @JavascriptInterface public void refresh() { main.post(PlayStore.this::refresh); }
+    /** Move the requested SKU checkout to the Android main thread. */
     @JavascriptInterface public void buy(String sku) { main.post(() -> launch(sku)); }
   }
 
@@ -102,6 +109,7 @@ final class PlayStore implements PurchasesUpdatedListener {
     refresh();
   }
 
+  /** Request current billing information for the mounted wallet. */
   private void refresh() {
     if (!active()) return;
     if (client.isReady()) {
@@ -110,6 +118,7 @@ final class PlayStore implements PurchasesUpdatedListener {
     } else if (!connecting) {
       connecting = true;
       client.startConnection(new BillingClientStateListener() {
+        /** Resume catalogue and inventory work after the billing connection completes. */
         public void onBillingSetupFinished(BillingResult result) {
           main.post(() -> {
             connecting = false;
@@ -121,11 +130,13 @@ final class PlayStore implements PurchasesUpdatedListener {
           });
         }
 
+        /** Return connection loss to the main-thread billing state owner. */
         public void onBillingServiceDisconnected() { main.post(PlayStore.this::disconnected); }
       });
     }
   }
 
+  /** Invalidate in-flight billing queries and expose the disconnected state. */
   private void disconnected() {
     connecting = false;
     catalogQuery++;
@@ -135,6 +146,7 @@ final class PlayStore implements PurchasesUpdatedListener {
     signal("inventoryUnavailable");
   }
 
+  /** Request current product details for the supported credit packs. */
   private void loadOffers() {
     long request = ++catalogQuery;
     List<QueryProductDetailsParams.Product> requested = new ArrayList<>();
@@ -154,6 +166,7 @@ final class PlayStore implements PurchasesUpdatedListener {
         }));
   }
 
+  /** Expose the provider's price and purchase parameters for an eligible pack. */
   private void addOffer(ProductDetails product, JSONObject prices) {
     Pack pack = Pack.find(product.getProductId());
     List<ProductDetails.OneTimePurchaseOfferDetails> options = product.getOneTimePurchaseOfferDetailsList();
@@ -170,6 +183,7 @@ final class PlayStore implements PurchasesUpdatedListener {
     }
   }
 
+  /** Query owned purchases and reconcile their receipt delivery states. */
   private void loadInventory() {
     long request = ++inventoryQuery;
     QueryPurchasesParams params = QueryPurchasesParams.newBuilder().setProductType(BillingClient.ProductType.INAPP).build();
@@ -204,6 +218,7 @@ final class PlayStore implements PurchasesUpdatedListener {
     return owned;
   }
 
+  /** Send the independent pending, verifying and retry flags to the wallet UI. */
   private void publishReceipts() {
     JSONObject status = new JSONObject();
     put(status, "pending", receipts.pending());
@@ -212,12 +227,14 @@ final class PlayStore implements PurchasesUpdatedListener {
     emit("purchases", status);
   }
 
+  /** Add a billing result field to the WebView response object. */
   private static void put(JSONObject object, String key, Object value) {
     try {
       object.put(key, value);
     } catch (JSONException unexpected) { throw new IllegalStateException(unexpected); }
   }
 
+  /** Hash the account identity into the obfuscated Play account binding. */
   private static String binding(String subject) {
     try {
       StringBuilder hash = new StringBuilder(64);
@@ -227,6 +244,7 @@ final class PlayStore implements PurchasesUpdatedListener {
     } catch (NoSuchAlgorithmException impossible) { throw new IllegalStateException(impossible); }
   }
 
+  /** Verify the provider receipt off the UI thread and publish its delivery status. */
   private void verify(String token) {
     worker.execute(() -> {
       boolean verified = false;
@@ -253,6 +271,7 @@ final class PlayStore implements PurchasesUpdatedListener {
     });
   }
 
+  /** Start checkout only while the active subject and quoted purchase details are current. */
   private void launch(String sku) {
     if (!active() || checkoutOpen) return;
     BillingFlowParams.ProductDetailsParams item = offers.get(sku);
@@ -269,11 +288,13 @@ final class PlayStore implements PurchasesUpdatedListener {
     }
   }
 
+  /** Handle cancellation and already-owned products distinctly from an unavailable checkout. */
   private void checkoutFailure(int code) {
     if (code == ITEM_ALREADY_OWNED) loadInventory();
     else signal(code == USER_CANCELED ? "cancelled" : "checkoutUnavailable");
   }
 
+  /** Reconcile purchases delivered by the Play billing callback. */
   @Override public void onPurchasesUpdated(BillingResult result, List<Purchase> purchases) {
     main.post(() -> {
       checkoutOpen = false;
@@ -294,6 +315,7 @@ final class PlayStore implements PurchasesUpdatedListener {
     });
   }
 
+  /** Release this distribution's billing integration when leaving the activity. */
   void close() {
     closed = true;
     web.removeJavascriptInterface("PlayMarket");
