@@ -12,7 +12,10 @@ export async function waterOnPhone(action, fixture, controls) {
     await click('#tabwaters');
     if (!find('#search')) await click('#tabwaters');
     await page('waters');
-    if (find('#water-country').value !== 'CZ') set('#water-country', 'CZ');
+    if (find('#water-country').value !== 'CZ') {
+      if (!shown(find('#water-country'))) await click('#atlas-filter-toggle');
+      set('#water-country', 'CZ');
+    }
     set('#search', id);
     await click('[data-water="' + id + '"]');
     await page('water');
