@@ -1,5 +1,7 @@
+/** Reject empty, non-string or oversized purchase tokens before contacting the store. */
 const validToken = token => typeof token === 'string' && token.length > 0 && token.length <= 4096;
 const skuSet=new Set(['credits_50_czk','credits_100_czk']);
+/** Hash the UTF-8 purchase identifier before using it as a ledger key. */
 export const digest=async text=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(text))),
   x=>x.toString(16).padStart(2,'0')).join('');
 

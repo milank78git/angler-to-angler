@@ -22,6 +22,7 @@ export function bindSharedSpecies(panel, pack, trip, catches, state) {
         const latin = catchLatin(c, pack, directory);
         if (directory.names.has(latin)) counts[latin] = (counts[latin] || 0) + 1;
       }
+      /** Display the shared species counts using catalogue names when available. */
       const describe = (values) =>
         Object.entries(values || {})
           .map(([latin, n]) => (directory.names.get(latin)?.label || latin) + ' · ' + n)

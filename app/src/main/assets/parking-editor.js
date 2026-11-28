@@ -30,7 +30,9 @@ async function countryCamera(code) {
   };
 }
 
-/** @param {import('../../../../types/screens.js').ScreenContext} context */
+/** Resolve the parent water before creating or editing one of its parking places.
+ * @param {import('../../../../types/screens.js').ScreenContext} context
+ */
 export async function parkingEditor({ view, nav, waterDirectory }) {
   const water = waterDirectory.byId.get(view.route.id);
   if (!water) return nav.back();

@@ -61,6 +61,9 @@ const families = [
   'journal-restore',
   'community-ratings',
   'community-writes',
+  'private-messages',
+  'share-preview',
+  'native-guide',
   'app-journeys',
 ];
 const counts = {},

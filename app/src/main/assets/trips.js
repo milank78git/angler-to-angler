@@ -104,7 +104,9 @@ export async function listTrips({ view, nav, waterDirectory }) {
   };
   view.refreshWaters(waterDirectory);
 }
-/** @param {import('../../../../types/screens.js').ScreenContext} context */
+/** Load the original trip for editing or initialize a new journal entry.
+ * @param {import('../../../../types/screens.js').ScreenContext} context
+ */
 export async function tripForm({ view, nav, pack, waterDirectory }) {
   const { route } = view;
   const original = route.id ? await Journal.trip(route.id) : null;
@@ -200,7 +202,9 @@ export async function tripForm({ view, nav, pack, waterDirectory }) {
     );
   };
 }
-/** @param {import('../../../../types/screens.js').ScreenContext} context */
+/** Load a trip together with its catches and expose its journal actions.
+ * @param {import('../../../../types/screens.js').ScreenContext} context
+ */
 export async function tripScreen({ view, nav, pack, waterDirectory }) {
   const { id } = view.route;
   const [trip, catches] = await Promise.all([Journal.trip(id), Journal.catches(id)]);

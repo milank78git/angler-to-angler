@@ -33,7 +33,9 @@ async function photoCopy(id) {
   });
 }
 
-/** @param {import('../../../../types/screens.js').ScreenContext} context */
+/** Build a private preview and export precisely the fields the owner selected.
+ * @param {import('../../../../types/screens.js').ScreenContext} context
+ */
 export async function shareCard({ view, nav, pack }) {
   const { tripId, catchId } = view.route;
   const [trip, entry] = await Promise.all([
@@ -153,6 +155,7 @@ export async function shareCard({ view, nav, pack }) {
   };
   send.onclick = () => {
     if (!payload || !view.active()) return;
+    // Export the same completed snapshot displayed in the preview, even after several edits.
     if (window.Device?.shareCatch?.(payload.text, payload.jpeg)) {
       view.dirty = false;
     } else toast(t('share_card.could_not_open_sharing_please_retry'));

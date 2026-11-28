@@ -104,7 +104,9 @@ function ruleResult(pack, w) {
   );
   bind('watch-toggle', () => Device.reminder(key, !watching));
 }
-/** @param {import('../../../../types/screens.js').ScreenContext} context */
+/** Resolve the current water and display the applicable seasonal rules and reminders.
+ * @param {import('../../../../types/screens.js').ScreenContext} context
+ */
 export async function rulesScreen({ view, pack, nav, waterDirectory, hints }) {
   const { route } = view;
   const contextual = route.page === 'waterRules';
@@ -239,6 +241,7 @@ async function showWaterRules(view, pack, nav, waterDirectory, site) {
       route.day = by('rule-date').value;
       ruleResult(pack, w);
     };
+  /** Refresh the displayed rule when Android reports a change to the reminder. */
   const refresh = () => ruleResult(pack, w);
   window.addEventListener('reminderchange', refresh);
   view.dispose = () => window.removeEventListener('reminderchange', refresh);

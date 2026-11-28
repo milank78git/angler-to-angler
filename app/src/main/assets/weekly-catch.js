@@ -19,8 +19,11 @@ import {
   toast,
 } from './ui.js';
 
+/** Identify the weekly catch competition in the selected language. */
 const title = () => t('common.catch_of_the_week');
+/** Wrap the server's WebP bytes as a browser-readable image source. */
 const photoUrl = (bytes) => 'data:image/webp;base64,' + bytes;
+/** Label the action for entering a catch in the current competition. */
 const nominate = () => t('weekly_catch.enter_catch');
 
 /** Translate a competition rejection into a membership, timing or retry message. */
@@ -294,7 +297,9 @@ async function entryPreview(view, nav, pack, round) {
   });
 }
 
-/** @param {import('../../../../types/screens.js').ScreenContext} context */
+/** Load the round for the chosen group and render the available voting or entry actions.
+ * @param {import('../../../../types/screens.js').ScreenContext} context
+ */
 export async function weeklyBoard({ view, nav, pack }) {
   const r = view.route;
   let round;

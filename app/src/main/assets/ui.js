@@ -166,6 +166,7 @@ function writeEntry(view, nav, tripId, write, onError) {
 
 /** Mark the current draft dirty on edits from either input or change events. */
 function trackEdits(form, view) {
+  /** Mark the form dirty so navigating away requires a decision. */
   const changed = () => {
     view.dirty = true;
   };

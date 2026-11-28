@@ -41,21 +41,29 @@ import { rpc } from './profile-api.js';
 import { newJournalId } from './journal.js';
 import { today } from './domain.js';
 
+/** Use the localized market title across listing and error screens. */
 const market = () => t('market.title');
+/** Insert the credit amount into the language's market price label. */
 const credits = (n) => t('market.credit_amount').replace('{count}', String(n));
+/** Label the pilot action that claims the initial test credits. */
 const activate = () => t('market.claim_100_test_credits');
+/** Map stored access codes to the displayed fishing access options. */
 const access = () => ({
   shore: t('market.from_shore'),
   boat: t('market.from_a_boat'),
   both: t('market.shore_or_boat'),
 });
+/** Resolve shelf identifiers to the names shown in the market selector. */
 const shelves = () => ({
   browse: t('market.available'),
   purchased: t('market.purchased_tips'),
   mine: t('market.my_offers'),
 });
+/** Display the same localized edit action on the offer detail and editor screens. */
 const editLabel = () => t('market.edit_offer');
+/** Resolve a market water key against the active directory for display. */
 const waterName = (directory, key) => directory.byKey.get(key)?.name || '';
+/** Return the back control and the escaped heading for an offer screen. */
 const heading = (title) => back(t('common.back')) + '<h1>' + esc(title) + '</h1>';
 
 /** Translate the market rejection into the action available to the buyer or seller. */
@@ -140,7 +148,9 @@ function claim(view, nav) {
   );
 }
 
-/** @param {import('../../../../types/screens.js').ScreenContext} context */
+/** Load the requested shelf, water filter and cursor for the current store edition.
+ * @param {import('../../../../types/screens.js').ScreenContext} context
+ */
 export async function marketShelf({ view, nav, waterDirectory }) {
   const { shelf = 'browse', cursor = null, water = null } = view.route;
   const play = playEdition();
@@ -269,7 +279,9 @@ function walletUnavailable() {
   );
 }
 
-/** @param {import('../../../../types/screens.js').ScreenContext} context */
+/** Load the offer revision and the actions available to its current viewer.
+ * @param {import('../../../../types/screens.js').ScreenContext} context
+ */
 export async function marketDetail({ view, nav, waterDirectory }) {
   const { id } = view.route;
   const play = playEdition();
@@ -430,6 +442,7 @@ export async function marketEditor({ view, nav, waterDirectory }) {
   const commercialTerms = old ? old.commercial === true : playEdition();
   const initialWater = old?.water ?? route.water;
   const deviceZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+  /** Use the selected water's timezone when validating an offer's local availability dates. */
   const zoneOf = (water) => water?.zone || deviceZone;
   const currentDay = today(zoneOf(waterDirectory.byKey.get(initialWater)));
   replaceMarkup(
@@ -536,6 +549,7 @@ export async function marketEditor({ view, nav, waterDirectory }) {
   trackEdits(form, view);
   form.onsubmit = (event) => {
     event.preventDefault();
+    /** Read the current value from the matching offer editor control. */
     const val = (id) =>
       /** @type {HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement} */ (
         by('offer-' + id)

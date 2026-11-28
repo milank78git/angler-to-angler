@@ -21,7 +21,9 @@ export function replaceMarkup(target, markup) {
   target.replaceChildren(fragment(markup));
 }
 
-/** @param {Element} target @param {'beforeend'|'beforebegin'|'afterend'|'afterbegin'} position @param {string} markup */
+/** Insert the sanitized fragment at the requested position relative to its target.
+ * @param {Element} target @param {'beforeend'|'beforebegin'|'afterend'|'afterbegin'} position @param {string} markup
+ */
 export function insertMarkup(target, position, markup) {
   const nodes = fragment(markup);
   switch (position) {

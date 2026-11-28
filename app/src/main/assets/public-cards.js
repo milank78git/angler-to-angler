@@ -21,8 +21,11 @@ import {
   toast,
 } from './ui.js';
 
+/** Use the same localized title when editing or reviewing a public catch card. */
 const title = () => t('common.public_catch_card');
+/** Identify the owner's list of published catch cards. */
 const mine = () => t('common.my_public_cards');
+/** Render an unchecked sharing choice so optional details require the owner's selection. */
 const checkbox = (id, label) =>
   '<label class="card-option"><input type="checkbox" id="' + id + '">' + esc(label) + '</label>';
 
@@ -61,6 +64,7 @@ function linkControls(host, item, view, nav) {
   const group = document.createElement('div');
   group.className = 'actions';
   replaceMarkup(group, link(url.href, t('public_cards.open_public_card')));
+  /** Attach an action to this card without submitting the surrounding form. */
   const add = (label, cls, action) => {
     const btn = document.createElement('button');
     btn.type = 'button';

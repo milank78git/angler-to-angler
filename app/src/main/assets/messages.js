@@ -19,7 +19,9 @@ import {
   trackEdits,
 } from './ui.js';
 
+/** Use the same localized heading for inbox navigation and individual conversations. */
 const inboxTitle = () => t('common.private_messages');
+/** Keep the private send action and its confirmation in the same language. */
 const sendLabel = () => t('messages.send_privately');
 const stamp = new Intl.DateTimeFormat(languageTag, { dateStyle: 'medium', timeStyle: 'short' });
 /** Select the localized recovery message for the messaging service status. */
@@ -75,7 +77,9 @@ function listShell() {
   );
 }
 
-/** @param {import('../../../../types/screens.js').ScreenContext} context */
+/** Append inbox pages without losing unread markers or the thread selected by the reader.
+ * @param {import('../../../../types/screens.js').ScreenContext} context
+ */
 export async function messageInbox({ view, nav }) {
   replaceMarkup(
     screen,
@@ -109,7 +113,9 @@ export async function messageInbox({ view, nav }) {
   );
 }
 
-/** @param {import('../../../../types/screens.js').ScreenContext} context */
+/** Read the newest visible message, expose permitted actions and keep earlier pages available.
+ * @param {import('../../../../types/screens.js').ScreenContext} context
+ */
 export async function messageThread({ view, nav }) {
   const { threadId = null, questionId = null } = view.route;
   replaceMarkup(
@@ -128,6 +134,7 @@ export async function messageThread({ view, nav }) {
   );
   bindBack(nav);
   bind('thread-refresh', () => nav.show());
+  /** Request the next history page for the open thread or the original question. */
   const read = (before_position) =>
     rpc('message_history', { thread_id: threadId, question_id: questionId, before_position });
   await listPages(
@@ -135,6 +142,7 @@ export async function messageThread({ view, nav }) {
     read,
     (data, first) => {
       if (first) {
+        // Mark only through the newest item on the first page. Older pages cannot advance the read cursor.
         if (data.threadId && data.items.length)
           rpc('message_read', { thread_id: data.threadId, through_position: data.items[0].id }).catch(
             () => {},
@@ -239,7 +247,9 @@ export async function messageThread({ view, nav }) {
   );
 }
 
-/** @param {import('../../../../types/screens.js').ScreenContext} context */
+/** Keep a draft and its request ID until the service acknowledges the same message.
+ * @param {import('../../../../types/screens.js').ScreenContext} context
+ */
 export function messageComposer({ view, nav }) {
   const { threadId, questionId, peerName, questionText } = view.route;
   replaceMarkup(
@@ -288,6 +298,7 @@ export function messageComposer({ view, nav }) {
       message: peerName + '\n\n' + message,
     });
     if (!accepted || !view.active()) return;
+    // A retry with unchanged contents must keep its original idempotency key.
     if (attempt?.message !== message)
       attempt = { thread_id: threadId, question_id: questionId, request_id: newJournalId(), message };
     error.textContent = '';

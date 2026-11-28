@@ -123,8 +123,11 @@ export function atlasMap(host, route, openWater, picker = null) {
     frame;
   const pointers = new Map(),
     visibleShapes = new Map();
+  /** Use a stable drawing width before the map obtains its laid-out size. */
   const width = () => svg.clientWidth || 320,
+    /** Use a stable drawing height before the map obtains its laid-out size. */
     height = () => svg.clientHeight || 300;
+  /** Convert the current tile zoom level to projected world pixels. */
   const unit = () => 256 * 2 ** camera.level;
   /** Change the camera scale for the current atlas viewport. */
   function zoom(level, x = width() / 2, y = height() / 2) {
@@ -172,6 +175,7 @@ export function atlasMap(host, route, openWater, picker = null) {
     const w = width(),
       h = height(),
       s = unit(),
+      /** Translate a point relative to the camera centre into viewport coordinates. */
       project = ([x, y]) => [w / 2 + (x - camera.x) * s, h / 2 + (y - camera.y) * s];
     const [x, y] = project([0, 0]);
     svg.setAttribute('viewBox', [0, 0, w, h].join(' '));
@@ -250,6 +254,7 @@ export function atlasMap(host, route, openWater, picker = null) {
     draw();
   };
   if (picker) by('map-count').hidden = true;
+  /** Discard cached tile results and redraw the current map viewport. */
   const retry = () => {
     tiles.clear();
     draw();

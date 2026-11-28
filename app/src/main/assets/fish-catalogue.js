@@ -27,6 +27,7 @@ export function setFishingRules(rules) {
   cache = null;
 }
 let requestId = 1000000;
+/** Load a named fish catalogue resource and surface a missing edition. */
 const json = async (name) => {
   const response = await fetch(name + '.json');
   if (!response.ok) throw Error(name);
@@ -74,11 +75,15 @@ export function countryName(code) {
     return code;
   }
 }
+/** Show the scientific name once when the display name already matches it. */
 export const fishOption = (fish) =>
   fish.label === fish.latin ? fish.latin : fish.label + ' · ' + fish.latin;
 
+/** Resolve a catalogue entry's translation key using the current dictionary. */
 const words = (entry) => t(entry.message);
+/** Label the catalogue scope that includes all European entries. */
 const fullList = () => t('fish_catalogue.all_of_europe');
+/** Use the same translated title when linking to or opening the fish catalogue. */
 const catalogue = () => t('fish_catalogue.title');
 
 /** Both pickers use one persisted country and the same searchable species list. */
@@ -226,6 +231,7 @@ export async function fishCatalogue({ view, nav }) {
     route.limit = (route.limit || 50) + 50;
     render();
   });
+  /** Ignore unrelated location replies when choosing the fish catalogue's country. */
   const receive = async ({ detail }) => {
     if (!pending || detail.id !== pending) return;
     try {

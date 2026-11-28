@@ -20,6 +20,7 @@ function today(zone, instant = new Date()) {
     month: '2-digit',
     day: '2-digit',
   }).formatToParts(instant);
+  /** Read a calendar component by type without depending on the formatter's field order. */
   const get = (type) => parts.find((p) => p.type === type).value;
   return get('year') + '-' + get('month') + '-' + get('day');
 }

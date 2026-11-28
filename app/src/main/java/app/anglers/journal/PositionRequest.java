@@ -28,6 +28,7 @@ final class PositionRequest {
   private boolean permissionPending;
   private Mode mode = Mode.STANDARD;
   private LocationListener listener;
+  /** Finish the pending Android location request without a fix when its deadline expires. */
   private final Runnable timeout = () -> finish(active, null);
 
   /** Bind native location results to the owning activity and callback. */

@@ -59,6 +59,7 @@ export function createWaterDirectory(
   for (const w of internationalWaters) {
     waters.push({ ...w, key: w.id, country: 'US', provider: 'FWP' });
   }
+  /** Overlay the current edition's outlines on the available water shapes when the map requests them. */
   const geography = async () => ({ ...(shapes ?? (await loadWaterShapes())), ...outlines });
   return {
     waters,

@@ -1,3 +1,4 @@
+/** Create an identifier for a new private record or a retryable write before contacting a service. */
 export const newJournalId = () =>
   typeof crypto.randomUUID === 'function'
     ? crypto.randomUUID()
@@ -24,6 +25,7 @@ export function createJournal(factory = globalThis.indexedDB, name = 'angler-fie
       req.onsuccess = () => {
         const db = req.result;
         const opened = connection;
+        /** Release the cached connection only if it still refers to the database that closed. */
         const forget = () => {
           if (connection === opened) connection = undefined;
         };
@@ -153,8 +155,10 @@ export function createJournal(factory = globalThis.indexedDB, name = 'angler-fie
       };
     });
   }
+  /** Serialize journal writers across tabs when the browser supplies the Web Locks API. */
   const lock = (operation) =>
     globalThis.navigator?.locks ? navigator.locks.request(name + ':write', operation) : operation();
+  /** Notify journal observers only after the underlying write has completed successfully. */
   const change =
     (operation) =>
     (...args) =>

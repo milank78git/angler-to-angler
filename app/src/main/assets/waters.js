@@ -44,6 +44,7 @@ export function waterMap(w, rivers, boundariesOnly = false, interactive = false)
     292 / (Math.max(...xs) - Math.min(...xs)),
     120 / (Math.max(...ys) - Math.min(...ys)),
   );
+  /** Project river coordinates into the compact water preview. */
   const xy = (p) => [(170 + (p[0] * cos - cx) * scale).toFixed(1), (85 - (p[1] - cy) * scale).toFixed(1)];
   const paths = lines.map((line) => {
     const points = line.map((p) => xy(p).join(',')).join(' ');
@@ -115,7 +116,9 @@ function coverage(directory, country) {
   );
 }
 
-/** @param {import('../../../../types/screens.js').ScreenContext} context */
+/** Build the interactive water list from the active directory and available parking data.
+ * @param {import('../../../../types/screens.js').ScreenContext} context
+ */
 export async function listWaters({ view, pack, nav, waterDirectory }) {
   const parking = await parkingPoints().catch(() => null);
   if (!view.active()) return;
@@ -302,6 +305,7 @@ export async function listWaters({ view, pack, nav, waterDirectory }) {
     status.textContent = t('atlas.locating');
     window.Device.atlasLocation(pending);
   }
+  /** Accept a location reply only for the pending request from this water list. */
   const receive = async ({ detail }) => {
     if (!pending || detail.id !== pending) return;
     try {
@@ -501,7 +505,9 @@ function bindWaterActions(nav, water) {
   bind('water-market', () => nav.open('marketShelf', { water: water.key }));
 }
 
-/** @param {import('../../../../types/screens.js').ScreenContext} context */
+/** Resolve the current water and present its map, local information and community actions.
+ * @param {import('../../../../types/screens.js').ScreenContext} context
+ */
 export function waterScreen({ view, pack, rivers, nav, waterDirectory }) {
   const { route } = view;
   const site = waterDirectory.byId.get(route.id);
@@ -591,6 +597,7 @@ export function waterScreen({ view, pack, rivers, nav, waterDirectory }) {
     else waterReports(by('water-reports'), site.key, view);
     return;
   }
+  /** Render the symbol and escaped text for a point of interest on this water. */
   const landmark = (mark, text) =>
     `<li><span class="point p${mark === '!' ? 'danger' : mark}">${mark}</span>${esc(text)}</li>`;
   replaceMarkup(

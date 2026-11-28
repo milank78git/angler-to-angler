@@ -52,7 +52,9 @@ export function showError(view, nav, error) {
   if (by('sign-in')) bind('sign-in', () => window.Device.profileSignIn());
 }
 
-/** @param {import('../../../../types/screens.js').ScreenContext} context */
+/** Load the owner's profile or another angler's visible card for the selected route.
+ * @param {import('../../../../types/screens.js').ScreenContext} context
+ */
 export async function profileScreen({ view, nav }) {
   const id = view.route.id || null;
   const own = !id;
@@ -155,7 +157,9 @@ export async function profileScreen({ view, nav }) {
   }
 }
 
-/** @param {import('../../../../types/screens.js').ScreenContext} context */
+/** Load the current profile and retain the editor while the user reviews and submits changes.
+ * @param {import('../../../../types/screens.js').ScreenContext} context
+ */
 export async function editProfile({ view, nav }) {
   let card;
   try {
@@ -313,7 +317,9 @@ export async function editProfile({ view, nav }) {
   };
 }
 
-/** @param {import('../../../../types/screens.js').ScreenContext} context */
+/** List the directory page selected by the current search and pagination state.
+ * @param {import('../../../../types/screens.js').ScreenContext} context
+ */
 export async function directoryScreen({ view, nav }) {
   let page;
   try {

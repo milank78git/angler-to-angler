@@ -35,6 +35,7 @@ export async function competitionPhoto(file, edge) {
   const buffer = await webp.arrayBuffer(),
     bytes = new Uint8Array(buffer),
     view = new DataView(buffer);
+  /** Read a four-byte WebP chunk identifier at the supplied offset. */
   const type = (offset) => view.getUint32(offset);
   if (bytes.length < 20 || type(0) !== 0x52494646 || type(8) !== 0x57454250) throw Error('WebP');
   for (let offset = 12; offset + 8 <= bytes.length; ) {

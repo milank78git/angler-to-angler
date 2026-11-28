@@ -157,6 +157,7 @@ async function parkingFeedback(host, point, onSummary) {
 export async function waterParking(host, water, nav) {
   const bundled = (await parkingPoints().catch(() => ({})))[water.key] || [];
   if (!host.isConnected) return;
+  /** Open the parking editor with its parent water and the selected parking record. */
   const edit = (parking) => nav.open('parkingEditor', { id: water.id, parking });
   replaceMarkup(
     host,
@@ -230,6 +231,7 @@ export async function waterParking(host, water, nav) {
         const stats = document.createElement('p');
         stats.className = 'meta';
         card.append(stats);
+        /** Refresh a parking entry's displayed score and note count after a community change. */
         const update = (row) => {
           stats.textContent = score(row) + ' · ' + t('parking.notes') + ' (' + row.notes + ')';
         };

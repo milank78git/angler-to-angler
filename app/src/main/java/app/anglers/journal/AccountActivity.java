@@ -575,6 +575,7 @@ public final class AccountActivity extends LocalizedActivity {
               }
               if (!terms.isChecked() || !privacy.isChecked()) return;
               String date = birth == null ? null : birth.getText().toString().trim();
+              /** Submit the collected registration details after any required date confirmation. */
               Runnable register = () -> submitRegistration(name, date, firstRegistration);
               if (birth == null) {
                 register.run();
@@ -596,6 +597,7 @@ public final class AccountActivity extends LocalizedActivity {
               }
             });
     submit.setEnabled(false);
+    /** Enable registration only after both legal acknowledgements have been checked. */
     CompoundButton.OnCheckedChangeListener update =
         (box, value) -> submit.setEnabled(terms.isChecked() && privacy.isChecked());
     terms.setOnCheckedChangeListener(update);
@@ -640,6 +642,7 @@ public final class AccountActivity extends LocalizedActivity {
       login();
       return;
     }
+    /** Activate the account without linking an earlier journal to it. */
     Runnable fresh = () -> activate(result, false);
     if (AccountStore.prefs(this).contains("legacyOwner")) {
       fresh.run();

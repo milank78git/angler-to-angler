@@ -21,10 +21,12 @@ import android.widget.Toast;
 public final class FishingActivity extends LocalizedActivity {
   private static final int PHOTO = 51, NOTIFY = 53, LICENSE_NOTIFY = 56, CAMERA = 54, CAMERA_FIX = Integer.MAX_VALUE;
   private WebView web;
+  /** Notify the WebView when Android installs a different atlas revision. */
   private final android.content.SharedPreferences.OnSharedPreferenceChangeListener atlasListener = (prefs, key) -> {
     if (WaterCatalogue.REVISION.equals(key) && web != null)
       web.evaluateJavascript("window.waterCatalogueChanged && window.waterCatalogueChanged()", null);
   };
+  /** Apply reading preferences when Android reports a settings change. */
   private final android.content.SharedPreferences.OnSharedPreferenceChangeListener appearanceListener =
       (preferences, key) -> applyReadingPreferences();
 

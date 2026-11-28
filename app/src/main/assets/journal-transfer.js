@@ -8,13 +8,17 @@ function toBase64(bytes) {
   for (let i = 0; i < bytes.length; i += 8192) value += String.fromCharCode(...bytes.subarray(i, i + 8192));
   return btoa(value);
 }
+/** Restore the raw bytes of a journal attachment from its transfer representation. */
 const fromBase64 = (data) => Uint8Array.from(atob(data), (char) => char.charCodeAt(0));
+/** Compute the SHA-256 identifier used to compare transferred content. */
 const hash = async (bytes) =>
   Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)), (b) =>
     b.toString(16).padStart(2, '0'),
   ).join('');
+/** Serialize an optional photo with its MIME type for transfer to another journal. */
 const photoData = async (blob) =>
   blob ? { type: blob.type, data: toBase64(new Uint8Array(await blob.arrayBuffer())) } : null;
+/** Restore an optional transferred photo as a typed binary blob. */
 const photoBlob = (photo) => (photo ? new Blob([fromBase64(photo.data)], { type: photo.type }) : null);
 
 /** Export only portable preferences that belong to this subject or the approved global set. */

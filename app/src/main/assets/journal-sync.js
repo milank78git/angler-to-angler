@@ -15,9 +15,12 @@ import { languageTag } from './i18n.js';
 const restricted = window.Device?.groupSharingOnly?.();
 const subject = restricted ? null : window.Device?.subjectId?.();
 const prefix = 'journal.sync.v1.' + subject + '.';
+/** Attach this subject's sync epoch to each journal operation. */
 const call = (op, args) =>
   rpc('journal_sync', { op, args: { epoch: localStorage.getItem(prefix + 'epoch'), ...args } });
+/** Send a photo operation through the same subject-scoped journal dispatcher. */
 export const photoRequest = (op, args) => call(op, args);
+/** Compare ordered lists without treating a different part order as equivalent. */
 const same = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
 const choiceKey = prefix + 'enabled';
 let status = enabled() ? 'waiting' : 'disabled';
@@ -289,6 +292,7 @@ export function bindJournalSync(panel, waters) {
       previous.textContent = t('sync.last_success').replace('{time}', stamp);
       panel.append(previous);
     }
+    /** Create a localized sync recovery action that cannot submit an enclosing form. */
     const button = (labelKey, action) => {
       const el = document.createElement('button');
       el.type = 'button';

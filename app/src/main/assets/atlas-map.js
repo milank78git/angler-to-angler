@@ -2,6 +2,7 @@ import { replaceMarkup } from './markup.js';
 import { countryBorders } from './country-lookup.js';
 import { by, esc, t, toast } from './ui.js';
 
+/** Accept only a longitude and latitude pair inside geographic bounds. */
 const valid = (p) =>
   Array.isArray(p) &&
   p.length === 2 &&
@@ -44,6 +45,7 @@ function projection(points, width, height, padding) {
   ];
 }
 
+/** Project each point of a line into an SVG move and line sequence. */
 const path = (line, xy) => 'M' + line.map((p) => xy(p).join(' ')).join('L');
 /** Load the available locator boundaries for this water's country. */
 async function countryOutline(country) {
@@ -61,6 +63,7 @@ function sketch(feature, country, neighbours) {
     142,
     20,
   );
+  /** Close each projected boundary separately so polygon holes are retained. */
   const rings = (polygon, project) => polygon.map((ring) => path(ring, project) + 'Z').join('');
   const [x, y] = xy(target);
   const labelled = [];

@@ -1,7 +1,7 @@
 """Render per-line definition and call comments without changing packaged code or migration checksums."""
 import argparse
 import bisect
-from collections import Counter, defaultdict
+from collections import Counter, defaultdict, deque
 from dataclasses import dataclass
 from html import escape
 from pathlib import Path
@@ -69,15 +69,25 @@ def function_name(node):
 
 def nearby_doc(node):
     """Read the semantic part of the adjacent source comment, skipping pure type declarations."""
-    while node.parent and node.parent.type in {'export_statement', 'lexical_declaration', 'variable_declarator', 'pair'}:
+    wrappers = {'export_statement', 'lexical_declaration', 'variable_declarator', 'pair',
+                'field_declaration', 'local_variable_declaration'}
+    while node:
+        prev, start = node.prev_named_sibling, node.start_point.row
+        while prev and prev.type in {'comment', 'block_comment', 'line_comment'} and start <= prev.end_point.row + 1:
+            value = re.sub(r'^/\*+|\*/$|^//\s*', '', prev.text.decode().strip())
+            value = ' '.join(line.strip().lstrip('*').strip() for line in value.splitlines()).strip()
+            description = re.split(r'(?:^|\s)@(param|returns?|template|type|override)\b', value, maxsplit=1)[0].strip()
+            if description:
+                return description
+            start, prev = prev.start_point.row, prev.prev_named_sibling
+        if not node.parent or node.parent.type not in wrappers:
+            break
+        # In a compound declaration the first binding's comment does not describe its siblings.
+        if node.parent.type == 'lexical_declaration' and any(
+            child.type == 'variable_declarator' and child.start_byte < node.start_byte for child in node.parent.named_children
+        ):
+            break
         node = node.parent
-    prev = node.prev_named_sibling
-    while prev and prev.type in {'comment', 'block_comment', 'line_comment'} and node.start_point.row <= prev.end_point.row + 1:
-        value = re.sub(r'^/\*+|\*/$|^//\s*', '', prev.text.decode().strip())
-        value = ' '.join(line.strip().lstrip('*').strip() for line in value.splitlines()).strip()
-        if value and not value.startswith('@'):
-            return value
-        node, prev = prev, prev.prev_named_sibling
     return ''
 
 
@@ -193,6 +203,10 @@ def syntax_notes(path, symbols):
         if node.type in FUNCTIONS:
             name = function_name(node)
             doc = nearby_doc(node)
+            named = node.type in {'function_declaration', 'generator_function_declaration', 'method_declaration',
+                                  'method_definition', 'constructor_declaration'} or node.parent.type == 'variable_declarator'
+            if named and not doc:
+                raise ValueError(f'Add an English source comment for {name} at {path}:{line + 1}')
             owner = name
             params = node.child_by_field_name('parameters') or node.child_by_field_name('parameter')
             signature = name + (' ' + short(params) if params else '')
@@ -265,18 +279,28 @@ def render_note(note):
 def read_coverage(path):
     """Merge LCOV line hits for the same source, including modules imported with query suffixes."""
     hits = defaultdict(dict)
+    functions = defaultdict(dict)
     current = None
     if path:
         for line in path.read_text().splitlines():
             if line.startswith('SF:'):
                 current = (ROOT / line[3:].split('?', 1)[0]).resolve()
+                # Node emits declarations and their counters in the same order, including duplicate names.
+                pending = defaultdict(deque)
             elif line.startswith('DA:') and current:
                 number, count, *_ = line[3:].split(',')
                 number = int(number)
                 hits[current][number] = max(hits[current].get(number, 0), int(count))
+            elif line.startswith('FN:') and current:
+                number, name = line[3:].split(',', 1)
+                pending[name].append((int(number), name, len(pending[name])))
+            elif line.startswith('FNDA:') and current:
+                count, name = line[5:].split(',', 1)
+                function = pending[name].popleft()
+                functions[current][function] = max(functions[current].get(function, 0), int(count))
             elif line == 'end_of_record':
                 current = None
-    return hits
+    return hits, functions
 
 
 def build(output, coverage=None):
@@ -288,7 +312,8 @@ def build(output, coverage=None):
     known = {name for name, _ in DB['signatures']()}
     for path in migrations:
         known.update(match.group(2).lower() for match in DB['definition'].finditer(path.read_text()))
-    hits = read_coverage(coverage)
+    hits, functions = read_coverage(coverage)
+    missing = []
     symbols = Symbols(sources)
     links = []
     totals = Counter()
@@ -310,8 +335,16 @@ def build(output, coverage=None):
         totals.update(counts)
         lines = hits.get(path, {})
         observed = f' · Node lines hit {sum(value > 0 for value in lines.values())}/{len(lines)}' if lines else ' · outside this Node run'
+        if functions[path]:
+            observed += f' · functions reached {sum(count > 0 for count in functions[path].values())}/{len(functions[path])}'
+            for (line, name, _), count in sorted(functions[path].items()):
+                if not count:
+                    missing.append(f'<li><a href="{output_name}#L{line}">{escape(title)} · line {line} · {escape(name)}</a></li>')
         links.append(f'<li><a href="{output_name}">{escape(title)}</a> · {counts["Definition"]} definitions · {counts["Call"]} calls{observed}</li>')
     (output / 'index.html').write_text(page('Annotated application source', '<p>Columns identify UTF-8 byte positions for JavaScript, TypeScript and Java. SQL listings identify project calls in routine bodies. Runtime dispatch is shown as written.</p><ul>' + '\n'.join(links) + '</ul>'))
+    if coverage:
+        index_path = output / 'index.html'
+        index_path.write_text(index_path.read_text() + f'<h2>Functions missed in the Node run ({len(missing)})</h2><ul>' + ''.join(missing) + '</ul>')
     print(f'{len(links)} files, {totals["Definition"]} definitions, {totals["Call"]} call sites')
 
 

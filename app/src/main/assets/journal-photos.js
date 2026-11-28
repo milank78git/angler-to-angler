@@ -1,5 +1,6 @@
 /** Keep binary originals independent of revisions to the trip that describes them. */
 const partSize = 65536;
+/** Identify the exact photo bytes for journal deduplication and retention checks. */
 export const photoHash = async (blob) =>
   Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', await blob.arrayBuffer())), (b) =>
     b.toString(16).padStart(2, '0'),

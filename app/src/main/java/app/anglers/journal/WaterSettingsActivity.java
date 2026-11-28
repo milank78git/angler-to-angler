@@ -20,10 +20,12 @@ public final class WaterSettingsActivity extends LocalizedActivity {
     return c.getSharedPreferences("appearance",MODE_PRIVATE).getBoolean("large",false) ? 1.3f : 1f;
   }
 
+  /** Refresh the atlas status when the local edition or its check time changes. */
   private final android.content.SharedPreferences.OnSharedPreferenceChangeListener editionListener = (prefs, key) -> {
     if (WaterCatalogue.CHECKED.equals(key) || WaterCatalogue.REVISION.equals(key)) showStatus();
   };
 
+  /** Refresh the subscription status when Android's alert preferences change. */
   private final android.content.SharedPreferences.OnSharedPreferenceChangeListener alertListener =
       (prefs, key) -> showSubscriptionStatus();
 

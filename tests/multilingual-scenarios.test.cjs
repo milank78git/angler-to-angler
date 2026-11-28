@@ -16,6 +16,9 @@ const minimum = {
   'journal-restore': 60,
   'community-ratings': 8,
   'community-writes': 359,
+  'private-messages': 51,
+  'share-preview': 68,
+  'native-guide': 36,
   'app-journeys': 4,
 };
 test('the same behavioral contracts hold in each selected app language', async (t) => {
@@ -26,6 +29,7 @@ test('the same behavioral contracts hold in each selected app language', async (
     await t.test(locale, (child) => {
       const output = execFileSync(process.execPath, [path.join(__dirname, 'scenarios/suite.mjs'), locale], {
         encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe'],
       });
       const report = JSON.parse(output);
       assert.equal(report.locale, locale);

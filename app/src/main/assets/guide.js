@@ -4,7 +4,9 @@ import { fold } from './domain.js';
 let chapters;
 let previousFocus;
 let request = 0;
+/** Look up a guide control in the current embedded or standalone document. */
 const get = (id) => document.getElementById(id);
+/** Create a guide element with text content so translations are displayed literally. */
 const node = (tag, value) => Object.assign(document.createElement(tag), { textContent: value });
 
 /** Create a guide button whose activation stays within the current editing session. */

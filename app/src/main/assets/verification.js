@@ -111,7 +111,9 @@ function localTime(value) {
   return new Date(value).toLocaleString(document.documentElement.lang);
 }
 
-/** @param {import('../../../../types/screens.js').ScreenContext} context */
+/** List the signed-in angler's evidence and the controls available for each catch.
+ * @param {import('../../../../types/screens.js').ScreenContext} context
+ */
 export async function evidenceScreen({ view, nav }) {
   let page;
   try {
@@ -190,7 +192,9 @@ export async function evidenceScreen({ view, nav }) {
   );
 }
 
-/** @param {import('../../../../types/screens.js').ScreenContext} context */
+/** Load the evidence assigned to the reviewer before enabling a decision.
+ * @param {import('../../../../types/screens.js').ScreenContext} context
+ */
 export async function reviewScreen({ view, nav }) {
   let item;
   try {

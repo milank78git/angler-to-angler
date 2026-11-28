@@ -21,10 +21,15 @@ import {
 } from './ui.js';
 
 const postTime = new Intl.DateTimeFormat(languageTag, { dateStyle: 'medium', timeStyle: 'short' });
+/** Identify the observations and questions section of a water discussion. */
 const questions = () => t('common.observations_and_questions');
+/** Label the author's action to withdraw an eligible post. */
 const withdraw = () => t('discussion.withdraw_post');
+/** Display the placeholder for a post whose text has been removed. */
 const removed = () => t('discussion.the_text_of_this_post_was_removed');
+/** Explain the withdrawal restriction for posts that already have text replies. */
 const linked = () => t('discussion.this_post_has_a_text_reply_and');
+/** Label the action used to flag a discussion post for review. */
 const report = () => t('discussion.report_post');
 
 /** Choose the translated recovery message for the discussion service response. */
@@ -148,6 +153,7 @@ export async function waterDiscussion({ view, nav, waterDirectory }) {
       action(card, t('discussion.open_post'), () => nav.open('waterDiscussion', { id, questionId: item.id }));
       return card;
     }
+    /** Display the localized rejection for an unsuccessful discussion action. */
     const failed = (err) => toast(errorText(err));
     if (item.removed) return card;
     if (item.mine && !item.canWithdraw) {

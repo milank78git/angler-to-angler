@@ -25,6 +25,7 @@ export function bindGroupTip(view, nav, tripId, getText) {
     feedback = by('tip-feedback');
   let loading = false,
     attempt;
+  /** Enable group selection and posting only when a tip and its required destination exist. */
   const sync = () => {
     choose.disabled = loading || !getText();
     post.disabled = !getText() || !select.value;

@@ -162,6 +162,7 @@ async function start() {
     if (nav.current?.route.page === 'trips') nav.show();
   });
   const system = matchMedia('(prefers-color-scheme: dark)');
+  /** Apply the saved theme, falling back to the Android or browser preference on a new installation. */
   const sync = () =>
     setTheme(
       localStorage.getItem('ui.theme') ||
@@ -177,6 +178,7 @@ async function start() {
     setTheme(mode);
   });
   try {
+    /** Read a bundled catalogue resource and surface a missing file to the startup recovery screen. */
     const json = async (path) => {
       const response = await fetch(path);
       if (!response.ok) throw Error(path);
